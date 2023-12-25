@@ -1,0 +1,17 @@
+/bin/*
+/bin/Debug
+/obj/Debug
+/bin/Release
+/obj/Release
+/FileContentIndex
+.vs/*
+.vs/
+/.vs
+/.vs/*
+
+*.nupkg
+*.nuspec
+*.suo
+*.user
+*.userosscache
+*.sln.docstates

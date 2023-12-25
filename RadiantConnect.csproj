@@ -1,0 +1,91 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="RankIcons\Ascendant 1.png" />
+    <None Remove="RankIcons\Ascendant 2.png" />
+    <None Remove="RankIcons\Ascendant 3.png" />
+    <None Remove="RankIcons\Ascent.png" />
+    <None Remove="RankIcons\Bind.png" />
+    <None Remove="RankIcons\Breeze.png" />
+    <None Remove="RankIcons\Bronze 1.png" />
+    <None Remove="RankIcons\Bronze 2.png" />
+    <None Remove="RankIcons\Bronze 3.png" />
+    <None Remove="RankIcons\Diamond 1.png" />
+    <None Remove="RankIcons\Diamond 2.png" />
+    <None Remove="RankIcons\Diamond 3.png" />
+    <None Remove="RankIcons\Fracture.png" />
+    <None Remove="RankIcons\Gold 1.png" />
+    <None Remove="RankIcons\Gold 2.png" />
+    <None Remove="RankIcons\Gold 3.png" />
+    <None Remove="RankIcons\Haven.png" />
+    <None Remove="RankIcons\Icebox.png" />
+    <None Remove="RankIcons\Immortal 1.png" />
+    <None Remove="RankIcons\Immortal 2.png" />
+    <None Remove="RankIcons\Immortal 3.png" />
+    <None Remove="RankIcons\Iron 1.png" />
+    <None Remove="RankIcons\Iron 2.png" />
+    <None Remove="RankIcons\Iron 3.png" />
+    <None Remove="RankIcons\Lotus.png" />
+    <None Remove="RankIcons\Platinum 1.png" />
+    <None Remove="RankIcons\Platinum 2.png" />
+    <None Remove="RankIcons\Platinum 3.png" />
+    <None Remove="RankIcons\Radiant.png" />
+    <None Remove="RankIcons\settingsIcon.png" />
+    <None Remove="RankIcons\Silver 1.png" />
+    <None Remove="RankIcons\Silver 2.png" />
+    <None Remove="RankIcons\Silver 3.png" />
+    <None Remove="RankIcons\Split.png" />
+    <None Remove="RankIcons\SpotifyIcon.png" />
+    <None Remove="RankIcons\Sunset.png" />
+    <None Remove="RankIcons\Unranked.png" />
+    <None Remove="RankIcons\ValorantIcon.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="RankIcons\Ascendant 1.png" />
+    <Resource Include="RankIcons\Ascendant 2.png" />
+    <Resource Include="RankIcons\Ascendant 3.png" />
+    <Resource Include="RankIcons\Ascent.png" />
+    <Resource Include="RankIcons\Bind.png" />
+    <Resource Include="RankIcons\Breeze.png" />
+    <Resource Include="RankIcons\Bronze 1.png" />
+    <Resource Include="RankIcons\Bronze 2.png" />
+    <Resource Include="RankIcons\Bronze 3.png" />
+    <Resource Include="RankIcons\Diamond 1.png" />
+    <Resource Include="RankIcons\Diamond 2.png" />
+    <Resource Include="RankIcons\Diamond 3.png" />
+    <Resource Include="RankIcons\Fracture.png" />
+    <Resource Include="RankIcons\Gold 1.png" />
+    <Resource Include="RankIcons\Gold 2.png" />
+    <Resource Include="RankIcons\Gold 3.png" />
+    <Resource Include="RankIcons\Haven.png" />
+    <Resource Include="RankIcons\Icebox.png" />
+    <Resource Include="RankIcons\Immortal 1.png" />
+    <Resource Include="RankIcons\Immortal 2.png" />
+    <Resource Include="RankIcons\Immortal 3.png" />
+    <Resource Include="RankIcons\Iron 1.png" />
+    <Resource Include="RankIcons\Iron 2.png" />
+    <Resource Include="RankIcons\Iron 3.png" />
+    <Resource Include="RankIcons\Lotus.png" />
+    <Resource Include="RankIcons\Platinum 1.png" />
+    <Resource Include="RankIcons\Platinum 2.png" />
+    <Resource Include="RankIcons\Platinum 3.png" />
+    <Resource Include="RankIcons\Radiant.png" />
+    <Resource Include="RankIcons\settingsIcon.png" />
+    <Resource Include="RankIcons\Silver 1.png" />
+    <Resource Include="RankIcons\Silver 2.png" />
+    <Resource Include="RankIcons\Silver 3.png" />
+    <Resource Include="RankIcons\Split.png" />
+    <Resource Include="RankIcons\SpotifyIcon.png" />
+    <Resource Include="RankIcons\Sunset.png" />
+    <Resource Include="RankIcons\Unranked.png" />
+    <Resource Include="RankIcons\ValorantIcon.png" />
+  </ItemGroup>
+
+</Project>
