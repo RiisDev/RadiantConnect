@@ -1,4 +1,4 @@
-﻿namespace RadiantConnect.DataTypes
+﻿namespace RadiantConnect.Services
 {
     public record UserAuth(string LockFile, int AuthorizationPort, string OAuth)
     {

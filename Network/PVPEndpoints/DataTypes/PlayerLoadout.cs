@@ -17,14 +17,14 @@ public record Gun(
 public record Identity(
     [property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
     [property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
-    [property: JsonPropertyName("AccountLevel")] int? AccountLevel,
+    [property: JsonPropertyName("AccountLevel")] long? AccountLevel,
     [property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
     [property: JsonPropertyName("HideAccountLevel")] bool? HideAccountLevel
 );
 
 public record PlayerLoadout(
     [property: JsonPropertyName("Subject")] string Subject,
-    [property: JsonPropertyName("Version")] int? Version,
+    [property: JsonPropertyName("Version")] long? Version,
     [property: JsonPropertyName("Guns")] IReadOnlyList<Gun> Guns,
     [property: JsonPropertyName("Sprays")] IReadOnlyList<Spray> Sprays,
     [property: JsonPropertyName("Identity")] Identity Identity,

@@ -1,7 +1,6 @@
 ﻿using System.Text.Json.Serialization;
-
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
-
+// ReSharper disable All
 public record Event(
     [property: JsonPropertyName("ID")] string ID,
     [property: JsonPropertyName("Name")] string Name,

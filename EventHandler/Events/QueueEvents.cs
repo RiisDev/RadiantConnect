@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
-using CyphersWatchfulEye.ValorantAPI.DataTypes;
 using RadiantConnect.Methods;
+using RadiantConnect.Network.PartyEndpoints.DataTypes;
+// ReSharper disable StringLiteralTypo
 
 namespace RadiantConnect.EventHandler.Events
 {
@@ -27,8 +28,8 @@ namespace RadiantConnect.EventHandler.Events
 
             return data is null ? null : dataReturn switch
             {
-                PartyDataReturn.CustomGame => (T)Convert.ChangeType(JsonSerializer.Deserialize<PartyInfo>(data)?.CustomGameData, typeof(T))!,
-                PartyDataReturn.ChangeQueue => (T)Convert.ChangeType(JsonSerializer.Deserialize<PartyInfo>(data)?.MatchmakingData.QueueID, typeof(T))!,
+                PartyDataReturn.CustomGame => (T)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.CustomGameData, typeof(T))!,
+                PartyDataReturn.ChangeQueue => (T)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.MatchmakingData.QueueID, typeof(T))!,
                 _ => throw new ArgumentOutOfRangeException(nameof(dataReturn), dataReturn, null)
             };
         }

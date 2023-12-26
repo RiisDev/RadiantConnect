@@ -1,8 +1,10 @@
 {
   "version": 2,
-  "dgSpecHash": "V8Nlv4UeZHbUnRGLEcNfnfOChS+3OPPDG7gRAtv89bMvS01wPfublSrxiG1inDgl49hA/BZAU72TtlRO4RJUwg==",
+  "dgSpecHash": "x/JqJbSnWbsm5ThgLfxM1kW4Av3UJN6lJDNq/YoZudpV6XEPt2heoM19zC2xa2GY8kwVnzeSubK2YM6sx4Bnpw==",
   "success": true,
   "projectFilePath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.22000.31\\microsoft.windows.sdk.net.ref.10.0.22000.31.nupkg.sha512"
+  ],
   "logs": []
 }

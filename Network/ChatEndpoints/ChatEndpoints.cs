@@ -1,35 +1,29 @@
-﻿using System.Text.Json;
-using static System.String;
-// ReSharper disable All
+﻿using System.Net.Http.Json;
+using RadiantConnect.Network.ChatEndpoints.DataTypes;
 
-namespace RadiantConnect.Network.PartyEndpoints;
+namespace RadiantConnect.Network.ChatEndpoints;
 
-public class AuthEndpoints
+public class ChatEndpoints
 {
-    internal static ValorantNet Net = Initiator.InternalSystem.Net;
+    // TODO PARTY CHAT INFO, PRE GAME CHAT INFO, CURRENT GAME CHAT, SEND CHAT MESSAGE
 
-    internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
+    public static async Task<ChatInfo?> GetChatInfo()
     {
-        string? jsonData = await Net.GetAsync(baseUrl, endPoint);
-
-        return IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+        return await ValorantNet.GetAsync<ChatInfo>($"https://127.0.0.1:{Initiator.InternalSystem.Net.GetAuthPort()}", "/chat/v6/conversations");
     }
 
-    public class Shared
+    public static async Task<ChatParticipant?> GetChatParticipants()
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
+        return await ValorantNet.GetAsync<ChatParticipant>($"https://127.0.0.1:{Initiator.InternalSystem.Net.GetAuthPort()}", "/chat/v5/participants");
     }
 
-    public class Pd
+    public static async Task<InternalMessages?> GetMessageHistory()
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
-
+        return await ValorantNet.GetAsync<InternalMessages>($"https://127.0.0.1:{Initiator.InternalSystem.Net.GetAuthPort()}", "/chat/v6/messages");
     }
 
-    public class Glz
+    public static async Task<object?> SendChatMessage(NewMessage newMessage)
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
+        return await ValorantNet.PostAsync<object>($"https://127.0.0.1:{Initiator.InternalSystem.Net.GetAuthPort()}", "/chat/v6/messages", JsonContent.Create(newMessage));
     }
 }

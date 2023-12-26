@@ -6,44 +6,44 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
 
 public record SeasonId(
     [property: JsonPropertyName("SeasonID")] string SeasonID,
-    [property: JsonPropertyName("NumberOfWins")] int? NumberOfWins,
-    [property: JsonPropertyName("NumberOfWinsWithPlacements")] int? NumberOfWinsWithPlacements,
-    [property: JsonPropertyName("NumberOfGames")] int? NumberOfGames,
-    [property: JsonPropertyName("Rank")] int? Rank,
-    [property: JsonPropertyName("CapstoneWins")] int? CapstoneWins,
-    [property: JsonPropertyName("LeaderboardRank")] int? LeaderboardRank,
-    [property: JsonPropertyName("CompetitiveTier")] int? CompetitiveTier,
-    [property: JsonPropertyName("RankedRating")] int? RankedRating,
+    [property: JsonPropertyName("NumberOfWins")] long? NumberOfWins,
+    [property: JsonPropertyName("NumberOfWinsWithPlacements")] long? NumberOfWinsWithPlacements,
+    [property: JsonPropertyName("NumberOfGames")] long? NumberOfGames,
+    [property: JsonPropertyName("Rank")] long? Rank,
+    [property: JsonPropertyName("CapstoneWins")] long? CapstoneWins,
+    [property: JsonPropertyName("LeaderboardRank")] long? LeaderboardRank,
+    [property: JsonPropertyName("CompetitiveTier")] long? CompetitiveTier,
+    [property: JsonPropertyName("RankedRating")] long? RankedRating,
     [property: JsonPropertyName("WinsByTier")] WinsByTier WinsByTier,
-    [property: JsonPropertyName("GamesNeededForRating")] int? GamesNeededForRating,
-    [property: JsonPropertyName("TotalWinsNeededForRank")] int? TotalWinsNeededForRank
+    [property: JsonPropertyName("GamesNeededForRating")] long? GamesNeededForRating,
+    [property: JsonPropertyName("TotalWinsNeededForRank")] long? TotalWinsNeededForRank
 );
 
 public record Competitive(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Deathmatch(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Ggteam(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Hurm(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
@@ -52,34 +52,34 @@ public record LatestCompetitiveUpdate(
     [property: JsonPropertyName("MapID")] string MapID,
     [property: JsonPropertyName("SeasonID")] string SeasonID,
     [property: JsonPropertyName("MatchStartTime")] long? MatchStartTime,
-    [property: JsonPropertyName("TierAfterUpdate")] int? TierAfterUpdate,
-    [property: JsonPropertyName("TierBeforeUpdate")] int? TierBeforeUpdate,
-    [property: JsonPropertyName("RankedRatingAfterUpdate")] int? RankedRatingAfterUpdate,
-    [property: JsonPropertyName("RankedRatingBeforeUpdate")] int? RankedRatingBeforeUpdate,
-    [property: JsonPropertyName("RankedRatingEarned")] int? RankedRatingEarned,
-    [property: JsonPropertyName("RankedRatingPerformanceBonus")] int? RankedRatingPerformanceBonus,
+    [property: JsonPropertyName("TierAfterUpdate")] long? TierAfterUpdate,
+    [property: JsonPropertyName("TierBeforeUpdate")] long? TierBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingAfterUpdate")] long? RankedRatingAfterUpdate,
+    [property: JsonPropertyName("RankedRatingBeforeUpdate")] long? RankedRatingBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingEarned")] long? RankedRatingEarned,
+    [property: JsonPropertyName("RankedRatingPerformanceBonus")] long? RankedRatingPerformanceBonus,
     [property: JsonPropertyName("CompetitiveMovement")] string CompetitiveMovement,
-    [property: JsonPropertyName("AFKPenalty")] int? AFKPenalty
+    [property: JsonPropertyName("AFKPenalty")] long? AFKPenalty
 );
 
 public record Newmap(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Onefa(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Premier(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
@@ -145,69 +145,69 @@ public record SeasonalInfoBySeasonID(
 );
 
 public record Seeding(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Snowball(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Spikerush(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Swiftplay(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record Unrated(
-    [property: JsonPropertyName("TotalGamesNeededForRating")] int? TotalGamesNeededForRating,
-    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] int? TotalGamesNeededForLeaderboard,
-    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] int? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] SeasonalInfoBySeasonID SeasonalInfoBySeasonID
 );
 
 public record WinsByTier(
-    [property: JsonPropertyName("0")] int? _0,
-    [property: JsonPropertyName("1")] int? _1,
-    [property: JsonPropertyName("2")] int? _2,
-    [property: JsonPropertyName("3")] int? _3,
-    [property: JsonPropertyName("4")] int? _4,
-    [property: JsonPropertyName("5")] int? _5,
-    [property: JsonPropertyName("6")] int? _6,
-    [property: JsonPropertyName("7")] int? _7,
-    [property: JsonPropertyName("8")] int? _8,
-    [property: JsonPropertyName("9")] int? _9,
-    [property: JsonPropertyName("10")] int? _10,
-    [property: JsonPropertyName("11")] int? _11,
-    [property: JsonPropertyName("12")] int? _12,
-    [property: JsonPropertyName("13")] int? _13,
-    [property: JsonPropertyName("14")] int? _14,
-    [property: JsonPropertyName("15")] int? _15,
-    [property: JsonPropertyName("16")] int? _16,
-    [property: JsonPropertyName("17")] int? _17,
-    [property: JsonPropertyName("18")] int? _18,
-    [property: JsonPropertyName("19")] int? _19,
-    [property: JsonPropertyName("20")] int? _20,
-    [property: JsonPropertyName("21")] int? _21,
-    [property: JsonPropertyName("22")] int? _22,
-    [property: JsonPropertyName("23")] int? _23,
-    [property: JsonPropertyName("24")] int? _24,
-    [property: JsonPropertyName("25")] int? _25,
-    [property: JsonPropertyName("26")] int? _26,
-    [property: JsonPropertyName("27")] int? _27,
-    [property: JsonPropertyName("28")] int? _28,
-    [property: JsonPropertyName("29")] int? _29
+    [property: JsonPropertyName("0")] long? _0,
+    [property: JsonPropertyName("1")] long? _1,
+    [property: JsonPropertyName("2")] long? _2,
+    [property: JsonPropertyName("3")] long? _3,
+    [property: JsonPropertyName("4")] long? _4,
+    [property: JsonPropertyName("5")] long? _5,
+    [property: JsonPropertyName("6")] long? _6,
+    [property: JsonPropertyName("7")] long? _7,
+    [property: JsonPropertyName("8")] long? _8,
+    [property: JsonPropertyName("9")] long? _9,
+    [property: JsonPropertyName("10")] long? _10,
+    [property: JsonPropertyName("11")] long? _11,
+    [property: JsonPropertyName("12")] long? _12,
+    [property: JsonPropertyName("13")] long? _13,
+    [property: JsonPropertyName("14")] long? _14,
+    [property: JsonPropertyName("15")] long? _15,
+    [property: JsonPropertyName("16")] long? _16,
+    [property: JsonPropertyName("17")] long? _17,
+    [property: JsonPropertyName("18")] long? _18,
+    [property: JsonPropertyName("19")] long? _19,
+    [property: JsonPropertyName("20")] long? _20,
+    [property: JsonPropertyName("21")] long? _21,
+    [property: JsonPropertyName("22")] long? _22,
+    [property: JsonPropertyName("23")] long? _23,
+    [property: JsonPropertyName("24")] long? _24,
+    [property: JsonPropertyName("25")] long? _25,
+    [property: JsonPropertyName("26")] long? _26,
+    [property: JsonPropertyName("27")] long? _27,
+    [property: JsonPropertyName("28")] long? _28,
+    [property: JsonPropertyName("29")] long? _29
 );

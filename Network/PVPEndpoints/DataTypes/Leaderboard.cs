@@ -5,15 +5,15 @@
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
 
 public record _21(
-    [property: JsonPropertyName("rankedRatingThreshold")] int? RankedRatingThreshold,
-    [property: JsonPropertyName("startingPage")] int? StartingPage,
-    [property: JsonPropertyName("startingIndex")] int? StartingIndex
+    [property: JsonPropertyName("rankedRatingThreshold")] long? RankedRatingThreshold,
+    [property: JsonPropertyName("startingPage")] long? StartingPage,
+    [property: JsonPropertyName("startingIndex")] long? StartingIndex
 );
 
 public record _24(
-    [property: JsonPropertyName("rankedRatingThreshold")] int? RankedRatingThreshold,
-    [property: JsonPropertyName("startingPage")] int? StartingPage,
-    [property: JsonPropertyName("startingIndex")] int? StartingIndex
+    [property: JsonPropertyName("rankedRatingThreshold")] long? RankedRatingThreshold,
+    [property: JsonPropertyName("startingPage")] long? StartingPage,
+    [property: JsonPropertyName("startingIndex")] long? StartingIndex
 );
 
 public record LeaderboardPlayer(
@@ -24,10 +24,10 @@ public record LeaderboardPlayer(
     [property: JsonPropertyName("puuid")] string Puuid,
     [property: JsonPropertyName("gameName")] string GameName,
     [property: JsonPropertyName("tagLine")] string TagLine,
-    [property: JsonPropertyName("leaderboardRank")] int? LeaderboardRank,
-    [property: JsonPropertyName("rankedRating")] int? RankedRating,
-    [property: JsonPropertyName("numberOfWins")] int? NumberOfWins,
-    [property: JsonPropertyName("competitiveTier")] int? CompetitiveTier
+    [property: JsonPropertyName("leaderboardRank")] long? LeaderboardRank,
+    [property: JsonPropertyName("rankedRating")] long? RankedRating,
+    [property: JsonPropertyName("numberOfWins")] long? NumberOfWins,
+    [property: JsonPropertyName("competitiveTier")] long? CompetitiveTier
 );
 
 public record Leaderboard(
@@ -35,12 +35,12 @@ public record Leaderboard(
     [property: JsonPropertyName("QueueID")] string QueueID,
     [property: JsonPropertyName("SeasonID")] string SeasonID,
     [property: JsonPropertyName("Players")] IReadOnlyList<LeaderboardPlayer> Players,
-    [property: JsonPropertyName("totalPlayers")] int? TotalPlayers,
-    [property: JsonPropertyName("immortalStartingPage")] int? ImmortalStartingPage,
-    [property: JsonPropertyName("immortalStartingIndex")] int? ImmortalStartingIndex,
-    [property: JsonPropertyName("topTierRRThreshold")] int? TopTierRRThreshold,
+    [property: JsonPropertyName("totalPlayers")] long? TotalPlayers,
+    [property: JsonPropertyName("immortalStartingPage")] long? ImmortalStartingPage,
+    [property: JsonPropertyName("immortalStartingIndex")] long? ImmortalStartingIndex,
+    [property: JsonPropertyName("topTierRRThreshold")] long? TopTierRRThreshold,
     [property: JsonPropertyName("tierDetails")] TierDetails TierDetails,
-    [property: JsonPropertyName("startIndex")] int? StartIndex,
+    [property: JsonPropertyName("startIndex")] long? StartIndex,
     [property: JsonPropertyName("query")] string Query
 );
 

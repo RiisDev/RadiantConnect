@@ -11,8 +11,8 @@ public record MatchHistoryInternal(
 
 public record MatchHistory(
     [property: JsonPropertyName("Subject")] string Subject,
-    [property: JsonPropertyName("BeginIndex")] int? BeginIndex,
-    [property: JsonPropertyName("EndIndex")] int? EndIndex,
-    [property: JsonPropertyName("Total")] int? Total,
+    [property: JsonPropertyName("BeginIndex")] long? BeginIndex,
+    [property: JsonPropertyName("EndIndex")] long? EndIndex,
+    [property: JsonPropertyName("Total")] long? Total,
     [property: JsonPropertyName("History")] IReadOnlyList<MatchHistoryInternal> History
 );

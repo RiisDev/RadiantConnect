@@ -1,35 +1,31 @@
-﻿using System.Text.Json;
-using static System.String;
-// ReSharper disable All
+﻿// ReSharper disable All
 
-namespace RadiantConnect.Network.PartyEndpoints;
+using RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
+using RadiantConnect.Network.PreGameEndpoints.DataTypes;
 
-public class AuthEndpoints
+namespace RadiantConnect.Network.CurrentGameEndpoints;
+
+public class CurrentGameEndpoints
 {
-    internal static ValorantNet Net = Initiator.InternalSystem.Net;
+    internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
 
-    internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
+    public static async Task<CurrentGamePlayer?> GetCurrentGamePlayer(string userId)
     {
-        string? jsonData = await Net.GetAsync(baseUrl, endPoint);
-
-        return IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+        return await ValorantNet.GetAsync<CurrentGamePlayer>(Url, $"/core-game/v1/players/{userId}");
     }
 
-    public class Shared
+    public static async Task<CurrentGameMatch?> GetCurrentGameMatch(string matchId)
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
+        return await ValorantNet.GetAsync<CurrentGameMatch>(Url, $"/core-game/v1/matches/{matchId}");
     }
 
-    public class Pd
+    public static async Task<GameLoadout?> GetCurrentGameLoadout(string matchId)
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
-
+        return await ValorantNet.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}");
     }
 
-    public class Glz
+    public static async Task QuitCurrentGame(string userId, string matchId)
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
+        await Initiator.InternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{userId}/disassociate/{matchId}");
     }
 }

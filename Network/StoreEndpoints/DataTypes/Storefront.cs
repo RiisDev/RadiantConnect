@@ -5,7 +5,7 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes;
 
 public record AccessoryStore(
     [property: JsonPropertyName("AccessoryStoreOffers")] IReadOnlyList<AccessoryStoreOffer> AccessoryStoreOffers,
-    [property: JsonPropertyName("AccessoryStoreRemainingDurationInSeconds")] int? AccessoryStoreRemainingDurationInSeconds,
+    [property: JsonPropertyName("AccessoryStoreRemainingDurationInSeconds")] long? AccessoryStoreRemainingDurationInSeconds,
     [property: JsonPropertyName("StorefrontID")] string StorefrontID
 );
 
@@ -16,14 +16,14 @@ public record AccessoryStoreOffer(
 
 public record BonusStore(
     [property: JsonPropertyName("BonusStoreOffers")] IReadOnlyList<BonusStoreOffer> BonusStoreOffers,
-    [property: JsonPropertyName("BonusStoreRemainingDurationInSeconds")] int? BonusStoreRemainingDurationInSeconds,
-    [property: JsonPropertyName("BonusStoreSecondsSinceItStarted")] int? BonusStoreSecondsSinceItStarted
+    [property: JsonPropertyName("BonusStoreRemainingDurationInSeconds")] long? BonusStoreRemainingDurationInSeconds,
+    [property: JsonPropertyName("BonusStoreSecondsSinceItStarted")] long? BonusStoreSecondsSinceItStarted
 );
 
 public record BonusStoreOffer(
     [property: JsonPropertyName("BonusOfferID")] string BonusOfferID,
     [property: JsonPropertyName("Offer")] Offer Offer,
-    [property: JsonPropertyName("DiscountPercent")] int? DiscountPercent,
+    [property: JsonPropertyName("DiscountPercent")] long? DiscountPercent,
     [property: JsonPropertyName("DiscountCosts")] DiscountCosts DiscountCosts,
     [property: JsonPropertyName("IsSeen")] bool? IsSeen
 );
@@ -36,8 +36,8 @@ public record Bundle(
     [property: JsonPropertyName("ItemOffers")] object ItemOffers,
     [property: JsonPropertyName("TotalBaseCost")] object TotalBaseCost,
     [property: JsonPropertyName("TotalDiscountedCost")] object TotalDiscountedCost,
-    [property: JsonPropertyName("TotalDiscountPercent")] int? TotalDiscountPercent,
-    [property: JsonPropertyName("DurationRemainingInSeconds")] int? DurationRemainingInSeconds,
+    [property: JsonPropertyName("TotalDiscountPercent")] long? TotalDiscountPercent,
+    [property: JsonPropertyName("DurationRemainingInSeconds")] long? DurationRemainingInSeconds,
     [property: JsonPropertyName("WholesaleOnly")] bool? WholesaleOnly
 );
 
@@ -50,48 +50,48 @@ public record Bundle2(
     [property: JsonPropertyName("TotalBaseCost")] TotalBaseCost TotalBaseCost,
     [property: JsonPropertyName("TotalDiscountedCost")] TotalDiscountedCost TotalDiscountedCost,
     [property: JsonPropertyName("TotalDiscountPercent")] double? TotalDiscountPercent,
-    [property: JsonPropertyName("DurationRemainingInSeconds")] int? DurationRemainingInSeconds,
+    [property: JsonPropertyName("DurationRemainingInSeconds")] long? DurationRemainingInSeconds,
     [property: JsonPropertyName("WholesaleOnly")] bool? WholesaleOnly
 );
 
 public record Cost(
-    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] int? _85ad13f73d1b51289eb27cd8ee0b5741,
-    [property: JsonPropertyName("85ca954a-41f2-ce94-9b45-8ca3dd39a00d")] int? _85ca954a41f2Ce949b458ca3dd39a00d
+    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741,
+    [property: JsonPropertyName("85ca954a-41f2-ce94-9b45-8ca3dd39a00d")] long? _85ca954a41f2Ce949b458ca3dd39a00d
 );
 
 public record DiscountCosts(
-    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] int? _85ad13f73d1b51289eb27cd8ee0b5741
+    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
 );
 
 public record DiscountedCost(
-    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] int? _85ad13f73d1b51289eb27cd8ee0b5741
+    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
 );
 
 public record FeaturedBundle(
     [property: JsonPropertyName("Bundle")] Bundle Bundle,
     [property: JsonPropertyName("Bundles")] IReadOnlyList<Bundle> Bundles,
-    [property: JsonPropertyName("BundleRemainingDurationInSeconds")] int? BundleRemainingDurationInSeconds
+    [property: JsonPropertyName("BundleRemainingDurationInSeconds")] long? BundleRemainingDurationInSeconds
 );
 
 public record ItemInternal(
     [property: JsonPropertyName("Item")] ItemInternal Item,
-    [property: JsonPropertyName("BasePrice")] int? BasePrice,
+    [property: JsonPropertyName("BasePrice")] long? BasePrice,
     [property: JsonPropertyName("CurrencyID")] string CurrencyID,
-    [property: JsonPropertyName("DiscountPercent")] int? DiscountPercent,
-    [property: JsonPropertyName("DiscountedPrice")] int? DiscountedPrice,
+    [property: JsonPropertyName("DiscountPercent")] long? DiscountPercent,
+    [property: JsonPropertyName("DiscountedPrice")] long? DiscountedPrice,
     [property: JsonPropertyName("IsPromoItem")] bool? IsPromoItem
 );
 
 public record Item2(
     [property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
     [property: JsonPropertyName("ItemID")] string ItemID,
-    [property: JsonPropertyName("Amount")] int? Amount
+    [property: JsonPropertyName("Amount")] long? Amount
 );
 
 public record ItemOffer(
     [property: JsonPropertyName("BundleItemOfferID")] string BundleItemOfferID,
     [property: JsonPropertyName("Offer")] Offer Offer,
-    [property: JsonPropertyName("DiscountPercent")] int? DiscountPercent,
+    [property: JsonPropertyName("DiscountPercent")] long? DiscountPercent,
     [property: JsonPropertyName("DiscountedCost")] DiscountedCost DiscountedCost
 );
 
@@ -106,7 +106,7 @@ public record Offer(
 public record Reward(
     [property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
     [property: JsonPropertyName("ItemID")] string ItemID,
-    [property: JsonPropertyName("Quantity")] int? Quantity
+    [property: JsonPropertyName("Quantity")] long? Quantity
 );
 
 public record Storefront(
@@ -128,15 +128,15 @@ public record SingleItemStoreOffer(
 public record SkinsPanelLayout(
     [property: JsonPropertyName("SingleItemOffers")] IReadOnlyList<string> SingleItemOffers,
     [property: JsonPropertyName("SingleItemStoreOffers")] IReadOnlyList<SingleItemStoreOffer> SingleItemStoreOffers,
-    [property: JsonPropertyName("SingleItemOffersRemainingDurationInSeconds")] int? SingleItemOffersRemainingDurationInSeconds
+    [property: JsonPropertyName("SingleItemOffersRemainingDurationInSeconds")] long? SingleItemOffersRemainingDurationInSeconds
 );
 
 public record TotalBaseCost(
-    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] int? _85ad13f73d1b51289eb27cd8ee0b5741
+    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
 );
 
 public record TotalDiscountedCost(
-    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] int? _85ad13f73d1b51289eb27cd8ee0b5741
+    [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
 );
 
 public record UpgradeCurrencyOffer(

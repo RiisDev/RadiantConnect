@@ -1,14 +1,23 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
-using RadiantConnect.DataTypes;
+using System.Text.Json.Serialization;
 using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
 {
     public class ValorantNet
     {
+        internal record Entitlement(
+            [property: JsonPropertyName("accessToken")] string AccessToken,
+            [property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,
+            [property: JsonPropertyName("issuer")] string Issuer,
+            [property: JsonPropertyName("subject")] string Subject,
+            [property: JsonPropertyName("token")] string Token
+        );
+
         internal HttpClient Client = new(GetHttpClientHandler());
 
         public ValorantNet(ValorantService valorantClient)
@@ -52,6 +61,8 @@ namespace RadiantConnect.Network
             return new UserAuth(lockFile, authPort, oAuth);
         }
 
+        public int? GetAuthPort() { return GetAuth()?.AuthorizationPort; }
+
         private async Task<(string, string)> GetAuthorizationToken()
         {
             UserAuth? auth = GetAuth();
@@ -68,87 +79,94 @@ namespace RadiantConnect.Network
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
 
-        public async Task<string?> GetAsync(string baseAddress, string endpoint)
+        private async Task ResetAuth()
         {
-            Retry:
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
 
             (string, string) authTokens = await GetAuthorizationToken();
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return "Failed, missing auth";
+            if (string.IsNullOrEmpty(authTokens.Item1)) return;
 
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
+        }
 
-            HttpResponseMessage response = await Client.GetAsync($"{baseAddress}{endpoint}");
-            if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) goto Retry;
-            if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
+        public async Task<string?> GetAsync(string baseAddress, string endpoint)
+        {
+            while (true)
+            {
+                await ResetAuth();
 
-            return await response.Content.ReadAsStringAsync();
+                HttpResponseMessage response = await Client.GetAsync($"{baseAddress}{endpoint}");
+                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
+                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
+
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         public async Task<string?> PostAsync(string baseAddress, string endpoint, HttpContent? postData = null)
         {
-            Retry:
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
+            while (true)
+            {
+                await ResetAuth();
 
-            (string, string) authTokens = await GetAuthorizationToken();
+                HttpResponseMessage response = await Client.PostAsync($"{baseAddress}{endpoint}", postData);
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return "Failed, missing auth";
+                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
+                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
 
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
-
-            HttpResponseMessage response = await Client.PostAsync($"{baseAddress}{endpoint}", postData);
-
-            if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) goto Retry;
-            if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-            return await response.Content.ReadAsStringAsync();
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         public async Task<string?> DeleteAsync(string baseAddress, string endpoint)
         {
-            Retry:
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
+            while (true)
+            {
+                await ResetAuth();
 
-            (string, string) authTokens = await GetAuthorizationToken();
+                HttpResponseMessage response = await Client.DeleteAsync($"{baseAddress}{endpoint}");
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return "Failed, missing auth";
+                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
+                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
 
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
+                return await response.Content.ReadAsStringAsync();
+            }
+        }
 
-            HttpResponseMessage response = await Client.DeleteAsync($"{baseAddress}{endpoint}");
+        public async Task<string?> DeleteAsJsonAsync(string baseAddress, string endpoint, JsonContent value)
+        {
+            while (true)
+            {
+                await ResetAuth();
 
-            if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) goto Retry;
-            if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
+                using HttpRequestMessage request = new(HttpMethod.Delete, $"{baseAddress}{endpoint}");
+                request.Content = new StringContent(JsonSerializer.Serialize(value));
 
-            return await response.Content.ReadAsStringAsync();
+                HttpResponseMessage response = await Client.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+
+                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
+                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
+
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         public async Task<string?> PutAsync(string baseAddress, string endpoint, HttpContent content)
         {
-            Retry:
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
+            while (true)
+            {
+                await ResetAuth();
 
-            (string, string) authTokens = await GetAuthorizationToken();
+                HttpResponseMessage response = await Client.PutAsync($"{baseAddress}{endpoint}", content);
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return "Failed, missing auth";
+                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
+                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
 
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
-
-            HttpResponseMessage response = await Client.PutAsync($"{baseAddress}{endpoint}", content);
-
-            if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) goto Retry;
-            if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-            return await response.Content.ReadAsStringAsync();
+                return await response.Content.ReadAsStringAsync();
+            }
         }
 
         internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
@@ -167,7 +185,7 @@ namespace RadiantConnect.Network
 
         internal static async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
         {
-            string? jsonData = await PartyEndpoints.PartyEndpoints.Net.PostAsync(baseUrl, endPoint, httpContent);
+            string? jsonData = await PartyEndpoints.PartyEndpoints.Net.PutAsync(baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }

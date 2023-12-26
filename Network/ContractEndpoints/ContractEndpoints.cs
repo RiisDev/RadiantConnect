@@ -1,35 +1,19 @@
-﻿using System.Text.Json;
-using static System.String;
-// ReSharper disable All
+﻿
+using RadiantConnect.Network.ContractEndpoints.DataTypes;
 
-namespace RadiantConnect.Network.PartyEndpoints;
+namespace RadiantConnect.Network.ContractEndpoints;
 
-public class AuthEndpoints
+public class ContractEndpoints
 {
-    internal static ValorantNet Net = Initiator.InternalSystem.Net;
+    internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
 
-    internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
+    public static async Task<ItemUpgrade?> GetItemUpgrades()
     {
-        string? jsonData = await Net.GetAsync(baseUrl, endPoint);
-
-        return IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+        return await ValorantNet.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades");
     }
 
-    public class Shared
+    public static async Task<Contract?> GetContracts(string userId)
     {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
-    }
-
-    public class Pd
-    {
-        internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
-
-    }
-
-    public class Glz
-    {
-        internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-
+        return await ValorantNet.GetAsync<Contract?>(Url, $"/contracts/v1/contracts/{userId}");
     }
 }

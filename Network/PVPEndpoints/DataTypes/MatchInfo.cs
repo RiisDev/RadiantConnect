@@ -4,8 +4,8 @@
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
 
 public record Ability(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis,
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis,
     [property: JsonPropertyName("grenadeEffects")] object GrenadeEffects,
     [property: JsonPropertyName("ability1Effects")] object Ability1Effects,
     [property: JsonPropertyName("ability2Effects")] object Ability2Effects,
@@ -13,64 +13,64 @@ public record Ability(
 );
 
 public record AbilityCasts(
-    [property: JsonPropertyName("grenadeCasts")] int? GrenadeCasts,
-    [property: JsonPropertyName("ability1Casts")] int? Ability1Casts,
-    [property: JsonPropertyName("ability2Casts")] int? Ability2Casts,
-    [property: JsonPropertyName("ultimateCasts")] int? UltimateCasts
+    [property: JsonPropertyName("grenadeCasts")] long? GrenadeCasts,
+    [property: JsonPropertyName("ability1Casts")] long? Ability1Casts,
+    [property: JsonPropertyName("ability2Casts")] long? Ability2Casts,
+    [property: JsonPropertyName("ultimateCasts")] long? UltimateCasts
 );
 
 public record AdaptiveBots(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis,
-    [property: JsonPropertyName("adaptiveBotAverageDurationMillisAllAttempts")] int? AdaptiveBotAverageDurationMillisAllAttempts,
-    [property: JsonPropertyName("adaptiveBotAverageDurationMillisFirstAttempt")] int? AdaptiveBotAverageDurationMillisFirstAttempt,
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis,
+    [property: JsonPropertyName("adaptiveBotAverageDurationMillisAllAttempts")] long? AdaptiveBotAverageDurationMillisAllAttempts,
+    [property: JsonPropertyName("adaptiveBotAverageDurationMillisFirstAttempt")] long? AdaptiveBotAverageDurationMillisFirstAttempt,
     [property: JsonPropertyName("killDetailsFirstAttempt")] object KillDetailsFirstAttempt
 );
 
 public record BasicGunSkill(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis
 );
 
 public record BasicMovement(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis
 );
 
 public record BehaviorFactors(
-    [property: JsonPropertyName("afkRounds")] int? AfkRounds,
+    [property: JsonPropertyName("afkRounds")] long? AfkRounds,
     [property: JsonPropertyName("collisions")] double? Collisions,
-    [property: JsonPropertyName("commsRatingRecovery")] int? CommsRatingRecovery,
-    [property: JsonPropertyName("damageParticipationOutgoing")] int? DamageParticipationOutgoing,
-    [property: JsonPropertyName("friendlyFireIncoming")] int? FriendlyFireIncoming,
-    [property: JsonPropertyName("friendlyFireOutgoing")] int? FriendlyFireOutgoing,
-    [property: JsonPropertyName("mouseMovement")] int? MouseMovement,
-    [property: JsonPropertyName("selfDamage")] int? SelfDamage,
-    [property: JsonPropertyName("stayedInSpawnRounds")] int? StayedInSpawnRounds
+    [property: JsonPropertyName("commsRatingRecovery")] long? CommsRatingRecovery,
+    [property: JsonPropertyName("damageParticipationOutgoing")] long? DamageParticipationOutgoing,
+    [property: JsonPropertyName("friendlyFireIncoming")] long? FriendlyFireIncoming,
+    [property: JsonPropertyName("friendlyFireOutgoing")] long? FriendlyFireOutgoing,
+    [property: JsonPropertyName("mouseMovement")] long? MouseMovement,
+    [property: JsonPropertyName("selfDamage")] long? SelfDamage,
+    [property: JsonPropertyName("stayedInSpawnRounds")] long? StayedInSpawnRounds
 );
 
 public record BombPlant(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis
 );
 
 public record Damage(
     [property: JsonPropertyName("receiver")] string Receiver,
     [property: JsonPropertyName("damage")] double? DamageInternal,
-    [property: JsonPropertyName("legshots")] int? Legshots,
-    [property: JsonPropertyName("bodyshots")] int? Bodyshots,
-    [property: JsonPropertyName("headshots")] int? Headshots
+    [property: JsonPropertyName("legshots")] long? Legshots,
+    [property: JsonPropertyName("bodyshots")] long? Bodyshots,
+    [property: JsonPropertyName("headshots")] long? Headshots
 );
 
 public record DefendBombSite(
-    [property: JsonPropertyName("idleTimeMillis")] int? IdleTimeMillis,
-    [property: JsonPropertyName("objectiveCompleteTimeMillis")] int? ObjectiveCompleteTimeMillis,
+    [property: JsonPropertyName("idleTimeMillis")] long? IdleTimeMillis,
+    [property: JsonPropertyName("objectiveCompleteTimeMillis")] long? ObjectiveCompleteTimeMillis,
     [property: JsonPropertyName("success")] bool? Success
 );
 
 public record DefuseLocation(
-    [property: JsonPropertyName("x")] int? X,
-    [property: JsonPropertyName("y")] int? Y
+    [property: JsonPropertyName("x")] long? X,
+    [property: JsonPropertyName("y")] long? Y
 );
 
 public record DefusePlayerLocation(
@@ -80,11 +80,11 @@ public record DefusePlayerLocation(
 );
 
 public record Economy(
-    [property: JsonPropertyName("loadoutValue")] int? LoadoutValue,
+    [property: JsonPropertyName("loadoutValue")] long? LoadoutValue,
     [property: JsonPropertyName("weapon")] string Weapon,
     [property: JsonPropertyName("armor")] string Armor,
-    [property: JsonPropertyName("remaining")] int? Remaining,
-    [property: JsonPropertyName("spent")] int? Spent
+    [property: JsonPropertyName("remaining")] long? Remaining,
+    [property: JsonPropertyName("spent")] long? Spent
 );
 
 public record FinishingDamage(
@@ -94,20 +94,20 @@ public record FinishingDamage(
 );
 
 public record Kill(
-    [property: JsonPropertyName("gameTime")] int? GameTime,
-    [property: JsonPropertyName("roundTime")] int? RoundTime,
+    [property: JsonPropertyName("gameTime")] long? GameTime,
+    [property: JsonPropertyName("roundTime")] long? RoundTime,
     [property: JsonPropertyName("killer")] string Killer,
     [property: JsonPropertyName("victim")] string Victim,
     [property: JsonPropertyName("victimLocation")] VictimLocation VictimLocation,
     [property: JsonPropertyName("assistants")] IReadOnlyList<string> Assistants,
     [property: JsonPropertyName("playerLocations")] IReadOnlyList<PlayerLocation> PlayerLocations,
     [property: JsonPropertyName("finishingDamage")] FinishingDamage FinishingDamage,
-    [property: JsonPropertyName("round")] int? Round
+    [property: JsonPropertyName("round")] long? Round
 );
 
 public record Location(
-    [property: JsonPropertyName("x")] int? X,
-    [property: JsonPropertyName("y")] int? Y
+    [property: JsonPropertyName("x")] long? X,
+    [property: JsonPropertyName("y")] long? Y
 );
 
 public record MatchInfoInternal(
@@ -117,7 +117,7 @@ public record MatchInfoInternal(
     [property: JsonPropertyName("gameLoopZone")] string GameLoopZone,
     [property: JsonPropertyName("gameServerAddress")] string GameServerAddress,
     [property: JsonPropertyName("gameVersion")] string GameVersion,
-    [property: JsonPropertyName("gameLengthMillis")] int? GameLengthMillis,
+    [property: JsonPropertyName("gameLengthMillis")] long? GameLengthMillis,
     [property: JsonPropertyName("gameStartMillis")] long? GameStartMillis,
     [property: JsonPropertyName("provisioningFlowID")] string ProvisioningFlowID,
     [property: JsonPropertyName("isCompleted")] bool? IsCompleted,
@@ -147,19 +147,19 @@ public record NewPlayerExperienceDetails(
 );
 
 public record PartyRRPenalties(
-    [property: JsonPropertyName("28691b4c-131b-4d7d-8a82-a147509d4d20")] int? _28691b4c131b4d7d8a82A147509d4d20,
-    [property: JsonPropertyName("35834f90-3164-47b1-9312-bbff3708f02e")] int? _35834f90316447b19312Bbff3708f02e,
-    [property: JsonPropertyName("3674f365-73ac-4cb9-9a44-44e4c4d1c569")] int? _3674f36573ac4cb99a4444e4c4d1c569,
-    [property: JsonPropertyName("3bdbe5a8-6a7a-4045-83ce-84ff88fb44c0")] int? _3bdbe5a86a7a404583ce84ff88fb44c0,
-    [property: JsonPropertyName("74fdd330-4248-4e2b-85b6-645c94621542")] int? _74fdd33042484e2b85b6645c94621542,
-    [property: JsonPropertyName("76339d78-2e20-4e9b-95cf-5734321565f4")] int? _76339d782e204e9b95cf5734321565f4,
-    [property: JsonPropertyName("90ab3776-2104-4b5e-b950-6224df83843a")] int? _90ab377621044b5eB9506224df83843a,
-    [property: JsonPropertyName("f71d00d2-a996-41fe-b9ac-57ff7530f1ab")] int? F71d00d2A99641feB9ac57ff7530f1ab
+    [property: JsonPropertyName("28691b4c-131b-4d7d-8a82-a147509d4d20")] long? _28691b4c131b4d7d8a82A147509d4d20,
+    [property: JsonPropertyName("35834f90-3164-47b1-9312-bbff3708f02e")] long? _35834f90316447b19312Bbff3708f02e,
+    [property: JsonPropertyName("3674f365-73ac-4cb9-9a44-44e4c4d1c569")] long? _3674f36573ac4cb99a4444e4c4d1c569,
+    [property: JsonPropertyName("3bdbe5a8-6a7a-4045-83ce-84ff88fb44c0")] long? _3bdbe5a86a7a404583ce84ff88fb44c0,
+    [property: JsonPropertyName("74fdd330-4248-4e2b-85b6-645c94621542")] long? _74fdd33042484e2b85b6645c94621542,
+    [property: JsonPropertyName("76339d78-2e20-4e9b-95cf-5734321565f4")] long? _76339d782e204e9b95cf5734321565f4,
+    [property: JsonPropertyName("90ab3776-2104-4b5e-b950-6224df83843a")] long? _90ab377621044b5eB9506224df83843a,
+    [property: JsonPropertyName("f71d00d2-a996-41fe-b9ac-57ff7530f1ab")] long? F71d00d2A99641feB9ac57ff7530f1ab
 );
 
 public record PlantLocation(
-    [property: JsonPropertyName("x")] int? X,
-    [property: JsonPropertyName("y")] int? Y
+    [property: JsonPropertyName("x")] long? X,
+    [property: JsonPropertyName("y")] long? Y
 );
 
 public record PlantPlayerLocation(
@@ -185,13 +185,13 @@ public record Player(
     [property: JsonPropertyName("characterId")] string CharacterId,
     [property: JsonPropertyName("stats")] Stats Stats,
     [property: JsonPropertyName("roundDamage")] IReadOnlyList<RoundDamage> RoundDamage,
-    [property: JsonPropertyName("competitiveTier")] int? CompetitiveTier,
+    [property: JsonPropertyName("competitiveTier")] long? CompetitiveTier,
     [property: JsonPropertyName("isObserver")] bool? IsObserver,
     [property: JsonPropertyName("playerCard")] string PlayerCard,
     [property: JsonPropertyName("playerTitle")] string PlayerTitle,
     [property: JsonPropertyName("preferredLevelBorder")] string PreferredLevelBorder,
-    [property: JsonPropertyName("accountLevel")] int? AccountLevel,
-    [property: JsonPropertyName("sessionPlaytimeMinutes")] int? SessionPlaytimeMinutes,
+    [property: JsonPropertyName("accountLevel")] long? AccountLevel,
+    [property: JsonPropertyName("sessionPlaytimeMinutes")] long? SessionPlaytimeMinutes,
     [property: JsonPropertyName("xpModifications")] IReadOnlyList<XpModification> XpModifications,
     [property: JsonPropertyName("behaviorFactors")] BehaviorFactors BehaviorFactors,
     [property: JsonPropertyName("newPlayerExperienceDetails")] NewPlayerExperienceDetails NewPlayerExperienceDetails
@@ -199,11 +199,11 @@ public record Player(
 
 public record PlayerEconomy(
     [property: JsonPropertyName("subject")] string Subject,
-    [property: JsonPropertyName("loadoutValue")] int? LoadoutValue,
+    [property: JsonPropertyName("loadoutValue")] long? LoadoutValue,
     [property: JsonPropertyName("weapon")] string Weapon,
     [property: JsonPropertyName("armor")] string Armor,
-    [property: JsonPropertyName("remaining")] int? Remaining,
-    [property: JsonPropertyName("spent")] int? Spent
+    [property: JsonPropertyName("remaining")] long? Remaining,
+    [property: JsonPropertyName("spent")] long? Spent
 );
 
 public record PlayerLocation(
@@ -214,14 +214,14 @@ public record PlayerLocation(
 
 public record PlayerScore(
     [property: JsonPropertyName("subject")] string Subject,
-    [property: JsonPropertyName("score")] int? Score
+    [property: JsonPropertyName("score")] long? Score
 );
 
 public record PlayerStat(
     [property: JsonPropertyName("subject")] string Subject,
     [property: JsonPropertyName("kills")] IReadOnlyList<Kill> Kills,
     [property: JsonPropertyName("damage")] IReadOnlyList<Damage> DamageInternal,
-    [property: JsonPropertyName("score")] int? Score,
+    [property: JsonPropertyName("score")] long? Score,
     [property: JsonPropertyName("economy")] Economy Economy,
     [property: JsonPropertyName("ability")] Ability Ability,
     [property: JsonPropertyName("wasAfk")] bool? WasAfk,
@@ -245,21 +245,21 @@ public record MatchInfo(
 );
 
 public record RoundDamage(
-    [property: JsonPropertyName("round")] int? Round,
+    [property: JsonPropertyName("round")] long? Round,
     [property: JsonPropertyName("receiver")] string Receiver,
-    [property: JsonPropertyName("damage")] int? Damage
+    [property: JsonPropertyName("damage")] long? Damage
 );
 
 public record RoundResult(
-    [property: JsonPropertyName("roundNum")] int? RoundNum,
+    [property: JsonPropertyName("roundNum")] long? RoundNum,
     [property: JsonPropertyName("roundResult")] string RoundResultInternal,
     [property: JsonPropertyName("roundCeremony")] string RoundCeremony,
     [property: JsonPropertyName("winningTeam")] string WinningTeam,
-    [property: JsonPropertyName("plantRoundTime")] int? PlantRoundTime,
+    [property: JsonPropertyName("plantRoundTime")] long? PlantRoundTime,
     [property: JsonPropertyName("plantPlayerLocations")] IReadOnlyList<PlantPlayerLocation> PlantPlayerLocations,
     [property: JsonPropertyName("plantLocation")] PlantLocation PlantLocation,
     [property: JsonPropertyName("plantSite")] string PlantSite,
-    [property: JsonPropertyName("defuseRoundTime")] int? DefuseRoundTime,
+    [property: JsonPropertyName("defuseRoundTime")] long? DefuseRoundTime,
     [property: JsonPropertyName("defusePlayerLocations")] IReadOnlyList<DefusePlayerLocation> DefusePlayerLocations,
     [property: JsonPropertyName("defuseLocation")] DefuseLocation DefuseLocation,
     [property: JsonPropertyName("playerStats")] IReadOnlyList<PlayerStat> PlayerStats,
@@ -276,26 +276,26 @@ public record SettingStatus(
 );
 
 public record Stats(
-    [property: JsonPropertyName("score")] int? Score,
-    [property: JsonPropertyName("roundsPlayed")] int? RoundsPlayed,
-    [property: JsonPropertyName("kills")] int? Kills,
-    [property: JsonPropertyName("deaths")] int? Deaths,
-    [property: JsonPropertyName("assists")] int? Assists,
-    [property: JsonPropertyName("playtimeMillis")] int? PlaytimeMillis,
+    [property: JsonPropertyName("score")] long? Score,
+    [property: JsonPropertyName("roundsPlayed")] long? RoundsPlayed,
+    [property: JsonPropertyName("kills")] long? Kills,
+    [property: JsonPropertyName("deaths")] long? Deaths,
+    [property: JsonPropertyName("assists")] long? Assists,
+    [property: JsonPropertyName("playtimeMillis")] long? PlaytimeMillis,
     [property: JsonPropertyName("abilityCasts")] AbilityCasts AbilityCasts
 );
 
 public record Team(
     [property: JsonPropertyName("teamId")] string TeamId,
     [property: JsonPropertyName("won")] bool? Won,
-    [property: JsonPropertyName("roundsPlayed")] int? RoundsPlayed,
-    [property: JsonPropertyName("roundsWon")] int? RoundsWon,
-    [property: JsonPropertyName("numPoints")] int? NumPoints
+    [property: JsonPropertyName("roundsPlayed")] long? RoundsPlayed,
+    [property: JsonPropertyName("roundsWon")] long? RoundsWon,
+    [property: JsonPropertyName("numPoints")] long? NumPoints
 );
 
 public record VictimLocation(
-    [property: JsonPropertyName("x")] int? X,
-    [property: JsonPropertyName("y")] int? Y
+    [property: JsonPropertyName("x")] long? X,
+    [property: JsonPropertyName("y")] long? Y
 );
 
 public record XpModification(

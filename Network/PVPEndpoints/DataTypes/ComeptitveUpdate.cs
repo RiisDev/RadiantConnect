@@ -9,18 +9,18 @@ public record Match(
     [property: JsonPropertyName("MapID")] string MapID,
     [property: JsonPropertyName("SeasonID")] string SeasonID,
     [property: JsonPropertyName("MatchStartTime")] object MatchStartTime,
-    [property: JsonPropertyName("TierAfterUpdate")] int? TierAfterUpdate,
-    [property: JsonPropertyName("TierBeforeUpdate")] int? TierBeforeUpdate,
-    [property: JsonPropertyName("RankedRatingAfterUpdate")] int? RankedRatingAfterUpdate,
-    [property: JsonPropertyName("RankedRatingBeforeUpdate")] int? RankedRatingBeforeUpdate,
-    [property: JsonPropertyName("RankedRatingEarned")] int? RankedRatingEarned,
-    [property: JsonPropertyName("RankedRatingPerformanceBonus")] int? RankedRatingPerformanceBonus,
+    [property: JsonPropertyName("TierAfterUpdate")] long? TierAfterUpdate,
+    [property: JsonPropertyName("TierBeforeUpdate")] long? TierBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingAfterUpdate")] long? RankedRatingAfterUpdate,
+    [property: JsonPropertyName("RankedRatingBeforeUpdate")] long? RankedRatingBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingEarned")] long? RankedRatingEarned,
+    [property: JsonPropertyName("RankedRatingPerformanceBonus")] long? RankedRatingPerformanceBonus,
     [property: JsonPropertyName("CompetitiveMovement")] string CompetitiveMovement,
-    [property: JsonPropertyName("AFKPenalty")] int? AFKPenalty
+    [property: JsonPropertyName("AFKPenalty")] long? AFKPenalty
 );
 
 public record CompetitiveUpdate(
-    [property: JsonPropertyName("Version")] int? Version,
+    [property: JsonPropertyName("Version")] long? Version,
     [property: JsonPropertyName("Subject")] string Subject,
     [property: JsonPropertyName("Matches")] IReadOnlyList<Match> Matches
 );

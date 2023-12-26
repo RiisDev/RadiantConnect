@@ -12,9 +12,9 @@ public record CheatData(
 public record CustomGameData(
     [property: JsonPropertyName("Settings")] Settings Settings,
     [property: JsonPropertyName("Membership")] Membership Membership,
-    [property: JsonPropertyName("MaxPartySize")] int? MaxPartySize,
+    [property: JsonPropertyName("MaxPartySize")] long? MaxPartySize,
     [property: JsonPropertyName("AutobalanceEnabled")] bool? AutobalanceEnabled,
-    [property: JsonPropertyName("AutobalanceMinPlayers")] int? AutobalanceMinPlayers,
+    [property: JsonPropertyName("AutobalanceMinPlayers")] long? AutobalanceMinPlayers,
     [property: JsonPropertyName("HasRecoveryData")] bool? HasRecoveryData
 );
 
@@ -26,16 +26,16 @@ public record ErrorNotification(
 public record MatchmakingData(
     [property: JsonPropertyName("QueueID")] string QueueID,
     [property: JsonPropertyName("PreferredGamePods")] IReadOnlyList<string> PreferredGamePods,
-    [property: JsonPropertyName("SkillDisparityRRPenalty")] int? SkillDisparityRRPenalty
+    [property: JsonPropertyName("SkillDisparityRRPenalty")] long? SkillDisparityRRPenalty
 );
 
 public record Member(
     [property: JsonPropertyName("Subject")] string Subject,
-    [property: JsonPropertyName("CompetitiveTier")] int? CompetitiveTier,
+    [property: JsonPropertyName("CompetitiveTier")] long? CompetitiveTier,
     [property: JsonPropertyName("PlayerIdentity")] PlayerIdentity PlayerIdentity,
     [property: JsonPropertyName("SeasonalBadgeInfo")] object SeasonalBadgeInfo,
     [property: JsonPropertyName("IsOwner")] bool? IsOwner,
-    [property: JsonPropertyName("QueueEligibleRemainingAccountLevels")] int? QueueEligibleRemainingAccountLevels,
+    [property: JsonPropertyName("QueueEligibleRemainingAccountLevels")] long? QueueEligibleRemainingAccountLevels,
     [property: JsonPropertyName("Pings")] IReadOnlyList<PingInternal> Pings,
     [property: JsonPropertyName("IsReady")] bool? IsReady,
     [property: JsonPropertyName("IsModerator")] bool? IsModerator,
@@ -52,7 +52,7 @@ public record Membership(
 );
 
 public record PingInternal(
-    [property: JsonPropertyName("Ping")] int? Ping,
+    [property: JsonPropertyName("Ping")] long? Ping,
     [property: JsonPropertyName("GamePodID")] string GamePodID
 );
 
@@ -60,7 +60,7 @@ public record PlayerIdentity(
     [property: JsonPropertyName("Subject")] string Subject,
     [property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
     [property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
-    [property: JsonPropertyName("AccountLevel")] int? AccountLevel,
+    [property: JsonPropertyName("AccountLevel")] long? AccountLevel,
     [property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
     [property: JsonPropertyName("Incognito")] bool? Incognito,
     [property: JsonPropertyName("HideAccountLevel")] bool? HideAccountLevel
@@ -83,7 +83,7 @@ public record Party(
     [property: JsonPropertyName("Requests")] IReadOnlyList<object> Requests,
     [property: JsonPropertyName("QueueEntryTime")] DateTime? QueueEntryTime,
     [property: JsonPropertyName("ErrorNotification")] ErrorNotification ErrorNotification,
-    [property: JsonPropertyName("RestrictedSeconds")] int? RestrictedSeconds,
+    [property: JsonPropertyName("RestrictedSeconds")] long? RestrictedSeconds,
     [property: JsonPropertyName("EligibleQueues")] IReadOnlyList<string> EligibleQueues,
     [property: JsonPropertyName("QueueIneligibilities")] IReadOnlyList<object> QueueIneligibilities,
     [property: JsonPropertyName("CheatData")] CheatData CheatData,
