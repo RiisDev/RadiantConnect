@@ -3,7 +3,7 @@
 
 namespace RadiantConnect.Network.PreGameEndpoints;
 
-public class PreGameEndpoints
+public class PreGameEndpoints(Initiator initiator)
 {
     internal static readonly Dictionary<Agent, string> AgentToAgentId = new()
     {
@@ -59,35 +59,35 @@ public class PreGameEndpoints
         KAYO
     }
 
-    internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
+    internal string Url = initiator.ExternalSystem.ClientData.SharedUrl;
 
-    public static async Task<PreGamePlayer?> FetchPreGamePlayer(string userId)
+    public async Task<PreGamePlayer?> FetchPreGamePlayer(string userId)
     {
-        return await ValorantNet.GetAsync<PreGamePlayer>(Url, $"/pregame/v1/players/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<PreGamePlayer>(Url, $"/pregame/v1/players/{userId}");
     }
 
-    public static async Task<PreGameMatch?> FetchPreGameMatch(string matchId)
+    public async Task<PreGameMatch?> FetchPreGameMatch(string matchId)
     {
-        return await ValorantNet.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
+        return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
     }
 
-    public static async Task<GameLoadout?> FetchPreGameLoadout(string matchId)
+    public async Task<GameLoadout?> FetchPreGameLoadout(string matchId)
     {
-        return await ValorantNet.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{matchId}/loadouts");
+        return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{matchId}/loadouts");
     }
 
-    public static async Task<PreGameMatch?> SelectCharacter(string matchId, Agent agent)
+    public async Task<PreGameMatch?> SelectCharacter(string matchId, Agent agent)
     {
-        return await ValorantNet.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/select/{AgentToAgentId[agent]}");
+        return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/select/{AgentToAgentId[agent]}");
     }
 
-    public static async Task<PreGameMatch?> LockCharacter(string matchId, Agent agent)
+    public async Task<PreGameMatch?> LockCharacter(string matchId, Agent agent)
     {
-        return await ValorantNet.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/lock/{AgentToAgentId[agent]}");
+        return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/lock/{AgentToAgentId[agent]}");
     }
 
-    public static async Task QuitGame(string matchId)
+    public async Task QuitGame(string matchId)
     {
-        await Initiator.InternalSystem.Net.GetAsync(Url, $"/pregame/v1/matches/{matchId}/quit");
+        await initiator.ExternalSystem.Net.GetAsync(Url, $"/pregame/v1/matches/{matchId}/quit");
     }
 }

@@ -1,7 +1,7 @@
 ﻿using RadiantConnect.Network.StoreEndpoints.DataTypes;
 namespace RadiantConnect.Network.StoreEndpoints;
 
-public class StoreEndpoints
+public class StoreEndpoints(Initiator initiaior)
 {
     public enum ItemType
     {
@@ -15,9 +15,8 @@ public class StoreEndpoints
         Titles,
     }
 
-    internal static ValorantNet Net = Initiator.InternalSystem.Net;
-    internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
-    internal static Dictionary<ItemType, string> ItemTypes = new()
+    internal string Url = initiaior.ExternalSystem.ClientData.PdUrl;
+    internal Dictionary<ItemType, string> ItemTypes = new()
     {
         { ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },
         { ItemType.Contracts, "f85cb6f7-33e5-4dc8-b609-ec7212301948" },
@@ -29,19 +28,18 @@ public class StoreEndpoints
         { ItemType.Titles, "de7caa6b-adf7-4588-bbd1-143831e786c6" },
     };
 
-
-    public static async Task<Storefront?> FetchStorefront(string userId)
+    public async Task<Storefront?> FetchStorefront(string userId)
     {
-        return await ValorantNet.GetAsync<Storefront>(Url, $"/store/v2/storefront/{userId}");
+        return await initiaior.ExternalSystem.Net.GetAsync<Storefront>(Url, $"/store/v2/storefront/{userId}");
     }
 
-    public static async Task<BalancesMain?> FetchBalances(string userId)
+    public async Task<BalancesMain?> FetchBalances(string userId)
     {
-        return await ValorantNet.GetAsync<BalancesMain>(Url, $"/store/v2/storefront/{userId}");
+        return await initiaior.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v2/storefront/{userId}");
     }
 
-    public static async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ItemType type, string userId)
+    public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ItemType type, string userId)
     {
-        return await ValorantNet.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{userId}/{ItemTypes[type]}");
+        return await initiaior.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{userId}/{ItemTypes[type]}");
     }
 }

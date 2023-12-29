@@ -3,17 +3,17 @@ using RadiantConnect.Network.ContractEndpoints.DataTypes;
 
 namespace RadiantConnect.Network.ContractEndpoints;
 
-public class ContractEndpoints
+public class ContractEndpoints(Initiator initiator)
 {
-    internal static string Url = Initiator.InternalSystem.ClientData.PdUrl;
+    internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
 
-    public static async Task<ItemUpgrade?> GetItemUpgrades()
+    public async Task<ItemUpgrade?> GetItemUpgrades()
     {
-        return await ValorantNet.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades");
+        return await initiator.ExternalSystem.Net.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades");
     }
 
-    public static async Task<Contract?> GetContracts(string userId)
+    public async Task<Contract?> GetContracts(string userId)
     {
-        return await ValorantNet.GetAsync<Contract?>(Url, $"/contracts/v1/contracts/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<Contract?>(Url, $"/contracts/v1/contracts/{userId}");
     }
 }

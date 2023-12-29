@@ -1,42 +1,6 @@
-﻿#pragma warning disable CA2211
-namespace RadiantConnect.Methods;
+﻿namespace RadiantConnect.Methods;
 
 // ReSharper disable All
-
-public static class RankIcons
-{
-    public static Dictionary<string, string> RankIcon = new()
-    {
-        { "Unranked", "pack://application:,,,/RankIcons/Unranked.png" },
-        { "Unranked1", "pack://application:,,,/RankIcons/Unranked.png" },
-        { "Unranked2", "pack://application:,,,/RankIcons/Unranked.png" },
-        { "Iron 1", "pack://application:,,,/RankIcons/Iron 1.png" },
-        { "Iron 2", "pack://application:,,,/RankIcons/Iron 2.png" },
-        { "Iron 3", "pack://application:,,,/RankIcons/Iron 3.png" },
-        { "Bronze 1", "pack://application:,,,/RankIcons/Bronze 1.png" },
-        { "Bronze 2", "pack://application:,,,/RankIcons/Bronze 2.png" },
-        { "Bronze 3", "pack://application:,,,/RankIcons/Bronze 3.png" },
-        { "Silver 1", "pack://application:,,,/RankIcons/Silver 1.png" },
-        { "Silver 2", "pack://application:,,,/RankIcons/Silver 2.png" },
-        { "Silver 3", "pack://application:,,,/RankIcons/Silver 3.png" },
-        { "Gold 1", "pack://application:,,,/RankIcons/Gold 1.png" },
-        { "Gold 2", "pack://application:,,,/RankIcons/Gold 2.png" },
-        { "Gold 3", "pack://application:,,,/RankIcons/Gold 3.png" },
-        { "Platinum 1", "pack://application:,,,/RankIcons/Platinum 1.png" },
-        { "Platinum 2", "pack://application:,,,/RankIcons/Platinum 2.png" },
-        { "Platinum 3", "pack://application:,,,/RankIcons/Platinum 3.png" },
-        { "Diamond 1", "pack://application:,,,/RankIcons/Diamond 1.png" },
-        { "Diamond 2", "pack://application:,,,/RankIcons/Diamond 2.png" },
-        { "Diamond 3", "pack://application:,,,/RankIcons/Diamond 3.png" },
-        { "Ascendant 1", "pack://application:,,,/RankIcons/Ascendant 1.png" },
-        { "Ascendant 2", "pack://application:,,,/RankIcons/Ascendant 2.png" },
-        { "Ascendant 3", "pack://application:,,,/RankIcons/Ascendant 3.png" },
-        { "Immortal 1", "pack://application:,,,/RankIcons/Immortal 1.png" },
-        { "Immortal 2", "pack://application:,,,/RankIcons/Immortal 2.png" },
-        { "Immortal 3", "pack://application:,,,/RankIcons/Immortal 3.png" },
-        { "Radiant", "pack://application:,,,/RankIcons/Radiant.png" }
-    };
-}
 
 public class ValorantLogic
 {
@@ -103,16 +67,5 @@ public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl
         eu,
         ap,
         kr,
-    }
-}
-
-public record ValorantRank(string? Rank, string? RankIcon)
-{
-    public string? Rank { get; set; } = Rank;
-    public string? RankIcon { get; set; } = RankIcon;
-
-    public static ValorantRank Default()
-    {
-        return new ValorantRank("Unranked", RankIcons.RankIcon["Unranked"]);
     }
 }

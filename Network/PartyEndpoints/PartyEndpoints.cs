@@ -5,10 +5,9 @@ namespace RadiantConnect.Network.PartyEndpoints;
 
 // ReSharper disable All
 
-public class PartyEndpoints
+public class PartyEndpoints(Initiator initiator)
 {
-    internal static string Url = Initiator.InternalSystem.ClientData.SharedUrl;
-    internal static ValorantNet Net = Initiator.InternalSystem.Net;
+    internal string Url = initiator.ExternalSystem.ClientData.SharedUrl;
 
     public enum QueueId
     {
@@ -27,103 +26,103 @@ public class PartyEndpoints
         CLOSED
     }
 
-    public static async Task<PartyPlayer?> FetchPartyPlayerAsync(string userId)
+    public async Task<PartyPlayer?> FetchPartyPlayerAsync(string userId)
     {
-        return await ValorantNet.GetAsync<PartyPlayer>(Url, $"parties/v1/players/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<PartyPlayer>(Url, $"parties/v1/players/{userId}");
     }
 
-    public static async Task<Party?> FetchPartyAsync(string partyId)
+    public async Task<Party?> FetchPartyAsync(string partyId)
     {
-        return await ValorantNet.GetAsync<Party>(Url, $"parties/v1/parties/{partyId}");
+        return await initiator.ExternalSystem.Net.GetAsync<Party>(Url, $"parties/v1/parties/{partyId}");
     }
 
-    public static async Task<CustomGameConfig?> FetchCustomGameConfigAsync()
+    public async Task<CustomGameConfig?> FetchCustomGameConfigAsync()
     {
-        return await ValorantNet.GetAsync<CustomGameConfig>(Url, "parties/v1/parties/customgameconfigs");
+        return await initiator.ExternalSystem.Net.GetAsync<CustomGameConfig>(Url, "parties/v1/parties/customgameconfigs");
     }
 
-    public static async Task<PartyChatToken?> FetchPartyChatTokenAsync(string partyId)
+    public async Task<PartyChatToken?> FetchPartyChatTokenAsync(string partyId)
     {
-        return await ValorantNet.GetAsync<PartyChatToken>(Url, $"parties/v1/parties/{partyId}/muctoken");
+        return await initiator.ExternalSystem.Net.GetAsync<PartyChatToken>(Url, $"parties/v1/parties/{partyId}/muctoken");
     }
 
-    public static async Task<PartyVoiceToken?> FetchPartyVoiceTokenAsync(string partyId)
+    public async Task<PartyVoiceToken?> FetchPartyVoiceTokenAsync(string partyId)
     {
-        return await ValorantNet.GetAsync<PartyVoiceToken>(Url, $"parties/v1/parties/{partyId}/voicetoken");
+        return await initiator.ExternalSystem.Net.GetAsync<PartyVoiceToken>(Url, $"parties/v1/parties/{partyId}/voicetoken");
     }
 
-    public static async Task<PartySetReady?> SetPartyReadyAsync(string partyId, string userId, bool ready)
+    public async Task<PartySetReady?> SetPartyReadyAsync(string partyId, string userId, bool ready)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "ready", ready.ToString() } });
-        return await ValorantNet.PostAsync<PartySetReady>(Url, $"parties/v1/parties/{partyId}/members/{userId}/setReady", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<PartySetReady>(Url, $"parties/v1/parties/{partyId}/members/{userId}/setReady", jsonContent);
     }
 
-    public static async Task<Party?> RefreshCompetitveTierAsync(string partyId, string userId)
+    public async Task<Party?> RefreshCompetitveTierAsync(string partyId, string userId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshCompetitiveTier");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshCompetitiveTier");
     }
 
-    public static async Task<Party?> RefreshPlayerIdentityAsync(string partyId, string userId)
+    public async Task<Party?> RefreshPlayerIdentityAsync(string partyId, string userId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshPlayerIdentity");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshPlayerIdentity");
     }
 
-    public static async Task<Party?> RefreshPingsAsync(string partyId, string userId)
+    public async Task<Party?> RefreshPingsAsync(string partyId, string userId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshPings");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshPings");
     }
 
-    public static async Task<Party?> ChangeQueueAsync(string partyId, QueueId queueId)
+    public async Task<Party?> ChangeQueueAsync(string partyId, QueueId queueId)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "queueId", queueId.ToString() } });
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue", jsonContent);
     }
 
-    public static async Task<Party?> StartCustomGameeAsync(string partyId)
+    public async Task<Party?> StartCustomGameeAsync(string partyId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
     }
 
-    public static async Task<Party?> EnterQueueAsync(string partyId)
+    public async Task<Party?> EnterQueueAsync(string partyId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/join");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/join");
     }
 
-    public static async Task<Party?> LeaveQueueAsync(string partyId)
+    public async Task<Party?> LeaveQueueAsync(string partyId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/leave");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/leave");
     }
 
-    public static async Task<Party?> SetPartyOpenStatusAsync(string partyId, PartyState state)
+    public async Task<Party?> SetPartyOpenStatusAsync(string partyId, PartyState state)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "accessibility", state.ToString() } });
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility", jsonContent);
     }
 
-    public static async Task<Party?> SetCustomGameSettingsAsync(string partyId, CustomGameSettings gameSettings)
+    public async Task<Party?> SetCustomGameSettingsAsync(string partyId, CustomGameSettings gameSettings)
     {
         JsonContent jsonContent = JsonContent.Create(gameSettings);
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/customgamesettings", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/customgamesettings", jsonContent);
     }
 
-    public static async Task<Party?> InvitePlayerAsync(string partyId, string name, string tagLine)
+    public async Task<Party?> InvitePlayerAsync(string partyId, string name, string tagLine)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
     }
 
     // TO DO WORK ON REQUEST PARTY AND DECLINE PARTY
-    public static async Task<Party?> RequestPartyAsync(string partyId)
+    public async Task<Party?> RequestPartyAsync(string partyId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
     }
     // TO DO WORK ON REQUEST PARTY AND DECLINE PARTY
-    public static async Task<Party?> DeclinePartyAsync(string partyId)
+    public async Task<Party?> DeclinePartyAsync(string partyId)
     {
-        return await ValorantNet.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
     }
 
-    public static async Task KickFromPartyAsync(string userId)
+    public async Task KickFromPartyAsync(string userId)
     {
-        await Initiator.InternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}");
+        await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}");
     }
 }

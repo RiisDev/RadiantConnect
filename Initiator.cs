@@ -1,37 +1,65 @@
 ﻿using RadiantConnect.LogManager;
 using RadiantConnect.Methods;
-using RadiantConnect.Network;
 using RadiantConnect.Services;
+using RadiantConnect.Network;
+using RadiantConnect.Network.ChatEndpoints;
+using RadiantConnect.Network.ContractEndpoints;
+using RadiantConnect.Network.CurrentGameEndpoints;
+using RadiantConnect.Network.LocalEndpoints;
+using RadiantConnect.Network.PartyEndpoints;
+using RadiantConnect.Network.PreGameEndpoints;
+using RadiantConnect.Network.PVPEndpoints;
+using RadiantConnect.Network.StoreEndpoints;
 
 namespace RadiantConnect
 {
-    public record InternalSystem(ValorantService ValorantClient, LogParser LogManager, ValorantNet Net, ClientData ClientData);
+    public record InternalSystem(
+        ValorantService ValorantClient,
+        ValorantNet Net,
+        LogParser LogManager, 
+        ClientData ClientData
+    );
+
+    public record Endpoints(
+        ChatEndpoints ChatEndpoints,
+        ContractEndpoints ContractEndpoints,
+        CurrentGameEndpoints CurrentGameEndpoints,
+        LocalEndpoints LocalEndpoints,
+        PartyEndpoints PartyEndpoints,
+        PreGameEndpoints PreGameEndpoints,
+        PVPEndpoints PvpEndpoints,
+        StoreEndpoints StoreEndpoints
+    );
 
     public class Initiator
     {
-        private static InternalSystem _internalSystem = null!;
+        public InternalSystem ExternalSystem { get; }
 
-        public static InternalSystem InternalSystem
-        {
-            get
-            {
-                if (_internalSystem == null) throw new InvalidOperationException("InternalSystem is not initialized. Please invoke the Initiator() before accessing it.");
-                return _internalSystem;
-            }
-        }
+        public Endpoints Endpoints { get; }
 
         public Initiator()
         {
             ValorantService client = new();
             LogParser logParser = new();
-            ValorantNet net = new (client);
+            ValorantNet net = new(client);
             ClientData cData = LogParser.GetClientData();
 
-            _internalSystem = new InternalSystem(
+            ExternalSystem = new InternalSystem(
                 client,
-                logParser,
                 net,
+                logParser,
                 cData
+            );
+
+            Endpoints = new Endpoints(
+                new ChatEndpoints(this),
+                new ContractEndpoints(this),
+                new CurrentGameEndpoints(this),
+                new LocalEndpoints(this),
+                new PartyEndpoints(this),
+                new PreGameEndpoints(this),
+                new PVPEndpoints(this),
+                new StoreEndpoints(this)
             );
         }
     }

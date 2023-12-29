@@ -61,7 +61,7 @@ namespace RadiantConnect.Network
             return new UserAuth(lockFile, authPort, oAuth);
         }
 
-        public int? GetAuthPort() { return GetAuth()?.AuthorizationPort; }
+        public static int? GetAuthPort() { return GetAuth()?.AuthorizationPort; }
 
         private async Task<(string, string)> GetAuthorizationToken()
         {
@@ -169,23 +169,23 @@ namespace RadiantConnect.Network
             }
         }
 
-        internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
+        internal async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
         {
-            string? jsonData = await PartyEndpoints.PartyEndpoints.Net.GetAsync(baseUrl, endPoint);
+            string? jsonData = await GetAsync(baseUrl, endPoint);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        internal static async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
+        internal async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
         {
-            string? jsonData = await PartyEndpoints.PartyEndpoints.Net.PostAsync(baseUrl, endPoint, httpContent);
+            string? jsonData = await PostAsync(baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        internal static async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
+        internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
         {
-            string? jsonData = await PartyEndpoints.PartyEndpoints.Net.PutAsync(baseUrl, endPoint, httpContent);
+            string? jsonData = await PutAsync(baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
