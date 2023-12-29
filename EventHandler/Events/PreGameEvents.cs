@@ -3,7 +3,7 @@ using RadiantConnect.Methods;
 
 namespace RadiantConnect.EventHandler.Events
 {
-    public class PreGameEvents
+    public class PreGameEvents(Initiator initiator)
     {
         private string _matchId = null!;
         public delegate void QueueEvent(string id);
@@ -19,7 +19,7 @@ namespace RadiantConnect.EventHandler.Events
             switch (invoker)
             {
                 case "Pregame_GetPlayer":
-                    OnPreGamePlayerLoaded?.Invoke(Initiator.InternalSystem.ClientData.UserId);
+                    OnPreGamePlayerLoaded?.Invoke(initiator.ExternalSystem.ClientData.UserId);
                     break;
                 case "Pregame_GetMatch":
                     string matchId = logData.ExtractValue(@"matches/([a-fA-F\d-]+)", 1);
@@ -31,12 +31,12 @@ namespace RadiantConnect.EventHandler.Events
                 case "Pregame_LockCharacter":
                     agentId = logData.ExtractValue(@"lock/([a-fA-F\d-]+)", 1);
                     Debug.WriteLine($"Character Locked: {agentId}");
-                    OnAgentLockedIn?.Invoke(ValorantLogic.AgentIdToAgent[agentId]);
+                    OnAgentLockedIn?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
                     break;
                 case "Pregame_SelectCharacter":
                     agentId = logData.ExtractValue(@"select/([a-fA-F\d-]+)", 1);
                     Debug.WriteLine($"Character Selected: {agentId}");
-                    OnAgentSelected?.Invoke(ValorantLogic.AgentIdToAgent[agentId]);
+                    OnAgentSelected?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
                     break;
             }
         }

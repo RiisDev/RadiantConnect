@@ -2,10 +2,10 @@
 
 namespace RadiantConnect.EventHandler
 {
-    public class GameEvents
+    public class GameEvents(Initiator initiator)
     {
-        public QueueEvents Queue = new();
-        public PreGameEvents PreGame = new();
+        public QueueEvents Queue = new(initiator);
+        public PreGameEvents PreGame = new(initiator);
         public MatchEvents Match = new();
         public RoundEvents Round = new();
         public VoteEvents Vote = new();

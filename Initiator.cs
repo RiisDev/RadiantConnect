@@ -1,8 +1,7 @@
-﻿using RadiantConnect.LogManager;
+﻿using RadiantConnect.EventHandler;
 using RadiantConnect.Methods;
 using RadiantConnect.Services;
 using RadiantConnect.Network;
-using RadiantConnect.Network.ChatEndpoints;
 using RadiantConnect.Network.ContractEndpoints;
 using RadiantConnect.Network.CurrentGameEndpoints;
 using RadiantConnect.Network.LocalEndpoints;
@@ -16,12 +15,12 @@ namespace RadiantConnect
     public record InternalSystem(
         ValorantService ValorantClient,
         ValorantNet Net,
-        LogParser LogManager, 
-        ClientData ClientData
+        LogService LogService,
+        LogService.ClientData ClientData
     );
 
     public record Endpoints(
-        ChatEndpoints ChatEndpoints,
+        //ChatEndpoints ChatEndpoints,
         ContractEndpoints ContractEndpoints,
         CurrentGameEndpoints CurrentGameEndpoints,
         LocalEndpoints LocalEndpoints,
@@ -33,26 +32,40 @@ namespace RadiantConnect
 
     public class Initiator
     {
-        public InternalSystem ExternalSystem { get; }
+        internal static async void WaitTillReady()
+        {
+            while (true)
+            {
+                if (!InternalValorantMethods.IsValorantProcessOpened()) continue;
+                if (!Directory.Exists(Path.GetFullPath(LogService.GetLogPath()))) continue;
+                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile"))) continue;
+                if (!File.Exists(LogService.GetLogPath())) continue;
+                if (!LogService.GetLogText().Split('\n').Reverse().Last().Contains("Log file closed")) break;
+                await Task.Delay(500);
+            }
+        }
 
+        public InternalSystem ExternalSystem { get; }
         public Endpoints Endpoints { get; }
+        public GameEvents GameEvents { get; }
 
         public Initiator()
         {
+            WaitTillReady();
             ValorantService client = new();
-            LogParser logParser = new();
+            LogService logService = new();
             ValorantNet net = new(client);
-            ClientData cData = LogParser.GetClientData();
+            LogService.ClientData cData = LogService.GetClientData();
 
             ExternalSystem = new InternalSystem(
                 client,
                 net,
-                logParser,
+                logService,
                 cData
             );
 
             Endpoints = new Endpoints(
-                new ChatEndpoints(this),
+               //new ChatEndpoints(this),
                 new ContractEndpoints(this),
                 new CurrentGameEndpoints(this),
                 new LocalEndpoints(this),
@@ -61,6 +74,8 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
+            
+            GameEvents = LogService.InitiateEvents(this).Result;
         }
     }
 }

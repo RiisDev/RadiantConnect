@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
-using RadiantConnect.Methods;
 using RadiantConnect.Network.PVPEndpoints.DataTypes;
+using RadiantConnect.Services;
+
 // ReSharper disable All
 
 namespace RadiantConnect.Network.PVPEndpoints;
@@ -49,7 +50,7 @@ public class PVPEndpoints(Initiator initiator)
         return await initiator.ExternalSystem.Net.GetAsync<Penalty>(Url, "/restrictions/v3/penalties");
     }
 
-    public async Task<Penalty?> FetchClientConfigAsync(ClientData.ShardType shard)
+    public async Task<Penalty?> FetchClientConfigAsync(LogService.ClientData.ShardType shard)
     {
         return await initiator.ExternalSystem.Net.GetAsync<Penalty>(Url, $"/v1/config/{shard}");
     }

@@ -26,6 +26,6 @@ public class CurrentGameEndpoints(Initiator initiator)
 
     public async Task QuitCurrentGame(string userId, string matchId)
     {
-        await initiator.ExternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{userId}/disassociate/{matchId}");
+        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post, Url, $"/core-game/v1/players/{userId}/disassociate/{matchId}");
     }
 }

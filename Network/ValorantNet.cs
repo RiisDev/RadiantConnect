@@ -1,24 +1,40 @@
 ﻿using System.Net;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using RadiantConnect.Methods;
 using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
 {
     public class ValorantNet
     {
-        internal record Entitlement(
-            [property: JsonPropertyName("accessToken")] string AccessToken,
-            [property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,
-            [property: JsonPropertyName("issuer")] string Issuer,
-            [property: JsonPropertyName("subject")] string Subject,
-            [property: JsonPropertyName("token")] string Token
-        );
+        internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
-        internal HttpClient Client = new(GetHttpClientHandler());
+        public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
+
+        internal static Dictionary<HttpMethod, System.Net.Http.HttpMethod> InternalToHttpMethod = new()
+        {
+            { HttpMethod.Get, System.Net.Http.HttpMethod.Get },
+            { HttpMethod.Post, System.Net.Http.HttpMethod.Post },
+            { HttpMethod.Put, System.Net.Http.HttpMethod.Put },
+            { HttpMethod.Delete, System.Net.Http.HttpMethod.Delete },
+            { HttpMethod.Patch, System.Net.Http.HttpMethod.Patch },
+            { HttpMethod.Options, System.Net.Http.HttpMethod.Options },
+            { HttpMethod.Head, System.Net.Http.HttpMethod.Head },
+        };
+
+        internal enum HttpMethod
+        {
+            Get,
+            Post, 
+            Put, 
+            Delete,
+            Patch,
+            Options,
+            Head
+        }
 
         public ValorantNet(ValorantService valorantClient)
         {
@@ -26,25 +42,15 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", valorantClient.ValorantClientVersion.RiotClientVersion);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "ShooterGame/13 Windows/10.0.19043.1.256.64bit");
         }
-
-        private static HttpClientHandler GetHttpClientHandler()
-        {
-            return new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-            };
-        }
-
-        private static UserAuth? GetAuth()
+        
+        internal static InternalRecords.UserAuth? GetAuth()
         {
             string lockFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile");
             string? fileText;
             try
             {
                 File.Copy(lockFile, $"{lockFile}.tmp", true);
-                using FileStream fs = new($"{lockFile}.tmp", FileMode.Open, FileAccess.Read, FileShare.Read);
-                using StreamReader reader = new(fs);
-                fileText = reader.ReadToEnd();
+                fileText = File.ReadAllText($"{lockFile}.tmp");
             }
             finally
             {
@@ -58,14 +64,12 @@ namespace RadiantConnect.Network
             int authPort = int.Parse(fileValues[2]);
             string oAuth = fileValues[3];
 
-            return new UserAuth(lockFile, authPort, oAuth);
+            return new InternalRecords.UserAuth(authPort, oAuth);
         }
 
-        public static int? GetAuthPort() { return GetAuth()?.AuthorizationPort; }
-
-        private async Task<(string, string)> GetAuthorizationToken()
+        internal async Task<(string, string)> GetAuthorizationToken()
         {
-            UserAuth? auth = GetAuth();
+            InternalRecords.UserAuth? auth = GetAuth();
             string toEncode = $"riot:{auth?.OAuth}";
             byte[] stringBytes = Encoding.UTF8.GetBytes(toEncode);
             string base64Encode = Convert.ToBase64String(stringBytes);
@@ -74,12 +78,12 @@ namespace RadiantConnect.Network
 
             if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
 
-            Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
+            InternalRecords.Entitlement? entitlement = JsonSerializer.Deserialize<InternalRecords.Entitlement>(response.Content.ReadAsStringAsync().Result);
 
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
 
-        private async Task ResetAuth()
+        internal async Task ResetAuth()
         {
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
@@ -92,102 +96,65 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
-        public async Task<string?> GetAsync(string baseAddress, string endpoint)
+        internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
-            while (true)
+            while (InternalValorantMethods.IsValorantProcessOpened())
             {
-                await ResetAuth();
+                if (!Client.DefaultRequestHeaders.Contains("X-Riot-Entitlements-JWT")) { await ResetAuth(); continue; }
 
-                HttpResponseMessage response = await Client.GetAsync($"{baseAddress}{endpoint}");
-                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
-                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
+                using HttpRequestMessage httpRequest = new();
+                httpRequest.Method = InternalToHttpMethod[httpMethod];
+                httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
+                httpRequest.Content = content;
 
-                return await response.Content.ReadAsStringAsync();
+                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead);
+
+                switch (responseMessage)
+                {
+                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.InternalServerError }:
+                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }:
+                        await ResetAuth();
+                        continue;
+                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
+                        return $"Invalid method for: {baseUrl}{endPoint}";
+                }
+
+                return await responseMessage.Content.ReadAsStringAsync();
             }
-        }
-
-        public async Task<string?> PostAsync(string baseAddress, string endpoint, HttpContent? postData = null)
-        {
-            while (true)
-            {
-                await ResetAuth();
-
-                HttpResponseMessage response = await Client.PostAsync($"{baseAddress}{endpoint}", postData);
-
-                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
-                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-                return await response.Content.ReadAsStringAsync();
-            }
-        }
-
-        public async Task<string?> DeleteAsync(string baseAddress, string endpoint)
-        {
-            while (true)
-            {
-                await ResetAuth();
-
-                HttpResponseMessage response = await Client.DeleteAsync($"{baseAddress}{endpoint}");
-
-                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
-                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-                return await response.Content.ReadAsStringAsync();
-            }
-        }
-
-        public async Task<string?> DeleteAsJsonAsync(string baseAddress, string endpoint, JsonContent value)
-        {
-            while (true)
-            {
-                await ResetAuth();
-
-                using HttpRequestMessage request = new(HttpMethod.Delete, $"{baseAddress}{endpoint}");
-                request.Content = new StringContent(JsonSerializer.Serialize(value));
-
-                HttpResponseMessage response = await Client.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
-
-                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
-                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-                return await response.Content.ReadAsStringAsync();
-            }
-        }
-
-        public async Task<string?> PutAsync(string baseAddress, string endpoint, HttpContent content)
-        {
-            while (true)
-            {
-                await ResetAuth();
-
-                HttpResponseMessage response = await Client.PutAsync($"{baseAddress}{endpoint}", content);
-
-                if (response is { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }) continue;
-                if (!response.IsSuccessStatusCode) return $"Failed: {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}";
-
-                return await response.Content.ReadAsStringAsync();
-            }
+            return string.Empty;
         }
 
         internal async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
         {
-            string? jsonData = await GetAsync(baseUrl, endPoint);
+            string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
         internal async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
         {
-            string? jsonData = await PostAsync(baseUrl, endPoint, httpContent);
+            string? jsonData = await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
         internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
         {
-            string? jsonData = await PutAsync(baseUrl, endPoint, httpContent);
+            string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
+    }
+
+    public class InternalRecords
+    {
+        internal record Entitlement(
+            [property: JsonPropertyName("accessToken")] string AccessToken,
+            [property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,
+            [property: JsonPropertyName("issuer")] string Issuer,
+            [property: JsonPropertyName("subject")] string Subject,
+            [property: JsonPropertyName("token")] string Token
+        );
+        internal record UserAuth(int AuthorizationPort, string OAuth);
     }
 }

@@ -1,9 +1,11 @@
-﻿namespace RadiantConnect.Methods;
-
+﻿using System.Diagnostics;
+namespace RadiantConnect.Methods;
 // ReSharper disable All
 
-public class ValorantLogic
+public class InternalValorantMethods
 {
+    public static bool IsValorantProcessOpened() { return Process.GetProcessesByName("VALORANT").Length > 0; }
+
     public static readonly Dictionary<string, string> GamePodsDictionary = new()
     {
         {"aresqa.aws-rclusterprod-use1-1.dev1-gp-ashburn-1", "Ashburn"},
@@ -54,18 +56,4 @@ public class ValorantLogic
         { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" },
         { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" }
     };
-
-}
-
-public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
-{
-    public enum ShardType
-    {
-        na,
-        latam,
-        br,
-        eu,
-        ap,
-        kr,
-    }
 }

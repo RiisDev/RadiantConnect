@@ -1,11 +1,12 @@
 ﻿using System.Text.Json;
 using RadiantConnect.Methods;
+using RadiantConnect.Network;
 using RadiantConnect.Network.PartyEndpoints.DataTypes;
 // ReSharper disable StringLiteralTypo
 
 namespace RadiantConnect.EventHandler.Events
 {
-    public class QueueEvents
+    public class QueueEvents(Initiator initiator)
     {
         internal enum PartyDataReturn
         {
@@ -24,7 +25,7 @@ namespace RadiantConnect.EventHandler.Events
 
         private async Task<T?> GetPartyData<T>(PartyDataReturn dataReturn, string endPoint) where T : class?
         {
-            string? data = await Initiator.InternalSystem.Net.GetAsync(Initiator.InternalSystem.ClientData.GlzUrl, endPoint);
+            string? data = await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Get, initiator.ExternalSystem.ClientData.GlzUrl, endPoint);
 
             return data is null ? null : dataReturn switch
             {
@@ -45,16 +46,16 @@ namespace RadiantConnect.EventHandler.Events
             switch (invoker)
             {
                 case "Party_ChangeQueue":
-                    OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(Initiator.InternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                    OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
                 case "Party_EnterMatchmakingQueue":
-                    OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(Initiator.InternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                    OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
                 case "Party_LeaveMatchmakingQueue":
-                    OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(Initiator.InternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                    OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
                 case "Party_MakePartyIntoCustomGame":
-                    OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(Initiator.InternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                    OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
             }
         }

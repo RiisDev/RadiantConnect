@@ -3,15 +3,21 @@ using RadiantConnect.EventHandler;
 using RadiantConnect.Methods;
 using static System.Enum;
 using Path = System.IO.Path;
+#pragma warning disable IDE0079
 
-namespace RadiantConnect.LogManager
+namespace RadiantConnect.Services
 {
-    public class LogParser
+    public class LogService
     {
+        public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
+        {
+            [SuppressMessage("ReSharper", "InconsistentNaming")]
+            public enum ShardType { na, latam, br, eu, ap, kr, }
+        }
+
         internal static string GetLogPath()
         {
-            string userProfile = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
-            return Path.Combine(userProfile, "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
+            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
         }
 
         internal static string GetLogText()
@@ -47,16 +53,14 @@ namespace RadiantConnect.LogManager
             return new ClientData(region, userId, pdUrl, glzUrl, sharedUrl);
         }
 
-#pragma warning disable IDE0079 // Remove unnecessary suppression
         [SuppressMessage("ReSharper", "FunctionNeverReturns")]
-#pragma warning restore IDE0079 // Remove unnecessary suppression
-        public async Task<GameEvents> InitiateEvents()
+        public static async Task<GameEvents> InitiateEvents(Initiator initiator)
         {
-            GameEvents events = new();
+            GameEvents events = new(initiator);
             long lastFileSize = 0;
             await Task.Run(async () =>
             {
-                for (;;)
+                for (; ; )
                 {
                     await Task.Delay(100);
                     long currentFileSize = new FileInfo(GetLogPath()).Length;
