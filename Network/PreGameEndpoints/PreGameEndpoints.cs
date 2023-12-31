@@ -61,32 +61,32 @@ public class PreGameEndpoints(Initiator initiator)
 
     internal string Url = initiator.ExternalSystem.ClientData.SharedUrl;
 
-    public async Task<PreGamePlayer?> FetchPreGamePlayer(string userId)
+    public async Task<PreGamePlayer?> FetchPreGamePlayerAsync(string userId)
     {
         return await initiator.ExternalSystem.Net.GetAsync<PreGamePlayer>(Url, $"/pregame/v1/players/{userId}");
     }
 
-    public async Task<PreGameMatch?> FetchPreGameMatch(string matchId)
+    public async Task<PreGameMatch?> FetchPreGameMatchAsync(string matchId)
     {
         return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
     }
 
-    public async Task<GameLoadout?> FetchPreGameLoadout(string matchId)
+    public async Task<GameLoadout?> FetchPreGameLoadoutAsync(string matchId)
     {
         return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{matchId}/loadouts");
     }
 
-    public async Task<PreGameMatch?> SelectCharacter(string matchId, Agent agent)
+    public async Task<PreGameMatch?> SelectCharacterAsync(string matchId, Agent agent)
     {
         return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/select/{AgentToAgentId[agent]}");
     }
 
-    public async Task<PreGameMatch?> LockCharacter(string matchId, Agent agent)
+    public async Task<PreGameMatch?> LockCharacterAsync(string matchId, Agent agent)
     {
         return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/lock/{AgentToAgentId[agent]}");
     }
 
-    public async Task QuitGame(string matchId)
+    public async Task QuitGameAsync(string matchId)
     {
         await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post, Url, $"/pregame/v1/matches/{matchId}/quit");
     }

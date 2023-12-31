@@ -1,7 +1,7 @@
 ﻿using RadiantConnect.Network.StoreEndpoints.DataTypes;
 namespace RadiantConnect.Network.StoreEndpoints;
 
-public class StoreEndpoints(Initiator initiaior)
+public class StoreEndpoints(Initiator initiator)
 {
     public enum ItemType
     {
@@ -15,7 +15,7 @@ public class StoreEndpoints(Initiator initiaior)
         Titles,
     }
 
-    internal string Url = initiaior.ExternalSystem.ClientData.PdUrl;
+    internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
     internal Dictionary<ItemType, string> ItemTypes = new()
     {
         { ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },
@@ -28,18 +28,18 @@ public class StoreEndpoints(Initiator initiaior)
         { ItemType.Titles, "de7caa6b-adf7-4588-bbd1-143831e786c6" },
     };
 
-    public async Task<Storefront?> FetchStorefront(string userId)
+    public async Task<Storefront?> FetchStorefrontAsync(string userId)
     {
-        return await initiaior.ExternalSystem.Net.GetAsync<Storefront>(Url, $"/store/v2/storefront/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<Storefront>(Url, $"/store/v2/storefront/{userId}");
     }
 
-    public async Task<BalancesMain?> FetchBalances(string userId)
+    public async Task<BalancesMain?> FetchBalancesAsync(string userId)
     {
-        return await initiaior.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v2/storefront/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v2/storefront/{userId}");
     }
 
     public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ItemType type, string userId)
     {
-        return await initiaior.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{userId}/{ItemTypes[type]}");
+        return await initiator.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{userId}/{ItemTypes[type]}");
     }
 }

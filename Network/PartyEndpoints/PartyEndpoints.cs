@@ -110,6 +110,11 @@ public class PartyEndpoints(Initiator initiator)
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
     }
 
+    public async Task KickFromPartyAsync(string userId)
+    {
+        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, Url, $"parties/v1/players/{userId}");
+    }
+
     // TO DO WORK ON REQUEST PARTY AND DECLINE PARTY
     public async Task<Party?> RequestPartyAsync(string partyId)
     {
@@ -119,10 +124,5 @@ public class PartyEndpoints(Initiator initiator)
     public async Task<Party?> DeclinePartyAsync(string partyId)
     {
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
-    }
-
-    public async Task KickFromPartyAsync(string userId)
-    {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, Url, $"parties/v1/players/{userId}");
     }
 }

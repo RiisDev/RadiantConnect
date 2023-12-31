@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using RadiantConnect.Methods;
+﻿using RadiantConnect.Methods;
 
 namespace RadiantConnect.EventHandler.Events
 {
@@ -30,12 +29,10 @@ namespace RadiantConnect.EventHandler.Events
                     break;
                 case "Pregame_LockCharacter":
                     agentId = logData.ExtractValue(@"lock/([a-fA-F\d-]+)", 1);
-                    Debug.WriteLine($"Character Locked: {agentId}");
                     OnAgentLockedIn?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
                     break;
                 case "Pregame_SelectCharacter":
                     agentId = logData.ExtractValue(@"select/([a-fA-F\d-]+)", 1);
-                    Debug.WriteLine($"Character Selected: {agentId}");
                     OnAgentSelected?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
                     break;
             }
