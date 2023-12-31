@@ -1,12 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0-windows10.0.22000.0</TargetFramework>
+    <TargetFramework>net8.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>False</GeneratePackageOnBuild>
-    <Title>RadiantConnect</Title>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
+    <Version>$(AssemblyVersion)</Version>
+    <Authors>IrisDev</Authors>
+    <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/IrisV3rm/RadiantConnect</RepositoryUrl>
+    <Copyright>https://github.com/IrisV3rm</Copyright>
+    <Description>Unoffical Valorant Local API, Offers game events.</Description>
+    <PackageIcon>IrisCodingNexus - Icon.png</PackageIcon>
+    <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
+    <PackageReleaseNotes>First Build Release</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -16,5 +29,19 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
     <DebugType>embedded</DebugType>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\..\Discord Stuff\IrisCodingNexus - Icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
 
 </Project>

@@ -98,7 +98,7 @@ namespace RadiantConnect.Network
 
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
-            while (InternalValorantMethods.IsValorantProcessOpened())
+            while (InternalValorantMethods.IsValorantProcessRunning())
             {
                 if (!Client.DefaultRequestHeaders.Contains("X-Riot-Entitlements-JWT")) { await ResetAuth(); continue; }
 

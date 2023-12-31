@@ -32,26 +32,24 @@ namespace RadiantConnect
 
     public class Initiator
     {
-        internal static async void WaitTillReady()
+        internal static bool ClientIsReady()
         {
-            while (true)
-            {
-                if (!InternalValorantMethods.IsValorantProcessOpened()) continue;
-                if (!Directory.Exists(Path.GetFullPath(LogService.GetLogPath()))) continue;
-                if (!File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile"))) continue;
-                if (!File.Exists(LogService.GetLogPath())) continue;
-                if (!LogService.GetLogText().Split('\n').Reverse().Last().Contains("Log file closed")) break;
-                await Task.Delay(500);
-            }
+            return InternalValorantMethods.IsValorantProcessRunning() &&
+                   Directory.Exists(Path.GetDirectoryName(LogService.GetLogPath())) &&
+                   File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+                       "Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
+                   File.Exists(LogService.GetLogPath()) &&
+                   !LogService.GetLogText().Split('\n').Last().Contains("Log file closed");
         }
 
         public InternalSystem ExternalSystem { get; }
         public Endpoints Endpoints { get; }
-        public GameEvents GameEvents { get; }
+        public GameEvents GameEvents { get; set; } = null!;
 
         public Initiator()
         {
-            WaitTillReady();
+            while (!ClientIsReady()) Task.Delay(500);
+
             ValorantService client = new();
             LogService logService = new();
             ValorantNet net = new(client);
@@ -74,8 +72,7 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
-            
-            GameEvents = LogService.InitiateEvents(this).Result;
+            _ = LogService.InitiateEvents(this);
         }
     }
 }

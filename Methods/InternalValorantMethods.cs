@@ -4,9 +4,9 @@ namespace RadiantConnect.Methods;
 
 public class InternalValorantMethods
 {
-    public static bool IsValorantProcessOpened() { return Process.GetProcessesByName("VALORANT").Length > 0; }
+    public static bool IsValorantProcessRunning() { return Process.GetProcessesByName("VALORANT").Length > 0; }
 
-    public static readonly Dictionary<string, string> GamePodsDictionary = new()
+    internal static readonly Dictionary<string, string> GamePodsDictionary = new()
     {
         {"aresqa.aws-rclusterprod-use1-1.dev1-gp-ashburn-1", "Ashburn"},
         {"aresriot.aws-mes1-prod.eu-gp-bahrain-1", "Bahrain"}, {"aresriot.aws-mes1-prod.ext1-gp-bahrain-1", "Bahrain"}, {"aresriot.aws-rclusterprod-mes1-1.eu-gp-bahrain-awsedge-1", "Bahrain"}, {"aresriot.aws-rclusterprod-mes1-1.ext1-gp-bahrain-awsedge-1", "Bahrain"}, {"aresriot.aws-rclusterprod-mes1-1.tournament-gp-bahrain-awsedge-1", "Bahrain"},
@@ -30,7 +30,7 @@ public class InternalValorantMethods
         {"aresriot.aws-usw2-prod.na-gp-oregon-1", "US West (Oregon)"}, {"aresriot.aws-usw2-prod.pbe-gp-oregon-1", "US West (Oregon)"}, {"aresqa.aws-usw2-dev.main1-gp-1", "US West 1"}, {"aresqa.aws-usw2-dev.stage1-gp-1", "US West 1"}, {"aresqa.aws-usw2-dev.main1-gp-4", "US West 2"}, {"aresriot.aws-rclusterprod-waw1-1.eu-gp-warsaw-1", "Warsaw"}, {"aresriot.aws-rclusterprod-waw1-1.tournament-gp-warsaw-1", "Warsaw"}
     };
 
-    public static readonly Dictionary<string, string> AgentIdToAgent = new()
+    internal static readonly Dictionary<string, string> AgentIdToAgent = new()
     {
         { "41fb69c1-4189-7b37-f117-bcaf1e96f1bf", "Astra" },
         { "5f8d3a7f-467b-97f3-062c-13acf203c006", "Breach" },

@@ -54,9 +54,10 @@ namespace RadiantConnect.Services
         }
 
         [SuppressMessage("ReSharper", "FunctionNeverReturns")]
-        public static async Task<GameEvents> InitiateEvents(Initiator initiator)
+        public static async Task InitiateEvents(Initiator initiator)
         {
             GameEvents events = new(initiator);
+            initiator.GameEvents = events;
             long lastFileSize = 0;
             await Task.Run(async () =>
             {
@@ -69,7 +70,6 @@ namespace RadiantConnect.Services
                     events?.ParseLogText(GetLogText());
                 }
             });
-            return events;
         }
     }
 }
