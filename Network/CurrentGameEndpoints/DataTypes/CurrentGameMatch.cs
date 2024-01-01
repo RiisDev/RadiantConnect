@@ -49,7 +49,12 @@ public record CurrentGameMatch(
     [property: JsonPropertyName("ConnectionDetails")] ConnectionDetails ConnectionDetails,
     [property: JsonPropertyName("PostGameDetails")] object PostGameDetails,
     [property: JsonPropertyName("Players")] IReadOnlyList<Player> Players,
-    [property: JsonPropertyName("MatchmakingData")] object MatchmakingData
+    [property: JsonPropertyName("MatchmakingData")] MatchmakingData MatchmakingData
+);
+
+public record MatchmakingData(
+    [property: JsonPropertyName("QueueID")] string QueueID,
+    [property: JsonPropertyName("IsRanked")] bool IsRanked
 );
 
 public record SeasonalBadgeInfo(

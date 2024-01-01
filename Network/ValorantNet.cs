@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
@@ -116,10 +117,12 @@ namespace RadiantConnect.Network
                         await ResetAuth();
                         continue;
                     case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
-                        return $"Invalid method for: {baseUrl}{endPoint}";
+                        return null;
                 }
 
-                return await responseMessage.Content.ReadAsStringAsync();
+                string responseContent = await responseMessage.Content.ReadAsStringAsync();
+                Debug.WriteLine($"{baseUrl}{endPoint}\n{JsonSerializer.Serialize(content)}");
+                return (responseContent.Contains("<html>") || responseContent.Contains("errorCode")) ? null : responseContent;
             }
             return string.Empty;
         }
@@ -141,7 +144,11 @@ namespace RadiantConnect.Network
         internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
         {
             string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
-
+            if (endPoint == "name-service/v2/players")
+            {
+                jsonData = jsonData?.Trim();
+                jsonData = jsonData?[1..^1];
+            }
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
     }

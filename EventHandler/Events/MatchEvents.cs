@@ -27,7 +27,7 @@ namespace RadiantConnect.EventHandler.Events
                     _mapName = null;
                     break;
                 case "Match_Started":
-                    OnMatchStarted?.Invoke(_mapName);
+                    OnMatchStarted?.Invoke(null);
                     break;
             }
         }

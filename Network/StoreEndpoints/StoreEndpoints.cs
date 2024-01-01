@@ -3,6 +3,8 @@ namespace RadiantConnect.Network.StoreEndpoints;
 
 public class StoreEndpoints(Initiator initiator)
 {
+    internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
+
     public enum ItemType
     {
         Agents,
@@ -15,7 +17,6 @@ public class StoreEndpoints(Initiator initiator)
         Titles,
     }
 
-    internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
     internal Dictionary<ItemType, string> ItemTypes = new()
     {
         { ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },

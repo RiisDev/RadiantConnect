@@ -7,7 +7,7 @@ namespace RadiantConnect.Network.PartyEndpoints;
 
 public class PartyEndpoints(Initiator initiator)
 {
-    internal string Url = initiator.ExternalSystem.ClientData.SharedUrl;
+    internal string Url = initiator.ExternalSystem.ClientData.GlzUrl;
 
     public enum QueueId
     {

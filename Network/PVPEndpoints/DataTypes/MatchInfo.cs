@@ -38,15 +38,15 @@ public record BasicMovement(
 );
 
 public record BehaviorFactors(
-    [property: JsonPropertyName("afkRounds")] long? AfkRounds,
+    [property: JsonPropertyName("afkRounds")] double? AfkRounds,
     [property: JsonPropertyName("collisions")] double? Collisions,
-    [property: JsonPropertyName("commsRatingRecovery")] long? CommsRatingRecovery,
-    [property: JsonPropertyName("damageParticipationOutgoing")] long? DamageParticipationOutgoing,
-    [property: JsonPropertyName("friendlyFireIncoming")] long? FriendlyFireIncoming,
-    [property: JsonPropertyName("friendlyFireOutgoing")] long? FriendlyFireOutgoing,
-    [property: JsonPropertyName("mouseMovement")] long? MouseMovement,
-    [property: JsonPropertyName("selfDamage")] long? SelfDamage,
-    [property: JsonPropertyName("stayedInSpawnRounds")] long? StayedInSpawnRounds
+    [property: JsonPropertyName("commsRatingRecovery")] double? CommsRatingRecovery,
+    [property: JsonPropertyName("damageParticipationOutgoing")] double? DamageParticipationOutgoing,
+    [property: JsonPropertyName("friendlyFireIncoming")] double? FriendlyFireIncoming,
+    [property: JsonPropertyName("friendlyFireOutgoing")] double? FriendlyFireOutgoing,
+    [property: JsonPropertyName("mouseMovement")] double? MouseMovement,
+    [property: JsonPropertyName("selfDamage")] double? SelfDamage,
+    [property: JsonPropertyName("stayedInSpawnRounds")] double? StayedInSpawnRounds
 );
 
 public record BombPlant(

@@ -1,4 +1,5 @@
-﻿using RadiantConnect.EventHandler.Events;
+﻿using System.Diagnostics.CodeAnalysis;
+using RadiantConnect.EventHandler.Events;
 
 namespace RadiantConnect.EventHandler
 {
@@ -22,6 +23,7 @@ namespace RadiantConnect.EventHandler
             LastLineRead = lineIndex;
         }
 
+        [SuppressMessage("ReSharper", "StringLiteralTypo")]
         internal void ParseLogText(string logText)
         {
             string[] fileLines = logText.Split('\n');
@@ -48,6 +50,9 @@ namespace RadiantConnect.EventHandler
                     case var _ when line.Contains("Party_MakePartyIntoCustomGame"):
                         HandleEvent(Queue.HandleQueueEvent, "Party_MakePartyIntoCustomGame", line, lineIndex);
                         break;
+                    case var _ when line.Contains("LogTravelManager: Beginning travel to /Game/Maps/Menu/MainMenuV2"):
+                        HandleEvent(Queue.HandleQueueEvent, "Travel_To_Menu", line, lineIndex);
+                        break;
 
                     case var _ when line.Contains("Pregame_GetPlayer"):
                         HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetPlayer", line, lineIndex);
@@ -69,11 +74,11 @@ namespace RadiantConnect.EventHandler
                         Round.ResetRound();
                         HandleEvent(Match.HandleMatchEvent, "Match_Ended", line, lineIndex);
                         break;
-                    case var _ when line.Contains("LogLoadTimeMetrics: Display: [Match Load Times] LoadingScreenTime: "):
+                    case var _ when line.Contains("LogPlatformSessionManager: Loopstate changed from PREGAME to INGAME"):
                         Round.ResetRound();
                         HandleEvent(Match.HandleMatchEvent, "Match_Started", line, lineIndex);
                         break;
-
+                    
                     case var _ when line.Contains("AShooterGameState::OnRoundEnded"):
                         HandleEvent(Round.HandleRoundEvent, "Round_Ended", line, lineIndex);
                         break;

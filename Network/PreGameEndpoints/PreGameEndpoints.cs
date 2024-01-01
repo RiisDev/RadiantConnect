@@ -59,7 +59,7 @@ public class PreGameEndpoints(Initiator initiator)
         KAYO
     }
 
-    internal string Url = initiator.ExternalSystem.ClientData.SharedUrl;
+    internal string Url = initiator.ExternalSystem.ClientData.GlzUrl;
 
     public async Task<PreGamePlayer?> FetchPreGamePlayerAsync(string userId)
     {

@@ -57,6 +57,9 @@ namespace RadiantConnect.EventHandler.Events
                 case "Party_MakePartyIntoCustomGame":
                     OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
+                case "Travel_To_Menu": 
+                    OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                    break;
             }
         }
     }
