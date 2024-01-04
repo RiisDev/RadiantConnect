@@ -11,6 +11,8 @@ namespace RadiantConnect.EventHandler
         public RoundEvents Round = new();
         public VoteEvents Vote = new();
         public InGameEvents InGame = new();
+        public MiscEvents Misc = new();
+        public PartyEvents Party = new();
 
         internal string LastEventCall = "";
         internal long LastLineRead;
@@ -101,6 +103,23 @@ namespace RadiantConnect.EventHandler
                         break;
                     case var _ when line.Contains("LogNet: Warning: UNetDriver::ProcessRemoteFunction: No owning connection for actor"):
                         HandleEvent(InGame.HandleInGameEvent, "Util_Placed", line, lineIndex);
+                        break;
+
+                    case var _ when line.Contains("Session_Heartbeat"):
+                        HandleEvent(Misc.HandleInGameEvent, "Session_Heartbeat", line, lineIndex);
+                        break;
+
+                    case var _ when line.Contains("LogRMSService: Received RMS update. URI: /riot-messaging-service/v1/messages/ares-parties/parties/v1/parties/"):
+                        HandleEvent(Party.HandleMatchEvent, "Party_Updated", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("Party_DeclineRequest"):
+                        HandleEvent(Party.HandleMatchEvent, "Party_DeclineRequest", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("Party_InviteToParty"):
+                        HandleEvent(Party.HandleMatchEvent, "Party_InviteToParty", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("Party_SetPreferredGamePods"):
+                        HandleEvent(Party.HandleMatchEvent, "Party_SetPreferredGamePods", line, lineIndex);
                         break;
                 }
             }
