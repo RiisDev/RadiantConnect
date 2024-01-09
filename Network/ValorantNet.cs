@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Methods;
+using RadiantConnect.Network.Authorization.DataTypes;
 using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
@@ -37,13 +38,16 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService valorantClient)
+        public ValorantNet(ValorantService? valorantClient = null, InternalAuth? internalAuth = null)
         {
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", valorantClient.ValorantClientVersion.RiotClientVersion);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "ShooterGame/13 Windows/10.0.19043.1.256.64bit");
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",
+                internalAuth is not null
+                    ? internalAuth.ClientVersion.Data.RiotClientVersion
+                    : valorantClient?.ValorantClientVersion.RiotClientVersion);
         }
-        
+
         internal static InternalRecords.UserAuth? GetAuth()
         {
             string lockFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile");

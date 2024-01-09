@@ -11,9 +11,9 @@
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/IrisV3rm/RadiantConnect</RepositoryUrl>
-    <Copyright>https://github.com/IrisV3rm</Copyright>
+    <Copyright>https://github.com/RiisDev</Copyright>
     <Description>Unoffical Valorant Local API, Offers game events.</Description>
-    <PackageIcon>IrisCodingNexus - Icon.png</PackageIcon>
+    <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
     <PackageReleaseNotes>More bug fixees + updates.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
@@ -32,13 +32,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\..\..\Discord Stuff\IrisCodingNexus - Icon.png">
+    <None Update="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
     <None Update="README.md">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
