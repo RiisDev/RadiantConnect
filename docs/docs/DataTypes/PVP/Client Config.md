@@ -1,0 +1,167 @@
+## Collapsed Record
+
+The `Collapsed` record represents a collapsed configuration in a PVP endpoint in the RadiantConnect network.
+
+### Properties
+
+Here are some of the properties in the `Collapsed` record:
+
+- ARESMOCENTITLEMENT
+- CLIENTICONSENABLED
+- CLIENTLEADERBOARDSENABLED
+- GAMEALLOWCONSOLE
+- GAMEALLOWDEVELOPERMENU
+- GAMEDISABLEDDEATHCAM
+- GAMEDISABLEDSKINSWEAPONS
+- GAMEPERFREPORTINGENABLED
+- GAMEREMOTEMOVEINTERPENABLED
+- GAMEROAMINGSETTINGSENABLED
+- GAMEROAMINGSETTINGSKEY
+- GAMEROAMINGSETTINGSSTORAGEURL
+- MAPPRELOADINGENABLED
+- NAMECHECKPLATFORMREGION
+- NAMECHECKPLATFORMURL
+- ROSTERREALM
+- SECURITYWATERMARKENABLED
+- SECURITYWATERMARKMAXOPACITY
+- SECURITYWATERMARKMINOPACITY
+- SECURITYWATERMARKTILINGFACTOR
+- SERVICEURLACCOUNTXP
+- SERVICEURLAGGSTATS
+- SERVICEURLAVS
+- SERVICEURLCONTENT
+- SERVICEURLCONTRACTS
+- SERVICEURLCONTRACTDEFINITIONS
+- SERVICEURLCOREGAME
+- SERVICEURLDAILYTICKET
+- SERVICEURLFAVORITES
+- SERVICEURLGALBSQUERY
+- SERVICEURLLATENCY
+- SERVICEURLLOGINQUEUE
+- SERVICEURLMASSREWARDS
+- SERVICEURLMATCHDETAILS
+- SERVICEURLMATCHHISTORY
+- SERVICEURLMATCHMAKING
+- SERVICEURLMMR
+- SERVICEURLNAME
+- SERVICEURLPARTY
+- SERVICEURLPATCHNOTES
+- SERVICEURLPERSONALIZATION
+- SERVICEURLPLAYERFEEDBACK
+- SERVICEURLPREGAME
+- SERVICEURLPREMIER
+- SERVICEURLPROGRESSION
+- SERVICEURLPURCHASEMERCHANT
+- SERVICEURLREPLAYCATALOG
+- SERVICEURLRESTRICTIONS
+- SERVICEURLSESSION
+- SERVICEURLSTORE
+- SERVICEURLTOURNAMENTS
+- SERVICETICKERMESSAGE
+- SERVICETICKERMESSAGEDeDE
+- SERVICETICKERMESSAGEEsMX
+- SERVICETICKERMESSAGEFrFR
+- SERVICETICKERMESSAGEItIT
+- SERVICETICKERMESSAGEPlPL
+- SERVICETICKERMESSAGEPtBR
+- SERVICETICKERMESSAGERuRU
+- SERVICETICKERMESSAGETrTR
+- SERVICETICKERSEVERITY
+- STORESCREENOFFERREFRESHMAXDELAYMILLISECONDS
+- AvsEnabled
+- CapLocation
+- CharacterselectDebugwidgetsHide
+- ChatMutedwordsEnabled
+- ChatV3Enabled
+- CollectionCharactersEnabled
+- CompetitiveSeasonOffsetEndTime
+- ConfigClientTelemetrySamplerate
+- ContentFilterEnabled
+- ContentMapsDisabled
+- EogWip
+- FriendsEnabled
+- GameUmgchatEnabled
+- HomescreenFeaturedQueues
+- HomescreenPatchnotesBaseURL
+- HomescreenPromoEnabled
+- HomescreenPromoKey
+- HomescreenWebtileBaseURL
+- LoginqueueRegion
+- MainmenubarCollectionsEnabled
+- MainmenubarDebugEnabled
+- MainmenubarProfileEnabled
+- MainmenubarProgressionEnabled
+- MainmenubarShootingrangeEnabled
+- MainmenubarStoreEnabled
+- MatchDetailsDelay
+- NotificationsEnabled
+- PartiesAutoBalanceEnabled
+- PartyObserversEnabled
+- PartyinvitesEnabled
+- PatchavailabilityEnabled
+- PersonalizationEquipAnyLevelEnabled
+- PersonalizationUseWidePlayerIdentityV2
+- PingUpdateInterval
+- PingUseGamePodsFromParties
+- PlatformFaultedLevel
+- PlayerfeedbacktoolAccessurl
+- PlayerfeedbacktoolLocale
+- PlayerfeedbacktoolShard
+- PlayerfeedbacktoolShow
+- PlayerfeedbacktoolSurveyRequestRateFloat
+- PlayscreenPartywidgetEnabled
+- PlayscreenPartywidgetMatchmakingMaxsize
+- PlayscreenPremierEnabled
+- PremierConferencesFetchEnabled
+- PremierLeaderboardTabEnabled
+- PremierMatchHistoryTabEnabled
+- PremierPlayscreenflowEnabled
+- PremierRosterEligibilityCheckEnabled
+- PremierSeasonsActiveseasonEnabled
+- PremierSeasonsFetchEnabled
+- QueueStatusEnabled
+- RchatIngameEnabled
+- ReporterfeedbackFetchEnabled
+- ReporterfeedbackNotificationsEnabled
+- RestrictionsV2FetchEnabled
+- RestrictionsV2WarningsEnabled
+- RiotwarningFetchEnabled
+- RiotwarningNotificationsEnabled
+- RnetUseAuthenticatedVoice
+- RussiaVoiceEnabled
+- SettingsLivediagnosticsAllowedplayers
+- ShootingtestEnabled
+- SkillratingEnabled
+- SkillratingInGameEnabled
+- SkillratingPreGameEnabled
+- SocialPanelV6Enabled
+- SocialviewcontrollerEnabled
+- SocialviewcontrollerV2Enabled
+- StoreIsXgpDisabled
+- StoreUseCurrencyInventoryModels
+- StoreUsePlatformBundleDiscountedPrices
+- TelemetryRtpEventendpoint
+- TelemetryRtpRfc190scope
+- TempVoiceAllowmuting
+- TournamentsEnabled
+- TournamentsPregameEnabled
+- VanguardAccessurl
+- VanguardNetrequired
+- VoiceClutchmuteEnabled
+- VoiceClutchmutePromptEnabled
+- VoiceProvider
+- WhisperEnabled
+
+## ClientConfig Record
+
+The `ClientConfig` record represents the client configuration in a PVP endpoint in the RadiantConnect network.
+
+### Properties
+
+- **LastApplication**
+  - Type: `DateTime?`
+  - Description: Represents the last application.
+
+- **Collapsed**
+  - Type: `Collapsed`
+  - Description: Represents the collapsed configuration.

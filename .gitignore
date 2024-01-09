@@ -4,6 +4,8 @@
 /bin/Release
 /obj/Release
 /FileContentIndex
+/docs/site
+/docs/.cache
 .vs/*
 .vs/
 /.vs

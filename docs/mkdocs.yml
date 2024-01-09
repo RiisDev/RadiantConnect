@@ -1,0 +1,46 @@
+site_name: RadiantConnect
+
+theme:
+  name: material
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    primary: black
+    scheme: slate
+    accent: deep purple
+  features:
+    - navigation.instant
+    - navigation.instant.progress
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.path
+    - navigation.top
+    - search.suggest
+    - search.share
+    - navigation.footer
+
+markdown_extensions:
+  - admonition
+  - pymdownx.details
+  - pymdownx.superfences
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_lang_class: true
+      auto_title: true
+      linenums: true
+  - def_list
+
+repo_url: https://github.com/RiisDev/RadiantConnect
+
+extra:
+  social:
+    - icon: fontawesome/brands/discord
+      link: https://discord.gg/yyuggrH
+    - icon: fontawesome/brands/github
+      link: https://github.com/RiisDev/RadiantConnect
+
+copyright: Copyright &copy; 2024 Iris
+
+plugins:
+  - privacy
+  - search
