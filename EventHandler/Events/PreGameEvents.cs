@@ -29,11 +29,11 @@ namespace RadiantConnect.EventHandler.Events
                     break;
                 case "Pregame_LockCharacter":
                     agentId = logData.ExtractValue(@"lock/([a-fA-F\d-]+)", 1);
-                    OnAgentLockedIn?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
+                    OnAgentLockedIn?.Invoke(ValorantTables.AgentIdToAgent[agentId]);
                     break;
                 case "Pregame_SelectCharacter":
                     agentId = logData.ExtractValue(@"select/([a-fA-F\d-]+)", 1);
-                    OnAgentSelected?.Invoke(InternalValorantMethods.AgentIdToAgent[agentId]);
+                    OnAgentSelected?.Invoke(ValorantTables.AgentIdToAgent[agentId]);
                     break;
             }
         }

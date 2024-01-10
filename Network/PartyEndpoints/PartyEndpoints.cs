@@ -75,7 +75,7 @@ public class PartyEndpoints(Initiator initiator)
     public async Task<Party?> ChangeQueueAsync(string partyId, QueueId queueId)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "queueId", queueId.ToString() } });
-        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue",  jsonContent);
     }
 
     public async Task<Party?> StartCustomGameeAsync(string partyId)
@@ -96,7 +96,7 @@ public class PartyEndpoints(Initiator initiator)
     public async Task<Party?> SetPartyOpenStatusAsync(string partyId, PartyState state)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "accessibility", state.ToString() } });
-        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility", jsonContent);
+        return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility",  jsonContent);
     }
 
     public async Task<Party?> SetCustomGameSettingsAsync(string partyId, CustomGameSettings gameSettings)

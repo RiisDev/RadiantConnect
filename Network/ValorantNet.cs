@@ -5,14 +5,12 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Methods;
-using RadiantConnect.Network.Authorization.DataTypes;
 using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
 {
     public class ValorantNet
     {
-        internal InternalAuth? InternalAuth;
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
         public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
@@ -39,15 +37,11 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService? valorantClient = null, InternalAuth? internalAuth = null)
+        public ValorantNet(ValorantService? valorantClient = null)
         {
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "ShooterGame/13 Windows/10.0.19043.1.256.64bit");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",
-                internalAuth is not null
-                    ? internalAuth.ClientVersion.Data.RiotClientVersion
-                    : valorantClient?.ValorantClientVersion.RiotClientVersion);
-            InternalAuth = internalAuth;
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",valorantClient?.ValorantClientVersion.RiotClientVersion);
         }
 
         internal static InternalRecords.UserAuth? GetAuth()
@@ -90,7 +84,7 @@ namespace RadiantConnect.Network
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
 
-        internal async Task LocalAuthReset()
+        internal async Task ResetAuth()
         {
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
@@ -103,32 +97,13 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
-        internal async Task DoExternalAuthReset()
-        {
-            if (InternalAuth is null) return;
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
-
-            InternalAuth = await Authorization.Authorization.PerformSignIn(InternalAuth);
-            
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {InternalAuth?.AuthorizationHeaders?.Bearer}");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", InternalAuth?.AuthorizationHeaders?.XRiotEntitlementsJWT);
-        }
-
-        internal async Task ResetAuth()
-        {
-            if (InternalAuth is null) await LocalAuthReset().ConfigureAwait(false);
-            else await DoExternalAuthReset().ConfigureAwait(false);
-        }
-
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
-            if (baseUrl.Contains("127.0.0") && InternalAuth is not null) return "INVALID_REQUEST";
-            while (InternalValorantMethods.IsValorantProcessRunning() || InternalAuth is not null)
+            while (InternalValorantMethods.IsValorantProcessRunning())
             {
                 if (!Client.DefaultRequestHeaders.Contains("X-Riot-Entitlements-JWT")) { await ResetAuth(); continue; }
 
-                using HttpRequestMessage httpRequest = new();
+                HttpRequestMessage httpRequest = new();
                 httpRequest.Method = InternalToHttpMethod[httpMethod];
                 httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
                 httpRequest.Content = content;
@@ -147,6 +122,8 @@ namespace RadiantConnect.Network
 
                 string responseContent = await responseMessage.Content.ReadAsStringAsync();
                 Debug.WriteLine($"{baseUrl}{endPoint}\n{JsonSerializer.Serialize(content)}");
+                httpRequest.Dispose();
+                responseMessage.Dispose();
                 return (responseContent.Contains("<html>") || responseContent.Contains("errorCode")) ? null : responseContent;
             }
             return string.Empty;
@@ -166,7 +143,7 @@ namespace RadiantConnect.Network
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
+        internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint,HttpContent httpContent)
         {
             string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
             if (endPoint == "name-service/v2/players")

@@ -7,15 +7,16 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>3.0.0</Version>
+    <Version>4.0.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/IrisV3rm/RadiantConnect</RepositoryUrl>
+    <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
     <Copyright>https://github.com/RiisDev</Copyright>
-    <Description>Unoffical Valorant Local API, Offers game events.</Description>
+    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
-    <PackageReleaseNotes>More bug fixees + updates.</PackageReleaseNotes>
+    <PackageReleaseNotes>+Built into dictionaries for known PUUIDs (Will be added to docs later)
++End point changes (Bugs always)</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
