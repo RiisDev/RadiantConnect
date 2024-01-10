@@ -2,8 +2,8 @@
 using RadiantConnect.Methods;
 using RadiantConnect.Services;
 using RadiantConnect.Network;
-using RadiantConnect.Network.Authorization;
 using RadiantConnect.Network.Authorization.DataTypes;
+using RadiantConnect.Network.ChatEndpoints;
 using RadiantConnect.Network.ContractEndpoints;
 using RadiantConnect.Network.CurrentGameEndpoints;
 using RadiantConnect.Network.LocalEndpoints;
@@ -23,7 +23,7 @@ namespace RadiantConnect
 
 
     public record Endpoints(
-        //ChatEndpoints ChatEndpoints,
+        ChatEndpoints ChatEndpoints,
         ContractEndpoints ContractEndpoints,
         CurrentGameEndpoints CurrentGameEndpoints,
         LocalEndpoints LocalEndpoints,
@@ -51,15 +51,11 @@ namespace RadiantConnect
 
         public Initiator(InternalAuth? internalAuth = null)
         {
-            while (!ClientIsReady()) Task.Delay(500);
-            ValorantNet? net;
+            while (!ClientIsReady() && internalAuth is null) Task.Delay(500);
             ValorantService client = new();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
-            if (internalAuth is null)
-                net = new(client, null);
-            else
-                net = new(client, null);
+            ValorantNet net = internalAuth is null ? new ValorantNet(client) : new ValorantNet(null, internalAuth);
 
             ExternalSystem = new InternalSystem(
                 client,
@@ -69,7 +65,7 @@ namespace RadiantConnect
             );
 
             Endpoints = new Endpoints(
-               //new ChatEndpoints(this),
+                new ChatEndpoints(this),
                 new ContractEndpoints(this),
                 new CurrentGameEndpoints(this),
                 new LocalEndpoints(this),

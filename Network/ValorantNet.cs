@@ -12,6 +12,7 @@ namespace RadiantConnect.Network
 {
     public class ValorantNet
     {
+        internal InternalAuth? InternalAuth;
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
         public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
@@ -46,6 +47,7 @@ namespace RadiantConnect.Network
                 internalAuth is not null
                     ? internalAuth.ClientVersion.Data.RiotClientVersion
                     : valorantClient?.ValorantClientVersion.RiotClientVersion);
+            InternalAuth = internalAuth;
         }
 
         internal static InternalRecords.UserAuth? GetAuth()
@@ -88,7 +90,7 @@ namespace RadiantConnect.Network
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
 
-        internal async Task ResetAuth()
+        internal async Task LocalAuthReset()
         {
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
@@ -101,9 +103,28 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
+        internal async Task DoExternalAuthReset()
+        {
+            if (InternalAuth is null) return;
+            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
+            Client.DefaultRequestHeaders.Remove("Authorization");
+
+            InternalAuth = await Authorization.Authorization.PerformSignIn(InternalAuth);
+            
+            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {InternalAuth?.AuthorizationHeaders?.Bearer}");
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", InternalAuth?.AuthorizationHeaders?.XRiotEntitlementsJWT);
+        }
+
+        internal async Task ResetAuth()
+        {
+            if (InternalAuth is null) await LocalAuthReset().ConfigureAwait(false);
+            else await DoExternalAuthReset().ConfigureAwait(false);
+        }
+
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
-            while (InternalValorantMethods.IsValorantProcessRunning())
+            if (baseUrl.Contains("127.0.0") && InternalAuth is not null) return "INVALID_REQUEST";
+            while (InternalValorantMethods.IsValorantProcessRunning() || InternalAuth is not null)
             {
                 if (!Client.DefaultRequestHeaders.Contains("X-Riot-Entitlements-JWT")) { await ResetAuth(); continue; }
 

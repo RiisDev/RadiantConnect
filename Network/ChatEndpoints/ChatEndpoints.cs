@@ -3,10 +3,8 @@ using RadiantConnect.Network.ChatEndpoints.DataTypes;
 
 namespace RadiantConnect.Network.ChatEndpoints;
 
-internal class ChatEndpoints(Initiator initiator)
+public class ChatEndpoints(Initiator initiator)
 {
-    // TODO PARTY CHAT INFO, PRE GAME CHAT INFO, CURRENT GAME CHAT, SEND CHAT MESSAGE
-
     internal async Task<ChatInfo?> GetChatInfo()
     {
         return await initiator.ExternalSystem.Net.GetAsync<ChatInfo>($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v6/conversations");

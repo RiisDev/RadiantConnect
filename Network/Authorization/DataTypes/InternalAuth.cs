@@ -8,6 +8,7 @@ public record AuthorizationHeaders(
 public record InternalAuth(
     string Username,
     string Password,
+    string UserId,
     bool HasMultiAuthenticator,
     ClientVersion ClientVersion,
     AuthorizationHeaders? AuthorizationHeaders
