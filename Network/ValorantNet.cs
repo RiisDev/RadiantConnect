@@ -9,6 +9,8 @@ using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
 {
+    public record UserAuth(int AuthorizationPort, string OAuth);
+
     public class ValorantNet
     {
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
@@ -44,7 +46,7 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",valorantClient?.ValorantClientVersion.RiotClientVersion);
         }
 
-        internal static InternalRecords.UserAuth? GetAuth()
+        public static UserAuth? GetAuth()
         {
             string lockFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile");
             string? fileText;
@@ -65,12 +67,12 @@ namespace RadiantConnect.Network
             int authPort = int.Parse(fileValues[2]);
             string oAuth = fileValues[3];
 
-            return new InternalRecords.UserAuth(authPort, oAuth);
+            return new UserAuth(authPort, oAuth);
         }
 
         internal async Task<(string, string)> GetAuthorizationToken()
         {
-            InternalRecords.UserAuth? auth = GetAuth();
+            UserAuth? auth = GetAuth();
             string toEncode = $"riot:{auth?.OAuth}";
             byte[] stringBytes = Encoding.UTF8.GetBytes(toEncode);
             string base64Encode = Convert.ToBase64String(stringBytes);
@@ -164,6 +166,5 @@ namespace RadiantConnect.Network
             [property: JsonPropertyName("subject")] string Subject,
             [property: JsonPropertyName("token")] string Token
         );
-        internal record UserAuth(int AuthorizationPort, string OAuth);
     }
 }

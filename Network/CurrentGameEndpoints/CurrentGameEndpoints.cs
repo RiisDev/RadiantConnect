@@ -23,6 +23,11 @@ public class CurrentGameEndpoints(Initiator initiator)
     {
         return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}");
     }
+    // Need to get data return
+    public async Task GetCurrentSession(string userId)
+    {
+        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Get, Url, $"/session/v1/sessions/{userId}");
+    }
 
     public async Task QuitCurrentGameAsync(string userId, string matchId)
     {
