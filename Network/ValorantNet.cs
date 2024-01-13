@@ -99,11 +99,30 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
+        internal async Task SetBasicAuth()
+        {
+            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
+            Client.DefaultRequestHeaders.Remove("Authorization");
+
+            (string, string) authTokens = await GetAuthorizationToken();
+
+            if (string.IsNullOrEmpty(authTokens.Item1)) return;
+
+            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes($"riot:{GetAuth()?.OAuth}"))}");
+        }
+
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
             while (InternalValorantMethods.IsValorantProcessRunning())
             {
-                if (!Client.DefaultRequestHeaders.Contains("X-Riot-Entitlements-JWT")) { await ResetAuth(); continue; }
+                if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
+                {
+                    await SetBasicAuth();
+                }
+                else
+                {
+                    await ResetAuth();
+                }
 
                 HttpRequestMessage httpRequest = new();
                 httpRequest.Method = InternalToHttpMethod[httpMethod];

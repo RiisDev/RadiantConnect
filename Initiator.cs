@@ -10,6 +10,8 @@ using RadiantConnect.Network.PartyEndpoints;
 using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
+using System.Diagnostics;
+using RadiantConnect.Socket;
 
 namespace RadiantConnect
 {
@@ -50,7 +52,11 @@ namespace RadiantConnect
 
         public Initiator()
         {
-            while (!ClientIsReady()) Task.Delay(500);
+            while (!ClientIsReady())
+            {
+                Debug.WriteLine("[INITIATOR] Waiting For Client...");
+                Task.Delay(500);
+            }
             ValorantService client = new();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
@@ -75,7 +81,17 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
+
+
+            while (!InternalValorantMethods.IsReady(Endpoints.LocalEndpoints).Result)
+            {
+                Debug.WriteLine("[INITIATOR] Checking riot connection...");
+                Task.Delay(500);
+            }
+
+            Debug.WriteLine("HERE");
             _ = LogService.InitiateEvents(this);
+
         }
     }
 }
