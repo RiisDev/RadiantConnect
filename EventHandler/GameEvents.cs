@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using RadiantConnect.EventHandler.Events;
 
 namespace RadiantConnect.EventHandler
@@ -37,7 +38,7 @@ namespace RadiantConnect.EventHandler
                 if (line.Contains("Log file closed")) break;
 
                 if (LastLineRead == lineIndex) break;
-
+                
                 switch (line)
                 {
                     case var _ when line.Contains("Party_ChangeQueue"):

@@ -48,7 +48,7 @@ namespace RadiantConnect.Services
             string regionData = currentLogText.ExtractValue(@"https://pd\.([^\.]+)\.a\.pvp\.net/", 1);
             if (!TryParse(regionData, out ClientData.ShardType region))
                 region = ClientData.ShardType.na;
-            string sharedUrl = $"https://shared.{regionData}.a.pvp.net";
+            string sharedUrl = $"https://shared.{regionData}.a.pvp.net/";
 
             return new ClientData(region, userId, pdUrl, glzUrl, sharedUrl);
         }

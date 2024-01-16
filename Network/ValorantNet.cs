@@ -41,6 +41,7 @@ namespace RadiantConnect.Network
 
         public ValorantNet(ValorantService? valorantClient = null)
         {
+            Client.Timeout = TimeSpan.FromSeconds(10);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "ShooterGame/13 Windows/10.0.19043.1.256.64bit");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",valorantClient?.ValorantClientVersion.RiotClientVersion);
@@ -115,21 +116,15 @@ namespace RadiantConnect.Network
         {
             while (InternalValorantMethods.IsValorantProcessRunning())
             {
-                if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
-                {
-                    await SetBasicAuth();
-                }
-                else
-                {
-                    await ResetAuth();
-                }
+                if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
+                else await ResetAuth();
 
                 HttpRequestMessage httpRequest = new();
                 httpRequest.Method = InternalToHttpMethod[httpMethod];
                 httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
                 httpRequest.Content = content;
-
-                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead);
+                
+                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
                 switch (responseMessage)
                 {
@@ -137,12 +132,13 @@ namespace RadiantConnect.Network
                     case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }:
                         await ResetAuth();
                         continue;
+                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.NotFound }:
                     case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
                         return null;
                 }
 
                 string responseContent = await responseMessage.Content.ReadAsStringAsync();
-                Debug.WriteLine($"{baseUrl}{endPoint}\n{JsonSerializer.Serialize(content)}");
+                Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
                 httpRequest.Dispose();
                 responseMessage.Dispose();
                 return (responseContent.Contains("<html>") || responseContent.Contains("errorCode")) ? null : responseContent;
@@ -152,9 +148,16 @@ namespace RadiantConnect.Network
 
         internal async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
         {
-            string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
+            try
+            {
+                string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
 
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+                return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+            }
+            catch
+            {
+                return default;
+            }
         }
 
         internal async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
