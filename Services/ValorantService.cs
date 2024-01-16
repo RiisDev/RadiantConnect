@@ -1,6 +1,8 @@
 ﻿using System.Diagnostics;
 using System.Text.Json.Serialization;
 using RadiantConnect.Methods;
+using static Microsoft.Win32.Registry;
+#pragma warning disable CA1416
 
 namespace RadiantConnect.Services
 {
@@ -34,8 +36,26 @@ namespace RadiantConnect.Services
             return fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);
         }
 
+        // Thank you: https://github.com/techchrism/valorant-xmpp-logger/blob/trunk/src/riotClientUtils.ts
+        public static string GetValorantPath()
+        {
+            string? installLocation;
+            try
+            {
+                installLocation = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game valorant.live",
+                        "InstallLocation", "")?.ToString();
+                installLocation += @"\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
+            }
+            catch
+            {
+                installLocation = @"C:\Riot Games\VALORANT\live\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
+            }
+            return installLocation;
+        }
+
         public ValorantService()
         {
+            string valorantPath = GetValorantPath();
             string? engineVersion = null;
             string fileText = LogService.GetLogText();
             string ciServerVersion = fileText.ExtractValue("CI server version: (.+)", 1);
@@ -43,9 +63,9 @@ namespace RadiantConnect.Services
             string changelist = fileText.ExtractValue(@"Changelist: (\d+)", 1);
             string buildVersion = fileText.ExtractValue(@"Build version: (\d+)", 1);
 
-            if (File.Exists(@"C:\Riot Games\VALORANT\live\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe"))
+            if (File.Exists(valorantPath))
             {
-                FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(@"C:\Riot Games\VALORANT\live\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe");
+                FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(valorantPath);
                 engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
             }
             
