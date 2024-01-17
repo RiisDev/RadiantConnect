@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using RadiantConnect.EventHandler.Events;
 
 namespace RadiantConnect.EventHandler

@@ -1,7 +1,6 @@
 ﻿// Major credit to: https://github.com/molenzwiebel/Deceive/blob/master/Deceive/ConfigProxy.cs
 // It's pretty much ConfigProxy.cs but rewritten to my coding standard 
 
-using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;

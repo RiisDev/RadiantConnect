@@ -1,15 +1,11 @@
-﻿using RadiantConnect.Network.PreGameEndpoints.DataTypes;
-using RadiantConnect.Services;
+﻿using RadiantConnect.Services;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Reflection.PortableExecutable;
-using System.Security.Authentication;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 
@@ -19,9 +15,9 @@ namespace RadiantConnect.XMPP
     {
         internal bool Connected = true;
 
-        public delegate void InternalMessage(string data);
+        //public delegate void InternalMessage(string data);
 
-        public event InternalMessage? OnClientMessage;
+        //public event InternalMessage? OnClientMessage;
 
         public static void KillRiot()
         {
@@ -45,31 +41,12 @@ namespace RadiantConnect.XMPP
         internal static X509Certificate2 GenerateCertificate()
         {
             ECDsa ecdsaValue = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-            CertificateRequest certRequest = new($"CN=RadiantConnect", ecdsaValue, HashAlgorithmName.SHA256);
+            CertificateRequest certRequest = new("CN=RadiantConnect", ecdsaValue, HashAlgorithmName.SHA256);
             certRequest.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, true));
             X509Certificate2 generatedCert = certRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(10));
             return new X509Certificate2(generatedCert.Export(X509ContentType.Pfx));
         }
-
-        internal async Task HandleMessage(SslStream incomingStream, SslStream outgoingStream)
-        {
-            try
-            {
-                int byteCount;
-                byte[] bytes = new byte[8192];
-
-                do
-                {
-                    byteCount = await incomingStream.ReadAsync(bytes);
-                    await outgoingStream.WriteAsync(bytes, 0, byteCount);
-                    OnClientMessage?.Invoke(Encoding.UTF8.GetString(bytes, 0, byteCount));
-
-                } while (byteCount != 0 && Connected);
-            }
-            catch { Connected = false; }
-        }
-
-
+        
         private async Task WriteAsync(SslStream sslStream, string data)
         {
             Debug.WriteLine($"Writing to server: {data}");
@@ -83,7 +60,6 @@ namespace RadiantConnect.XMPP
             if (bytesRead <= 0) return string.Empty;
             string response = Encoding.UTF8.GetString(buffer, 0, bytesRead);
             return response;
-
         }
 
         internal readonly Dictionary<string, string> ChatToAffinity = new()
@@ -109,6 +85,15 @@ namespace RadiantConnect.XMPP
             { "us2.chat.si.riotgames.com", "us2" }
         };
 
+        internal readonly Dictionary<string, string> InitialConnections = new()
+        {
+            {"<?xml version=\"1.0\" encoding=\"UTF-8\"?><stream:stream to=\"AFFINITY_REPLACE.pvp.net\" xml:lang=\"en\" version=\"1.0\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx.jabber.org/streams\">", "x-riot-rso-pas"},
+            {"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>PAUTHINSERT</rso_token><pas_token>JAUTHINSERT</pas_token></auth>\" xmlns:stream=\"http://etherx.jabber.org/streams\">", "<success xmlns="},
+            {"<?xml version=\"1.1\" encoding=\"UTF-8\"?><stream:stream to=\"AFFINITY_REPLACE.pvp.net\" xml:lang=\"en\" version=\"1.0\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx.jabber.org/streams\">","<stream:features>"},
+            {"<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>", "<iq id='_xmpp_bind1' type='result'>"},
+            {$"<iq type=\"set\" id=\"xmpp_entitlements_0\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token>JAUTHINSERT</token></entitlements></iq><iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"><platform>riot</platform></session></iq>", "<iq type='result' id='xmpp_entitlements_0'>"}
+        };
+
         internal async Task HandleClientServer(TcpListener server, string chatHost, int chatPort, string oAuth, string jAuth, string pAuth)
         {
             X509Certificate2 proxyCertificate = new(GenerateCertificate());
@@ -129,76 +114,32 @@ namespace RadiantConnect.XMPP
 
             Debug.WriteLine("Connected to XMPP server, authenticating...");
 
-            // Stage 1
-            await WriteAsync(outgoingStream, $"<?xml version=\"1.0\" encoding=\"UTF-8\"?><stream:stream to=\"{ChatToAffinity[chatHost]}.pvp.net\" xml:lang=\"en\" version=\"1.0\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
-            do
+            for (int connectionIndex = 0; connectionIndex < InitialConnections.Count; connectionIndex++)
             {
-                await Task.Delay(1000); 
-                string data = await ReadAsync(outgoingStream);
-                Debug.WriteLine(data);
-                if (!data.Contains("x-riot-rso-pas", StringComparison.OrdinalIgnoreCase)) continue;
-                break;
-            } while (true);
-            Debug.WriteLine("Stage 1 complete");
+                KeyValuePair<string,string> connectionData = InitialConnections.ElementAt(connectionIndex);
+                await WriteAsync(outgoingStream, connectionData.Key
+                    .Replace("AFFINITY_REPLACE", ChatToAffinity[chatHost])
+                    .Replace("JAUTHINSERT", jAuth)
+                    .Replace("PAUTHINSERT", pAuth)
+                );
+                do
+                {
+                    await Task.Delay(1000);
+                    string data = await ReadAsync(outgoingStream);
+                    Debug.WriteLine(data);
+                    if (data.Contains("temporary-auth-failure")) throw new Exception("failure: temporary-auth-failure");
+                    if (data.Contains("not-well-formed")) throw new Exception("failure: not-well-formed");
+                    if (data.Contains("failure")) throw new Exception($"Unknown exception: {data}");
+                    if (!data.Contains(connectionData.Value, StringComparison.OrdinalIgnoreCase)) continue;
+                    break;
 
-            // Stage 2
-            await WriteAsync(outgoingStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{pAuth}</rso_token><pas_token>{jAuth}</pas_token></auth>");
-            do
-            {
-                await Task.Delay(1000);
-                string data = await ReadAsync(outgoingStream); 
-                Debug.WriteLine(data);
-                if (data.Contains("temporary-auth-failure")) throw new Exception("failure: temporary-auth-failure");
-                if (data.Contains("not-well-formed")) throw new Exception("failure: not-well-formed");
-                if (!data.Contains("<success xmlns=", StringComparison.OrdinalIgnoreCase)) continue;
-                break;
+                } while (true);
+                Debug.WriteLine($"Finished Step: {connectionIndex+1}/{InitialConnections.Count}");
+            }
+            
+            Debug.WriteLine("Connected and authenticated, now proxy data!");
 
-            } while (true);
-            Debug.WriteLine("Stage 2 complete");
-
-            // Stage 3
-            await WriteAsync(outgoingStream, $"<?xml version=\"1.0\" encoding=\"UTF-8\"?><stream:stream to=\"{ChatToAffinity[chatHost]}.pvp.net\" xml:lang=\"en\" version=\"1.0\" xmlns=\"jabber:client\" xmlns:stream=\"http://etherx.jabber.org/streams\">\r\n");
-            do
-            {
-                await Task.Delay(1000);
-                string data = await ReadAsync(outgoingStream);
-                Debug.WriteLine(data);
-                if (data.Contains("not-well-formed")) throw new Exception("failure: not-well-formed");
-                if (!data.Contains("<stream:features>", StringComparison.OrdinalIgnoreCase)) continue;
-                break;
-            } while (true);
-            Debug.WriteLine("Stage 3 complete");
-
-            // Stage 4
-            await WriteAsync(outgoingStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
-            do
-            {
-                string data = await ReadAsync(outgoingStream);
-                Debug.WriteLine(data);
-                if (data.Contains("not-well-formed")) throw new Exception("failure: not-well-formed");
-                if (!data.Contains("<iq id='_xmpp_bind1' type='result'>", StringComparison.OrdinalIgnoreCase)) continue;
-                break;
-            } while (true);
-            Debug.WriteLine("Stage 4 complete");
-
-            await WriteAsync(outgoingStream, $"<iq type=\"set\" id=\"xmpp_entitlements_0\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token>{jAuth}</token></entitlements></iq><iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"><platform>riot</platform></session></iq>");
-            do
-            {
-                string data = await ReadAsync(outgoingStream);
-                Debug.WriteLine(data);
-                if (data.Contains("not-well-formed")) throw new Exception("failure: not-well-formed");
-                if (!data.Contains("<iq type='result' id='xmpp_entitlements_0'>", StringComparison.OrdinalIgnoreCase)) continue;
-                break;
-            } while (true);
-            Debug.WriteLine("Stage 5 complete");
-
-
-            Debug.WriteLine("Connected and authenticated, now proxying data!");
-            // Send an empty gap to make the log look nicer
-            Debug.WriteLine("");
-
-            // Ping to keep the connection alive
-           new Timer(_ => { outgoingStream.Write(" "u8.ToArray()); }, null, 0, 150000);
+            _ = new Timer(_ => { outgoingStream.Write(" "u8.ToArray()); }, null, 0, 150000);
 
         }
 
@@ -225,7 +166,7 @@ namespace RadiantConnect.XMPP
                 Task.Run(async () =>
                 {
                     Debug.WriteLine(args.RiotSecurePAuth);
-                    await HandleClientServer(currentTcpListener, args.ChatHost!, args.ChatPort, args.RiotSecureOAuth, args.RiotSecureJAuth, args.RiotSecurePAuth);
+                    await HandleClientServer(currentTcpListener, args.ChatHost!, args.ChatPort, args.RiotSecureOAuth!, args.RiotSecureJAuth!, args.RiotSecurePAuth!);
                 });
             };
 
