@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CyphersWatchfulEye", "..\Cy
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iOverlay", "..\iOverlay\iOverlay.csproj", "{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadiantConnectTestSuite", "..\RadiantConnectTestSuite\RadiantConnectTestSuite.csproj", "{B9A6FCBD-48D3-478A-BE29-92E6A363B501}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B9A6FCBD-48D3-478A-BE29-92E6A363B501}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B9A6FCBD-48D3-478A-BE29-92E6A363B501}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B9A6FCBD-48D3-478A-BE29-92E6A363B501}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B9A6FCBD-48D3-478A-BE29-92E6A363B501}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
