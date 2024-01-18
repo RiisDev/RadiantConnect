@@ -58,7 +58,6 @@ namespace RadiantConnect.Services
             string? installLocation;
             try
             {
-                //"C:\Riot Games\Riot Client\RiotClientServices.exe" --uninstall-product=valorant --uninstall-patchline=live
                 string? uninstallString = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game valorant.live",
                     "UninstallString", "")?.ToString();
                 installLocation = uninstallString![1..(uninstallString.IndexOf(".exe", StringComparison.Ordinal) + 4)];

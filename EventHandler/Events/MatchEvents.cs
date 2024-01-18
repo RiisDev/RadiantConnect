@@ -20,7 +20,7 @@ namespace RadiantConnect.EventHandler.Events
             {
                 case "Map_Loaded":
                     _mapName = GetMapName(logData);
-                    OnMapLoaded?.Invoke(GetMapName(logData));
+                    OnMapLoaded?.Invoke(_mapName);
                     break;
                 case "Match_Ended":
                     OnMatchEnded?.Invoke(GetWinningTeam(logData));
