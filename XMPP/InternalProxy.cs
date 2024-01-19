@@ -2,10 +2,10 @@
 // It's pretty much ConfigProxy.cs but rewritten to my "standards" 
 
 using System.Net;
-using System.Net.Sockets;
 using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json;
+using System.Net.Sockets;
 
 namespace RadiantConnect.XMPP
 {

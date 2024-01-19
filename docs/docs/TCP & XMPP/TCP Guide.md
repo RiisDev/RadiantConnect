@@ -1,7 +1,3 @@
----
-hide:
-  - navigation
----
 # Val Socket Setup Guide
 
 !! danger

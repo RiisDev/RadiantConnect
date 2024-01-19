@@ -1,5 +1,6 @@
-﻿using System.Text;
-using System.Xml;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 
 namespace RadiantConnect.XMPP
 {
@@ -57,10 +58,15 @@ namespace RadiantConnect.XMPP
             }
         }
 
-        public async Task SendXmlMessageAsync(XmlDocument xml)
+        public async Task SendXmlMessageAsync([StringSyntax(StringSyntaxAttribute.Xml)] string data)
         {
-            byte[] xmlBytes = Encoding.UTF8.GetBytes(xml.OuterXml);
-            await incomingStream.WriteAsync(xmlBytes);
+            try
+            {
+                while (!incomingStream.CanWrite) { await Task.Delay(50); }
+                byte[] bytes = Encoding.UTF8.GetBytes(data);
+                await incomingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+            }
+            catch (Exception ex) { Debug.WriteLine(ex); }
         }
     }
 }

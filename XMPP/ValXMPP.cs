@@ -5,6 +5,9 @@ using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using System.Text;
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 
 namespace RadiantConnect.XMPP
@@ -12,9 +15,11 @@ namespace RadiantConnect.XMPP
     public class ValXMPP
     {
         public delegate void InternalMessage(string data);
+        public delegate void PresenceUpdated(ValorantPresence presence);
 
         public event InternalMessage? OnClientMessage;
         public event InternalMessage? OnServerMessage;
+        public event PresenceUpdated? OnValorantPresenceUpdated;
 
         public delegate void SocketHandled(SocketHandle handle);
         public event SocketHandled? OnSocketCreated;
@@ -69,18 +74,27 @@ namespace RadiantConnect.XMPP
                     SslStream outgoingStream = new(outgoingClient.GetStream());
                     await outgoingStream.AuthenticateAsClientAsync(chatHost);
                     
-                    Debug.WriteLine("newHandler");
-
                     SocketHandle handler = new(incomingStream, outgoingStream);
                     OnSocketCreated?.Invoke(handler);
                     handler.OnClientMessage += (data) => OnClientMessage?.Invoke(data);
-                    handler.OnServerMessage += (data) => OnServerMessage?.Invoke(data);
+                    handler.OnServerMessage += (data) =>
+                    {
+                        OnServerMessage?.Invoke(data);
+
+                        if (!data.Contains("<valorant>")) return;
+                        Match match = Regex.Match(data, "<p>(.*)<\\/p>");
+                        if (!match.Success) return;
+                        string valorant64Data = match.Groups[1].Value;
+                        byte[] decodedValorantBytes = Convert.FromBase64String(valorant64Data);
+                        string decodedValorantData = Encoding.ASCII.GetString(decodedValorantBytes);
+                        OnValorantPresenceUpdated?.Invoke(JsonSerializer.Deserialize<ValorantPresence>(decodedValorantData)!);
+                    };
                     handler.Initiate();
                     
                 }
-                catch (IOException)
+                catch (IOException ex)
                 {
-                    throw new Exception("Client closed.");
+                    throw new Exception($"Client closed. {ex}");
                 }
                 catch (Exception ex)
                 {

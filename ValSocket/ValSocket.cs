@@ -5,7 +5,7 @@ using System.Text.Json;
 using RadiantConnect.Methods;
 using RadiantConnect.Network;
 
-namespace RadiantConnect.Socket
+namespace RadiantConnect.ValSocket
 {
     public class ValSocket(UserAuth authentication, Initiator init)
     {
