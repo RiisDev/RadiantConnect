@@ -1,10 +1,11 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Text;
+// ReSharper disable CheckNamespace
 
 namespace RadiantConnect.XMPP
 {
-    public class SocketHandle(Stream incomingStream, Stream outgoingStream)
+    public class InternalSocketHandle(Stream incomingStream, Stream outgoingStream)
     {
         internal bool DoBreak;
         internal delegate void InternalMessage(string data);

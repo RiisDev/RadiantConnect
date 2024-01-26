@@ -21,7 +21,7 @@ namespace RadiantConnect.XMPP
         public event InternalMessage? OnServerMessage;
         public event PresenceUpdated? OnValorantPresenceUpdated;
 
-        public delegate void SocketHandled(SocketHandle handle);
+        public delegate void SocketHandled(InternalSocketHandle handle);
         public event SocketHandled? OnSocketCreated;
 
         public static void KillRiot()
@@ -74,7 +74,7 @@ namespace RadiantConnect.XMPP
                     SslStream outgoingStream = new(outgoingClient.GetStream());
                     await outgoingStream.AuthenticateAsClientAsync(chatHost);
                     
-                    SocketHandle handler = new(incomingStream, outgoingStream);
+                    InternalSocketHandle handler = new(incomingStream, outgoingStream);
                     OnSocketCreated?.Invoke(handler);
                     handler.OnClientMessage += (data) => OnClientMessage?.Invoke(data);
                     handler.OnServerMessage += (data) =>
@@ -103,7 +103,7 @@ namespace RadiantConnect.XMPP
             }
         }
 
-        public Process InitializeConnection(string patchLine = "live")
+        public Process? InitializeConnection(string patchLine = "live")
         {
             string riotClientPath = ValorantService.GetRiotClientPath();
             string valorantPath = ValorantService.GetValorantPath();

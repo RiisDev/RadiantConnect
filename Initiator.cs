@@ -11,6 +11,7 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
+using RadiantConnect.XMPP;
 
 namespace RadiantConnect
 {
@@ -29,7 +30,8 @@ namespace RadiantConnect
         PartyEndpoints PartyEndpoints,
         PreGameEndpoints PreGameEndpoints,
         PVPEndpoints PvpEndpoints,
-        StoreEndpoints StoreEndpoints
+        StoreEndpoints StoreEndpoints,
+        RemoteXMPP XMPP
     );
 
     public class Initiator
@@ -78,7 +80,8 @@ namespace RadiantConnect
                 new PartyEndpoints(this),
                 new PreGameEndpoints(this),
                 new PVPEndpoints(this),
-                new StoreEndpoints(this)
+                new StoreEndpoints(this),
+                new RemoteXMPP(this)
             );
             
             _ = LogService.InitiateEvents(this);
