@@ -30,8 +30,7 @@ namespace RadiantConnect
         PartyEndpoints PartyEndpoints,
         PreGameEndpoints PreGameEndpoints,
         PVPEndpoints PvpEndpoints,
-        StoreEndpoints StoreEndpoints,
-        RemoteXMPP XMPP
+        StoreEndpoints StoreEndpoints
     );
 
     public class Initiator
@@ -50,6 +49,7 @@ namespace RadiantConnect
         public Endpoints Endpoints { get; }
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
+        public RemoteXMPP RemoteXMPP { get; set; }
 
         public Initiator()
         {
@@ -80,9 +80,10 @@ namespace RadiantConnect
                 new PartyEndpoints(this),
                 new PreGameEndpoints(this),
                 new PVPEndpoints(this),
-                new StoreEndpoints(this),
-                new RemoteXMPP(this)
+                new StoreEndpoints(this)
             );
+
+            RemoteXMPP = new RemoteXMPP(this);
             
             _ = LogService.InitiateEvents(this);
         }
