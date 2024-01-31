@@ -11,7 +11,7 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
-using RadiantConnect.XMPP;
+using RadiantConnect.XMPP.Remote;
 
 namespace RadiantConnect
 {

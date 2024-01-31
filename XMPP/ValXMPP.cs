@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using System.Text;
 // Credit to https://github.com/molenzwiebel/Deceive for guide
+// ReSharper disable CheckNamespace
 
 namespace RadiantConnect.XMPP
 {
@@ -21,7 +22,7 @@ namespace RadiantConnect.XMPP
         public event InternalMessage? OnServerMessage;
         public event PresenceUpdated? OnValorantPresenceUpdated;
 
-        public delegate void SocketHandled(InternalSocketHandle handle);
+        public delegate void SocketHandled(XMPPSocketHandle handle);
         public event SocketHandled? OnSocketCreated;
 
         public static void KillRiot()
@@ -74,7 +75,7 @@ namespace RadiantConnect.XMPP
                     SslStream outgoingStream = new(outgoingClient.GetStream());
                     await outgoingStream.AuthenticateAsClientAsync(chatHost);
                     
-                    InternalSocketHandle handler = new(incomingStream, outgoingStream);
+                    XMPPSocketHandle handler = new(incomingStream, outgoingStream);
                     OnSocketCreated?.Invoke(handler);
                     handler.OnClientMessage += (data) => OnClientMessage?.Invoke(data);
                     handler.OnServerMessage += (data) =>

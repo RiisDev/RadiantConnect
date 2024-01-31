@@ -33,8 +33,11 @@
 
   <ItemGroup>
     <Compile Remove="docs\**" />
+    <Compile Remove="packages\**" />
     <EmbeddedResource Remove="docs\**" />
+    <EmbeddedResource Remove="packages\**" />
     <None Remove="docs\**" />
+    <None Remove="packages\**" />
   </ItemGroup>
 
   <ItemGroup>

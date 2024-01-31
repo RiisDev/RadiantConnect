@@ -5,7 +5,7 @@ using System.Text;
 
 namespace RadiantConnect.XMPP
 {
-    public class InternalSocketHandle(Stream incomingStream, Stream outgoingStream)
+    public class XMPPSocketHandle(Stream incomingStream, Stream outgoingStream)
     {
         internal bool DoBreak;
         internal delegate void InternalMessage(string data);
