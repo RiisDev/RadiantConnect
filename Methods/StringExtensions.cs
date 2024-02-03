@@ -1,4 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Text;
 using System.Text.RegularExpressions;
 
 namespace RadiantConnect.Methods;
@@ -16,5 +18,24 @@ public static class StringExtensions
         int startIndex = log.IndexOf(startToken, StringComparison.Ordinal);
         int endIndex = log.IndexOf(endToken, startIndex);
         return startIndex != -1 && endIndex != -1 && condition(startIndex) ? log.Substring(startIndex, endIndex - startIndex).Replace(prefix, "") : "";
+    }
+
+    internal static string FromBase64(this string value)
+    {
+        try
+        {
+            if (value.Contains('<')) value = value[..value.IndexOf('<')];
+            return Encoding.ASCII.GetString(Convert.FromBase64String(value));
+        }
+        catch
+        {
+            return "";
+        }
+
+    }
+
+    internal static string ToBase64(this string value)
+    {
+        return Convert.ToBase64String(Encoding.ASCII.GetBytes(value));
     }
 }

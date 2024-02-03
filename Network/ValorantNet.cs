@@ -75,8 +75,7 @@ namespace RadiantConnect.Network
         {
             UserAuth? auth = GetAuth();
             string toEncode = $"riot:{auth?.OAuth}";
-            byte[] stringBytes = Encoding.UTF8.GetBytes(toEncode);
-            string base64Encode = Convert.ToBase64String(stringBytes);
+            string base64Encode = toEncode.ToBase64();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {base64Encode}");
             HttpResponseMessage response = await Client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
 
@@ -109,7 +108,7 @@ namespace RadiantConnect.Network
 
             if (string.IsNullOrEmpty(authTokens.Item1)) return;
 
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes($"riot:{GetAuth()?.OAuth}"))}");
+            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
         }
 
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)

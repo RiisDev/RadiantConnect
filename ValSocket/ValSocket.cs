@@ -72,7 +72,7 @@ namespace RadiantConnect.ValSocket
 
                     ClientWebSocket clientWebSocket = new();
                     clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
-                    clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {Convert.ToBase64String(Encoding.ASCII.GetBytes($"riot:{authentication.OAuth}"))}");
+                    clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{authentication.OAuth}".ToBase64()}");
                     await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
                     
                     foreach (string eventName in await GetEvents())

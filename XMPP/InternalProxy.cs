@@ -6,6 +6,8 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Net.Sockets;
+using RadiantConnect.Methods;
+
 // ReSharper disable CheckNamespace
 
 namespace RadiantConnect.XMPP
@@ -91,7 +93,7 @@ namespace RadiantConnect.XMPP
                     string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
                     string pasJwtContent = pasJwt.Split('.')[1];
                     string validBase64 = pasJwtContent.PadRight((pasJwtContent.Length / 4 * 4) + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
-                    string pasJwtString = Encoding.UTF8.GetString(Convert.FromBase64String(validBase64));
+                    string pasJwtString = validBase64.FromBase64();
                     JsonNode? pasJwtJson = JsonSerializer.Deserialize<JsonNode>(pasJwtString);
                     string? affinity = pasJwtJson?["affinity"]?.GetValue<string>();
 

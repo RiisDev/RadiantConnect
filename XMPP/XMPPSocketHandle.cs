@@ -30,6 +30,7 @@ namespace RadiantConnect.XMPP
                     byteCount = await incomingStream.ReadAsync(bytes);
                     string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
                     await outgoingStream.WriteAsync(bytes.AsMemory(0, byteCount));
+                    Array.Clear(bytes);
                     OnClientMessage?.Invoke(content);
                 } while (byteCount != 0 && !DoBreak);
             }
@@ -50,6 +51,7 @@ namespace RadiantConnect.XMPP
                     byteCount = await outgoingStream.ReadAsync(bytes);
                     string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
                     await incomingStream.WriteAsync(bytes.AsMemory(0, byteCount));
+                    Array.Clear(bytes);
                     OnServerMessage?.Invoke(content);
                 } while (byteCount != 0 && !DoBreak);
             }

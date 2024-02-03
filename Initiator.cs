@@ -11,7 +11,6 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
-using RadiantConnect.XMPP.Remote;
 
 namespace RadiantConnect
 {
@@ -49,7 +48,6 @@ namespace RadiantConnect
         public Endpoints Endpoints { get; }
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
-        public RemoteXMPP RemoteXMPP { get; set; }
 
         public Initiator()
         {
@@ -82,8 +80,6 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
-
-            RemoteXMPP = new RemoteXMPP(this);
             
             _ = LogService.InitiateEvents(this);
         }

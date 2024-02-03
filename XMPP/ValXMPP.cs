@@ -7,20 +7,23 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using System.Text;
+using RadiantConnect.Methods;
+
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 // ReSharper disable CheckNamespace
 
 namespace RadiantConnect.XMPP
 {
-    public class ValXMPP
+    public partial class ValXMPP
     {
         public delegate void InternalMessage(string data);
         public delegate void PresenceUpdated(ValorantPresence presence);
+        public delegate void PlayerPresenceUpdated(PlayerPresence presence);
 
         public event InternalMessage? OnClientMessage;
         public event InternalMessage? OnServerMessage;
         public event PresenceUpdated? OnValorantPresenceUpdated;
+        public event PlayerPresenceUpdated? OnPlayerPresenceUpdated;
 
         public delegate void SocketHandled(XMPPSocketHandle handle);
         public event SocketHandled? OnSocketCreated;
@@ -51,6 +54,88 @@ namespace RadiantConnect.XMPP
             certRequest.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, true));
             X509Certificate2 generatedCert = certRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(10));
             return new X509Certificate2(generatedCert.Export(X509ContentType.Pfx));
+        }
+
+        internal ValorantPresence? HandlePresenceObject(string data, bool invoke = true)
+        {
+            // Pull the <presence> XML out of the stream.
+            // I do regex in case an error with the stream includes extra data
+            Match match = ValorantPresenceRegex().Match(data);
+            if (!match.Success) return null;
+
+            string valorant64Data = match.Groups[1].Value;
+            ValorantPresence? presenceData = JsonSerializer.Deserialize<ValorantPresence>(valorant64Data.FromBase64());
+
+            if (invoke)
+                OnValorantPresenceUpdated?.Invoke(presenceData!);
+
+            return presenceData;
+        }
+
+        internal void HandlePlayerPresence(string data)
+        {
+            if (!data.Contains("<item jid=")) return;
+
+            string[] presences = data.Split("<presence to=");
+
+            foreach (string presence in presences)
+            {
+                if (string.IsNullOrEmpty(presence)) continue;
+                if (!presence.Contains("tagline=")) continue;
+
+                Match presenceMatch = XmlPresenceUpdateRegex().Match($"<presence to={presence}");
+                if (!presenceMatch.Success) return;
+                string newData = presenceMatch.Value;
+
+                Dictionary<string, string> platforms = [];
+                (string chatServer, string lobbyServer, string riotId, string tagLine) = ("", "", "", "");
+
+                Match riotData = RiotDataRegex().Match(newData);
+                Match platformsData = PlatformsDataRegex().Match(newData);
+                Match chatServerData = ChatServerDataRegex().Match(newData);
+                Match lobbyServerData = LobbyServerDataRegex().Match(newData);
+
+
+                if (chatServerData.Success)
+                    chatServer = chatServerData.Groups[1].Value;
+                if (lobbyServerData.Success)
+                    lobbyServer = lobbyServerData.Groups[1].Value;
+
+                if (riotData.Success)
+                {
+                    riotId = riotData.Groups[1].Value;
+                    tagLine = riotData.Groups[2].Value;
+                }
+
+                while (platformsData.Success)
+                {
+                    platforms.Add(platformsData.Groups[1].Value, platformsData.Groups[2].Value);
+                    platformsData = platformsData.NextMatch();
+                }
+                
+
+                OnPlayerPresenceUpdated?.Invoke(new PlayerPresence(
+                    chatServer,
+                    lobbyServer,
+                    "riot",
+                    riotId,
+                    tagLine,
+                    platforms,
+                    HandlePresenceObject(newData, false)!
+                ));
+            }
+        }
+
+        internal void HandleValorantPresence(string data)
+        {
+            try
+            {
+                if (OnValorantPresenceUpdated is not null)
+                    HandlePresenceObject(data);
+                if (OnPlayerPresenceUpdated is not null)
+                    HandlePlayerPresence(data);
+            }
+            catch{/**/}
         }
         
         internal async Task HandleClients(TcpListener server, string chatHost, int chatPort)
@@ -83,12 +168,8 @@ namespace RadiantConnect.XMPP
                         OnServerMessage?.Invoke(data);
 
                         if (!data.Contains("<valorant>")) return;
-                        Match match = Regex.Match(data, "<p>(.*)<\\/p>");
-                        if (!match.Success) return;
-                        string valorant64Data = match.Groups[1].Value;
-                        byte[] decodedValorantBytes = Convert.FromBase64String(valorant64Data);
-                        string decodedValorantData = Encoding.ASCII.GetString(decodedValorantBytes);
-                        OnValorantPresenceUpdated?.Invoke(JsonSerializer.Deserialize<ValorantPresence>(decodedValorantData)!);
+
+                        HandleValorantPresence(data);
                     };
                     handler.Initiate();
                     
@@ -104,7 +185,7 @@ namespace RadiantConnect.XMPP
             }
         }
 
-        public Process? InitializeConnection(string patchLine = "live")
+        public Process InitializeConnection(string patchLine = "live")
         {
             string riotClientPath = ValorantService.GetRiotClientPath();
             string valorantPath = ValorantService.GetValorantPath();
@@ -133,5 +214,23 @@ namespace RadiantConnect.XMPP
             
             return Process.Start(riotClientStartArgs)!;
         }
+
+        [GeneratedRegex("<p>(.*?)<\\/p>")]
+        private static partial Regex ValorantPresenceRegex();
+
+        [GeneratedRegex("(<presence.*<\\/presence>)")]
+        private static partial Regex XmlPresenceUpdateRegex();
+
+        [GeneratedRegex("<id name='([^']*)' tagline='(.{0,6})'\\/><(p|l|\\/item)")]
+        private static partial Regex RiotDataRegex();
+
+        [GeneratedRegex("<riot name='([^']*)' tagline='(.{0,6})'\\/>")]
+        private static partial Regex PlatformsDataRegex();
+
+        [GeneratedRegex("to='(.*)' from")]
+        private static partial Regex ChatServerDataRegex();
+
+        [GeneratedRegex("from='(.*)' id")]
+        private static partial Regex LobbyServerDataRegex();
     }
 }
