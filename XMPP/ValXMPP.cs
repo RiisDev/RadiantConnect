@@ -34,7 +34,7 @@ namespace RadiantConnect.XMPP
             foreach (Process process in processes.Where(proc => proc.ProcessName is "Riot Client" or "VALORANT-Win64-Shipping" or "RiotClientServices")) process.Kill();
         }
 
-        internal static bool IsRiotRunning()
+        public static bool IsRiotRunning()
         {
             Process[] processes = Process.GetProcesses();
             return processes.Any(proc => proc.ProcessName is "Riot Client" or "VALORANT-Win64-Shipping" or "RiotClientServices");
