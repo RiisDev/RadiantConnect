@@ -112,7 +112,7 @@ namespace RadiantConnect.XMPP
                     platforms.Add(platformsData.Groups[1].Value, platformsData.Groups[2].Value);
                     platformsData = platformsData.NextMatch();
                 }
-                
+
 
                 OnPlayerPresenceUpdated?.Invoke(new PlayerPresence(
                     chatServer,
@@ -120,6 +120,7 @@ namespace RadiantConnect.XMPP
                     "riot",
                     riotId,
                     tagLine,
+                    lobbyServer[(lobbyServer.IndexOf('/')+1)..],
                     platforms,
                     HandlePresenceObject(newData, false)!
                 ));
