@@ -113,36 +113,48 @@ namespace RadiantConnect.Network
 
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
-            while (InternalValorantMethods.IsValorantProcessRunning())
+            try
             {
-                if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
-                else await ResetAuth();
-
-                HttpRequestMessage httpRequest = new();
-                httpRequest.Method = InternalToHttpMethod[httpMethod];
-                httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
-                httpRequest.Content = content;
-                
-                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
-
-                switch (responseMessage)
+                while (InternalValorantMethods.IsValorantProcessRunning())
                 {
-                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.InternalServerError }:
-                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }:
-                        await ResetAuth();
-                        continue;
-                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.NotFound }:
-                    case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
-                        return null;
+                    if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
+                        await SetBasicAuth();
+                    else await ResetAuth();
+
+                    HttpRequestMessage httpRequest = new();
+                    httpRequest.Method = InternalToHttpMethod[httpMethod];
+                    httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
+                    httpRequest.Content = content;
+
+                    HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+
+                    switch (responseMessage)
+                    {
+                        case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.InternalServerError }:
+                        case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }:
+                            await ResetAuth();
+                            continue;
+                        case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.NotFound }:
+                        case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
+                            return null;
+                    }
+
+                    string responseContent = await responseMessage.Content.ReadAsStringAsync();
+                    Debug.WriteLine(
+                        $"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+                    httpRequest.Dispose();
+                    responseMessage.Dispose();
+                    return (responseContent.Contains("<html>") || responseContent.Contains("errorCode"))
+                        ? null
+                        : responseContent;
                 }
 
-                string responseContent = await responseMessage.Content.ReadAsStringAsync();
-                Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-                httpRequest.Dispose();
-                responseMessage.Dispose();
-                return (responseContent.Contains("<html>") || responseContent.Contains("errorCode")) ? null : responseContent;
+                return string.Empty;
             }
-            return string.Empty;
+            catch
+            {
+                return string.Empty;
+            }
         }
 
         internal async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
