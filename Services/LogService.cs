@@ -41,7 +41,9 @@ namespace RadiantConnect.Services
 
         public static ClientData GetClientData()
         {
+            Restart:
             string currentLogText = GetLogText();
+            
             string userId = currentLogText.ExtractValue("Logged in user changed: (.+)", 1);
             string pdUrl = currentLogText.ExtractValue(@"https://pd\.[^\s]+\.net/", 0);
             string glzUrl = currentLogText.ExtractValue(@"https://glz[^\s]+\.net/", 0);
@@ -49,6 +51,12 @@ namespace RadiantConnect.Services
             if (!TryParse(regionData, out ClientData.ShardType region))
                 region = ClientData.ShardType.na;
             string sharedUrl = $"https://shared.{regionData}.a.pvp.net/";
+
+            if (string.IsNullOrEmpty(userId)) goto Restart;
+            if (string.IsNullOrEmpty(pdUrl)) goto Restart;
+            if (string.IsNullOrEmpty(glzUrl)) goto Restart;
+            if (string.IsNullOrEmpty(regionData)) goto Restart;
+            if (string.IsNullOrEmpty(sharedUrl)) goto Restart;
 
             return new ClientData(region, userId, pdUrl, glzUrl, sharedUrl);
         }

@@ -113,6 +113,7 @@ namespace RadiantConnect.Network
 
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
+            if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
             try
             {
                 while (InternalValorantMethods.IsValorantProcessRunning())
@@ -126,7 +127,8 @@ namespace RadiantConnect.Network
                     httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
                     httpRequest.Content = content;
 
-                    HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+                    HttpResponseMessage responseMessage = await Client
+                        .SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
                     switch (responseMessage)
                     {
@@ -149,6 +151,10 @@ namespace RadiantConnect.Network
                         : responseContent;
                 }
 
+                return string.Empty;
+            }
+            catch (UriFormatException)
+            {
                 return string.Empty;
             }
             catch
