@@ -46,6 +46,7 @@ namespace RadiantConnect.XMPP
             HttpListenerContext listenerContext = listener.EndGetContext(result);
             HttpListenerRequest listenerRequest = listenerContext.Request;
             HttpListenerResponse listenerResponse = listenerContext.Response;
+            
             string rawUrl = ConfigUrl + listenerRequest.RawUrl;
             
             HttpRequestMessage message = new(HttpMethod.Get, rawUrl);
@@ -121,7 +122,12 @@ namespace RadiantConnect.XMPP
             listenerResponse.SendChunked = false;
             listenerResponse.ContentLength64 = responseBytes.Length;
             listenerResponse.ContentType = "application/json";
-            await listenerResponse.OutputStream.WriteAsync(responseBytes); // The specified network name is no longer available.
+            try
+            {
+                await listenerResponse.OutputStream
+                    .WriteAsync(responseBytes); // The specified network name is no longer available.
+            }catch{}
+
             ProxyServer.BeginGetContext(DoProxy, ProxyServer);
             message.Dispose();
             responseMessage.Dispose();

@@ -5,13 +5,11 @@ VisualStudioVersion = 17.8.34322.80
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadiantConnect", "RadiantConnect.csproj", "{C392D4AF-D1D2-4016-9D91-7858A62DD395}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CyphersWatchfulEye", "..\Cyphers-Watchful-Eye\CyphersWatchfulEye.csproj", "{D7A846E9-1D4E-441D-9F2A-291EA3D10C27}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "iOverlay", "..\iOverlay\iOverlay.csproj", "{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RadiantConnectTestSuite", "..\RadiantConnectTestSuite\RadiantConnectTestSuite.csproj", "{B9A6FCBD-48D3-478A-BE29-92E6A363B501}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CyphersWatchfulEyeCMD", "..\CyphersWatfulEyeCMD\CyphersWatchfulEyeCMD.csproj", "{404A4BBE-0E10-4565-9220-5317EE919BCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CyphersWatchfulEyeCMD", "..\CyphersWatfulEyeCMD\CyphersWatchfulEyeCMD.csproj", "{404A4BBE-0E10-4565-9220-5317EE919BCE}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +21,6 @@ Global
 		{C392D4AF-D1D2-4016-9D91-7858A62DD395}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{C392D4AF-D1D2-4016-9D91-7858A62DD395}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{C392D4AF-D1D2-4016-9D91-7858A62DD395}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D7A846E9-1D4E-441D-9F2A-291EA3D10C27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D7A846E9-1D4E-441D-9F2A-291EA3D10C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D7A846E9-1D4E-441D-9F2A-291EA3D10C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D7A846E9-1D4E-441D-9F2A-291EA3D10C27}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3F387FDC-8D5F-4F8A-9A17-A9AA25BFE05D}.Release|Any CPU.ActiveCfg = Release|Any CPU

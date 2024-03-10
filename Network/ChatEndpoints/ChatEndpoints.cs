@@ -5,7 +5,7 @@ namespace RadiantConnect.Network.ChatEndpoints;
 
 public class ChatEndpoints(Initiator initiator)
 {
-    internal async Task<ChatInfo?> GetChatInfo()
+    public async Task<ChatInfo?> GetChatInfo()
     {
         return await initiator.ExternalSystem.Net.GetAsync<ChatInfo>($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v6/conversations");
     }

@@ -28,7 +28,7 @@ namespace RadiantConnect.Network
             { HttpMethod.Head, System.Net.Http.HttpMethod.Head },
         };
 
-        internal enum HttpMethod
+        public enum HttpMethod
         {
             Get,
             Post, 
@@ -88,8 +88,12 @@ namespace RadiantConnect.Network
 
         internal async Task ResetAuth()
         {
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
+            try
+            {
+                Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
+                Client.DefaultRequestHeaders.Remove("Authorization");
+            }
+            catch {/**/}
 
             (string, string) authTokens = await GetAuthorizationToken();
 
@@ -142,8 +146,7 @@ namespace RadiantConnect.Network
                     }
 
                     string responseContent = await responseMessage.Content.ReadAsStringAsync();
-                    Debug.WriteLine(
-                        $"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+                    Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
                     httpRequest.Dispose();
                     responseMessage.Dispose();
                     return (responseContent.Contains("<html>") || responseContent.Contains("errorCode"))

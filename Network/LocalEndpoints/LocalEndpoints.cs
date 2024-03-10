@@ -1,4 +1,5 @@
 ﻿using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Net.Http.Json;
 using RadiantConnect.Network.LocalEndpoints.DataTypes;
 // ReSharper disable StringLiteralTypo
@@ -59,21 +60,28 @@ public class LocalEndpoints(Initiator initiator)
 
     public async Task<InternalRequests?> GetFriendRequestsAsync()
     {
-        return await initiator.ExternalSystem.Net.GetAsync<InternalRequests>($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/presences");
+        return await initiator.ExternalSystem.Net.GetAsync<InternalRequests>($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests");
     }
 
     public async Task SendFriendRequestAsync(string gameName, string tagLine)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post,$"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(
-            new NameValueCollection{
-                {"game_name", gameName},
-                {"game_tag", tagLine}
-            }
-        ));
+        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post,$"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
+        {
+            { "game_name", gameName },
+            { "game_tag", tagLine }
+        }));
     }
 
     public async Task RemoveFriendRequestAsync(string userId)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, $"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new NameValueCollection{{"puuid", userId}}));
+        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, $"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
+        {
+            { "puuid", userId },
+        }));
+    }
+
+    public async Task<string?> PerformLocalRequestAsync(ValorantNet.HttpMethod method, string endpoint, HttpContent? content = null)
+    {
+        return await initiator.ExternalSystem.Net.CreateRequest(method, $"https://127.0.0.1:{ValorantNet.GetAuthPort()}", endpoint, content);
     }
 }
