@@ -131,8 +131,7 @@ namespace RadiantConnect.Network
                     httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
                     httpRequest.Content = content;
 
-                    HttpResponseMessage responseMessage = await Client
-                        .SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+                    HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
                     switch (responseMessage)
                     {

@@ -1,5 +1,6 @@
-﻿namespace RadiantConnect.Methods;
-// ReSharper disable All
+﻿// ReSharper disable All
+namespace RadiantConnect.Methods;
+
 public static class ValorantTables
 {
     public static readonly Dictionary<string, string> GamePodsDictionary = new()

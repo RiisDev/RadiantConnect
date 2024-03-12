@@ -44,12 +44,18 @@ namespace RadiantConnect
                    !LogService.GetLogText().Split('\n').Last().Contains("Log file closed");
         }
 
+        internal static string IsVpnDetected()
+        {
+            IEnumerable<Process> processes = Process.GetProcesses().Where(process => process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase));
+            return string.Join('|', processes);
+        }
+
         public InternalSystem ExternalSystem { get; }
         public Endpoints Endpoints { get; }
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
 
-        public Initiator()
+        public Initiator(bool ignoreVpn = false)
         {
             while (!ClientIsReady())
             {
@@ -60,6 +66,15 @@ namespace RadiantConnect
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
             ValorantNet net = new(client);
+
+            string vpnDetected = IsVpnDetected();
+
+            if (!string.IsNullOrEmpty(vpnDetected))
+            {
+                Debug.WriteLine("[INITIATOR] VPN Service Running, may not be functional..");
+                Debug.WriteLine($"Processes: {vpnDetected}");
+                if (!ignoreVpn) throw new AccessViolationException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+            }
 
             ExternalSystem = new InternalSystem(
                 client,
