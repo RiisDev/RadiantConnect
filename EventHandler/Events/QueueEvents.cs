@@ -20,6 +20,7 @@ namespace RadiantConnect.EventHandler.Events
         public event QueueEvent<string?>? OnQueueChanged;
         public event QueueEvent<string?>? OnEnteredQueue;
         public event QueueEvent<string?>? OnLeftQueue;
+        public event Action OnTravelToMenu;
 
         private string GetEndpoint(string prefix, string log) => log.TryExtractSubstring("https", ']', startIndex => startIndex != -1, prefix);
 
@@ -41,7 +42,7 @@ namespace RadiantConnect.EventHandler.Events
                                     .Replace("/matchmaking/join", "")
                                     .Replace("/matchmaking/leave", "")
                                     .Replace("/makecustomgame", "");
-            if (!logData.Contains("https")) return;
+            if (!logData.Contains("https") && !logData.Contains("LogTravelManager")) return;
             
             switch (invoker)
             {
@@ -57,8 +58,8 @@ namespace RadiantConnect.EventHandler.Events
                 case "Party_MakePartyIntoCustomGame":
                     OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
-                case "Travel_To_Menu": 
-                    OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                case "Travel_To_Menu":
+                    OnTravelToMenu?.Invoke();
                     break;
             }
         }
