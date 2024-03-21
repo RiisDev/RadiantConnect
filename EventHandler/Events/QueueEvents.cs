@@ -20,7 +20,7 @@ namespace RadiantConnect.EventHandler.Events
         public event QueueEvent<string?>? OnQueueChanged;
         public event QueueEvent<string?>? OnEnteredQueue;
         public event QueueEvent<string?>? OnLeftQueue;
-        public event Action OnTravelToMenu;
+        public event QueueEvent<object?>? OnTravelToMenu;
 
         private string GetEndpoint(string prefix, string log) => log.TryExtractSubstring("https", ']', startIndex => startIndex != -1, prefix);
 
@@ -59,7 +59,7 @@ namespace RadiantConnect.EventHandler.Events
                     OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
                     break;
                 case "Travel_To_Menu":
-                    OnTravelToMenu?.Invoke();
+                    OnTravelToMenu?.Invoke(null);
                     break;
             }
         }
