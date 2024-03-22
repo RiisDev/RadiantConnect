@@ -26,7 +26,7 @@ This will begin the actual socket connection and will start a Riot instance.
 chatServer.InitializeConnection();
 ```
 
-## Step 5: Subscribe to the message events
+## Step 3: Subscribe to the message events
 
 This is where you'll receive the messages from server and client
 
@@ -39,14 +39,14 @@ chatServer.OnClientMessage += (data)=>{
 };
 ```
 
-## Step 5.1: Subscribe to new socket connections **Required for sending messages**
+## Step 3.1: Subscribe to new socket connections **Required for sending messages**
 ```csharp
 chatServer.OnSocketCreated += (socketHandle) => {
     socketHandle.SendXmlMessageAsync(/*XML String*/);
 };
 ```
 
-## Step 5.2: Subscribe to valorant presence update event
+## Step 3.2: Subscribe to valorant presence update event
 
 ```csharp
 chatServer.OnValorantPresenceUpdated += (valorantPresence) => {
@@ -54,7 +54,7 @@ chatServer.OnValorantPresenceUpdated += (valorantPresence) => {
 };
 ```
 
-## Step 6: Profit
+## Step 4: Profit
 
 In the end it should look something like this example
 

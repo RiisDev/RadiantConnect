@@ -52,3 +52,15 @@ CustomGameData OnCustomGameLobbyCreated;
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
 | `CustomGameData`       | A record class of the custom game data. |
+
+
+## OnTravelToMenu 
+This event is fired when you travel back to the main menu
+
+```C#
+void OnCustomGameLobbyCreated;
+```
+
+| **Event Return Type** | **Example Return Value** |
+|------------------------|--------------------------|
+| `null`       | Does not return anything |

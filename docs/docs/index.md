@@ -1,4 +1,6 @@
 ---
+title: Home
+description: Valorant .Net API, Internal Riot API Usage, With automatic game event handlers 
 hide:
   - navigation
   - toc

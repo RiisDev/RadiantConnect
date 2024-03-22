@@ -11,3 +11,17 @@ Initiator init = new Initiator();
 
 string clientId = init.Client.UserId;
 ```
+
+## Local HttpMethods 
+```C#
+public enum HttpMethod
+{
+    Get,
+    Post, 
+    Put, 
+    Delete,
+    Patch,
+    Options,
+    Head
+}
+```
