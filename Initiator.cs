@@ -55,7 +55,7 @@ namespace RadiantConnect
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
 
-        public Initiator(bool ignoreVpn = false)
+        public Initiator(bool ignoreVpn = true)
         {
             while (!ClientIsReady())
             {

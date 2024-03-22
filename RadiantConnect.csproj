@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>6.1.0</Version>
+    <Version>6.2.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -15,7 +15,22 @@
     <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
-    <PackageReleaseNotes>Beta Impementation of Riot XMPP Server connection, note this is MITM proxy and not a raw implementation.</PackageReleaseNotes>
+    <PackageReleaseNotes>Added new Methods, designated for RConnect
+
++GetRiotIdByPuuidAsync(string puuid)
++GetPuuidByNameAsync(string gameName, string tagLine)
++GetPeakValorantRankAsync(string puuid)
++GetValorantRankAsync(string puuid)
++GetCurrentRankRatingAsync(string puuid)
++GetRecentMatchStatsAsync(string puuid)
++GetLastMatchLeaderboardAsync(string puuid, bool competitiveOnly = false)
++GetMatchLeaderboardAsync(string matchId)
+
+New DataType 
++MatchStats (For leaderboard methods)
+
+Fixes
+*OnTravelToMenu | https://github.com/RiisDev/RadiantConnect/pull/1 @FrostOnAcid</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
