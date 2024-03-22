@@ -21,6 +21,7 @@ namespace RadiantConnect.EventHandler.Events
         public event QueueEvent<string?>? OnEnteredQueue;
         public event QueueEvent<string?>? OnLeftQueue;
         public event QueueEvent<object?>? OnTravelToMenu;
+        public event QueueEvent<object?>? OnMatchFound;
 
         private string GetEndpoint(string prefix, string log) => log.TryExtractSubstring("https", ']', startIndex => startIndex != -1, prefix);
 
@@ -61,6 +62,10 @@ namespace RadiantConnect.EventHandler.Events
                 case "Travel_To_Menu":
                     OnTravelToMenu?.Invoke(null);
                     break;
+                case "Match_Found":
+                    OnMatchFound?.Invoke(null);
+                    break;
+
             }
         }
     }

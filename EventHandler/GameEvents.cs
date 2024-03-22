@@ -55,6 +55,9 @@ namespace RadiantConnect.EventHandler
                     case var _ when line.Contains("LogTravelManager: Beginning travel to /Game/Maps/Menu/MainMenuV2"):
                         HandleEvent(Queue.HandleQueueEvent, "Travel_To_Menu", line, lineIndex);
                         break;
+                    case var _ when line.Contains("LogPlatformSessionManager: Loopstate changed from MENUS to PREGAME"):
+                        HandleEvent(Queue.HandleQueueEvent, "Match_Found", line, lineIndex);
+                        break;
 
                     case var _ when line.Contains("Pregame_GetPlayer"):
                         HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetPlayer", line, lineIndex);
