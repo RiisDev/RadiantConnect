@@ -336,7 +336,8 @@ public static class ValorantTables
         { "320b2a48-4d9b-a075-30f1-1f93a9b638fa", "Sova" },
         { "707eab51-4836-f488-046a-cda6bf494859", "Viper" },
         { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" },
-        { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" }
+        { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" },
+        { "1dbf2edd-4729-0984-3115-daa5eed44993", "Clove" }
     };
     
     public static readonly Dictionary<long, string> TierToRank = new()

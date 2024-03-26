@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj": {}
+    "C:\\Users\\irisd\\OneDrive\\Desktop\\Sources\\RadiantConnect\\RadiantConnect.csproj": {}
   },
   "projects": {
-    "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj": {
-      "version": "6.2.0",
+    "C:\\Users\\irisd\\OneDrive\\Desktop\\Sources\\RadiantConnect\\RadiantConnect.csproj": {
+      "version": "6.2.1",
       "restore": {
-        "projectUniqueName": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
+        "projectUniqueName": "C:\\Users\\irisd\\OneDrive\\Desktop\\Sources\\RadiantConnect\\RadiantConnect.csproj",
         "projectName": "RadiantConnect",
-        "projectPath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
+        "projectPath": "C:\\Users\\irisd\\OneDrive\\Desktop\\Sources\\RadiantConnect\\RadiantConnect.csproj",
         "packagesPath": "C:\\Users\\irisd\\.nuget\\packages\\",
-        "outputPath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\obj\\",
+        "outputPath": "C:\\Users\\irisd\\OneDrive\\Desktop\\Sources\\RadiantConnect\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -26,7 +26,6 @@
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -39,11 +38,6 @@
           "warnAsError": [
             "NU1605"
           ]
-        },
-        "restoreAuditProperties": {
-          "enableAudit": "true",
-          "auditLevel": "low",
-          "auditMode": "direct"
         }
       },
       "frameworks": {
@@ -65,7 +59,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files (x86)\\dotnet\\sdk\\8.0.103/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

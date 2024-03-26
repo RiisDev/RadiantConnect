@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>6.2.0</Version>
+    <Version>6.2.1</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -15,22 +15,14 @@
     <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
-    <PackageReleaseNotes>Added new Methods, designated for RConnect
+    <LangVersion>preview</LangVersion>
+    <PackageReleaseNotes>Added new Methods
++PerformLocalRequestAsync(ValorantNet.HttpMethod method, string endpoint, HttpContent? content = null)
 
-+GetRiotIdByPuuidAsync(string puuid)
-+GetPuuidByNameAsync(string gameName, string tagLine)
-+GetPeakValorantRankAsync(string puuid)
-+GetValorantRankAsync(string puuid)
-+GetCurrentRankRatingAsync(string puuid)
-+GetRecentMatchStatsAsync(string puuid)
-+GetLastMatchLeaderboardAsync(string puuid, bool competitiveOnly = false)
-+GetMatchLeaderboardAsync(string matchId)
+Added new Event
++QueueEvents.OnMatchFound &lt;-- Fires directly when 'Match Found' shows up
 
-New DataType 
-+MatchStats (For leaderboard methods)
-
-Fixes
-*OnTravelToMenu | https://github.com/RiisDev/RadiantConnect/pull/1 @FrostOnAcid</PackageReleaseNotes>
+Added Clove support</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
