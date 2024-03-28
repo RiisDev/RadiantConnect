@@ -1,6 +1,8 @@
 ﻿// Major credit to: https://github.com/molenzwiebel/Deceive/blob/master/Deceive/ConfigProxy.cs
 // It's pretty much ConfigProxy.cs but rewritten to my "standards" 
 
+using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json.Nodes;
@@ -57,7 +59,8 @@ namespace RadiantConnect.XMPP
 
             if (listenerRequest.Headers["authorization"] is not null)
                 message.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
-            
+
+
             HttpResponseMessage responseMessage = await Client.SendAsync(message);
             string responseString = await responseMessage.Content.ReadAsStringAsync();
 

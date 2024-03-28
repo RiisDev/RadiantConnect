@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>6.2.1</Version>
+    <Version>6.2.2</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,13 +16,9 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>Added new Methods
-+PerformLocalRequestAsync(ValorantNet.HttpMethod method, string endpoint, HttpContent? content = null)
+    <PackageReleaseNotes>Required update, All old updates are broken
 
-Added new Event
-+QueueEvents.OnMatchFound &lt;-- Fires directly when 'Match Found' shows up
-
-Added Clove support</PackageReleaseNotes>
+Fixed ValorantNet internal to use correct client version header</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

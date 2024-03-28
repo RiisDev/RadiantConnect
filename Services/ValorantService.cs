@@ -84,7 +84,11 @@ namespace RadiantConnect.Services
                 FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(valorantPath);
                 engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
             }
-            
+
+            // I hate riot, this is a band-aid fix till I find a better solution
+            int insertIndex = ciServerVersion.IndexOf('-', ciServerVersion.IndexOf('-') + 1);
+            ciServerVersion = ciServerVersion.Insert(insertIndex,"-shipping");
+
             ValorantClientVersion = new Version(ciServerVersion, branch, buildVersion, changelist, engineVersion ?? "", GetVanguardVersion());
         }
     }
