@@ -86,8 +86,11 @@ namespace RadiantConnect.Services
             }
 
             // I hate riot, this is a band-aid fix till I find a better solution
-            int insertIndex = ciServerVersion.IndexOf('-', ciServerVersion.IndexOf('-') + 1);
-            ciServerVersion = ciServerVersion.Insert(insertIndex,"-shipping");
+            if (ciServerVersion.Contains("release"))
+            {
+                int insertIndex = ciServerVersion.IndexOf('-', ciServerVersion.IndexOf('-') + 1);
+                ciServerVersion = ciServerVersion.Insert(insertIndex, "-shipping");
+            }
 
             ValorantClientVersion = new Version(ciServerVersion, branch, buildVersion, changelist, engineVersion ?? "", GetVanguardVersion());
         }

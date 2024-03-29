@@ -1,8 +1,11 @@
 {
   "version": 2,
-  "dgSpecHash": "qgSUcA/+BHIJiu7iWfgkJI5l0CcAFHKSJ8ZRIwYS65z5T0u655UwcMTKrOTNDAEgARtEPunUMpMPjZ8QDvgNmA==",
+  "dgSpecHash": "Wyd9pptfIn2z04CT10jcaAS6yVCiX9e3IxGRdmyvFLKnIhJLKN0PNtzOQ4yyxJJOAg+QQwf8Z0UIWzzIzG6VJQ==",
   "success": true,
   "projectFilePath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
-  "expectedPackageFiles": [],
+  "expectedPackageFiles": [
+    "C:\\Users\\irisd\\.nuget\\packages\\microsoft.win32.systemevents\\8.0.0\\microsoft.win32.systemevents.8.0.0.nupkg.sha512",
+    "C:\\Users\\irisd\\.nuget\\packages\\system.drawing.common\\8.0.3\\system.drawing.common.8.0.3.nupkg.sha512"
+  ],
   "logs": []
 }
