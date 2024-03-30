@@ -9,6 +9,8 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
         internal static KillFeedPositions GetKillHalfPosition(Bitmap killFeedItem)
         {
+            TimeOnly killTime = TimeOnly.FromDateTime(DateTime.Now);
+
             int middlePoint = 0;
             int firstGreenPixel = int.MaxValue;
             int firstRedPixel = int.MaxValue;
@@ -34,6 +36,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 break;
             }
 
+
             if (firstGreenPixel > firstRedPixel)
             {
                 firstGreenPixel = middlePoint + 5;
@@ -46,7 +49,9 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 firstRedPixel = middlePoint + 5;
             }
 
-            return new KillFeedPositions(firstRedPixel, firstGreenPixel, middlePoint);
+            bool validPosition = firstGreenPixel > 5 && middlePoint > 5 && firstRedPixel > 5;
+
+            return new KillFeedPositions(firstRedPixel, firstGreenPixel, middlePoint, validPosition, killTime);
         }
     }
 }

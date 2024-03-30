@@ -79,6 +79,8 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 Color pixelBottomColor = killFeedItem.GetPixel(xIndex, borderBottom);
                 if (!ColorHandler.IsActionColor(pixelTopColor)) continue;
                 if (ColorHandler.IsActionColor(pixelBottomColor)) continue;
+                if (wasKilled) continue;
+                if (performedKill) continue;
 
                 didAssist = true;
 

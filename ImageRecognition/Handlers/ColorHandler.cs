@@ -1,16 +1,11 @@
 ﻿using System.Drawing;
+using System.Globalization;
+#pragma warning disable CA1416
 
 namespace RadiantConnect.ImageRecognition.Handlers
 {
     internal static class ColorHandler
     {
-        internal static bool IsAccentBarColour(Color color)
-        {
-            //return color is { R: < 220, G: < 220, B: < 220 } and { R: > 130, G: > 130, B: > 130 } or {R: 125, G: 125, B: 125};
-            //return color is { R: >= 238 and <= 240, G: >= 238 and <= 240, B: >= 238 and <= 240 };
-            return color is { R: 237, G: 237, B: 237 } or { R: 239, G: 239, B: 239 } or { R: < 220, G: < 220, B: < 220 } and { R: > 130, G: > 130, B: > 130 } or { R: 125, G: 125, B: 125 } or { R: >= 238 and <= 240, G: >= 238 and <= 240, B: >= 238 and <= 240 };
-        }
-
         internal static bool IsValorantGreen(Color color)
         {
             return color is { R: < 103, G: < 197, B: < 170 } and { R: >= 99, G: > 190, B: > 165 };
@@ -18,12 +13,43 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
         internal static bool IsValorantRed(Color color)
         {
-            return color is { R: >= 235 and <= 241, G: 90, B: 85 } or { R: 208, G: 99, B: 91 };
+            return color is { R: >= 235 and <= 244, G: >= 88 and <= 92, B: >= 86 and <= 91 } or { R: 208, G: 99, B: 91 };
         }
 
         internal static bool IsActionColor(Color color)
         {
-            return color is { R: >= 225 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 150 };
+            return color is { R: >= 215 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 150 };
+        }
+
+        public static Dictionary<Color, int> GetColourFrequencies(Bitmap image)
+        {
+            Dictionary<Color, int> colourFrequencies = [];
+
+            for (int x = 0; x < image.Width; x++)
+            {
+                for (int y = 0; y < image.Height; y++)
+                {
+                    Color pixelColor = image.GetPixel(x, y);
+                    if (colourFrequencies.TryAdd(pixelColor, 1)) colourFrequencies[pixelColor]++;
+                }
+            }
+
+            return colourFrequencies;
+        }
+
+        public static int CompareColorFrequencies(Dictionary<Color, int> frequencies1, Dictionary<Color, int> frequencies2)
+        {
+            int totalFrequency1 = frequencies1.Values.Sum();
+            int totalFrequency2 = frequencies2.Values.Sum();
+            double commonFrequency = 0;
+
+            foreach (Color color in frequencies1.Keys)
+                if (frequencies2.TryGetValue(color, out int frequency2))
+                    commonFrequency += Math.Min(frequencies1[color], frequency2);
+
+            double similarityPercentage = (commonFrequency / Math.Min(totalFrequency1, totalFrequency2)) * 100;
+
+            return int.Parse(Math.Floor(similarityPercentage).ToString(CultureInfo.InvariantCulture));
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System.Drawing;
+﻿using System.Diagnostics;
+using System.Drawing;
 
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
@@ -7,27 +8,29 @@ namespace RadiantConnect.ImageRecognition.Handlers
 {
     public class KillFeedHandler
     {
-        public delegate void KillFeedEvent();
+        public delegate void KillFeedEvent(string data);
         public event KillFeedEvent? OnKill;
         public event KillFeedEvent? OnAssist;
         public event KillFeedEvent? OnDeath;
 
         internal CancellationTokenSource KillFeedCancellationSource = new();
         internal CancellationToken KillFeedCancellationToken;
-        internal List<KillFeedPositions> KillCache = [];
+
+        internal Dictionary<TimeOnly,int> TimestampIndex = [];
+
+        internal Dictionary<int, string> LastCalled = new()
+        {
+            { 0, "" },
+            { 1, "" },
+            { 2, "" },
+            { 3, "" },
+            { 4, "" },
+            { 5, "" },
+        };
 
         public KillFeedHandler()
         {
             KillFeedCancellationToken = KillFeedCancellationSource.Token;
-            Task.Run( async () =>
-            {
-                while (true)
-                {
-                    await Task.Delay(6000);
-                    if (KillCache.Count == 0) continue;
-                    KillCache.RemoveAt(0);
-                }
-            });
         }
 
         public async Task StartKillDetection(KillFeedConfig config)
@@ -38,47 +41,62 @@ namespace RadiantConnect.ImageRecognition.Handlers
             {
 
                 const int killBoxOffset = 94;
+                Dictionary<Bitmap, KillFeedAction> killBoxes = [];
 
-                List<Bitmap> killBoxes = [
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)),
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)),
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)),
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)),
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)),
-                    CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)),
-                ];
-                
-                foreach (Bitmap killBox in killBoxes)
+                Dictionary<Bitmap, KillFeedPositions?> killBoxesTemp = new()
                 {
-                    KillFeedPositions killPositions = PositionHandler.GetKillHalfPosition(killBox);
-                    if (killPositions.GreenPixel <= 5 || killPositions.Middle <= 5 || killPositions.RedPixel <= 5) continue; // Check if position is even valid
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)), null },
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
+                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
+                };
 
-                    KillFeedAction actionResult = CaptureHandler.ActionResult(killBox, killPositions);
+                foreach (Bitmap killBoxBitmap in killBoxesTemp.Keys)
+                {
+                    KillFeedPositions killPositions = PositionHandler.GetKillHalfPosition(killBoxBitmap);
+                    if (!killPositions.ValidPosition) continue;
 
-                    bool cacheFound = false;
+                    KillFeedAction actionResult = CaptureHandler.ActionResult(killBoxBitmap, killPositions);
+                    if (!actionResult.WasInFeed) continue;
 
-                    foreach (KillFeedPositions cachedPosition in KillCache)
-                    {
-                        cachedPosition.Deconstruct(out int cacheRed, out int cacheGreen, out int cacheMiddle);
-                        killPositions.Deconstruct(out int red, out int green, out int middle);
-                        if (cacheRed == red && cacheGreen == green && cacheMiddle == middle) cacheFound = true;
-                    }
-
-                    if (cacheFound) continue;
-
-                    if (config.CheckAssists && actionResult.WasAssist)
-                        OnAssist?.Invoke();
-                    if (config.CheckKilled && actionResult.PerformedKill)
-                        OnKill?.Invoke();
-                    if (config.CheckWasKilled && actionResult.WasKilled)
-                        OnDeath?.Invoke();
-
-                    KillCache.Add(killPositions);
-
-                    killBox.Dispose();
+                    killBoxes.Add(killBoxBitmap, actionResult);
                 }
 
-                await Task.Delay(250);
+                killBoxesTemp.Clear();
+
+                foreach ((Bitmap killBox, KillFeedAction actionResult) in killBoxes)
+                {
+                    await Task.Run(() =>
+                    {
+
+                        KillFeedPositions killPositions = actionResult.Positions;
+                        TimeOnly killTime = killPositions.KillTime;
+
+                        int killBoxIndex = killBoxes.Keys.ToList().IndexOf(killBox);
+                        string lastCalled = actionResult.PerformedKill ? "Kill" : actionResult.WasKilled ? "Death" : actionResult.WasAssist ? "Assist" : "Unknown";
+
+                        bool timestampDetection = TimestampIndex.Any(data => data.Value == killBoxIndex && LastCalled[killBoxIndex] == lastCalled && data.Key.IsWithinFourSeconds(killTime));
+                        bool canAdd = TimestampIndex.TryAdd(killTime, killBoxIndex);
+
+                        if (timestampDetection) return;
+                        if (!canAdd) return;
+
+                        LastCalled[killBoxIndex] = lastCalled;
+
+                        if (config.CheckKilled && actionResult.PerformedKill)
+                            OnKill?.Invoke(killBoxIndex.ToString());
+                        else if (config.CheckWasKilled && actionResult.WasKilled)
+                            OnDeath?.Invoke(killBoxIndex.ToString());
+                        else if (config.CheckAssists && actionResult.WasAssist)
+                            OnAssist?.Invoke(killBoxIndex.ToString());
+
+                        killBox.Dispose();
+                    });
+                }
+
+                await Task.Delay(10);
             }
         }
 

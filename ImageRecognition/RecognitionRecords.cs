@@ -1,6 +1,6 @@
 ﻿namespace RadiantConnect.ImageRecognition;
 
-internal record KillFeedPositions(int RedPixel, int GreenPixel, int Middle);
+internal record KillFeedPositions(int RedPixel, int GreenPixel, int Middle, bool ValidPosition, TimeOnly KillTime);
 
 internal record KillFeedAction(bool PerformedKill, bool WasKilled, bool WasAssist, bool WasInFeed, KillFeedPositions Positions);
 
