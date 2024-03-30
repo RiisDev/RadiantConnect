@@ -1,10 +1,9 @@
-﻿using RadiantConnect.ImageRecognition.Handlers;
-using System.Drawing;
-using System.Text.Json;
+﻿using System.Drawing;
+
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
 
-namespace RadiantConnect.ImageRecognition
+namespace RadiantConnect.ImageRecognition.Handlers
 {
     public class KillFeedHandler
     {

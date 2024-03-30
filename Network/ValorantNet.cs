@@ -1,7 +1,6 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Methods;
@@ -47,7 +46,7 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",valorantClient?.ValorantClientVersion.RiotClientVersion);
         }
 
-        public static UserAuth? GetAuth()
+        internal static UserAuth? GetAuth()
         {
             string lockFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile");
             string? fileText;
@@ -165,7 +164,7 @@ namespace RadiantConnect.Network
             }
         }
 
-        internal async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
+        public async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
         {
             try
             {
@@ -179,14 +178,14 @@ namespace RadiantConnect.Network
             }
         }
 
-        internal async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
+        public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
         {
             string? jsonData = await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
 
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        internal async Task<T?> PutAsync<T>(string baseUrl, string endPoint,HttpContent httpContent)
+        public async Task<T?> PutAsync<T>(string baseUrl, string endPoint,HttpContent httpContent)
         {
             string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
             if (endPoint == "name-service/v2/players")

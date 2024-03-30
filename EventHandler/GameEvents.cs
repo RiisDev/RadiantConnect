@@ -97,6 +97,15 @@ namespace RadiantConnect.EventHandler
                     case var _ when line.Contains("LogVoteControllerComponent: Making vote request for option "):
                         HandleEvent(Vote.HandleVoteEvent, "Vote_Invoked", line, lineIndex);
                         break;
+                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote SurrenderVote_C"):
+                        HandleEvent(Vote.HandleVoteEvent, "Surrender_Called", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote TimeoutVote_C"):
+                        HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote RemakeVoteNew_C"):
+                        HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, lineIndex);
+                        break;
 
                     case var _ when line.Contains("LogMenuStackManager: Opening preRound"):
                         HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Opened", line, lineIndex);
