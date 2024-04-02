@@ -134,14 +134,33 @@ namespace RadiantConnect.RConnect
         public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
         {
             PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
-            return ValorantTables.TierToRank[playerMmr?.LatestCompetitiveUpdate.TierAfterUpdate!.Value ?? 0];
+            
+            string? seasonId = await FetchCurrentSeasonIdAsync(initiator);
+            if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return "Unranked";
+           
+            return !playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId,
+                out SeasonId? seasonData)
+                ? "Unranked"
+                : ValorantTables.TierToRank[seasonData.CompetitiveTier ?? 0];
         }
 
         public static async Task<int?> GetCurrentRankRatingAsync(this Initiator initiator, string puuid)
         {
             PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
 
-            return int.Parse(playerMmr?.LatestCompetitiveUpdate.RankedRatingAfterUpdate?.ToString()!);
+            string? seasonId = await FetchCurrentSeasonIdAsync(initiator);
+
+            if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return 0;
+            try
+            {
+                if (playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId,
+                        out SeasonId? seasonData))
+                {
+                    return seasonData.RankedRating.HasValue ? int.Parse(seasonData.RankedRating.Value.ToString()) : 0;
+                }
+            }catch {/**/}
+
+            return 0;
         }
 
         public static async Task<List<MatchStats?>> GetRecentMatchStatsAsync(this Initiator initiator, string puuid)
@@ -201,6 +220,20 @@ namespace RadiantConnect.RConnect
                 winningTeam,
                 playerList
             );
+        }
+
+        public static async Task<string?> FetchCurrentSeasonIdAsync(this Initiator initiator)
+        {
+            Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync();
+            string? seasonId;
+            try {
+                seasonId = content?.Seasons.First(x => (x.IsActive.HasValue && x.IsActive.Value) && x.Type == "act").ID;
+            } catch {
+                seasonId = string.Empty;
+            }
+
+            return seasonId;
+            
         }
     }
 }
