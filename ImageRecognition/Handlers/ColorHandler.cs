@@ -6,6 +6,11 @@ namespace RadiantConnect.ImageRecognition.Handlers
 {
     internal static class ColorHandler
     {
+        internal static bool IsSpikeRed(Color color)
+        {
+            return color is { R: >= 140 and <= 235, G: < 15, B: < 15 };
+        }
+
         internal static bool IsValorantGreen(Color color)
         {
             return color is { R: < 103, G: < 197, B: < 170 } and { R: >= 99, G: > 190, B: > 165 };

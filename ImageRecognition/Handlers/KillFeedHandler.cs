@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
@@ -8,7 +7,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
 {
     public class KillFeedHandler
     {
-        public delegate void KillFeedEvent(string data);
+        public delegate void KillFeedEvent();
         public event KillFeedEvent? OnKill;
         public event KillFeedEvent? OnAssist;
         public event KillFeedEvent? OnDeath;
@@ -26,6 +25,15 @@ namespace RadiantConnect.ImageRecognition.Handlers
             { 3, "" },
             { 4, "" },
             { 5, "" },
+        }; 
+        internal Dictionary<int, int> RedPixelLog = new()
+        {
+            { 0, 0 },
+            { 1, 0 },
+            { 2, 0 },
+            { 3, 0 },
+            { 4, 0 },
+            { 5, 0 },
         };
 
         public KillFeedHandler()
@@ -70,7 +78,6 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 {
                     await Task.Run(() =>
                     {
-
                         KillFeedPositions killPositions = actionResult.Positions;
                         TimeOnly killTime = killPositions.KillTime;
 
@@ -84,13 +91,16 @@ namespace RadiantConnect.ImageRecognition.Handlers
                         if (!canAdd) return;
 
                         LastCalled[killBoxIndex] = lastCalled;
+                        RedPixelLog[killBoxIndex] = killPositions.RedPixel;
 
+                        if (killBoxIndex < 6 && killPositions.RedPixel.IsClose(RedPixelLog[killBoxIndex + 1], 4)) return;
+                        
                         if (config.CheckKilled && actionResult.PerformedKill)
-                            OnKill?.Invoke(killBoxIndex.ToString());
+                            OnKill?.Invoke();
                         else if (config.CheckWasKilled && actionResult.WasKilled)
-                            OnDeath?.Invoke(killBoxIndex.ToString());
+                            OnDeath?.Invoke();
                         else if (config.CheckAssists && actionResult.WasAssist)
-                            OnAssist?.Invoke(killBoxIndex.ToString());
+                            OnAssist?.Invoke();
 
                         killBox.Dispose();
                     });

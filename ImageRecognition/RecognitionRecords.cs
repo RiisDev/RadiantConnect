@@ -6,4 +6,4 @@ internal record KillFeedAction(bool PerformedKill, bool WasKilled, bool WasAssis
 
 public record KillFeedConfig(bool CheckKilled, bool CheckAssists, bool CheckWasKilled);
 
-public record Config(KillFeedConfig KillFeedConfig);
+public record Config(KillFeedConfig KillFeedConfig, bool SpikePlanted);

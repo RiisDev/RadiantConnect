@@ -49,7 +49,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 firstRedPixel = middlePoint + 5;
             }
 
-            bool validPosition = firstGreenPixel > 5 && middlePoint > 5 && firstRedPixel > 5;
+            bool validPosition = firstGreenPixel > 15 && middlePoint > 15 && firstRedPixel > 15;
 
             return new KillFeedPositions(firstRedPixel, firstGreenPixel, middlePoint, validPosition, killTime);
         }

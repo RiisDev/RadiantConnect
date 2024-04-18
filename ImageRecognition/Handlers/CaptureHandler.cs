@@ -17,11 +17,28 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
         internal static Rectangle GetValorantRectangle()
         {
-            nint processHandle = Process.GetProcessesByName("vlc")[0].MainWindowHandle;
+            nint processHandle = Process.GetProcessesByName("VALORANT")[0].MainWindowHandle;
             Rectangle captureRectangle = new();
             GetWindowRect(processHandle, ref captureRectangle);
 
             return captureRectangle;
+        }
+
+        internal static Bitmap GetSpikeBox()
+        {
+            Rectangle valorantRectangle = GetValorantRectangle();
+            int spikeBoxWidth = 200;
+            int spikeBoxHeight = 80;
+            int heightOffset = 10;
+
+            int valorantMiddle = (valorantRectangle.Width - spikeBoxWidth) / 2;
+
+            Bitmap croppedScreenshot = new (spikeBoxWidth, spikeBoxHeight);
+
+            using Graphics graphics = Graphics.FromImage(croppedScreenshot);
+            graphics.CopyFromScreen(valorantMiddle, heightOffset, 0, -heightOffset, croppedScreenshot.Size);
+
+            return croppedScreenshot;
         }
 
         internal static Bitmap GetKillFeedBox(Point captureLocation = default, Size captureSize = default)
@@ -38,6 +55,22 @@ namespace RadiantConnect.ImageRecognition.Handlers
             graphics.CopyFromScreen(captureLocation, Point.Empty, captureSize);
 
             return bitmap;
+        }
+
+        internal static bool SpikePlantedResult(Bitmap spikeItem)
+        {
+            int middle = spikeItem.Width / 2;
+            bool wasFound = false;
+            
+            for (int yIndex = 0; yIndex < spikeItem.Height; yIndex++)
+            {
+                Color pixelColor = spikeItem.GetPixel(middle, yIndex);
+                if (!ColorHandler.IsSpikeRed(pixelColor)) continue;
+                wasFound = true;
+                break;
+            }
+
+            return wasFound;
         }
 
         internal static KillFeedAction ActionResult(Bitmap killFeedItem, KillFeedPositions positions)
@@ -73,18 +106,19 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 break;
             }
 
-            for (int xIndex = positions.Middle; xIndex >= 0 && xIndex < killFeedItem.Width; xIndex += step)
+            if (!wasKilled && !performedKill)
             {
-                Color pixelTopColor = killFeedItem.GetPixel(xIndex, borderTop);
-                Color pixelBottomColor = killFeedItem.GetPixel(xIndex, borderBottom);
-                if (!ColorHandler.IsActionColor(pixelTopColor)) continue;
-                if (ColorHandler.IsActionColor(pixelBottomColor)) continue;
-                if (wasKilled) continue;
-                if (performedKill) continue;
+                for (int xIndex = positions.Middle; xIndex >= 0 && xIndex < killFeedItem.Width; xIndex += step)
+                {
+                    Color pixelTopColor = killFeedItem.GetPixel(xIndex, borderTop);
+                    Color pixelBottomColor = killFeedItem.GetPixel(xIndex, borderBottom);
+                    if (!ColorHandler.IsActionColor(pixelTopColor)) continue;
+                    if (ColorHandler.IsActionColor(pixelBottomColor)) continue;
 
-                didAssist = true;
+                    didAssist = true;
 
-                break;
+                    break;
+                }
             }
 
             bool wasInFeed = performedKill || wasKilled || didAssist;

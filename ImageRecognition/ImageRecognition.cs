@@ -12,9 +12,11 @@ namespace RadiantConnect.ImageRecognition
         public delegate void HandlerCreated<in T>(T value);
 
         public event HandlerCreated<KillFeedHandler>? OnKillFeedHandlerCreated; 
+        public event HandlerCreated<SpikeHandler>? OnSpikeHandlerCreated; 
 
         public KillFeedHandler? KillFeedHandler { get; internal set; }
-        
+        public SpikeHandler? SpikeHandler { get; internal set; }
+
         internal static void DrawDebugLine(Bitmap bitmap, int x, int y, int width, Color color)
         {
             using Graphics g = Graphics.FromImage(bitmap);
@@ -32,6 +34,13 @@ namespace RadiantConnect.ImageRecognition
                 OnKillFeedHandlerCreated?.Invoke(KillFeedHandler);
                 KillFeedHandler.StartKillDetection(feedConfig);
             });
+
+            if (config.SpikePlanted)
+            {
+                SpikeHandler = new SpikeHandler();
+                OnSpikeHandlerCreated?.Invoke(SpikeHandler);
+                SpikeHandler.StartSpikeDetection();
+            }
 
         }
     }

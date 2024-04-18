@@ -73,9 +73,7 @@ namespace RadiantConnect.Network
         internal async Task<(string, string)> GetAuthorizationToken()
         {
             UserAuth? auth = GetAuth();
-            string toEncode = $"riot:{auth?.OAuth}";
-            string base64Encode = toEncode.ToBase64();
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {base64Encode}");
+            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
             HttpResponseMessage response = await Client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
 
             if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
@@ -116,6 +114,9 @@ namespace RadiantConnect.Network
 
         internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
         {
+            // Stupid hack to fix URLs that I imported incorrectly
+            if (baseUrl[^1] == '/' && endPoint[0] == '/') { endPoint = endPoint[1..]; }
+
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
             try
             {
@@ -144,18 +145,14 @@ namespace RadiantConnect.Network
                     }
 
                     string responseContent = await responseMessage.Content.ReadAsStringAsync();
-                    Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+                    
+                    Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}[ValorantNet Log] Response Data: {responseMessage}");
+                    
                     httpRequest.Dispose();
                     responseMessage.Dispose();
-                    return (responseContent.Contains("<html>") || responseContent.Contains("errorCode"))
-                        ? null
-                        : responseContent;
+                    return responseContent.Contains("<html>") || responseContent.Contains("errorCode") ? null : responseContent;
                 }
 
-                return string.Empty;
-            }
-            catch (UriFormatException)
-            {
                 return string.Empty;
             }
             catch
