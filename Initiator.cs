@@ -73,7 +73,7 @@ namespace RadiantConnect
             {
                 Debug.WriteLine("[INITIATOR] VPN Service Running, may not be functional..");
                 Debug.WriteLine($"Processes: {vpnDetected}");
-                if (!ignoreVpn) throw new AccessViolationException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+                if (!ignoreVpn) throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
             }
 
             ExternalSystem = new InternalSystem(

@@ -8,22 +8,22 @@ namespace RadiantConnect.ImageRecognition.Handlers
     {
         internal static bool IsSpikeRed(Color color)
         {
-            return color is { R: >= 140 and <= 235, G: < 15, B: < 15 };
+            return color is { R: >= 160 and <= 230, G: < 5, B: < 5 };
         }
 
         internal static bool IsValorantGreen(Color color)
         {
-            return color is { R: < 103, G: < 197, B: < 170 } and { R: >= 99, G: > 190, B: > 165 };
+            return color is { R: < 105 and > 100, G: < 197 and > 192, B: < 171 and > 165 };
         }
 
         internal static bool IsValorantRed(Color color)
         {
-            return color is { R: >= 235 and <= 244, G: >= 88 and <= 92, B: >= 86 and <= 91 } or { R: 208, G: 99, B: 91 };
+            return color is {R: >=239 and <= 245, G: >= 89 and <= 95, B: >= 80 and <= 88};
         }
 
         internal static bool IsActionColor(Color color)
         {
-            return color is { R: >= 215 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 150 };
+            return color is { R: >= 220 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 130 };
         }
 
         public static Dictionary<Color, int> GetColourFrequencies(Bitmap image)

@@ -2,6 +2,11 @@
 using System.Drawing.Drawing2D;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Text.Json;
+using RadiantConnect.Methods;
+using RadiantConnect.Services;
+using RadiantConnect.XMPP;
+
 #pragma warning disable CA1416
 
 namespace RadiantConnect.ImageRecognition.Handlers
@@ -11,32 +16,37 @@ namespace RadiantConnect.ImageRecognition.Handlers
         [DllImport("user32.dll")]
         public static extern bool GetWindowRect(nint hwnd, ref Rectangle rectangle);
 
+        // Kill feed offsets
         internal const int KillFeedHeight = 700;
         internal const int KillFeedWidth = 900;
         internal const int KillFeedWidthOffset = 110;
 
+        // Spike offsets
+        internal const int SpikeBoxWidth = 200;
+        internal const int SpikeBoxHeight = 80;
+        internal const int HeightOffset = 10;
+
         internal static Rectangle GetValorantRectangle()
         {
-            nint processHandle = Process.GetProcessesByName("VALORANT")[0].MainWindowHandle;
+            if (!InternalValorantMethods.IsValorantProcessRunning()) throw new RadiantConnectException("Valorant is not running");
+
+            nint processHandle = Process.GetProcessesByName("VALORANT-Win64-Shipping")[0].MainWindowHandle;
             Rectangle captureRectangle = new();
             GetWindowRect(processHandle, ref captureRectangle);
-
+            
             return captureRectangle;
         }
 
         internal static Bitmap GetSpikeBox()
         {
             Rectangle valorantRectangle = GetValorantRectangle();
-            int spikeBoxWidth = 200;
-            int spikeBoxHeight = 80;
-            int heightOffset = 10;
 
-            int valorantMiddle = (valorantRectangle.Width - spikeBoxWidth) / 2;
+            int valorantMiddle = (valorantRectangle.Width - SpikeBoxWidth) / 2;
 
-            Bitmap croppedScreenshot = new (spikeBoxWidth, spikeBoxHeight);
+            Bitmap croppedScreenshot = new (SpikeBoxWidth, SpikeBoxHeight);
 
             using Graphics graphics = Graphics.FromImage(croppedScreenshot);
-            graphics.CopyFromScreen(valorantMiddle, heightOffset, 0, -heightOffset, croppedScreenshot.Size);
+            graphics.CopyFromScreen(valorantMiddle, HeightOffset, 0, -HeightOffset, croppedScreenshot.Size);
 
             return croppedScreenshot;
         }

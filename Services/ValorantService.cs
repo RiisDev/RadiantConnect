@@ -74,25 +74,17 @@ namespace RadiantConnect.Services
             string valorantPath = GetValorantPath();
             string? engineVersion = null;
             string fileText = LogService.GetLogText();
-            string ciServerVersion = fileText.ExtractValue("CI server version: (.+)", 1);
             string branch = fileText.ExtractValue("Branch: (.+)", 1);
             string changelist = fileText.ExtractValue(@"Changelist: (\d+)", 1);
             string buildVersion = fileText.ExtractValue(@"Build version: (\d+)", 1);
-
+            
             if (File.Exists(valorantPath))
             {
                 FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(valorantPath);
                 engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
             }
 
-            // I hate riot, this is a band-aid fix till I find a better solution
-            if (ciServerVersion.Contains("release"))
-            {
-                int insertIndex = ciServerVersion.IndexOf('-', ciServerVersion.IndexOf('-') + 1);
-                ciServerVersion = ciServerVersion.Insert(insertIndex, "-shipping");
-            }
-
-            ValorantClientVersion = new Version(ciServerVersion, branch, buildVersion, changelist, engineVersion ?? "", GetVanguardVersion());
+            ValorantClientVersion = new Version(GameVersionService.GetClientVersion(GetValorantPath()), branch, buildVersion, changelist, engineVersion ?? "", GetVanguardVersion());
         }
     }
 }

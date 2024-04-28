@@ -155,7 +155,7 @@ namespace RadiantConnect.XMPP
                     while (true)
                     {
                         try { outgoingClient = new TcpClient(chatHost, chatPort); break; }
-                        catch (Exception ex) { throw new Exception($"Unable to communicate with chat client. {ex}"); }
+                        catch (Exception ex) { throw new RadiantConnectXMPPException($"Unable to communicate with chat client. {ex}"); }
                     }
 
                     SslStream outgoingStream = new(outgoingClient.GetStream());
@@ -177,11 +177,11 @@ namespace RadiantConnect.XMPP
                 }
                 catch (IOException ex)
                 {
-                    throw new Exception($"Client closed. {ex}");
+                    throw new RadiantConnectXMPPException($"Client closed. {ex}");
                 }
                 catch (Exception ex)
                 {
-                    throw new Exception($"Failed to initiate communication. {ex}");
+                    throw new RadiantConnectXMPPException($"Failed to initiate communication. {ex}");
                 }
             }
         }
@@ -190,9 +190,9 @@ namespace RadiantConnect.XMPP
         {
             string riotClientPath = ValorantService.GetRiotClientPath();
             string valorantPath = ValorantService.GetValorantPath();
-            if (IsRiotRunning()) throw new Exception("Riot/Valorant cannot be running.");
-            if (!File.Exists(riotClientPath)) throw new Exception($"Riot Client executable not found: {riotClientPath}");
-            if (!File.Exists(valorantPath)) throw new Exception($"Valorant executable not found: {valorantPath}");
+            if (IsRiotRunning()) throw new RadiantConnectXMPPException("Riot/Valorant cannot be running.");
+            if (!File.Exists(riotClientPath)) throw new RadiantConnectXMPPException($"Riot Client executable not found: {riotClientPath}");
+            if (!File.Exists(valorantPath)) throw new RadiantConnectXMPPException($"Valorant executable not found: {valorantPath}");
 
             (TcpListener currentTcpListener, int currentPort) = NewTcpListener();
 
