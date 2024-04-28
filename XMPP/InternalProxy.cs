@@ -1,8 +1,6 @@
 ﻿// Major credit to: https://github.com/molenzwiebel/Deceive/blob/master/Deceive/ConfigProxy.cs
 // It's pretty much ConfigProxy.cs but rewritten to my "standards" 
 
-using System.Collections.Specialized;
-using System.Diagnostics;
 using System.Net;
 using System.Text;
 using System.Text.Json.Nodes;

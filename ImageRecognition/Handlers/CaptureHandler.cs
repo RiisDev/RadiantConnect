@@ -2,10 +2,7 @@
 using System.Drawing.Drawing2D;
 using System.Drawing;
 using System.Runtime.InteropServices;
-using System.Text.Json;
 using RadiantConnect.Methods;
-using RadiantConnect.Services;
-using RadiantConnect.XMPP;
 
 #pragma warning disable CA1416
 

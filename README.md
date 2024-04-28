@@ -4,6 +4,15 @@
 
 # RadiantConnect Quickstart Guide
 
+## Credits
+
+Valorant XMPP Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
+Valorant Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
+Valorant API Usage + Endpoints: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)
+
+And all contributors :)
+And can not stress this enough, the nice people at [Valorant App Developer Discord](https://discord.gg/a9yzrw3KAm) for assisting all the time. 
+
 ## Step 1: Download RadiantConnect from NuGet
 
 Get started by downloading the RadiantConnect package from NuGet. You can find the package [here](https://www.nuget.org/packages/RadiantConnect).

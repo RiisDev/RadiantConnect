@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Drawing;
+﻿using System.Drawing;
 #pragma warning disable CA1416
 
 namespace RadiantConnect.ImageRecognition.Handlers

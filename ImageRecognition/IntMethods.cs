@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-
-namespace RadiantConnect.ImageRecognition
+﻿namespace RadiantConnect.ImageRecognition
 {
     internal static class IntMethods
     {
