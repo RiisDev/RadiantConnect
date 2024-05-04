@@ -55,7 +55,7 @@ namespace RadiantConnect.Services
             return -1;
         }
 
-        internal static string? GetProductVersion(byte[] data)
+        internal static string GetProductVersion(byte[] data)
         {
             Assembly assembly = Assembly.Load(data);
 

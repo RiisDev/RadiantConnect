@@ -18,7 +18,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
         internal static bool IsValorantRed(Color color)
         {
-            return color is {R: >=239 and <= 245, G: >= 89 and <= 95, B: >= 80 and <= 88};
+            return color is {R: >= 239 and <= 245, G: >= 89 and <= 95, B: >= 80 and <= 88};
         }
 
         internal static bool IsActionColor(Color color)

@@ -14,7 +14,7 @@
         {
             if (time1.Hour != time2.Hour) return false;
             if (time1.Minute != time2.Minute) return false;
-            if (time1.Second.IsClose(time2.Second, 6)) return true;
+            if (time1.Second.IsClose(time2.Second, 3)) return true;
             if (time1.Millisecond.IsClose(time2.Millisecond, 300)) return true;
             return false;
         }
