@@ -13,6 +13,7 @@ namespace RadiantConnect.EventHandler
         public InGameEvents InGame = new();
         public MiscEvents Misc = new();
         public PartyEvents Party = new();
+        public MenuEvents Menu = new();
 
         internal string LastEventCall = "";
         internal long LastLineRead;
@@ -132,6 +133,31 @@ namespace RadiantConnect.EventHandler
                         break;
                     case var _ when line.Contains("Party_SetPreferredGamePods"):
                         HandleEvent(Party.HandleMatchEvent, "Party_SetPreferredGamePods", line, lineIndex);
+                        break;
+
+                    case var _ when line.Contains("LogMenuStackManager: Opening BattlepassScreenV2_PC_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "BattlePassScreenV2_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening CharactersScreenV2_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "CharactersScreenV2_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening MatchHistoryScreenWidgetV3_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "MatchHistoryScreenWidgetV3_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening PlayScreenV5_PC_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "PlayScreenV5_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening Esports_MainScreen_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "Esports_MainScreen_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening CollectionsScreen_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "CollectionsScreen_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening TabbedStoreScreen_PC_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "TabbedStoreScreen_Opened", line, lineIndex);
+                        break;
+                    case var _ when line.Contains("LogMenuStackManager: Opening TournamentsScreen_C"):
+                        HandleEvent(Menu.HandleMenuEvent, "TournamentsScreen_Opened", line, lineIndex);
                         break;
                 }
             }
