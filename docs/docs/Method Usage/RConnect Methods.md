@@ -37,6 +37,9 @@ Task<string?> GetPuuidByNameAsync(string gameName, string tagLine)
 | `string` (Riot PUUID) | `92018bd1-df7e-5dad-9e7b-f7358f9312fa` |
 
 
+!!! Info 
+    This is currently broken as of 05/08/2024
+
 ## GetPeakValorantRankAsync
 This API endpoint is used to retrieve the peak valorant rank
 

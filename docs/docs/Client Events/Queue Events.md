@@ -64,3 +64,15 @@ void OnCustomGameLobbyCreated;
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
 | `null`       | Does not return anything |
+
+
+## OnMatchFound 
+This event is fired when the match found even message is sent
+
+```C#
+void OnMatchFound;
+```
+
+| **Event Return Type** | **Example Return Value** |
+|------------------------|--------------------------|
+| `null`       | Does not return anything |
