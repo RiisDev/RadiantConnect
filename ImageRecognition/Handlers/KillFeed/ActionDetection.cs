@@ -1,84 +1,57 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Drawing2D;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using RadiantConnect.Methods;
-
+using RadiantConnect.ImageRecognition.Internals;
 #pragma warning disable CA1416
 
-namespace RadiantConnect.ImageRecognition.Handlers
+namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
-    internal static class CaptureHandler
+    internal class ActionDetection
     {
-        [DllImport("user32.dll")]
-        public static extern bool GetWindowRect(nint hwnd, ref Rectangle rectangle);
-
-        // Kill feed offsets
-        internal const int KillFeedHeight = 700;
-        internal const int KillFeedWidth = 900;
-        internal const int KillFeedWidthOffset = 110;
-
-        // Spike offsets
-        internal const int SpikeBoxWidth = 200;
-        internal const int SpikeBoxHeight = 80;
-        internal const int HeightOffset = 10;
-
-        internal static Rectangle GetValorantRectangle()
+        internal static KillFeedPositions GetKillHalfPosition(Bitmap killFeedItem)
         {
-            if (!InternalValorantMethods.IsValorantProcessRunning()) throw new RadiantConnectException("Valorant is not running");
+            TimeOnly killTime = TimeOnly.FromDateTime(DateTime.Now);
 
-            nint processHandle = Process.GetProcessesByName("VALORANT-Win64-Shipping")[0].MainWindowHandle;
-            Rectangle captureRectangle = new();
-            GetWindowRect(processHandle, ref captureRectangle);
-            
-            return captureRectangle;
-        }
+            int middlePoint = 0;
+            int firstGreenPixel = int.MaxValue;
+            int firstRedPixel = int.MaxValue;
+            int middleHeight = killFeedItem.Height / 2;
 
-        internal static Bitmap GetSpikeBox()
-        {
-            Rectangle valorantRectangle = GetValorantRectangle();
-
-            int valorantMiddle = (valorantRectangle.Width - SpikeBoxWidth) / 2;
-
-            Bitmap croppedScreenshot = new (SpikeBoxWidth, SpikeBoxHeight);
-
-            using Graphics graphics = Graphics.FromImage(croppedScreenshot);
-            graphics.CopyFromScreen(valorantMiddle, HeightOffset, 0, -HeightOffset, croppedScreenshot.Size);
-
-            return croppedScreenshot;
-        }
-
-        internal static Bitmap GetKillFeedBox(Point captureLocation = default, Size captureSize = default)
-        {
-            Rectangle valorantRectangle = GetValorantRectangle();
-
-            captureLocation = captureLocation with { X = valorantRectangle.Width - KillFeedWidth + captureLocation.X + KillFeedWidthOffset };
-            captureSize = new Size(KillFeedWidth - KillFeedWidthOffset, captureSize.Height > 0 ? captureSize.Height : KillFeedHeight);
-
-            Bitmap bitmap = new(captureSize.Width, captureSize.Height);
-            using Graphics graphics = Graphics.FromImage(bitmap);
-            graphics.CompositingQuality = CompositingQuality.HighQuality;
-            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            graphics.CopyFromScreen(captureLocation, Point.Empty, captureSize);
-
-            return bitmap;
-        }
-
-        internal static bool SpikePlantedResult(Bitmap spikeItem)
-        {
-            int middle = spikeItem.Width / 2;
-            bool wasFound = false;
-            
-            for (int yIndex = 0; yIndex < spikeItem.Height; yIndex++)
+            for (int xIndex = 0; xIndex < killFeedItem.Width; xIndex++)
             {
-                Color pixelColor = spikeItem.GetPixel(middle, yIndex);
-                if (!ColorHandler.IsSpikeRed(pixelColor)) continue;
-                wasFound = true;
+                Color pixelColor = killFeedItem.GetPixel(xIndex, middleHeight);
+
+                if (ColorHandler.IsValorantGreen(pixelColor) && firstGreenPixel > xIndex)
+                    firstGreenPixel = xIndex;
+                if (ColorHandler.IsValorantRed(pixelColor) && firstRedPixel > xIndex)
+                    firstRedPixel = xIndex;
+            }
+
+            int step = firstGreenPixel > firstRedPixel ? -1 : 1;
+
+            for (int xIndex = firstGreenPixel; xIndex >= 0 && xIndex < killFeedItem.Width; xIndex += step)
+            {
+                Color pixelColor = killFeedItem.GetPixel(xIndex, middleHeight);
+                if (!ColorHandler.IsValorantRed(pixelColor)) continue;
+                middlePoint = xIndex;
                 break;
             }
 
-            return wasFound;
+
+            if (firstGreenPixel > firstRedPixel)
+            {
+                firstGreenPixel = middlePoint + 5;
+                firstRedPixel = middlePoint - 5;
+            }
+            else
+            {
+                middlePoint -= 5;
+                firstGreenPixel = middlePoint - 5;
+                firstRedPixel = middlePoint + 5;
+            }
+
+            bool validPosition = firstGreenPixel > 15 && middlePoint > 15 && firstRedPixel > 15;
+
+            return new KillFeedPositions(firstRedPixel, firstGreenPixel, middlePoint, validPosition, killTime);
         }
 
         [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
@@ -113,7 +86,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
             {
                 Color[] pixelColors = [
                     killFeedItem.GetPixel(xIndex, borderBottom + 1),
-                    killFeedItem.GetPixel(xIndex, borderBottom), 
+                    killFeedItem.GetPixel(xIndex, borderBottom),
                     killFeedItem.GetPixel(xIndex, borderBottom - 1)
                 ];
 
@@ -161,6 +134,5 @@ namespace RadiantConnect.ImageRecognition.Handlers
                 positions
             );
         }
-
     }
 }

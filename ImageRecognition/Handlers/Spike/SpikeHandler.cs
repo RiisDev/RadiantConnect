@@ -2,7 +2,7 @@
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
 
-namespace RadiantConnect.ImageRecognition.Handlers
+namespace RadiantConnect.ImageRecognition.Handlers.Spike
 {
     public class SpikeHandler
     {
@@ -27,8 +27,8 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
             while (!SpikeCancellationToken.IsCancellationRequested)
             {
-                Bitmap spikeBox = CaptureHandler.GetSpikeBox();
-                bool spikePlanted = CaptureHandler.SpikePlantedResult(spikeBox);
+                Bitmap spikeBox = ImageCaptureHandler.GetSpikeBox();
+                bool spikePlanted = ImageCaptureHandler.SpikePlantedResult(spikeBox);
 
                 switch (spikePlanted)
                 {
@@ -38,19 +38,16 @@ namespace RadiantConnect.ImageRecognition.Handlers
                         OnSpikeActive?.Invoke();
                         break;
                     case false when SpikeActive:
-                    {
-                        if (FalseCounter > 20)
                         {
-                            SpikeActive = false;
-                            OnSpikeDeActive?.Invoke();
-                        }
-                        else
-                        {
-                            FalseCounter++;
-                        }
+                            if (FalseCounter > 20)
+                            {
+                                SpikeActive = false;
+                                OnSpikeDeActive?.Invoke();
+                            }
+                            else FalseCounter++;
 
-                        break;
-                    }
+                            break;
+                        }
                 }
 
                 spikeBox.Dispose();

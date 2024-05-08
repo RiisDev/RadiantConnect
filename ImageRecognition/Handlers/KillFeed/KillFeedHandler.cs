@@ -1,9 +1,10 @@
 ﻿using System.Drawing;
+using RadiantConnect.ImageRecognition.Internals;
 
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
 
-namespace RadiantConnect.ImageRecognition.Handlers
+namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
     public class KillFeedHandler
     {
@@ -15,7 +16,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
         internal CancellationTokenSource KillFeedCancellationSource = new();
         internal CancellationToken KillFeedCancellationToken;
 
-        internal Dictionary<TimeOnly,int> TimestampIndex = [];
+        internal Dictionary<TimeOnly, int> TimestampIndex = [];
 
         internal Dictionary<int, string> LastCalled = new()
         {
@@ -25,7 +26,8 @@ namespace RadiantConnect.ImageRecognition.Handlers
             { 3, "" },
             { 4, "" },
             { 5, "" },
-        }; 
+        };
+
         internal Dictionary<int, int> RedPixelLog = new()
         {
             { 0, 0 },
@@ -44,7 +46,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
         public async Task StartKillDetection(KillFeedConfig config)
         {
             KillFeedCancellationSource.TryReset();
-            
+
             while (!KillFeedCancellationToken.IsCancellationRequested)
             {
 
@@ -53,12 +55,12 @@ namespace RadiantConnect.ImageRecognition.Handlers
 
                 Dictionary<Bitmap, KillFeedPositions?> killBoxesTemp = new()
                 {
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)), null },
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
-                    { CaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
                 };
 
                 foreach (Bitmap killBoxBitmap in killBoxesTemp.Keys)
@@ -66,7 +68,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
                     KillFeedPositions killPositions = PositionHandler.GetKillHalfPosition(killBoxBitmap);
                     if (!killPositions.ValidPosition) continue;
 
-                    KillFeedAction actionResult = CaptureHandler.ActionResult(killBoxBitmap, killPositions);
+                    KillFeedAction actionResult = ActionDetection.ActionResult(killBoxBitmap, killPositions);
                     if (!actionResult.WasInFeed) continue;
 
                     killBoxes.Add(killBoxBitmap, actionResult);
@@ -94,7 +96,7 @@ namespace RadiantConnect.ImageRecognition.Handlers
                         RedPixelLog[killBoxIndex] = killPositions.RedPixel;
 
                         if (killBoxIndex < 6 && killPositions.RedPixel.IsClose(RedPixelLog[killBoxIndex + 1], 4)) return;
-                        
+
                         if (config.CheckKilled && actionResult.PerformedKill)
                             OnKill?.Invoke();
                         else if (config.CheckWasKilled && actionResult.WasKilled)

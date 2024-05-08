@@ -1,4 +1,4 @@
-﻿namespace RadiantConnect.ImageRecognition
+﻿namespace RadiantConnect.ImageRecognition.Internals
 {
     internal static class IntMethods
     {
