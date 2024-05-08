@@ -28,7 +28,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.Spike
             while (!SpikeCancellationToken.IsCancellationRequested)
             {
                 Bitmap spikeBox = ImageCaptureHandler.GetSpikeBox();
-                bool spikePlanted = ImageCaptureHandler.SpikePlantedResult(spikeBox);
+                bool spikePlanted = ActionDetection.SpikePlantedResult(spikeBox);
 
                 switch (spikePlanted)
                 {

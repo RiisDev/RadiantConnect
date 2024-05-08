@@ -56,16 +56,16 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                 Dictionary<Bitmap, KillFeedPositions?> killBoxesTemp = new()
                 {
                     { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)), null },
-                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
-                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
-                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
-                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
-                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
+                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
+                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
+                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
+                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
+                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
                 };
 
                 foreach (Bitmap killBoxBitmap in killBoxesTemp.Keys)
                 {
-                    KillFeedPositions killPositions = PositionHandler.GetKillHalfPosition(killBoxBitmap);
+                    KillFeedPositions killPositions = ActionDetection.GetKillHalfPosition(killBoxBitmap);
                     if (!killPositions.ValidPosition) continue;
 
                     KillFeedAction actionResult = ActionDetection.ActionResult(killBoxBitmap, killPositions);
@@ -108,7 +108,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                     });
                 }
 
-                await Task.Delay(10);
+                await Task.Delay(1);
             }
         }
 
