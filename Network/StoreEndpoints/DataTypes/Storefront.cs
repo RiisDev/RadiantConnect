@@ -56,7 +56,7 @@ public record Bundle2(
 
 public record Cost(
     [property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? ValorantPoints,
-    [property: JsonPropertyName("85ca954a-41f2-ce94-9b45-8ca3dd39a00d")] long? UnknownType
+    [property: JsonPropertyName("85ca954a-41f2-ce94-9b45-8ca3dd39a00d")] long? KingdomCredits
 );
 
 public record DiscountCosts(
