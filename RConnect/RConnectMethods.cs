@@ -115,20 +115,7 @@ namespace RadiantConnect.RConnect
 
         public static async Task<string?> GetPeakValorantRankAsync(this Initiator initiator, string puuid)
         {
-            int highestTierFound = 0;
-            PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
-            try
-            {
-                if (playerMmr?.QueueSkills.Competitive.SeasonalInfoBySeasonID == null) return ValorantTables.TierToRank[0];
-                if (playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.Values.Count <= 0) return ValorantTables.TierToRank[0];
-
-                foreach (SeasonId data in playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.Values)
-                    if (data.CompetitiveTier > highestTierFound)
-                        highestTierFound = (int)data.CompetitiveTier!;
-            }
-            catch { return ValorantTables.TierToRank[highestTierFound]; }
-
-            return ValorantTables.TierToRank[highestTierFound];
+            return ValorantTables.TierToRank[0]; // Broken
         }
 
         public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)

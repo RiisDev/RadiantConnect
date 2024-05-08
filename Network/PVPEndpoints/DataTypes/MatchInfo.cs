@@ -147,14 +147,7 @@ public record NewPlayerExperienceDetails(
 );
 
 public record PartyRRPenalties(
-    [property: JsonPropertyName("28691b4c-131b-4d7d-8a82-a147509d4d20")] long? _28691b4c131b4d7d8a82A147509d4d20,
-    [property: JsonPropertyName("35834f90-3164-47b1-9312-bbff3708f02e")] long? _35834f90316447b19312Bbff3708f02e,
-    [property: JsonPropertyName("3674f365-73ac-4cb9-9a44-44e4c4d1c569")] long? _3674f36573ac4cb99a4444e4c4d1c569,
-    [property: JsonPropertyName("3bdbe5a8-6a7a-4045-83ce-84ff88fb44c0")] long? _3bdbe5a86a7a404583ce84ff88fb44c0,
-    [property: JsonPropertyName("74fdd330-4248-4e2b-85b6-645c94621542")] long? _74fdd33042484e2b85b6645c94621542,
-    [property: JsonPropertyName("76339d78-2e20-4e9b-95cf-5734321565f4")] long? _76339d782e204e9b95cf5734321565f4,
-    [property: JsonPropertyName("90ab3776-2104-4b5e-b950-6224df83843a")] long? _90ab377621044b5eB9506224df83843a,
-    [property: JsonPropertyName("f71d00d2-a996-41fe-b9ac-57ff7530f1ab")] long? F71d00d2A99641feB9ac57ff7530f1ab
+    IReadOnlyList<string> PlayerUUIDs
 );
 
 public record PlantLocation(

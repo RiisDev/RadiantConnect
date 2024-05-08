@@ -143,7 +143,7 @@ public record Unrated(
     [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
 );
 
-public record WinsByTier(
+public record WinsByTier( // Todo find what these actually are?
     [property: JsonPropertyName("0")] long? _0,
     [property: JsonPropertyName("1")] long? _1,
     [property: JsonPropertyName("2")] long? _2,

@@ -45,6 +45,6 @@ public record Leaderboard(
 );
 
 public record TierDetails(
-    [property: JsonPropertyName("21")] _21 _21,
-    [property: JsonPropertyName("24")] _24 _24
+    [property: JsonPropertyName("21")] _21 AscendantOne,
+    [property: JsonPropertyName("24")] _24 ImmortalOne
 );
