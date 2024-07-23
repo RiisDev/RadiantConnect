@@ -34,21 +34,15 @@ namespace RadiantConnect
 
     public class Initiator
     {
-        internal static bool ClientIsReady()
-        {
-            return InternalValorantMethods.IsValorantProcessRunning() &&
-                   Directory.Exists(Path.GetDirectoryName(LogService.GetLogPath())) &&
-                   File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-                       "Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
-                   File.Exists(LogService.GetLogPath()) &&
-                   !LogService.GetLogText().Split('\n').Last().Contains("Log file closed");
-        }
+        internal static bool ClientIsReady() =>
+            InternalValorantMethods.IsValorantProcessRunning() &&
+            Directory.Exists(Path.GetDirectoryName(LogService.GetLogPath())) &&
+            File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
+                "Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
+            File.Exists(LogService.GetLogPath()) &&
+            !LogService.GetLogText().Split('\n').Last().Contains("Log file closed");
 
-        internal static string IsVpnDetected()
-        {
-            IEnumerable<Process> processes = Process.GetProcesses().Where(process => process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase));
-            return string.Join('|', processes);
-        }
+        internal static string IsVpnDetected() => string.Join('|', Process.GetProcesses().Where(process => process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase)));
 
         public InternalSystem ExternalSystem { get; }
         public Endpoints Endpoints { get; }
@@ -69,12 +63,8 @@ namespace RadiantConnect
 
             string vpnDetected = IsVpnDetected();
 
-            if (!string.IsNullOrEmpty(vpnDetected))
-            {
-                Debug.WriteLine("[INITIATOR] VPN Service Running, may not be functional..");
-                Debug.WriteLine($"Processes: {vpnDetected}");
-                if (!ignoreVpn) throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
-            }
+            if (!string.IsNullOrEmpty(vpnDetected) && !ignoreVpn)
+                throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
 
             ExternalSystem = new InternalSystem(
                 client,

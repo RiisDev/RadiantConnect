@@ -3,7 +3,7 @@ using RadiantConnect.EventHandler;
 using RadiantConnect.Methods;
 using static System.Enum;
 using Path = System.IO.Path;
-#pragma warning disable IDE0079
+//ReSharper disable InconsistentNaming
 
 namespace RadiantConnect.Services
 {
@@ -11,14 +11,10 @@ namespace RadiantConnect.Services
     {
         public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
         {
-            [SuppressMessage("ReSharper", "InconsistentNaming")]
             public enum ShardType { na, latam, br, eu, ap, kr, }
         }
 
-        internal static string GetLogPath()
-        {
-            return Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
-        }
+        internal static string GetLogPath() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
 
         internal static string GetLogText()
         {

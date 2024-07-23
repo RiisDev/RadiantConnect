@@ -1,16 +1,19 @@
 ﻿using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using System.Text.Json;
+using RadiantConnect.Methods;
+using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services
 {
-    public class GameVersionService
+    internal class GameVersionService
     {
         internal static readonly char[] Separator = ['\0'];
 
-        public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
+        internal record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
-        public static VersionData GetClientVersion(string filePath)
+        internal static VersionData GetClientVersion(string filePath)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new(fileStream, Encoding.Unicode);
@@ -67,5 +70,72 @@ namespace RadiantConnect.Services
 
             return !string.IsNullOrEmpty(productVersion) ? productVersion : "1";
         }
+
+        internal static string GetOsVersion()
+        {
+            try
+            {
+                return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor}.{Environment.OSVersion.Version.Build}.{GetValue($@"{LocalMachine}\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "UBR", "256")}";
+            }
+            catch
+            {
+                return "10.0.19043.1.256";
+            }
+        }
+
+        internal static string GetVersionHeader()
+        {
+            try
+            {
+                return $"Windows/{GetOsVersion()}";
+            }
+            catch
+            {
+                return "Windows/10.0.19043.1.256.64bit";
+            }
+        }
+
+        internal static string GetArchitecture()
+        {
+            string? arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
+
+            return (arch is null || !arch.Contains("64")) ? "Unknown" : arch.ToLowerInvariant();
+        }
+
+        internal static string GetClientPlatform()
+        {
+
+            Dictionary<string, string> platform = new()
+            {
+                { "platformType", "PC" },
+                { "platformOS", "Windows" },
+                { "platformOSVersion", GetOsVersion() },
+                { "platformChipset", GetArchitecture() },
+            };
+
+            return JsonSerializer.Serialize(platform, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }).ToBase64();
+        }
+
+
+        internal static string GetVanguardVersion()
+        {
+            string clientConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "VALORANT", "Config", "ClientConfiguration.json");
+            string? fileText;
+            try
+            {
+                File.Copy(clientConfigPath, $"{clientConfigPath}.tmp", true);
+                fileText = File.ReadAllText($"{clientConfigPath}.tmp");
+            }
+            finally
+            {
+                File.Delete($"{clientConfigPath}.tmp");
+            }
+
+            return fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);
+        }
+        
     }
 }

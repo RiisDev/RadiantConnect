@@ -189,10 +189,10 @@ namespace RadiantConnect.XMPP
             }
         }
 
-        public Process InitializeConnection(string patchLine = "live", bool logOutBound = false, bool logInbound = false)
+        public Process InitializeConnection(string patchLine = "live")
         {
-            string riotClientPath = ValorantService.GetRiotClientPath();
-            string valorantPath = ValorantService.GetValorantPath();
+            string riotClientPath = RiotPathService.GetRiotClientPath();
+            string valorantPath = RiotPathService.GetValorantPath();
             if (IsRiotRunning()) throw new RadiantConnectXMPPException("Riot/Valorant cannot be running.");
             if (!File.Exists(riotClientPath)) throw new RadiantConnectXMPPException($"Riot Client executable not found: {riotClientPath}");
             if (!File.Exists(valorantPath)) throw new RadiantConnectXMPPException($"Valorant executable not found: {valorantPath}");

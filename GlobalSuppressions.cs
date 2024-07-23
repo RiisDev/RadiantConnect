@@ -5,4 +5,5 @@
 
 using System.Diagnostics.CodeAnalysis;
 
-[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "<Pending>", Scope = "member", Target = "~M:RadiantConnect.ImageRecognition.ImageRecognition.DrawDebugLine(System.Drawing.Bitmap,System.Int32,System.Int32,System.Int32,System.Drawing.Color)")]
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Platform compatibility is not a concern for this assembly.")]
+[assembly: SuppressMessage("Usage", "CA1416:Validate platform compatibility", Justification = "Platform compatibility is not a concern for this assembly.")]
