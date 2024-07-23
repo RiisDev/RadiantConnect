@@ -7,7 +7,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
     internal class ActionDetection
     {
-        internal static KillFeedPositions GetKillHalfPosition(Bitmap killFeedItem)
+        internal static KillFeedPositions GetKillHalfPosition(Bitmap killFeedItem, ColorConfig? colorConfig = null)
         {
             TimeOnly killTime = TimeOnly.FromDateTime(DateTime.Now);
 
@@ -20,9 +20,9 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             {
                 Color pixelColor = killFeedItem.GetPixel(xIndex, middleHeight);
 
-                if (ColorHandler.IsValorantGreen(pixelColor) && firstGreenPixel > xIndex)
+                if (ColorHandler.IsValorantGreen(pixelColor, colorConfig?.GreenConfig) && firstGreenPixel > xIndex)
                     firstGreenPixel = xIndex;
-                if (ColorHandler.IsValorantRed(pixelColor) && firstRedPixel > xIndex)
+                if (ColorHandler.IsValorantRed(pixelColor, colorConfig?.RedConfig) && firstRedPixel > xIndex)
                     firstRedPixel = xIndex;
             }
 
@@ -31,7 +31,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             for (int xIndex = firstGreenPixel; xIndex >= 0 && xIndex < killFeedItem.Width; xIndex += step)
             {
                 Color pixelColor = killFeedItem.GetPixel(xIndex, middleHeight);
-                if (!ColorHandler.IsValorantRed(pixelColor)) continue;
+                if (!ColorHandler.IsValorantRed(pixelColor, colorConfig?.RedConfig)) continue;
                 middlePoint = xIndex;
                 break;
             }
@@ -56,13 +56,13 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 
         [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-        internal static bool ActionDetected(Color[] colors)
+        internal static bool ActionDetected(Color[] colors, ColorConfig? colorConfig = null)
         {
             bool wasFound = false;
 
             for (int colorIndex = 0; colorIndex < colors.Length; colorIndex++)
             {
-                if (!ColorHandler.IsActionColor(colors[colorIndex])) continue;
+                if (!ColorHandler.IsActionColor(colors[colorIndex], colorConfig?.ActionColorConfig)) continue;
 
                 wasFound = true;
                 break;
@@ -71,7 +71,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             return wasFound;
         }
 
-        internal static KillFeedAction ActionResult(Bitmap killFeedItem, KillFeedPositions positions)
+        internal static KillFeedAction ActionResult(Bitmap killFeedItem, KillFeedPositions positions, ColorConfig? colorConfig = null)
         {
             const int borderTop = 4;
             bool wasKilled = false;
@@ -89,8 +89,8 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                     killFeedItem.GetPixel(xIndex, borderBottom),
                     killFeedItem.GetPixel(xIndex, borderBottom - 1)
                 ];
-
-                if (!ActionDetected(pixelColors)) continue;
+                
+                if (!ActionDetected(pixelColors, colorConfig)) continue;
 
                 if (positions.RedPixel > positions.GreenPixel)
                     performedKill = true;
@@ -101,7 +101,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             for (int xIndex = positions.Middle; xIndex >= 0 && xIndex < killFeedItem.Width; xIndex += step)
             {
                 Color[] pixelColors = [killFeedItem.GetPixel(xIndex, borderTop + 1), killFeedItem.GetPixel(xIndex, borderTop), killFeedItem.GetPixel(xIndex, borderTop - 1)];
-                if (!ActionDetected(pixelColors)) continue;
+                if (!ActionDetected(pixelColors, colorConfig)) continue;
 
                 if (positions.RedPixel < positions.GreenPixel)
                     wasKilled = true;
@@ -115,8 +115,8 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                 {
                     Color[] pixelTopColors = [killFeedItem.GetPixel(xIndex, borderTop + 1), killFeedItem.GetPixel(xIndex, borderTop), killFeedItem.GetPixel(xIndex, borderTop - 1)];
                     Color[] pixelBottomColors = [killFeedItem.GetPixel(xIndex, borderBottom + 1), killFeedItem.GetPixel(xIndex, borderBottom), killFeedItem.GetPixel(xIndex, borderBottom - 1)];
-                    if (!ActionDetected(pixelTopColors)) continue;
-                    if (ActionDetected(pixelBottomColors)) continue;
+                    if (!ActionDetected(pixelTopColors, colorConfig)) continue;
+                    if (ActionDetected(pixelBottomColors, colorConfig)) continue;
 
                     didAssist = true;
 

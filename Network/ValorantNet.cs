@@ -8,10 +8,21 @@ using RadiantConnect.Services;
 
 namespace RadiantConnect.Network
 {
+    public class SuppliedAuth(string jsonWebToken, string authorization)
+    {
+        public string JsonWebToken { get; set; } = jsonWebToken;
+        public string Authorization { get; set; } = authorization;
+
+        public void SetJsonWebToken(string jsonWebToken) => JsonWebToken = jsonWebToken;
+        public void SetAuthorization(string jsonWebToken) => Authorization = jsonWebToken;
+    }
+
     public record UserAuth(int AuthorizationPort, string OAuth);
 
     public class ValorantNet
     {
+        public SuppliedAuth? SuppliedAuth { get; set; }
+
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
         public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
@@ -38,11 +49,12 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService? valorantClient = null)
+        public ValorantNet(ValorantService? valorantClient = null, SuppliedAuth? suppliedAuth = null)
         {
+            SuppliedAuth = suppliedAuth;
             Client.Timeout = TimeSpan.FromSeconds(10);
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "ShooterGame/13 Windows/10.0.19043.1.256.64bit");
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", valorantClient?.ValorantClientVersion.UserPlatform);
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}");
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion",valorantClient?.ValorantClientVersion.RiotClientVersion);
         }
 
@@ -72,6 +84,8 @@ namespace RadiantConnect.Network
 
         internal async Task<(string, string)> GetAuthorizationToken()
         {
+            if (SuppliedAuth is not null) return (SuppliedAuth.JsonWebToken, SuppliedAuth.Authorization);
+
             UserAuth? auth = GetAuth();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
             HttpResponseMessage response = await Client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
@@ -102,6 +116,9 @@ namespace RadiantConnect.Network
 
         internal async Task SetBasicAuth()
         {
+            if (SuppliedAuth is not null)
+                throw new RadiantConnectException("Cannot use local endpoints with SuppliedAuth");
+
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
 

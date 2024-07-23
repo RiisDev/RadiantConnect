@@ -8,12 +8,14 @@ namespace RadiantConnect.Services
     {
         internal static readonly char[] Separator = ['\0'];
 
-        public static string GetClientVersion(string filePath)
+        public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
+
+        public static VersionData GetClientVersion(string filePath)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new(fileStream, Encoding.Unicode);
 
-            byte[] pattern = Encoding.Unicode.GetBytes("++Ares-Core+");
+            byte[] pattern = [43, 0, 43, 0, 65, 0, 114, 0, 101, 0, 115, 0, 45, 0, 67, 0, 111, 0, 114, 0, 101, 0, 43, 0]; // ++Ares-Core+
             byte[] data = reader.ReadBytes((int)reader.BaseStream.Length);
 
             int pos = FindPattern(data, pattern) + pattern.Length;
@@ -32,7 +34,7 @@ namespace RadiantConnect.Services
 
             int versionNumber = int.Parse(version?.Split('.').Last() ?? "-1");
 
-            return $"{branch}-shipping-{buildVersion}-{versionNumber}";
+            return new VersionData(branch!, buildVersion!, versionNumber, $"{branch}-shipping-{buildVersion}-{versionNumber}");
         }
 
         internal static int FindPattern(byte[] data, byte[] pattern)

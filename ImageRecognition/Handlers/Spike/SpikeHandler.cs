@@ -1,4 +1,6 @@
 ﻿using System.Drawing;
+using RadiantConnect.ImageRecognition.Internals;
+
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
 
@@ -21,14 +23,14 @@ namespace RadiantConnect.ImageRecognition.Handlers.Spike
             SpikeCancellationToken = SpikeCancellationSource.Token;
         }
 
-        public async Task StartSpikeDetection()
+        public async Task StartSpikeDetection(ColorConfig? colorConfig = null)
         {
             SpikeCancellationSource.TryReset();
 
             while (!SpikeCancellationToken.IsCancellationRequested)
             {
                 Bitmap spikeBox = ImageCaptureHandler.GetSpikeBox();
-                bool spikePlanted = ActionDetection.SpikePlantedResult(spikeBox);
+                bool spikePlanted = ActionDetection.SpikePlantedResult(spikeBox, colorConfig);
 
                 switch (spikePlanted)
                 {

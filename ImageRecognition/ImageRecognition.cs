@@ -4,7 +4,7 @@ using RadiantConnect.ImageRecognition.Handlers.Spike;
 using RadiantConnect.ImageRecognition.Internals;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-#pragma warning disable CA1416 // idk btimap only supported on windows
+#pragma warning disable CA1416 // idk bitmap only supported on windows
 
 namespace RadiantConnect.ImageRecognition
 {
@@ -34,14 +34,14 @@ namespace RadiantConnect.ImageRecognition
             {
                 KillFeedHandler = new KillFeedHandler();
                 OnKillFeedHandlerCreated?.Invoke(KillFeedHandler);
-                KillFeedHandler.StartKillDetection(feedConfig);
+                KillFeedHandler.StartKillDetection(feedConfig, config.ColorConfig);
             });
 
             if (config.SpikePlanted)
             {
                 SpikeHandler = new SpikeHandler();
                 OnSpikeHandlerCreated?.Invoke(SpikeHandler);
-                SpikeHandler.StartSpikeDetection();
+                SpikeHandler.StartSpikeDetection(config.ColorConfig);
             }
 
         }

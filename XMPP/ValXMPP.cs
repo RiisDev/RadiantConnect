@@ -25,6 +25,9 @@ namespace RadiantConnect.XMPP
         public event PresenceUpdated? OnValorantPresenceUpdated;
         public event PlayerPresenceUpdated? OnPlayerPresenceUpdated;
 
+        public event InternalMessage? OnOutboundMessage;
+        public event InternalMessage? OnInboundMessage;
+
         public delegate void SocketHandled(XMPPSocketHandle handle);
         public event SocketHandled? OnSocketCreated;
 
@@ -186,7 +189,7 @@ namespace RadiantConnect.XMPP
             }
         }
 
-        public Process InitializeConnection(string patchLine = "live")
+        public Process InitializeConnection(string patchLine = "live", bool logOutBound = false, bool logInbound = false)
         {
             string riotClientPath = ValorantService.GetRiotClientPath();
             string valorantPath = ValorantService.GetValorantPath();
@@ -206,6 +209,9 @@ namespace RadiantConnect.XMPP
                 serverHooked = true;
                 await HandleClients(currentTcpListener, args.ChatHost, args.ChatPort);
             };
+
+            proxyServer.OnOutboundMessage += data => OnOutboundMessage?.Invoke(data);
+            proxyServer.OnInboundMessage += data => OnInboundMessage?.Invoke(data);
 
             ProcessStartInfo riotClientStartArgs = new()
             {

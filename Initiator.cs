@@ -55,7 +55,7 @@ namespace RadiantConnect
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
 
-        public Initiator(bool ignoreVpn = true)
+        public Initiator(bool ignoreVpn = true, SuppliedAuth? suppliedAuth = null)
         {
             while (!ClientIsReady())
             {
@@ -65,7 +65,7 @@ namespace RadiantConnect
             ValorantService client = new();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
-            ValorantNet net = new(client);
+            ValorantNet net = new(client, suppliedAuth);
 
             string vpnDetected = IsVpnDetected();
 

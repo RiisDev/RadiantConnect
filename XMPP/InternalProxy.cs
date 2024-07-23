@@ -21,10 +21,15 @@ namespace RadiantConnect.XMPP
     internal class InternalProxy
     {
         internal event EventHandler<ChatServerEventArgs>? OnChatPatched;
+        internal event ValXMPP.InternalMessage? OnOutboundMessage;
+        internal event ValXMPP.InternalMessage? OnInboundMessage; 
+
         internal HttpListener ProxyServer = new();
         internal HttpClient Client { get; } = new();
+
         internal readonly string ConfigUrl = "https://clientconfig.rpg.riotgames.com";
         internal readonly string GeoPasUrl = "https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat";
+
         internal int ConfigPort { get; }
         internal int ChatPort { get; }
 
@@ -57,10 +62,13 @@ namespace RadiantConnect.XMPP
 
             if (listenerRequest.Headers["authorization"] is not null)
                 message.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
-
+            
+            OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{(message.Headers)}");
 
             HttpResponseMessage responseMessage = await Client.SendAsync(message);
             string responseString = await responseMessage.Content.ReadAsStringAsync();
+
+            OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{(responseMessage.Headers)}\nResponse:{responseString}");
 
             if (!responseMessage.IsSuccessStatusCode)
                 goto DoResponse;
@@ -127,7 +135,7 @@ namespace RadiantConnect.XMPP
             {
                 await listenerResponse.OutputStream
                     .WriteAsync(responseBytes); // The specified network name is no longer available.
-            }catch{}
+            }catch{/**/}
 
             ProxyServer.BeginGetContext(DoProxy, ProxyServer);
             message.Dispose();

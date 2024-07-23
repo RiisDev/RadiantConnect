@@ -1,29 +1,60 @@
 ﻿using System.Drawing;
 using System.Globalization;
+using RadiantConnect.ImageRecognition.Internals;
+
 #pragma warning disable CA1416
 
 namespace RadiantConnect.ImageRecognition.Handlers
 {
     internal static class ColorHandler
     {
-        internal static bool IsSpikeRed(Color color)
+
+        internal static bool IsSpikeRed(Color color, SpikeColorConfig? spikeConfig = null)
         {
-            return color is { R: >= 160 and <= 230, G: < 5, B: < 5 };
+            if (spikeConfig is null) return color is { R: >= 160 and <= 230, G: < 5, B: < 5 };
+
+            Color highestColor = spikeConfig.HighestColor;
+            Color lowestColor = spikeConfig.LowestColor;
+
+            return color.R >= lowestColor.R && color.R <= highestColor.R &&
+                   color.G >= lowestColor.G && color.G <= highestColor.G &&
+                   color.B >= lowestColor.B && color.B <= highestColor.B;
         }
 
-        internal static bool IsValorantGreen(Color color)
+        internal static bool IsValorantGreen(Color color, GreenConfig? greenConfig = null)
         {
-            return color is { R: < 105 and > 100, G: < 197 and > 192, B: < 171 and > 165 };
+            if (greenConfig is null) return color is { R: < 105 and > 100, G: < 197 and > 192, B: < 171 and > 165 };
+
+            Color highestColor = greenConfig.HighestColor;
+            Color lowestColor = greenConfig.LowestColor;
+
+            return color.R >= lowestColor.R && color.R <= highestColor.R &&
+                   color.G >= lowestColor.G && color.G <= highestColor.G &&
+                   color.B >= lowestColor.B && color.B <= highestColor.B;
         }
 
-        internal static bool IsValorantRed(Color color)
+        internal static bool IsValorantRed(Color color, RedConfig? redConfig = null)
         {
-            return color is {R: >= 239 and <= 245, G: >= 89 and <= 95, B: >= 80 and <= 88};
+            if (redConfig is null) return color is {R: >= 239 and <= 245, G: >= 89 and <= 95, B: >= 80 and <= 88};
+
+            Color highestColor = redConfig.HighestColor;
+            Color lowestColor = redConfig.LowestColor;
+
+            return color.R >= lowestColor.R && color.R <= highestColor.R &&
+                   color.G >= lowestColor.G && color.G <= highestColor.G &&
+                   color.B >= lowestColor.B && color.B <= highestColor.B;
         }
 
-        internal static bool IsActionColor(Color color)
+        internal static bool IsActionColor(Color color, ActionColorConfig? config = null)
         {
-            return color is { R: >= 220 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 130 };
+            if (config is null) return color is { R: >= 220 and <= 238, G: >= 231 and <= 238, B: >= 115 and <= 130 };
+
+            Color highestColor = config.HighestColor;
+            Color lowestColor = config.LowestColor;
+
+            return color.R >= lowestColor.R && color.R <= highestColor.R &&
+                   color.G >= lowestColor.G && color.G <= highestColor.G &&
+                   color.B >= lowestColor.B && color.B <= highestColor.B;
         }
 
         public static Dictionary<Color, int> GetColourFrequencies(Bitmap image)

@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Methods;
 using static Microsoft.Win32.Registry;
@@ -14,7 +15,9 @@ namespace RadiantConnect.Services
             [property: JsonPropertyName("BuildVersion")] string BuildVersion,
             [property: JsonPropertyName("Changelist")] string Changelist,
             [property: JsonPropertyName("EngineVersion")] string EngineVersion,
-            [property: JsonPropertyName("VanguardVersion")] string VanguardVersion
+            [property: JsonPropertyName("VanguardVersion")] string VanguardVersion,
+            [property: JsonPropertyName("UserClientVersion")] string UserClientVersion,
+            [property: JsonPropertyName("UserPlatform")] string UserPlatform
         );
 
         public Version ValorantClientVersion { get; init; }
@@ -69,22 +72,98 @@ namespace RadiantConnect.Services
             return installLocation;
         }
 
+        public string GetOsVersion()
+        {
+            try
+            {
+                return $"{Environment.OSVersion.Version.Major}.{Environment.OSVersion.Version.Minor}.{Environment.OSVersion.Version.Build}.{GetValue($@"{LocalMachine}\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "UBR", "256")}";
+            }
+            catch
+            {
+                return "10.0.19043.1.256";
+            }
+        }
+
+        public string GetVersionHeader()
+        {
+            try
+            {
+                return $"Windows/{GetOsVersion()}";
+            }
+            catch
+            {
+               return "Windows/10.0.19043.1.256.64bit";
+            }
+        }
+
+        public string GetArchitecture()
+        {
+            string? arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
+
+            return (arch is null || !arch.Contains("64")) ? "Unknown" : arch.ToLowerInvariant();
+        }
+
+        public string GetClientPlatform()
+        {
+            
+            Dictionary<string, string> platform = new()
+            {
+                { "platformType", "PC" },
+                { "platformOS", "Windows" },
+                { "platformOSVersion", GetOsVersion() },
+                { "platformChipset", GetArchitecture() },
+            };
+
+            return JsonSerializer.Serialize(platform, new JsonSerializerOptions
+            {
+                WriteIndented = true
+            }).ToBase64();
+        }
+
         public ValorantService()
         {
             string valorantPath = GetValorantPath();
-            string? engineVersion = null;
-            string fileText = LogService.GetLogText();
-            string branch = fileText.ExtractValue("Branch: (.+)", 1);
-            string changelist = fileText.ExtractValue(@"Changelist: (\d+)", 1);
-            string buildVersion = fileText.ExtractValue(@"Build version: (\d+)", 1);
-            
+            string userClientVersion = GetVersionHeader();
+            string userPlatform = GetClientPlatform();
+
+            string? engineVersion;
+            string? branch;
+            string? changelist;
+            string? buildVersion;
+            string? clientVersion;
+
             if (File.Exists(valorantPath))
             {
+                GameVersionService.VersionData versionData = GameVersionService.GetClientVersion(valorantPath);
                 FileVersionInfo fileInfo = FileVersionInfo.GetVersionInfo(valorantPath);
-                engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
-            }
 
-            ValorantClientVersion = new Version(GameVersionService.GetClientVersion(GetValorantPath()), branch, buildVersion, changelist, engineVersion ?? "", GetVanguardVersion());
+                engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
+                branch = versionData.Branch;
+                buildVersion = versionData.BuildVersion;
+                changelist = versionData.VersionNumber.ToString();
+                clientVersion = versionData.BuiltData;
+            }
+            else
+            {
+                Debug.WriteLine(message: "[RADIANTCONNECT] Failed to find valorant executable, using fallback...");
+                string fileText = LogService.GetLogText();
+                branch = fileText.ExtractValue(pattern: "Branch: (.+)", groupId: 1);
+                changelist = fileText.ExtractValue(pattern: @"Changelist: (\d+)", groupId: 1);
+                buildVersion = fileText.ExtractValue(pattern: @"Build version: (\d+)", groupId: 1);
+                clientVersion = $"{branch}-shipping-{buildVersion}-{changelist}";
+                engineVersion = "";
+            }
+            
+            ValorantClientVersion = new Version(
+                RiotClientVersion: clientVersion, 
+                Branch: branch, 
+                BuildVersion: buildVersion, 
+                Changelist: changelist, 
+                EngineVersion: engineVersion,
+                VanguardVersion: GetVanguardVersion(), 
+                UserClientVersion: userClientVersion,
+                UserPlatform: userPlatform
+            );
         }
     }
 }

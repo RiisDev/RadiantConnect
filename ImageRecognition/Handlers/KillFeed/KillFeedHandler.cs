@@ -43,7 +43,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             KillFeedCancellationToken = KillFeedCancellationSource.Token;
         }
 
-        public async Task StartKillDetection(KillFeedConfig config)
+        public async Task StartKillDetection(KillFeedConfig config, ColorConfig? colorConfig = null)
         {
             KillFeedCancellationSource.TryReset();
 
@@ -56,19 +56,19 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                 Dictionary<Bitmap, KillFeedPositions?> killBoxesTemp = new()
                 {
                     { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset), new Size(0, 38)), null },
-                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
-                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
-                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
-                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
-                    //{ ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 39), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 78), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 160), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 316), new Size(0, 38)), null },
+                    { ImageCaptureHandler.GetKillFeedBox(new Point(0, killBoxOffset + 628), new Size(0, 38)), null },
                 };
 
                 foreach (Bitmap killBoxBitmap in killBoxesTemp.Keys)
                 {
-                    KillFeedPositions killPositions = ActionDetection.GetKillHalfPosition(killBoxBitmap);
+                    KillFeedPositions killPositions = ActionDetection.GetKillHalfPosition(killBoxBitmap, colorConfig);
                     if (!killPositions.ValidPosition) continue;
 
-                    KillFeedAction actionResult = ActionDetection.ActionResult(killBoxBitmap, killPositions);
+                    KillFeedAction actionResult = ActionDetection.ActionResult(killBoxBitmap, killPositions, colorConfig);
                     if (!actionResult.WasInFeed) continue;
 
                     killBoxes.Add(killBoxBitmap, actionResult);

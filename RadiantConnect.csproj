@@ -7,18 +7,16 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>6.2.2</Version>
+    <Version>8.0.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
     <Copyright>https://github.com/RiisDev</Copyright>
-    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers</Description>
+    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers &amp; image recognition</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>Required update, All old updates are broken
-
-Fixed ValorantNet internal to use correct client version header</PackageReleaseNotes>
+    <PackageReleaseNotes>+</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
