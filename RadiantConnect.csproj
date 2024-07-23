@@ -16,7 +16,17 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>+</PackageReleaseNotes>
+    <PackageReleaseNotes>+Modified Image Recognition
+        -Indepth: Allowing usage of custom color code detections, using new ColorConfig in constructor (Will update documentation later 07/23/2024)
++Modified ValorantService and ValorantNet to correctly display updated user info
+        -Indepth: Modified how I'm setting UserAgent and ClientPlatform it should now represent the client machine instead of presets
+        -Indepth P2: Reading registry and Valorant Executable and Environment Variables, note this does contain fallback incase it fails
+        -Indepth P3: Uses Environment Variable 'PROCESSOR_ARCHITECTURE' please do not modify internally
++ValorantNet/Service now builds it's own ClientPlatform base64 for user agent usage
++ValorantNet now accepts user defined JWT and Auth Tokens via new class/record (Must be set via initiator)  (Will update documentation later 07/23/2024)
++ValXMPP now has events to log network traffic between riot client and proxy service (Will not log Valorant Traffic)
+
+Note the Net and Service usage are for future proofing the system incase Riot implements hard checks</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
