@@ -6,7 +6,10 @@
 
 ## Credits
 
-* XMPP Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
+### Huge Credits to these two repo's for making most of the advanced features!
+* XMPP MITM Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
+* RiotAuth Integration Modified but still heavy base (basically ctrl c, v): @aPinat | [RiotAuth](https://github.com/aPinat/RiotAuth)
+
 * Get Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
 * Riot API Documentaiton: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)
 * And can not stress this enough, the nice people at [Valorant App Developer Discord](https://discord.gg/a9yzrw3KAm) for assisting all the time. 

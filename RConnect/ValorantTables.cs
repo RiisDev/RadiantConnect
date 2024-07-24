@@ -248,6 +248,7 @@ public static class ValorantTables
         { "tj.qcloud.valtest-gp-1", "online1" },
         { "tj.qcloud.vala-gp-2", "online2" },
         { "tj.qcloud.valtest-gp-2", "online2" },
+        {"aresriot.aws-atl2-prod.na-gp-atlanta-2", "Atlanta"}
     };
 
     public static Dictionary<string, string> CurrencyIdToCurrency = new()

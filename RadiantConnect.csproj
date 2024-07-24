@@ -53,6 +53,7 @@ Note the Net and Service usage are for future proofing the system incase Riot im
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.1" />
     <PackageReference Include="System.Drawing.Common" Version="8.0.3" />
   </ItemGroup>
 
