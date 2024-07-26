@@ -1,4 +1,5 @@
-﻿using System.Net.Http.Headers;
+﻿using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Security;
 using System.Security.Authentication;
@@ -32,10 +33,15 @@ internal class RSOClient(string username, string password, ClientType clientType
             SslOptions = new SslClientAuthenticationOptions
             {
                 EnabledSslProtocols = SslProtocols.Tls13
-            }
+            },
+            UseCookies = true,
+            AllowAutoRedirect = true,
+            AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate,
+            CookieContainer = Cookies
         });
 
-        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "RiotAuth/0.1");
+
+        httpClient.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", "RiotClient/90.0.2.1805.3774 rso-auth (Windows;10;;Professional, x64) riot_client/0");
         httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
         httpClient.BaseAddress = new Uri("https://auth.riotgames.com");
         return httpClient;
@@ -43,10 +49,11 @@ internal class RSOClient(string username, string password, ClientType clientType
 
     internal RSOMethods BuildSignOn()
     {
-        return new RSOMethods(username, password, Http);
+        return new RSOMethods(username, password, this);
     }
 
-    private HttpClient Http => BuildClient();
+    public HttpClient Http => BuildClient();
+    public CookieContainer Cookies = new();
     private RSOMethods RiotSignOn => BuildSignOn();
     private RiotOpenId RiotOpenId => ClientData[clientType];
 
@@ -54,7 +61,8 @@ internal class RSOClient(string username, string password, ClientType clientType
     private JsonWebToken? _idToken;
     private string? _puuid;
     private string? _userInfo;
-    
+    private string? _pasToken;
+
     public async Task<JsonWebToken> GetAccessTokenAsync()
     {
         if (_accessToken?.ValidTo > DateTime.UtcNow.AddMinutes(5))
@@ -83,6 +91,15 @@ internal class RSOClient(string username, string password, ClientType clientType
         accessToken ??= await GetAccessTokenAsync();
         _userInfo = await RiotSignOn.GetUserInfoAsync(accessToken);
         return _userInfo;
+    }
+
+    public async Task<string> GetPasTokenAsync(JsonWebToken accessToken)
+    {
+        if (_pasToken is not null)
+            return _pasToken;
+
+        _pasToken ??= await GetPasTokenAsync(accessToken);
+        return _pasToken;
     }
 
     public async Task<string> GetPuuidAsync()

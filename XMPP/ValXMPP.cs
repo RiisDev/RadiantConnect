@@ -1,6 +1,7 @@
 ﻿using RadiantConnect.Services;
 using System.Diagnostics;
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
@@ -16,6 +17,62 @@ namespace RadiantConnect.XMPP
 {
     public partial class ValXMPP
     {
+        #region XMPPRegions
+        Dictionary<string, string> XMPPRegions = new(){
+            {"as2", "as2"},
+            {"asia", "jp1"},
+            {"br1", "br1"},
+            {"eu", "ru1"},
+            {"eu3", "eu3"},
+            {"eun1", "eu2"},
+            {"euw1", "eu1"},
+            {"jp1", "jp1"},
+            {"kr1", "kr1"},
+            {"la1", "la1"},
+            {"la2", "la2"},
+            {"na1", "na1"},
+            {"oc1", "oc1"},
+            {"pbe1", "pb1"},
+            {"ru1", "ru1"},
+            {"sea1", "sa1"},
+            {"sea2", "sa2"},
+            {"sea3", "sa3"},
+            {"sea4", "sa4"},
+            {"tr1", "tr1"},
+            {"us", "la1"},
+            {"us-br1", "br1"},
+            {"us-la2", "la2"},
+            {"us2", "us2"}
+        };
+
+        Dictionary<string, string> XMPPRegionURLs = new(){
+            {"as2", "as2.chat.si.riotgames.com"},
+            {"asia", "jp1.chat.si.riotgames.com"},
+            {"br1", "br.chat.si.riotgames.com"},
+            {"eu", "ru1.chat.si.riotgames.com"},
+            {"eu3", "eu3.chat.si.riotgames.com"},
+            {"eun1", "eun1.chat.si.riotgames.com"},
+            {"euw1", "euw1.chat.si.riotgames.com"},
+            {"jp1", "jp1.chat.si.riotgames.com"},
+            {"kr1", "kr1.chat.si.riotgames.com"},
+            {"la1", "la1.chat.si.riotgames.com"},
+            {"la2", "la2.chat.si.riotgames.com"},
+            {"na1", "na2.chat.si.riotgames.com"},
+            {"oc1", "oc1.chat.si.riotgames.com"},
+            {"pbe1", "pbe1.chat.si.riotgames.com"},
+            {"ru1", "ru1.chat.si.riotgames.com"},
+            {"sea1", "sa1.chat.si.riotgames.com"},
+            {"sea2", "sa2.chat.si.riotgames.com"},
+            {"sea3", "sa3.chat.si.riotgames.com"},
+            {"sea4", "sa4.chat.si.riotgames.com"},
+            {"tr1", "tr1.chat.si.riotgames.com"},
+            {"us", "la1.chat.si.riotgames.com"},
+            {"us-br1", "br.chat.si.riotgames.com"},
+            {"us-la2", "la2.chat.si.riotgames.com"},
+            {"us2", "us2.chat.si.riotgames.com"}
+        };
+
+        #endregion
         public delegate void InternalMessage(string data);
         public delegate void PresenceUpdated(ValorantPresence presence);
         public delegate void PlayerPresenceUpdated(PlayerPresence presence);
@@ -187,6 +244,35 @@ namespace RadiantConnect.XMPP
                     throw new RadiantConnectXMPPException($"Failed to initiate communication. {ex}");
                 }
             }
+        }
+
+
+
+        public async Task InitiateRemoteXMPP(Authentication.Authentication.RSOAuth auth)
+        {
+            using HttpClient client = new();
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Authorization: {auth.AccessToken}");
+
+            string pas = auth.Pas;
+            string xmppRegion = "";
+            string rso = auth.AccessToken;
+
+            string[] verificationMessages = [
+                $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
+                $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{rso}</rso_token><pas_token>{pas}</pas_token></auth>",
+                $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
+                "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>",
+                "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>"
+            ];
+
+            string chatHost = XMPPRegionURLs[xmppRegion];
+            (TcpListener currentTcpListener, int _) = NewTcpListener();
+            await HandleClients(currentTcpListener, chatHost, 5223);
+            OnSocketCreated += async (socket) =>
+            {
+                await socket.SendXmlToOutgoingStream(verificationMessages[0]);
+            };
+
         }
 
         public Process InitializeConnection(string patchLine = "live")

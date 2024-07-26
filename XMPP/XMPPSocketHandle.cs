@@ -61,6 +61,10 @@ namespace RadiantConnect.XMPP
             }
         }
 
+        // I would love to rename the method, but due to backwards compatibility, I can't.
+        public async Task SendXmlToIncomingStream([StringSyntax(StringSyntaxAttribute.Xml)] string data) => await SendXmlMessageAsync(data);
+
+        [Obsolete("Superseded by (SendXmlToIncomingStream)")]
         public async Task SendXmlMessageAsync([StringSyntax(StringSyntaxAttribute.Xml)] string data)
         {
             try
@@ -68,6 +72,17 @@ namespace RadiantConnect.XMPP
                 while (!incomingStream.CanWrite) { await Task.Delay(50); }
                 byte[] bytes = Encoding.UTF8.GetBytes(data);
                 await incomingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+            }
+            catch (Exception ex) { Debug.WriteLine(ex); }
+        }
+
+        public async Task SendXmlToOutgoingStream([StringSyntax(StringSyntaxAttribute.Xml)] string data)
+        {
+            try
+            {
+                while (!outgoingStream.CanWrite) { await Task.Delay(50); }
+                byte[] bytes = Encoding.UTF8.GetBytes(data);
+                await outgoingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
             }
             catch (Exception ex) { Debug.WriteLine(ex); }
         }

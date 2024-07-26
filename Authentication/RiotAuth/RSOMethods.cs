@@ -1,13 +1,19 @@
 using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Web;
 using Microsoft.IdentityModel.JsonWebTokens;
 
 namespace RadiantConnect.Authentication.RiotAuth;
 
-internal class RSOMethods(string username, string password, HttpClient httpClient)
+internal class RSOMethods(string username, string password, RSOClient client)
 {
+    private readonly HttpClient _httpClient = client.Http;
+    private CookieContainer _cookies = client.Cookies;
+
     public JsonWebToken GetAccessToken(Uri uri)
     {
         NameValueCollection collection = HttpUtility.ParseQueryString(uri.Fragment.TrimStart('#'));
@@ -26,13 +32,34 @@ internal class RSOMethods(string username, string password, HttpClient httpClien
     {
         HttpRequestMessage request = new(HttpMethod.Get, "/userinfo");
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.EncodedToken);
-        HttpResponseMessage response = await httpClient.SendAsync(request);
+        HttpResponseMessage response = await _httpClient.SendAsync(request);
         return await response.Content.ReadAsStringAsync();
     }
+
+    public async Task<string> GetPasTokenAsync(JsonWebToken accessToken)
+    {
+        HttpRequestMessage request = new(HttpMethod.Get, "https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
+        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken.EncodedToken);
+        HttpResponseMessage response = await _httpClient.SendAsync(request);
+        return await response.Content.ReadAsStringAsync();
+
+    }
+
+    private bool called = false;
 
     public async Task<Uri> GetAuthResponseUriAsync(RiotOpenId post)
     {
         HttpResponseMessage message = await PostAuthRequestAsync(post);
+
+#if DEBUG
+        string content = await message.Content.ReadAsStringAsync();
+        if (message.StatusCode != HttpStatusCode.OK)
+            throw new RadiantConnectException($"Authorization failed:\n{JsonSerializer.Serialize(message)}\n\nReturn:\n{content}\n\nHeaders:\n{message.RequestMessage?.Headers}");
+#else
+        if (message.StatusCode != HttpStatusCode.OK)
+            throw new RadiantConnectException($"Authorization failed: {message.StatusCode}");
+#endif
+
         return await GetAuthResponseUriAsync(message);
     }
 
@@ -54,11 +81,11 @@ internal class RSOMethods(string username, string password, HttpClient httpClien
         };
     }
 
-    private Task<HttpResponseMessage> PostAuthRequestAsync(RiotOpenId post) => httpClient.PostAsJsonAsync("/api/v1/authorization", post);
+    private Task<HttpResponseMessage> PostAuthRequestAsync(RiotOpenId post) => _httpClient.PostAsJsonAsync("/api/v1/authorization", post);
 
     private Task<HttpResponseMessage> PutAuthRequestAsync()
     {
-        return httpClient.PutAsJsonAsync("/api/v1/authorization", new PutRiotRequest
+        return _httpClient.PutAsJsonAsync("/api/v1/authorization", new PutRiotRequest
         {
             Language = "en_US",
             Password = password,
@@ -69,5 +96,5 @@ internal class RSOMethods(string username, string password, HttpClient httpClien
         });
     }
 
-    public Task<HttpResponseMessage> DeleteSessionAsync() => httpClient.DeleteAsync("/api/v1/session");
+    public Task<HttpResponseMessage> DeleteSessionAsync() => _httpClient.DeleteAsync("/api/v1/session");
 }
