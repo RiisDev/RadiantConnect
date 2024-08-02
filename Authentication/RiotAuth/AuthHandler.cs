@@ -42,8 +42,20 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         internal void Log(Authentication.DriverStatus status) => OnDriverUpdate?.Invoke(status);
 
-        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> Initialize(string username, string password)
+        internal async Task ClearCookies()
         {
+            Dictionary<string, object> clearCookies = new()
+            {
+                { "id", ActionIdGenerator.Next() },
+                { "method", "Network.clearBrowserCookies" }
+            };
+            await Driver.ExecuteOnPageWithResponse("", DriverPort, clearCookies, "", true, false, true);
+
+        }
+
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?, string?)> Initialize(string username, string password)
+        {
+
             Log(Authentication.DriverStatus.Checking_Existing_Processes);
             DoDriverCheck();
 
@@ -52,6 +64,8 @@ namespace RadiantConnect.Authentication.RiotAuth
 
             if (WebDriver == null)
                 throw new RadiantConnectException("Failed to start browser driver");
+
+            await ClearCookies();
 
             Log(Authentication.DriverStatus.Driver_Created);
 
@@ -69,19 +83,27 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         #region DriverAuthFlow
 
-        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> PerformSignInAsync(string username, string password)
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?, string?)> PerformSignInAsync(string username, string password)
         {
             Log(Authentication.DriverStatus.Checking_Existing_Auth);
             if (!string.IsNullOrEmpty(await Driver.GetSocketUrl("Riot Account Management", DriverPort)))
-                return await CheckCookieStatusAsync();
+                goto SkipSignIn;
 
-            Log(Authentication.DriverStatus.Checking_For_Login_Page);
+            Log(Authentication.DriverStatus.Checking_RSO_Login_Page);
             if (await IsLoginPageDetectedAsync()) await SendLoginDataAsync(username, password);
 
-
-            Log(Authentication.DriverStatus.Checking_For_Multi_Factor);
+            Log(Authentication.DriverStatus.Checking_RSO_Multi_Factor);
             if (await IsMfaRequiredAsync()) await HandleMfaAsync();
 
+            SkipSignIn:
+
+            await Driver.NavigateTo("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid", DriverPort);
+
+            Log(Authentication.DriverStatus.Checking_Valorant_Login_Page);
+            if (await IsLoginPageDetectedAsync()) await SendLoginDataAsync(username, password, false);
+
+            Log(Authentication.DriverStatus.Checking_Valorant_Multi_Factor);
+            if (await IsMfaRequiredAsync()) await HandleMfaAsync();
 
             Log(Authentication.DriverStatus.SignIn_Completed);
             return await CheckCookieStatusAsync();
@@ -105,9 +127,10 @@ namespace RadiantConnect.Authentication.RiotAuth
             return response is not null && response.Contains("true");
         }
 
-        internal async Task SendLoginDataAsync(string username, string password)
+        internal async Task SendLoginDataAsync(string username, string password, bool RSO = true)
         {
-            Log(Authentication.DriverStatus.Logging_In);
+            Log(RSO ? Authentication.DriverStatus.Logging_Into_RSO : Authentication.DriverStatus.Logging_Into_Valorant);
+
             Dictionary<string, object> loginData = new()
             {
                 { "id", ActionIdGenerator.Next() },
@@ -153,6 +176,17 @@ namespace RadiantConnect.Authentication.RiotAuth
             HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
             return await response.Content.ReadAsStringAsync();
         }
+        
+        internal async Task<string?> GetClientConfig(string accessToken, string entitlement)
+        {
+            Log(Authentication.DriverStatus.Getting_Client_Config);
+            using HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {accessToken}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", entitlement);
+            HttpResponseMessage response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client");
+            return await response.Content.ReadAsStringAsync();
+        }
 
         public record EntitleReturn(
             [property: JsonPropertyName("entitlements_token")] string EntitlementsToken
@@ -160,7 +194,7 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         internal async Task<string?> GetEntitlementToken(string accessToken)
         {
-            Log(Authentication.DriverStatus.Grabbing_PAS_Token);
+            Log(Authentication.DriverStatus.Grabbing_Entitlement_Token);
             using HttpClient httpClient = new();
             httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {accessToken}");
             HttpResponseMessage response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
@@ -168,10 +202,34 @@ namespace RadiantConnect.Authentication.RiotAuth
             return entitleReturn?.EntitlementsToken;
         }
 
+        internal async Task CheckError()
+        {
+
+            Dictionary<string, object> faData = new()
+            {
+                { "id", ActionIdGenerator.Next() },
+                { "method", "Runtime.evaluate" },
+                { "params", new Dictionary<string, string>
+                    {
+                        { "expression", "document.querySelector(\"[data-testid='panel-title']\").innerText.includes(\"Oops!\")" }
+                    }
+                }
+            };
+
+            string? response = await Driver.ExecuteOnPageWithResponse("Sign in", DriverPort, faData, "", false, true);
+
+            if (response is not null && response.Contains("result\":{\"type\":\"boolean\",\"value\":true}"))
+            {
+                throw new RadiantConnectAuthException("Error occurred during login");
+            }
+        }
+
         internal async Task<bool> IsMfaRequiredAsync()
         {
             string mfaCheck = await Driver.GetSocketUrl("Verification Required", DriverPort);
-
+            string signInCheck = await Driver.GetSocketUrl("Sign in", DriverPort);
+            
+            if (!string.IsNullOrEmpty(signInCheck)) await CheckError();
             if (string.IsNullOrEmpty(mfaCheck)) return false;
 
             Dictionary<string, object> faData = new()
@@ -215,7 +273,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             Log(Authentication.DriverStatus.Multi_Factor_Completed);
         }
 
-        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> CheckCookieStatusAsync()
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?, string?)> CheckCookieStatusAsync()
         {
             Dictionary<string, object> cookieResponse = new()
             {
@@ -228,6 +286,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             string? accessToken = await GetAccessToken();
             string? pasToken = await GetPasToken(accessToken!);
             string? entitlementToken = await GetEntitlementToken(accessToken!);
+            string? clientConfig = await GetClientConfig(accessToken!, entitlementToken!);
             string? cookieData = await Driver.ExecuteOnPageWithResponse("", DriverPort, cookieResponse, "", false, true, true);
             CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(cookieData!);
             IEnumerable<Cookie>? riotCookies = cookieRoot?.Result.Cookies.ToList().Where(x =>(x.Domain.Contains("riotgames.com") || x.Domain.Contains("valorant")) && x.Name is "tdid" or "ssid" or "sub" or "csid" or "clid" or "__Secure-access_token" or "__Secure-refresh_token" or "__Secure-id_token");
@@ -238,7 +297,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             WebDriver?.Kill(true); // Kill driver process
 
             Log(Authentication.DriverStatus.Cookies_Received);
-            return (riotCookies, accessToken, pasToken, entitlementToken);
+            return (riotCookies, accessToken, pasToken, entitlementToken, clientConfig);
         }
 
 

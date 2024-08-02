@@ -118,7 +118,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
-                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid",
+                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://account.riotgames.com/",
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Minimized
@@ -127,9 +127,8 @@ namespace RadiantConnect.Authentication.RiotAuth
             Process? driverProcess = Process.Start(processInfo);
 
             Task.Run(() => HideDriver(driverProcess!)); // Todo make sure this isnt just spammed, find a way to detect if it's hidden already
-
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill(); // Make sure the engine is closed when the application is closed
-
+            
             while (driverProcess?.MainWindowHandle == IntPtr.Zero) await Task.Delay(100);
             while (driverProcess is not null && !driverProcess.HasExited)
             {

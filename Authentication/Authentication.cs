@@ -1,4 +1,6 @@
-﻿using Microsoft.IdentityModel.JsonWebTokens;
+﻿using System.Diagnostics;
+using System.Text.Json;
+using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.RiotAuth;
 
 // ReSharper disable IdentifierTypo
@@ -15,11 +17,16 @@ namespace RadiantConnect.Authentication
             Driver_Created,
             Begin_SignIn,
             Checking_Existing_Auth,
-            Checking_For_Login_Page,
-            Logging_In,
-            Checking_For_Multi_Factor,
+            Checking_RSO_Login_Page,
+            Checking_Valorant_Login_Page,
+            Logging_Into_RSO,
+            Logging_Into_Valorant,
+            Checking_RSO_Multi_Factor,
+            Checking_Valorant_Multi_Factor,
             Grabbing_Access_Token,
             Grabbing_PAS_Token,
+            Grabbing_Entitlement_Token,
+            Getting_Client_Config,
             Multi_Factor_Requested,
             Multi_Factor_Completed,
             SignIn_Completed,
@@ -32,7 +39,25 @@ namespace RadiantConnect.Authentication
             string BrowserExecutable = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
             bool KillBrowser = false
         );
-        public record RSOAuth(string? Subject, string? SSID, string? TDID, string? CSID, string? CLID, string? PVPNetToken, string? IdToken, string? AccessToken, string? PasToken, string? Entitlement, string? Affinity, string? ChatAffinity, string? SecureAccessToken, string? SecureRefreshToken, string? SecureIdToken);
+
+        public record RSOAuth(
+            string? Subject,
+            string? SSID,
+            string? TDID,
+            string? CSID,
+            string? CLID,
+            string? PVPNetToken,
+            string? IdToken,
+            string? AccessToken,
+            string? PasToken,
+            string? Entitlement, 
+            string? Affinity,
+            string? ChatAffinity,
+            string? ClientConfig,
+            string? SecureAccessToken,
+            string? SecureRefreshToken, 
+            string? SecureIdToken
+        );
 
         public delegate void MultiFactorEvent();
         public event MultiFactorEvent? OnMultiFactorRequested;
@@ -56,7 +81,7 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement) = await authHandler.Initialize(username, password);
+            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement, string? clientConfig) = await authHandler.Initialize(username, password);
 
             if (cookies == null) return null;
             
@@ -76,7 +101,7 @@ namespace RadiantConnect.Authentication
             string? affinity = jwt.GetPayloadValue<string>("affinity");
             string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
             
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken, accessToken, pasToken, entitlement, affinity,chatAffinity, secureAccessToken, secureRefreshToken, secureIdToken);
+            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, secureAccessToken, secureRefreshToken, secureIdToken);
         }
 
         public async Task Logout() => await authHandler.Logout();
