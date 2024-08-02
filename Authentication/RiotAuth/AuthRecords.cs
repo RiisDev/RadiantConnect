@@ -2,69 +2,46 @@ using System.Text.Json.Serialization;
 
 namespace RadiantConnect.Authentication.RiotAuth;
 
-internal record RSOAuthReturn(
-    string Type,
-    string? Error,
-    string Country,
-    Response? Response
+internal record EdgeDev(
+    [property: JsonPropertyName("description")] string Description,
+    [property: JsonPropertyName("devtoolsFrontendUrl")] string DevtoolsFrontendUrl,
+    [property: JsonPropertyName("id")] string Id,
+    [property: JsonPropertyName("title")] string Title,
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("url")] string Url,
+    [property: JsonPropertyName("webSocketDebuggerUrl")] string WebSocketDebuggerUrl,
+    [property: JsonPropertyName("parentId")] string ParentId
 );
 
-internal record Response(
-    string Mode,
-    Parameters Parameters
+internal record Cookie(
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("value")] string Value,
+    [property: JsonPropertyName("domain")] string Domain,
+    [property: JsonPropertyName("path")] string Path,
+    [property: JsonPropertyName("expires")] double? Expires,
+    [property: JsonPropertyName("size")] int? Size,
+    [property: JsonPropertyName("httpOnly")] bool? HttpOnly,
+    [property: JsonPropertyName("secure")] bool? Secure,
+    [property: JsonPropertyName("session")] bool? Session,
+    [property: JsonPropertyName("priority")] string Priority,
+    [property: JsonPropertyName("sameParty")] bool? SameParty,
+    [property: JsonPropertyName("sourceScheme")] string SourceScheme,
+    [property: JsonPropertyName("sourcePort")] int? SourcePort,
+    [property: JsonPropertyName("sameSite")] string SameSite,
+    [property: JsonPropertyName("partitionKey")] PartitionKey PartitionKey
 );
 
-internal record Parameters(
-    Uri Uri
+internal record PartitionKey(
+    [property: JsonPropertyName("topLevelSite")] string TopLevelSite,
+    [property: JsonPropertyName("hasCrossSiteAncestor")] bool? HasCrossSiteAncestor
 );
 
-internal record PutRiotRequest
-{
-    [JsonPropertyName("language")]
-    public string? Language { get; init; }
+internal record Result(
+    [property: JsonPropertyName("cookies")] IReadOnlyList<Cookie> Cookies
+);
 
-    [JsonPropertyName("password")]
-    public string? Password { get; init; }
+internal record CookieRoot(
+    [property: JsonPropertyName("id")] int? Id,
+    [property: JsonPropertyName("result")] Result Result
+);
 
-    [JsonPropertyName("region")]
-    public string? Region { get; init; }
-
-    [JsonPropertyName("remember")]
-    public bool Remember { get; init; }
-
-    [JsonPropertyName("type")]
-    public string? Type { get; init; }
-
-    [JsonPropertyName("username")]
-    public string? Username { get; init; }
-}
-
-internal record RiotOpenId
-{
-    [JsonPropertyName("acr_values")]
-    public string AcrValues { get; init; } = string.Empty;
-
-    [JsonPropertyName("claims")]
-    public string Claims { get; init; } = string.Empty;
-
-    [JsonPropertyName("client_id")]
-    public string ClientId { get; init; } = string.Empty;
-
-    [JsonPropertyName("code_challenge")]
-    public string CodeChallenge { get; init; } = string.Empty;
-
-    [JsonPropertyName("code_challenge_method")]
-    public string CodeChallengeMethod { get; init; } = string.Empty;
-
-    [JsonPropertyName("nonce")]
-    public string Nonce { get; init; } = Guid.NewGuid().ToString();
-
-    [JsonPropertyName("redirect_uri")]
-    public Uri RedirectUri { get; init; } = new("http://localhost/redirect");
-
-    [JsonPropertyName("response_type")]
-    public string ResponseType { get; init; } = "token id_token";
-
-    [JsonPropertyName("scope")]
-    public string Scope { get; init; } = string.Empty;
-}
