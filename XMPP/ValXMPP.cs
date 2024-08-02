@@ -8,6 +8,7 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Methods;
 
 // Credit to https://github.com/molenzwiebel/Deceive for guide
@@ -250,30 +251,28 @@ namespace RadiantConnect.XMPP
 
         public async Task InitiateRemoteXMPP(Authentication.Authentication.RSOAuth auth)
         {
-            //TODO: Reimplement this based on new RSOAUth
+            using HttpClient client = new();
+            client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Authorization: {auth.AccessToken}");
 
-            //using HttpClient client = new();
-            //client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Authorization: {auth.AccessToken}");
+            string? pas = auth.PasToken;
+            string? rso = auth.AccessToken;
+            string? xmppRegion = auth.ChatAffinity;
+            
+            string[] verificationMessages = [
+                $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
+                $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{rso}</rso_token><pas_token>{pas}</pas_token></auth>",
+                $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
+                "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>",
+                "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>"
+            ];
 
-            //string pas = auth.Pas;
-            //string xmppRegion = "";
-            //string rso = auth.AccessToken;
-
-            //string[] verificationMessages = [
-            //    $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
-            //    $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{rso}</rso_token><pas_token>{pas}</pas_token></auth>",
-            //    $"<?xml version=\"1.0\"?><stream:stream to=\"{xmppRegion}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">",
-            //    "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>",
-            //    "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>"
-            //];
-
-            //string chatHost = XMPPRegionURLs[xmppRegion];
-            //(TcpListener currentTcpListener, int _) = NewTcpListener();
-            //await HandleClients(currentTcpListener, chatHost, 5223);
-            //OnSocketCreated += async (socket) =>
-            //{
-            //    await socket.SendXmlToOutgoingStream(verificationMessages[0]);
-            //};
+            string chatHost = XMPPRegionURLs[xmppRegion];
+            (TcpListener currentTcpListener, int _) = NewTcpListener();
+            await HandleClients(currentTcpListener, chatHost, 5223);
+            OnSocketCreated += async (socket) =>
+            {
+                await socket.SendXmlToOutgoingStream(verificationMessages[0]);
+            };
 
         }
 

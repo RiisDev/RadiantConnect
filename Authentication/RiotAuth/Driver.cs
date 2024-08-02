@@ -118,7 +118,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
-                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://account.riotgames.com/",
+                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid",
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Minimized
@@ -134,7 +134,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             while (driverProcess is not null && !driverProcess.HasExited)
             {
                 List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-                if (debugResponse is not null && debugResponse.Any(x => x.Url.Contains("https://account.riotgames.com/") || x.Url.Contains("https://authenticate.riotgames.com/?client_id="))) break;
+                if (debugResponse is not null && debugResponse.Any(x => x.Url.Contains("https://account.riotgames.com/") || x.Url.Contains("https://authenticate.riotgames.com/?client_id=") || x.Url.Contains("https://auth.riotgames.com/authorize?redirect_uri=") || x.Url.Contains("https://playvalorant.com/en-us/opt_in/?access_token="))) break;
             }
 
             Thread.Sleep(500);

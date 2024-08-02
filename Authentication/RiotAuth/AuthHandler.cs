@@ -1,5 +1,10 @@
 ﻿using System.Diagnostics;
+using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+
 // ReSharper disable StringLiteralTypo
 
 namespace RadiantConnect.Authentication.RiotAuth
@@ -37,7 +42,7 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         internal void Log(Authentication.DriverStatus status) => OnDriverUpdate?.Invoke(status);
 
-        internal async Task<IEnumerable<Cookie>?> Initialize(string username, string password)
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> Initialize(string username, string password)
         {
             Log(Authentication.DriverStatus.Checking_Existing_Processes);
             DoDriverCheck();
@@ -64,7 +69,7 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         #region DriverAuthFlow
 
-        internal async Task<IEnumerable<Cookie>?> PerformSignInAsync(string username, string password)
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> PerformSignInAsync(string username, string password)
         {
             Log(Authentication.DriverStatus.Checking_Existing_Auth);
             if (!string.IsNullOrEmpty(await Driver.GetSocketUrl("Riot Account Management", DriverPort)))
@@ -73,8 +78,10 @@ namespace RadiantConnect.Authentication.RiotAuth
             Log(Authentication.DriverStatus.Checking_For_Login_Page);
             if (await IsLoginPageDetectedAsync()) await SendLoginDataAsync(username, password);
 
+
             Log(Authentication.DriverStatus.Checking_For_Multi_Factor);
             if (await IsMfaRequiredAsync()) await HandleMfaAsync();
+
 
             Log(Authentication.DriverStatus.SignIn_Completed);
             return await CheckCookieStatusAsync();
@@ -112,6 +119,53 @@ namespace RadiantConnect.Authentication.RiotAuth
                 }
             };
             await Driver.ExecuteOnPageWithResponse("Sign in", DriverPort, loginData, "result\":{\"type\":\"undefined\"}");
+        }
+
+        internal async Task<string?> GetAccessToken()
+        {
+            Log(Authentication.DriverStatus.Grabbing_Access_Token);
+            int retries = 0;
+            string accessTokenUrl = string.Empty;
+            using HttpClient httpClient = new();
+            do
+            {
+                retries++;
+                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{DriverPort}/json");
+
+                if (debugResponse is null) continue;
+                if (debugResponse.Count == 0) continue;
+                if (debugResponse.Any(x=> x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token="))) 
+                    accessTokenUrl = debugResponse.First(x => x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token=")).Url;
+
+            } while (string.IsNullOrEmpty(accessTokenUrl) && retries >= 50);
+
+            Regex accessTokenRegex = new("access_token=(.*?)&scope");
+            string accessToken = accessTokenRegex.Match(accessTokenUrl).Groups[1].Value;
+            return accessToken;
+        }
+
+        internal async Task<string?> GetPasToken(string accessToken)
+        {
+            Log(Authentication.DriverStatus.Grabbing_PAS_Token);
+            using HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {accessToken}");
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Accept", "application/json");
+            HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        public record EntitleReturn(
+            [property: JsonPropertyName("entitlements_token")] string EntitlementsToken
+        );
+
+        internal async Task<string?> GetEntitlementToken(string accessToken)
+        {
+            Log(Authentication.DriverStatus.Grabbing_PAS_Token);
+            using HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Authorization", $"Bearer {accessToken}");
+            HttpResponseMessage response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
+            EntitleReturn? entitleReturn = await response.Content.ReadFromJsonAsync<EntitleReturn>();
+            return entitleReturn?.EntitlementsToken;
         }
 
         internal async Task<bool> IsMfaRequiredAsync()
@@ -161,7 +215,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             Log(Authentication.DriverStatus.Multi_Factor_Completed);
         }
 
-        internal async Task<IEnumerable<Cookie>> CheckCookieStatusAsync()
+        internal async Task<(IEnumerable<Cookie>?, string?, string?, string?)> CheckCookieStatusAsync()
         {
             Dictionary<string, object> cookieResponse = new()
             {
@@ -170,18 +224,21 @@ namespace RadiantConnect.Authentication.RiotAuth
             };
 
             Log(Authentication.DriverStatus.Requesting_Cookies);
-            
+
+            string? accessToken = await GetAccessToken();
+            string? pasToken = await GetPasToken(accessToken!);
+            string? entitlementToken = await GetEntitlementToken(accessToken!);
             string? cookieData = await Driver.ExecuteOnPageWithResponse("", DriverPort, cookieResponse, "", false, true, true);
             CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(cookieData!);
-            IEnumerable<Cookie>? riotCookies = cookieRoot?.Result.Cookies.ToList().Where(x => x.Domain.Contains("riotgames.com") && x.Name is "tdid" or "ssid" or "sub" or "csid" or "clid");
-
+            IEnumerable<Cookie>? riotCookies = cookieRoot?.Result.Cookies.ToList().Where(x =>(x.Domain.Contains("riotgames.com") || x.Domain.Contains("valorant")) && x.Name is "tdid" or "ssid" or "sub" or "csid" or "clid" or "__Secure-access_token" or "__Secure-refresh_token" or "__Secure-id_token");
+            
             if (riotCookies == null)
                 throw new RadiantConnectAuthException("Could not find verified cookies.");
 
             WebDriver?.Kill(true); // Kill driver process
 
             Log(Authentication.DriverStatus.Cookies_Received);
-            return riotCookies;
+            return (riotCookies, accessToken, pasToken, entitlementToken);
         }
 
 

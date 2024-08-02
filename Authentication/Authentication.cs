@@ -1,4 +1,5 @@
-﻿using RadiantConnect.Authentication.RiotAuth;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
+using RadiantConnect.Authentication.RiotAuth;
 
 // ReSharper disable IdentifierTypo
 // ReSharper disable InconsistentNaming
@@ -17,6 +18,8 @@ namespace RadiantConnect.Authentication
             Checking_For_Login_Page,
             Logging_In,
             Checking_For_Multi_Factor,
+            Grabbing_Access_Token,
+            Grabbing_PAS_Token,
             Multi_Factor_Requested,
             Multi_Factor_Completed,
             SignIn_Completed,
@@ -29,7 +32,7 @@ namespace RadiantConnect.Authentication
             string BrowserExecutable = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
             bool KillBrowser = false
         );
-        public record RSOAuth(string? Subject, string? SSID, string? TDID, string? CSID, string? CLID, string? PVPNetToken, string? IdToken);
+        public record RSOAuth(string? Subject, string? SSID, string? TDID, string? CSID, string? CLID, string? PVPNetToken, string? IdToken, string? AccessToken, string? PasToken, string? Entitlement, string? Affinity, string? ChatAffinity, string? SecureAccessToken, string? SecureRefreshToken, string? SecureIdToken);
 
         public delegate void MultiFactorEvent();
         public event MultiFactorEvent? OnMultiFactorRequested;
@@ -53,10 +56,10 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            IEnumerable<Cookie>? cookies = await authHandler.Initialize(username, password);
+            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement) = await authHandler.Initialize(username, password);
 
             if (cookies == null) return null;
-
+            
             IEnumerable<Cookie> enumerable = cookies as Cookie[] ?? cookies.ToArray();
             string? rsoSubject = enumerable.FirstOrDefault(x => x.Name == "sub")?.Value;
             string? rsoSsid = enumerable.FirstOrDefault(x => x.Name == "ssid")?.Value;
@@ -65,8 +68,15 @@ namespace RadiantConnect.Authentication
             string? rsoClid = enumerable.FirstOrDefault(x => x.Name == "clid")?.Value;
             string? pvpNet = enumerable.FirstOrDefault(x => x.Name == "PVPNET_TOKEN_NA")?.Value;
             string? idToken = enumerable.FirstOrDefault(x => x.Name == "id_token")?.Value;
+            string? secureAccessToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-access_token")?.Value;
+            string? secureRefreshToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-refresh_token")?.Value;
+            string? secureIdToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-id_token")?.Value;
 
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken);
+            JsonWebToken jwt = new(pasToken);
+            string? affinity = jwt.GetPayloadValue<string>("affinity");
+            string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
+            
+            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken, accessToken, pasToken, entitlement, affinity,chatAffinity, secureAccessToken, secureRefreshToken, secureIdToken);
         }
 
         public async Task Logout() => await authHandler.Logout();
