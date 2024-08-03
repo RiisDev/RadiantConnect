@@ -1,5 +1,8 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Net.Http.Json;
+using System.Net.Sockets;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
@@ -11,6 +14,7 @@ namespace RadiantConnect.Authentication.RiotAuth
 {
     internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser)
     {
+        private string currentSocket = null!;
         internal IEnumerable<Process> GetBrowserProcess() => Process.GetProcessesByName(browserProcess).ToList();
 
         public delegate void MultiFactorEvent();
@@ -44,12 +48,39 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         internal async Task ClearCookies()
         {
-            Dictionary<string, object> clearCookies = new()
+            using ClientWebSocket socket = new();
+            string availableSocket = await Driver.GetSocketUrl("", DriverPort, true);
+            await socket.ConnectAsync(new Uri(availableSocket), CancellationToken.None);
+
+            Dictionary<string, string> riotCookies = new()
             {
-                { "id", ActionIdGenerator.Next() },
-                { "method", "Network.clearBrowserCookies" }
+                { "sub", "account.riotgames.com" },
+                { "ssid", "auth.riotgames.com" },
+                { "tdid", ".riotgames.com" },
+                { "csid", "auth.riotgames.com" },
+                { "clid", "auth.riotgames.com" },
+                { "id_token", ".riotgames.com" },
+                { "PVPNET_TOKEN_NA", ".riotgames.com" },
+                { "__Secure-access_token", ".playvalorant.com" },
+                { "__Secure-refresh_token", "xsso.playvalorant.com" },
+                { "__Secure-id_token", ".playvalorant.com" }
             };
-            await Driver.ExecuteOnPageWithResponse("", DriverPort, clearCookies, "", true, false, true);
+
+            foreach (KeyValuePair<string, string> riotCookie in riotCookies)
+            {
+                Dictionary<string, object> clearCookies = new()
+                {
+                    { "id", ActionIdGenerator.Next() },
+                    { "method", "Network.deleteCookies" },
+                    { "params", new Dictionary<string, string>
+                    {
+                        {"name", riotCookie.Key},
+                        {"domain", riotCookie.Value}
+                    }}
+                };
+
+                await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(clearCookies))), WebSocketMessageType.Text, true, CancellationToken.None);
+            }
 
         }
 
@@ -64,9 +95,7 @@ namespace RadiantConnect.Authentication.RiotAuth
 
             if (WebDriver == null)
                 throw new RadiantConnectException("Failed to start browser driver");
-
-            await ClearCookies();
-
+            
             Log(Authentication.DriverStatus.Driver_Created);
 
             try
@@ -85,9 +114,11 @@ namespace RadiantConnect.Authentication.RiotAuth
 
         internal async Task<(IEnumerable<Cookie>?, string?, string?, string?, string?)> PerformSignInAsync(string username, string password)
         {
-            Log(Authentication.DriverStatus.Checking_Existing_Auth);
-            if (!string.IsNullOrEmpty(await Driver.GetSocketUrl("Riot Account Management", DriverPort)))
-                goto SkipSignIn;
+            Log(Authentication.DriverStatus.Clearing_Cached_Auth);
+            await ClearCookies();
+
+            Log(Authentication.DriverStatus.Redirecting_To_RSO);
+            await DoRedirect("https://account.riotgames.com/");
 
             Log(Authentication.DriverStatus.Checking_RSO_Login_Page);
             if (await IsLoginPageDetectedAsync()) await SendLoginDataAsync(username, password);
@@ -95,9 +126,8 @@ namespace RadiantConnect.Authentication.RiotAuth
             Log(Authentication.DriverStatus.Checking_RSO_Multi_Factor);
             if (await IsMfaRequiredAsync()) await HandleMfaAsync();
 
-            SkipSignIn:
-
-            await Driver.NavigateTo("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid", DriverPort);
+            Log(Authentication.DriverStatus.Redirecting_To_Valorant_RSO);
+            await DoRedirect("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
 
             Log(Authentication.DriverStatus.Checking_Valorant_Login_Page);
             if (await IsLoginPageDetectedAsync()) await SendLoginDataAsync(username, password, false);
@@ -107,6 +137,25 @@ namespace RadiantConnect.Authentication.RiotAuth
 
             Log(Authentication.DriverStatus.SignIn_Completed);
             return await CheckCookieStatusAsync();
+        }
+
+        internal async Task DoRedirect(string url)
+        {
+            Dictionary<string, object> dataToSend = new()
+            {
+                { "id",new Random((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()).Next() },
+                { "method", "Page.navigate" },
+                { "params", new Dictionary<string, string>
+                    {
+                        {"url", url},
+                        {"transitionType", "address_bar"}
+                    }
+                }
+            };
+            if (url.Contains("https://auth.riotgames.com/"))
+                await Driver.ExecuteOnPageWithResponse("Riot Account Management", DriverPort, dataToSend, "", true, true, false, true);
+            else
+                await Driver.ExecuteOnPageWithResponse("Google", DriverPort, dataToSend, "", true, true, false, true);
         }
 
         internal async Task<bool> IsLoginPageDetectedAsync()
@@ -121,6 +170,9 @@ namespace RadiantConnect.Authentication.RiotAuth
                     }
                 }
             };
+
+            string loggedIn = await Driver.GetSocketUrl("playvalorant.com/en-us/opt_in/#access_token=", DriverPort);
+            if (!string.IsNullOrEmpty(loggedIn)) return false;
 
             string? response = await Driver.ExecuteOnPageWithResponse("Sign in", DriverPort, initialSignInCheck, "result\":{\"type\":\"boolean\",\"value\":true}");
 

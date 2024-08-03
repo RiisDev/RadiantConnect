@@ -1,6 +1,4 @@
-﻿using System.Diagnostics;
-using System.Text.Json;
-using Microsoft.IdentityModel.JsonWebTokens;
+﻿using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.RiotAuth;
 
 // ReSharper disable IdentifierTypo
@@ -14,9 +12,11 @@ namespace RadiantConnect.Authentication
         public enum DriverStatus {
             Checking_Existing_Processes,
             Creating_Driver,
+            Redirecting_To_RSO,
+            Redirecting_To_Valorant_RSO,
             Driver_Created,
             Begin_SignIn,
-            Checking_Existing_Auth,
+            Clearing_Cached_Auth,
             Checking_RSO_Login_Page,
             Checking_Valorant_Login_Page,
             Logging_Into_RSO,

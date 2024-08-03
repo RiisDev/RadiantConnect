@@ -19,11 +19,11 @@ namespace RadiantConnect.Authentication.RiotAuth
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, bool output = false, bool skipCheck = false, bool executeOnAny = false)
+        internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, bool output = false, bool skipCheck = false, bool executeOnAny = false, bool waitForPage = false)
         {
             using ClientWebSocket socket = new();
-            string socketUrl = await GetSocketUrl(pageTitle, port, executeOnAny);
-
+            string socketUrl = await GetSocketUrl(pageTitle, port, executeOnAny, waitForPage);
+            
             if (string.IsNullOrEmpty(socketUrl)) throw new RadiantConnectAuthException("Page not found");
 
             await socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
@@ -54,8 +54,8 @@ namespace RadiantConnect.Authentication.RiotAuth
             Dictionary<string, object> dataToSend = new()
             {
                 { "id",new Random((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()).Next() },
-                { "method", "Page.navigate" },
-                { "params", new Dictionary<string, string> { {"url", url} }
+                { "method", "Runtime.evaluate" },
+                { "params", new Dictionary<string, string> { {"expression", $"document.location.href = \"{url}\""} }
                 }
             };
 
@@ -80,23 +80,26 @@ namespace RadiantConnect.Authentication.RiotAuth
             return port;
         }
 
-        internal static async Task<string> GetSocketUrl(string pageTitle, int port, bool getAnyPage = false)
+        internal static async Task<string> GetSocketUrl(string pageTitle, int port, bool getAnyPage = false, bool waitForPage = false)
         {
             int retries = 0;
             string socketUrl = string.Empty;
             using HttpClient httpClient = new();
             do
             {
-                retries++;
+                if (!waitForPage)
+                    retries++;
+                else
+                    retries = 0;
+
                 List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
 
                 if (debugResponse is null) continue;
                 if (debugResponse.Count == 0) continue;
                 if (debugResponse.Any(x => x.Title.Contains(pageTitle))) socketUrl = debugResponse.First(x => x.Title.Contains(pageTitle)).WebSocketDebuggerUrl;
                 if (getAnyPage) socketUrl = debugResponse.First().WebSocketDebuggerUrl;
-
-            } while (string.IsNullOrEmpty(socketUrl) && retries >= 50);
-
+            } while (string.IsNullOrEmpty(socketUrl) && retries <= 250);
+            
             return socketUrl;
         }
 
@@ -118,7 +121,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
-                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://account.riotgames.com/",
+                Arguments = $"--remote-debugging-port={port} --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer --incognito https://www.google.com/",
                 CreateNoWindow = true,
                 UseShellExecute = false,
                 WindowStyle = ProcessWindowStyle.Minimized
@@ -133,7 +136,7 @@ namespace RadiantConnect.Authentication.RiotAuth
             while (driverProcess is not null && !driverProcess.HasExited)
             {
                 List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-                if (debugResponse is not null && debugResponse.Any(x => x.Url.Contains("https://account.riotgames.com/") || x.Url.Contains("https://authenticate.riotgames.com/?client_id=") || x.Url.Contains("https://auth.riotgames.com/authorize?redirect_uri=") || x.Url.Contains("https://playvalorant.com/en-us/opt_in/?access_token="))) break;
+                if (debugResponse is not null && debugResponse.Any(x => x.Url == "https://www.google.com/")) break;
             }
 
             Thread.Sleep(500);
