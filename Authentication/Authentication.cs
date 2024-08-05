@@ -1,5 +1,5 @@
 ﻿using Microsoft.IdentityModel.JsonWebTokens;
-using RadiantConnect.Authentication.RiotAuth;
+using RadiantConnect.Authentication.DriverRiotAuth;
 
 // ReSharper disable IdentifierTypo
 // ReSharper disable InconsistentNaming
@@ -13,27 +13,25 @@ namespace RadiantConnect.Authentication
             Checking_Existing_Processes,
             Creating_Driver,
             Redirecting_To_RSO,
-            Redirecting_To_Valorant_RSO,
             Driver_Created,
             Begin_SignIn,
             Clearing_Cached_Auth,
             Checking_RSO_Login_Page,
-            Checking_Valorant_Login_Page,
             Logging_Into_RSO,
             Logging_Into_Valorant,
             Checking_RSO_Multi_Factor,
-            Checking_Valorant_Multi_Factor,
-            Grabbing_Access_Token,
-            Grabbing_PAS_Token,
-            Grabbing_Entitlement_Token,
-            Getting_Client_Config,
+            Grabbing_Required_Tokens,
             Multi_Factor_Requested,
             Multi_Factor_Completed,
             SignIn_Completed,
-            Requesting_Cookies,
             Cookies_Received
         }
 
+        public enum CaptchaService
+        {
+            SuperMemory
+        }
+        
         public record DriverSettings(
             string ProcessName = "msedge",
             string BrowserExecutable = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
@@ -73,7 +71,13 @@ namespace RadiantConnect.Authentication
 
         internal AuthHandler authHandler = null!;
 
-        public async Task<RSOAuth?> Authenticate(string username, string password, DriverSettings? driverSettings = null)
+        public async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
+        {
+            await Task.Delay(1);
+            return null;
+        }
+
+        public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
         {   
             driverSettings ??= new DriverSettings();
             authHandler = new AuthHandler(driverSettings.ProcessName, driverSettings.BrowserExecutable, driverSettings.KillBrowser);

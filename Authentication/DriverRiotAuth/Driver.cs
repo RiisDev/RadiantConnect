@@ -1,15 +1,16 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Net.Sockets;
 using System.Net;
-using System.Text;
 using System.Net.Http.Json;
+using System.Net.Sockets;
 using System.Net.WebSockets;
-using System.Text.Json;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.Json;
+
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-namespace RadiantConnect.Authentication.RiotAuth
+namespace RadiantConnect.Authentication.DriverRiotAuth
 {
     internal class Driver
     {
@@ -19,37 +20,56 @@ namespace RadiantConnect.Authentication.RiotAuth
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
-        internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, bool output = false, bool skipCheck = false, bool executeOnAny = false, bool waitForPage = false)
-        {
-            using ClientWebSocket socket = new();
-            string socketUrl = await GetSocketUrl(pageTitle, port, executeOnAny, waitForPage);
-            
-            if (string.IsNullOrEmpty(socketUrl)) throw new RadiantConnectAuthException("Page not found");
+        internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = new();
 
-            await socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
+        internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, ClientWebSocket socket, bool output = false, bool skipCheck = false)
+        {
+            if (pageTitle != "") await WaitForPage(pageTitle, port);
+
+            int id = (int)dataToSend["id"];
+            TaskCompletionSource<string> tcs = new();
+            PendingRequests[id] = tcs;
 
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
 
-            using MemoryStream memoryStream = new();
-            byte[] buffer = new byte[8192];
-
-            WebSocketReceiveResult result;
-            do
-            {
-                result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                memoryStream.Write(buffer, 0, result.Count);
-            }
-            while (!result.EndOfMessage);
-
-            string response = Encoding.UTF8.GetString(memoryStream.ToArray());
+            string response = await tcs.Task;
 
             if (output) Debug.WriteLine(response);
-            if (!response.Contains(expectedOutput) && !skipCheck) throw new RadiantConnectAuthException("Expected output not found");
+            if (!response.Contains(expectedOutput) && !skipCheck) throw new Exception("Expected output not found");
 
             return response;
         }
 
-        internal static async Task NavigateTo(string url, int port)
+        // Lowkey thanks chatgpt <3
+        internal static async Task ListenAsync(ClientWebSocket socket)
+        {
+            byte[] buffer = new byte[8192];
+
+            while (socket.State == WebSocketState.Open)
+            {
+                using MemoryStream memoryStream = new();
+                WebSocketReceiveResult result;
+
+                do
+                {
+                    result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+                    memoryStream.Write(buffer, 0, result.Count);
+                } while (!result.EndOfMessage);
+
+                string message = Encoding.UTF8.GetString(memoryStream.ToArray());
+                Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
+
+                if (json == null || !json.ContainsKey("id")) continue;
+
+                int id = int.Parse(json["id"].ToString()!);
+                if (!PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) continue;
+
+                tcs.SetResult(message);
+                PendingRequests.Remove(id);
+            }
+        }
+
+        internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket)
         {
             Dictionary<string, object> dataToSend = new()
             {
@@ -58,16 +78,10 @@ namespace RadiantConnect.Authentication.RiotAuth
                 { "params", new Dictionary<string, string> { {"expression", $"document.location.href = \"{url}\""} }
                 }
             };
-
-            using ClientWebSocket socket = new();
-            string socketUrl = await GetSocketUrl("", port, true);
-
-            if (string.IsNullOrEmpty(socketUrl)) throw new RadiantConnectAuthException("Page not found");
-
-            await socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
-
+            
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
 
+            await WaitForPage(pageTitle, port, 999999);
         }
 
         internal static int FreeTcpPort()
@@ -80,26 +94,57 @@ namespace RadiantConnect.Authentication.RiotAuth
             return port;
         }
 
-        internal static async Task<string> GetSocketUrl(string pageTitle, int port, bool getAnyPage = false, bool waitForPage = false)
+        internal static async Task WaitForPage(string title, int port, int maxRetries = 250)
+        {
+            using HttpClient httpClient = new();
+            int retries = 0;
+            do
+            {
+                retries++;
+                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
+
+                if (debugResponse is null) continue;
+                if (debugResponse.Count == 0) continue;
+                if (debugResponse.Any(x => x.Title.Contains(title))) break;
+            } while (retries <= maxRetries);
+        }
+
+        internal static async Task<bool> PageExists(string pageTitle, int port)
+        {
+            using HttpClient httpClient = new();
+            int retries = 0;
+            do
+            {
+                retries++;
+                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
+
+                if (debugResponse is null) continue;
+                if (debugResponse.Count == 0) continue;
+                if (debugResponse.Any(x => x.Title.Contains(pageTitle))) break;
+            } while (retries <= 150);
+
+            return retries < 150;
+        }
+
+        internal static async Task<string> GetSocketUrl(string pageTitle, int port)
         {
             int retries = 0;
             string socketUrl = string.Empty;
             using HttpClient httpClient = new();
             do
             {
-                if (!waitForPage)
-                    retries++;
-                else
-                    retries = 0;
+                retries++;
 
                 List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
 
                 if (debugResponse is null) continue;
                 if (debugResponse.Count == 0) continue;
                 if (debugResponse.Any(x => x.Title.Contains(pageTitle))) socketUrl = debugResponse.First(x => x.Title.Contains(pageTitle)).WebSocketDebuggerUrl;
-                if (getAnyPage) socketUrl = debugResponse.First().WebSocketDebuggerUrl;
+
             } while (string.IsNullOrEmpty(socketUrl) && retries <= 250);
             
+            Debug.WriteLine($"New Socket: {socketUrl}");
+
             return socketUrl;
         }
 
@@ -115,9 +160,8 @@ namespace RadiantConnect.Authentication.RiotAuth
             return Task.CompletedTask;
         }
 
-        internal static async Task<Process?> StartDriver(string browserExecutable, int port)
+        internal static async Task<(Process?, string)> StartDriver(string browserExecutable, int port)
         {
-            using HttpClient httpClient = new();
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
@@ -129,19 +173,18 @@ namespace RadiantConnect.Authentication.RiotAuth
 
             Process? driverProcess = Process.Start(processInfo);
 
+            Debug.WriteLine($"Debug: http://localhost:{port}/json");
+
             Task.Run(() => HideDriver(driverProcess!)); // Todo make sure this isnt just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill(); // Make sure the engine is closed when the application is closed
             
             while (driverProcess?.MainWindowHandle == IntPtr.Zero) await Task.Delay(100);
-            while (driverProcess is not null && !driverProcess.HasExited)
-            {
-                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-                if (debugResponse is not null && debugResponse.Any(x => x.Url == "https://www.google.com/")) break;
-            }
 
-            Thread.Sleep(500);
+            await WaitForPage("Google", port, 999999);
 
-            return driverProcess;
+            string socketUrl = await GetSocketUrl("Google", port);
+            
+            return (driverProcess, socketUrl);
         }
     }
 }

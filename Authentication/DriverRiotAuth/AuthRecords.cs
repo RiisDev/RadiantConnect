@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace RadiantConnect.Authentication.RiotAuth;
+namespace RadiantConnect.Authentication.DriverRiotAuth;
 
 internal record EdgeDev(
     [property: JsonPropertyName("description")] string Description,
@@ -11,6 +11,10 @@ internal record EdgeDev(
     [property: JsonPropertyName("url")] string Url,
     [property: JsonPropertyName("webSocketDebuggerUrl")] string WebSocketDebuggerUrl,
     [property: JsonPropertyName("parentId")] string ParentId
+);
+
+public record EntitleReturn(
+    [property: JsonPropertyName("entitlements_token")] string EntitlementsToken
 );
 
 internal record Cookie(
