@@ -89,10 +89,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
 
             Log(Authentication.DriverStatus.Creating_Driver);
             (WebDriver, string? socketUrl) = await Driver.StartDriver(browserExecutable, DriverPort);
-            
+
             if (WebDriver == null)
                 throw new RadiantConnectException("Failed to start browser driver");
-            
+
             if (string.IsNullOrEmpty(socketUrl)) throw new RadiantConnectAuthException("Failed to find socket");
 
             Socket = new ClientWebSocket();

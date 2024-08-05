@@ -94,10 +94,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
             return port;
         }
 
-        internal static async Task WaitForPage(string title, int port, int maxRetries = 250)
+        internal static async Task<string?> WaitForPage(string title, int port, int maxRetries = 250)
         {
             using HttpClient httpClient = new();
             int retries = 0;
+            string foundSocket = "";
             do
             {
                 retries++;
@@ -105,8 +106,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
 
                 if (debugResponse is null) continue;
                 if (debugResponse.Count == 0) continue;
-                if (debugResponse.Any(x => x.Title.Contains(title))) break;
+                if (!debugResponse.Any(x => x.Title.Contains(title))) continue;
+
+                foundSocket = debugResponse.First(x => x.Title.Contains(title)).WebSocketDebuggerUrl;
+                break;
+
             } while (retries <= maxRetries);
+
+            return foundSocket;
         }
 
         internal static async Task<bool> PageExists(string pageTitle, int port)
@@ -125,29 +132,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
 
             return retries < 150;
         }
-
-        internal static async Task<string> GetSocketUrl(string pageTitle, int port)
-        {
-            int retries = 0;
-            string socketUrl = string.Empty;
-            using HttpClient httpClient = new();
-            do
-            {
-                retries++;
-
-                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-
-                if (debugResponse is null) continue;
-                if (debugResponse.Count == 0) continue;
-                if (debugResponse.Any(x => x.Title.Contains(pageTitle))) socketUrl = debugResponse.First(x => x.Title.Contains(pageTitle)).WebSocketDebuggerUrl;
-
-            } while (string.IsNullOrEmpty(socketUrl) && retries <= 250);
-            
-            Debug.WriteLine($"New Socket: {socketUrl}");
-
-            return socketUrl;
-        }
-
+        
         [SuppressMessage("ReSharper", "FunctionNeverReturns")]
         internal static Task HideDriver(Process driver)
         {
@@ -177,13 +162,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
 
             Task.Run(() => HideDriver(driverProcess!)); // Todo make sure this isnt just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill(); // Make sure the engine is closed when the application is closed
-            
-            while (driverProcess?.MainWindowHandle == IntPtr.Zero) await Task.Delay(100);
 
-            await WaitForPage("Google", port, 999999);
+            string? socketUrl = await WaitForPage("Google", port, 999999);
 
-            string socketUrl = await GetSocketUrl("Google", port);
-            
+            if (string.IsNullOrEmpty(socketUrl))
+                throw new RadiantConnectAuthException("Failed to start driver");
+
             return (driverProcess, socketUrl);
         }
     }
