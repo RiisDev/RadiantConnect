@@ -94,7 +94,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
             return port;
         }
 
-        internal static async Task<string?> WaitForPage(string title, int port, int maxRetries = 250)
+        internal static async Task<string?> WaitForPage(string title, int port, int maxRetries = 250, bool needsReturn = false)
         {
             using HttpClient httpClient = new();
             int retries = 0;
@@ -107,8 +107,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
                 if (debugResponse is null) continue;
                 if (debugResponse.Count == 0) continue;
                 if (!debugResponse.Any(x => x.Title.Contains(title))) continue;
+                if (needsReturn) foundSocket = debugResponse.First(x => x.Title.Contains(title)).WebSocketDebuggerUrl;
 
-                foundSocket = debugResponse.First(x => x.Title.Contains(title)).WebSocketDebuggerUrl;
                 break;
 
             } while (retries <= maxRetries);
@@ -163,7 +163,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
             Task.Run(() => HideDriver(driverProcess!)); // Todo make sure this isnt just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill(); // Make sure the engine is closed when the application is closed
 
-            string? socketUrl = await WaitForPage("Google", port, 999999);
+            string? socketUrl = await WaitForPage("Google", port, 999999, true);
 
             if (string.IsNullOrEmpty(socketUrl))
                 throw new RadiantConnectAuthException("Failed to start driver");

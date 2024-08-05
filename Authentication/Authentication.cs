@@ -51,10 +51,7 @@ namespace RadiantConnect.Authentication
             string? Entitlement, 
             string? Affinity,
             string? ChatAffinity,
-            string? ClientConfig,
-            string? SecureAccessToken,
-            string? SecureRefreshToken, 
-            string? SecureIdToken
+            string? ClientConfig
         );
 
         public delegate void MultiFactorEvent();
@@ -97,15 +94,12 @@ namespace RadiantConnect.Authentication
             string? rsoClid = enumerable.FirstOrDefault(x => x.Name == "clid")?.Value;
             string? pvpNet = enumerable.FirstOrDefault(x => x.Name == "PVPNET_TOKEN_NA")?.Value;
             string? idToken = enumerable.FirstOrDefault(x => x.Name == "id_token")?.Value;
-            string? secureAccessToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-access_token")?.Value;
-            string? secureRefreshToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-refresh_token")?.Value;
-            string? secureIdToken = enumerable.FirstOrDefault(x => x.Name == "__Secure-id_token")?.Value;
 
             JsonWebToken jwt = new(pasToken);
             string? affinity = jwt.GetPayloadValue<string>("affinity");
             string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
             
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, secureAccessToken, secureRefreshToken, secureIdToken);
+            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, pvpNet, idToken, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig);
         }
 
         public async Task Logout() => await authHandler.Logout();

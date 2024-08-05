@@ -123,6 +123,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
             foreach (Cookie cookie in getCookies?.Result.Cookies!)
                 clientCookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
 
+            Socket.Dispose();
+
             WebDriver?.Kill(true); // Kill driver process no longer needed
 
             using HttpClient httpClient = new(new HttpClientHandler
@@ -302,25 +304,19 @@ namespace RadiantConnect.Authentication.DriverRiotAuth
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
-
             // Get PAS token
             HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
-            response.EnsureSuccessStatusCode();
             string pasToken = await response.Content.ReadAsStringAsync();
-
 
             // Get entitlement token
             httpClient.DefaultRequestHeaders.Accept.Clear();
             response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
-            response.EnsureSuccessStatusCode();
             string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
-
 
             // Get client config
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Add("X-Riot-Entitlements-JWT", entitlementToken);
             response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client");
-            response.EnsureSuccessStatusCode();
             string clientConfig = await response.Content.ReadAsStringAsync();
 
             return (pasToken, entitlementToken, clientConfig);

@@ -1,13 +1,25 @@
-﻿using System.Collections.Specialized;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Security;
 using System.Net.Sockets;
-using System.Net.WebSockets;
 using System.Text;
+#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace RadiantConnect.XMPP
 {
     public class RemoteXMPP
     {
+        public enum XMPPStatus
+        {
+            Connecting,
+            InitiatingSslConnection,
+            InitiatingSocketStream,
+            SendingAuthorizationTokens,
+            ReceivingFeatures,
+            BindingStream,
+            BindingSession,
+            BindingEntitlement,
+            Connected
+        }
         #region XMPPRegions
         internal readonly Dictionary<string, string> ChatUrls = new() {
             {"asia", "jp1.chat.si.riotgames.com"},
@@ -56,91 +68,199 @@ namespace RadiantConnect.XMPP
             { "us-la2", "la2" }
         };
         #endregion
-        public delegate void InternalMessage(string data);
+        public delegate void XMPPMessage(string data);
+        public event XMPPMessage? OnMessage;
 
-        public event InternalMessage? OnClientMessage;
-        public event InternalMessage? OnServerMessage;
+        public delegate void XMPPProgress(XMPPStatus status);
+        public event XMPPProgress? OnXMPPProgress;
 
-        static async Task AsyncSocketWrite(SslStream sslStream, string message)
+        internal SslStream SslStream = null!;
+
+        internal XMPPStatus InternalStatus;
+
+        public XMPPStatus Status
         {
-            Console.WriteLine($"Write: {message}");
+            get => InternalStatus;
+            set
+            {
+                InternalStatus = value;
+                OnXMPPProgress?.Invoke(InternalStatus);
+            }
+        }
+
+        internal async Task AsyncSocketWrite(SslStream sslStream, string message)
+        {
             byte[] buffer = Encoding.UTF8.GetBytes(message);
             await sslStream.WriteAsync(buffer, 0, buffer.Length);
             await sslStream.FlushAsync();
         }
 
-        static async Task<string> AsyncSocketRead(SslStream sslStream)
+        // Super hacky way of continuous reading from the stream,
+        // but it works and I apologize for the hackyness.
+        internal Task<string> AsyncSocketRead(SslStream sslStream)
         {
-            int byteCount;
             byte[] bytes = new byte[1024];
-            string content;
+            StringBuilder contentBuilder = new();
 
+            try
+            {
+                int byteCount;
+                do
+                {
+                    byteCount = sslStream.Read(bytes, 0, bytes.Length);
+
+                    if (byteCount > 0)
+                    {
+                        contentBuilder.Append(Encoding.UTF8.GetString(bytes, 0, byteCount));
+                    }
+                } while (byteCount > 0);
+            }
+            catch (IOException) {} // Ignore, it exceeds timeout which means no more data YAY!
+
+            if (contentBuilder.Length > 0 && Status == XMPPStatus.Connected)
+            {
+                OnMessage?.Invoke(contentBuilder.ToString());
+            }
+            
+            return Task.FromResult(contentBuilder.ToString());
+        }
+
+        public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
+        {
+            await AsyncSocketWrite(SslStream, message);
+        }
+
+        public async Task InitiateRemoteXMPP(string chatHost, string affinityDomain, string accessToken, string pasToken, string entitlementToken)
+        {
+            Status = XMPPStatus.Connecting;
+
+            Status = XMPPStatus.InitiatingSslConnection;
+            TcpClient tcpClient = new(chatHost, 5223);
+            SslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
+            await SslStream.AuthenticateAsClientAsync(chatHost);
+
+            Task.Run(async () =>
+            {
+                SslStream.ReadTimeout = 500;
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketRead(SslStream);
+                }
+            });
+
+            Status = XMPPStatus.InitiatingSocketStream;
+            await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+            string incomingData;
             do
             {
-                byteCount = await sslStream.ReadAsync(bytes);
-                content = Encoding.UTF8.GetString(bytes, 0, byteCount);
-                Array.Clear(bytes);
+                incomingData = await AsyncSocketRead(SslStream);
+            } while (!incomingData.Contains("X-Riot-RSO-PAS"));
 
-                if (byteCount < bytes.Length)
-                    break;
+            Status = XMPPStatus.SendingAuthorizationTokens;
+            await AsyncSocketWrite(SslStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{accessToken}</rso_token><pas_token>{pasToken}</pas_token></auth>");
+            await AsyncSocketRead(SslStream);
 
-            } while (byteCount != 0);
-            
-            if (content.Length > 0)
-                Console.WriteLine($"Read: {content}");
+            Status = XMPPStatus.ReceivingFeatures;
+            await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+            do
+            {
+                incomingData = await AsyncSocketRead(SslStream);
+            } while (!incomingData.Contains("stream:features"));
 
-            return content;
+            Status = XMPPStatus.BindingStream;
+            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
+            await AsyncSocketRead(SslStream);
+
+            Status = XMPPStatus.BindingSession;
+            // Stage 5
+            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
+            await AsyncSocketRead(SslStream);
+
+            Status = XMPPStatus.BindingEntitlement;
+            // Stage 6
+            await AsyncSocketWrite(SslStream, $"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlementToken}</token></entitlements></iq>");
+            await AsyncSocketRead(SslStream);
+
+            Status = XMPPStatus.Connected;
+
+
+            Task.Run(async () => // Keep the stream active
+            {
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketWrite(SslStream, "");
+                    await Task.Delay(150000);
+                }
+            });
         }
 
         public async Task InitiateRemoteXMPP(Authentication.Authentication.RSOAuth auth)
         {
-            string affinityDomain = ChatAffinity[auth.ChatAffinity!];
+            Status = XMPPStatus.Connecting;
+
+            string affinityDomain = ChatAffinity[auth.Affinity!];
             string? token = auth.AccessToken;
             string? pasToken = auth.PasToken;
             string? entitlement = auth.Entitlement;
-            string chatHost = ChatUrls[auth.ChatAffinity!];
+            string chatHost = ChatUrls[auth.Affinity!];
 
-            Console.WriteLine($"Chat Affinity: {auth.ChatAffinity}\nServer Url: {chatHost}\nStream To: {affinityDomain}.pvp.net");
+            Status = XMPPStatus.InitiatingSslConnection;
+            TcpClient tcpClient = new(chatHost, 5223);
+            SslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
+            await SslStream.AuthenticateAsClientAsync(chatHost);
 
-            using TcpClient tcpClient = new(chatHost, 5223);
-            SslStream sslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
-            await sslStream.AuthenticateAsClientAsync(chatHost);
-            
-            Console.WriteLine($"Connected to {chatHost}, authenticating...");
+            Task.Run(async () =>
+            {
+                SslStream.ReadTimeout = 500;
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketRead(SslStream);
+                }
+            });
 
-            // Stage 1
-            await AsyncSocketWrite(sslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+            Status = XMPPStatus.InitiatingSocketStream;
+            await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
             string incomingData;
             do
             {
-                incomingData = await AsyncSocketRead(sslStream);
+                incomingData = await AsyncSocketRead(SslStream);
             } while (!incomingData.Contains("X-Riot-RSO-PAS"));
 
-            // Stage 2
-            await AsyncSocketWrite(sslStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{token}</rso_token><pas_token>{pasToken}</pas_token></auth>");
-            string socketData = await AsyncSocketRead(sslStream);
-            if (socketData.Contains("affinity-invalid-token")) return;
+            Status = XMPPStatus.SendingAuthorizationTokens;
+            await AsyncSocketWrite(SslStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{token}</rso_token><pas_token>{pasToken}</pas_token></auth>");
+            await AsyncSocketRead(SslStream);
 
-            // Stage 3
-            await AsyncSocketWrite(sslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+            Status = XMPPStatus.ReceivingFeatures;
+            await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
             do
             {
-                incomingData = await AsyncSocketRead(sslStream);
+                incomingData = await AsyncSocketRead(SslStream);
             } while (!incomingData.Contains("stream:features"));
 
-            // Stage 4
-            await AsyncSocketWrite(sslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
-            await AsyncSocketRead(sslStream);
+            Status = XMPPStatus.BindingStream;
+            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
+            await AsyncSocketRead(SslStream);
 
+            Status = XMPPStatus.BindingSession;
             // Stage 5
-            await AsyncSocketWrite(sslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
-            await AsyncSocketRead(sslStream);
+            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
+            await AsyncSocketRead(SslStream);
 
+            Status = XMPPStatus.BindingEntitlement;
             // Stage 6
-            await AsyncSocketWrite(sslStream, $"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>");
-            await AsyncSocketRead(sslStream);
+            await AsyncSocketWrite(SslStream, $"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>");
+            await AsyncSocketRead(SslStream);
 
-            Console.WriteLine("Connected and authenticated, now proxying data!");
+            Status = XMPPStatus.Connected;
+
+            Task.Run(async () => // Keep the stream active
+            {
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketWrite(SslStream, "");
+                    await Task.Delay(150000);
+                }
+            });
         }
 
     }
