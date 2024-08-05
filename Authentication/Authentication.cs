@@ -77,6 +77,11 @@ namespace RadiantConnect.Authentication
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
         {   
             driverSettings ??= new DriverSettings();
+
+            if (driverSettings.ProcessName == "chrome")
+                throw new RadiantConnectAuthException(
+                    "Chrome is unsupported, please use another chromium browser (edge, brave)");
+
             authHandler = new AuthHandler(driverSettings.ProcessName, driverSettings.BrowserExecutable, driverSettings.KillBrowser);
 
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();

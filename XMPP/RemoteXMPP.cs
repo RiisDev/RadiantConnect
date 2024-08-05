@@ -97,32 +97,27 @@ namespace RadiantConnect.XMPP
 
         // Super hacky way of continuous reading from the stream,
         // but it works and I apologize for the hackyness.
-        internal Task<string> AsyncSocketRead(SslStream sslStream)
+        internal async Task<string> AsyncSocketRead(SslStream sslStream)
         {
+            int byteCount;
             byte[] bytes = new byte[1024];
             StringBuilder contentBuilder = new();
 
-            try
+            do
             {
-                int byteCount;
-                do
-                {
-                    byteCount = sslStream.Read(bytes, 0, bytes.Length);
+                try { byteCount = sslStream.Read(bytes, 0, bytes.Length); }
+                catch (IOException) { break; } // Timeout Occurred, aka no data left to read
 
-                    if (byteCount > 0)
-                    {
-                        contentBuilder.Append(Encoding.UTF8.GetString(bytes, 0, byteCount));
-                    }
-                } while (byteCount > 0);
-            }
-            catch (IOException) {} // Ignore, it exceeds timeout which means no more data YAY!
+                if (byteCount > 0) contentBuilder.Append(Encoding.UTF8.GetString(bytes, 0, byteCount));
+
+            } while (byteCount > 0);
 
             if (contentBuilder.Length > 0 && Status == XMPPStatus.Connected)
             {
                 OnMessage?.Invoke(contentBuilder.ToString());
             }
             
-            return Task.FromResult(contentBuilder.ToString());
+            return contentBuilder.ToString();
         }
 
         public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
@@ -139,14 +134,7 @@ namespace RadiantConnect.XMPP
             SslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
             await SslStream.AuthenticateAsClientAsync(chatHost);
 
-            Task.Run(async () =>
-            {
-                SslStream.ReadTimeout = 500;
-                while (tcpClient.Connected)
-                {
-                    await AsyncSocketRead(SslStream);
-                }
-            });
+            SslStream.ReadTimeout = 500;
 
             Status = XMPPStatus.InitiatingSocketStream;
             await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
@@ -172,17 +160,23 @@ namespace RadiantConnect.XMPP
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.BindingSession;
-            // Stage 5
             await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.BindingEntitlement;
-            // Stage 6
             await AsyncSocketWrite(SslStream, $"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlementToken}</token></entitlements></iq>");
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.Connected;
 
+            Task.Run(async () =>
+            {
+                SslStream.ReadTimeout = 500;
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketRead(SslStream);
+                }
+            });
 
             Task.Run(async () => // Keep the stream active
             {
@@ -209,14 +203,7 @@ namespace RadiantConnect.XMPP
             SslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
             await SslStream.AuthenticateAsClientAsync(chatHost);
 
-            Task.Run(async () =>
-            {
-                SslStream.ReadTimeout = 500;
-                while (tcpClient.Connected)
-                {
-                    await AsyncSocketRead(SslStream);
-                }
-            });
+            SslStream.ReadTimeout = 500;
 
             Status = XMPPStatus.InitiatingSocketStream;
             await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
@@ -242,16 +229,22 @@ namespace RadiantConnect.XMPP
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.BindingSession;
-            // Stage 5
             await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.BindingEntitlement;
-            // Stage 6
             await AsyncSocketWrite(SslStream, $"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>");
             await AsyncSocketRead(SslStream);
 
             Status = XMPPStatus.Connected;
+
+            Task.Run(async () =>
+            {
+                while (tcpClient.Connected)
+                {
+                    await AsyncSocketRead(SslStream);
+                }
+            });
 
             Task.Run(async () => // Keep the stream active
             {
