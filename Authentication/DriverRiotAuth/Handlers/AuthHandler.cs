@@ -7,6 +7,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+// ReSharper disable AccessToDisposedClosure <--- It's handled in DriverHandler
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -70,6 +71,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
             finally
             {
+                Socket.Abort();
                 Socket.Dispose();
                 WebDriver.Kill(true);
             }

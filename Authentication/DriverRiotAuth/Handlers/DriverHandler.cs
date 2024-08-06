@@ -70,15 +70,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             PendingRequests.Remove(id);
         }
 
-        internal static async Task ListenAsync(ClientWebSocket socket)
+        internal static async Task ListenAsync(ClientWebSocket? socket)
         {
             byte[] buffer = new byte[8192];
 
-            while (socket.State == WebSocketState.Open)
+            while (socket is not null && socket.State == WebSocketState.Open)
             {
                 using MemoryStream memoryStream = new();
                 WebSocketReceiveResult result;
-
                 do
                 {
                     result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
