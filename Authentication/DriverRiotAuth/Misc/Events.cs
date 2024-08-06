@@ -1,0 +1,15 @@
+﻿
+using static RadiantConnect.Authentication.Authentication;
+
+namespace RadiantConnect.Authentication.DriverRiotAuth.Misc
+{
+    public static class Events
+    {
+        internal delegate void FrameChangedEvent(string? url, string frameId);
+
+        public delegate void MultiFactorEvent();
+
+        public delegate void DriverEvent(DriverStatus status);
+
+    }
+}
