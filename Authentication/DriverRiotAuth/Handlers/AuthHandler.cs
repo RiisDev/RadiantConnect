@@ -4,6 +4,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.WebSockets;
 using System.Text;
+using System.Text.Json;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
@@ -13,7 +14,7 @@ using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-    internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser)
+    internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies)
     {
         // Expression Methods
         internal void Log(Authentication.DriverStatus status) => OnDriverUpdate?.Invoke(status);
@@ -24,6 +25,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         public event Events.DriverEvent? OnDriverUpdate;
 
         // Internal Variables
+        internal bool CookiesValid;
         internal int DriverPort { get; } = Win32.GetFreePort();
         internal Random ActionIdGenerator { get; } = new();
         internal SocketHandler SocketHandler = null!;
@@ -85,9 +87,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverHandler.OnFrameNavigation += (url, frame) => { if (url == "https://account.riotgames.com/") navId = frame; };
             DriverHandler.OnFrameLoaded += (_, frame) => { if (frame == navId) navComplete = true; };
 
-            bool cookiesValid = await CheckCookieCache(username);
+            CookiesValid = await CheckCookieCache(username);
 
-            if (cookiesValid) goto Complete;
+            if (CookiesValid) goto Complete;
 
             Log(Authentication.DriverStatus.Clearing_Cached_Auth);
             await SocketHandler.ClearCookies();
@@ -136,10 +138,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Log(Authentication.DriverStatus.Multi_Factor_Completed);
         }
-
+        
         internal async Task<(IEnumerable<Records.Cookie>?, string)> GetAccessTokenRedirect(bool killClient = true)
         {
-            if (killClient)
+            if (killClient && !CookiesValid)
                 await DriverHandler.WaitForPage("Riot Account Management", DriverPort, Socket, 999999);
 
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("Riot Account Management");
@@ -152,6 +154,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             if (!redirectRequest.Contains("access_token"))
                 throw new RadiantConnectAuthException("Failed to get valorant auth");
 
+            if (cacheCookies)
+            {
+                Directory.CreateDirectory($@"{Path.GetTempPath()}\RadiantConnect\");
+                await File.WriteAllTextAsync($@"{ Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
+            }
+
             return (getCookies?.Result.Cookies, ParseAccessToken(redirectRequest));
         }
 
@@ -159,6 +167,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         {
             try
             {
+                if (!cacheCookies) return false;
+                await SocketHandler.SetCookieCacheAsync();
+
                 Log(Authentication.DriverStatus.Checking_Cached_Auth);
                 (_, string accessToken) = await GetAccessTokenRedirect(false);
 

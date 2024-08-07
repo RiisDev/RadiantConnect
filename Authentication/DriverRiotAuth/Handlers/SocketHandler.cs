@@ -143,6 +143,37 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             return JsonSerializer.Deserialize<CookieRoot>(cookieData!);
         }
 
+        internal async Task SetCookieCacheAsync()
+        {
+            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
+            if (!File.Exists(cacheFile)) return;
+
+            CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
+
+            IReadOnlyList<Cookie>? cookiesData = cookieRoot?.Result.Cookies;
+
+            List<object> cookieActual = [];
+            cookieActual.AddRange(cookiesData!.Select(cookie => new Dictionary<string, object>()
+            {
+                { "name", cookie.Name },
+                { "value", cookie.Value },
+                { "domain", cookie.Domain },
+                { "path", cookie.Path },
+                { "expires", cookie.Expires },
+                { "httpOnly", cookie.HttpOnly },
+                { "secure", cookie.Secure }
+            }));
+            
+            Dictionary<string, object> setCookiesRequest = new()
+            {
+                { "id", ActionIdGenerator.Next() },
+                { "method", "Network.setCookies" },
+                { "params", new { cookies = cookieActual } }
+            };
+
+            await Socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(setCookiesRequest))), WebSocketMessageType.Text, true, CancellationToken.None);
+        }
+
         internal async Task ClearCookies()
         {
             Dictionary<string, string> riotCookies = new()

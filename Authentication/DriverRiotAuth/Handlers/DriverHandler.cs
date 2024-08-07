@@ -143,7 +143,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Debug.WriteLine($"Debug: http://localhost:{port}/json");
 
-            //Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
+            Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill();
 
             string? socketUrl = await WaitForPage("Google", port, null, 999999, true);

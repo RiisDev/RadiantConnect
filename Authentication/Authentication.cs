@@ -1,9 +1,10 @@
-﻿using System.Diagnostics;
+﻿using System.Text.Json;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
+// ReSharper disable StringLiteralTypo
 // ReSharper disable IdentifierTypo
 // ReSharper disable InconsistentNaming
 
@@ -59,7 +60,8 @@ namespace RadiantConnect.Authentication
             authHandler = new AuthHandler(
                 driverSettings.ProcessName,
                 driverSettings.BrowserExecutable,
-                driverSettings.KillBrowser
+                driverSettings.KillBrowser,
+                driverSettings.CacheCookies
             );
 
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
@@ -86,10 +88,17 @@ namespace RadiantConnect.Authentication
             JsonWebToken jwt = new (pasToken);
             string? affinity = jwt.GetPayloadValue<string>("affinity");
             string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
-
-            Debug.WriteLine(userInfo);
             
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, idToken, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig);
+            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, idToken, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, cookies);
+        }
+
+        public async Task<string?> GetSsidFromDriverCache()
+        {
+            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
+            if (!File.Exists(cacheFile)) return null;
+            CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
+            IReadOnlyList<Cookie>? cookiesData = cookieRoot?.Result.Cookies;
+            return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
         }
 
         public async Task Logout() => await authHandler.Logout();

@@ -1,10 +1,15 @@
 ﻿using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Headers;
+using System.Net.Http.Json;
+using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
+using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Methods;
 using RadiantConnect.Services;
+using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 
 namespace RadiantConnect.Network
 {
@@ -19,9 +24,26 @@ namespace RadiantConnect.Network
 
     public record UserAuth(int AuthorizationPort, string OAuth);
 
+    internal record HttpClientCookie(
+        [property: JsonPropertyName("Comment")] string Comment,
+        [property: JsonPropertyName("CommentUri")] object CommentUri,
+        [property: JsonPropertyName("HttpOnly")] bool? HttpOnly,
+        [property: JsonPropertyName("Discard")] bool? Discard,
+        [property: JsonPropertyName("Domain")] string Domain,
+        [property: JsonPropertyName("Expired")] bool? Expired,
+        [property: JsonPropertyName("Expires")] DateTime? Expires,
+        [property: JsonPropertyName("Name")] string Name,
+        [property: JsonPropertyName("Path")] string Path,
+        [property: JsonPropertyName("Port")] string Port,
+        [property: JsonPropertyName("Secure")] bool? Secure,
+        [property: JsonPropertyName("TimeStamp")] DateTime? TimeStamp,
+        [property: JsonPropertyName("Value")] string Value,
+        [property: JsonPropertyName("Version")] int? Version
+    );
+
     public class ValorantNet
     {
-        public SuppliedAuth? SuppliedAuth { get; set; }
+        public RadiantConnectRSO? SuppliedAuth { get; set; }
 
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
@@ -49,7 +71,7 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService? valorantClient = null, SuppliedAuth? suppliedAuth = null)
+        public ValorantNet(ValorantService? valorantClient = null, RadiantConnectRSO? suppliedAuth = null)
         {
             SuppliedAuth = suppliedAuth;
             Client.Timeout = TimeSpan.FromSeconds(10);
@@ -82,9 +104,70 @@ namespace RadiantConnect.Network
             return new UserAuth(authPort, oAuth);
         }
 
+        internal readonly Regex AccessTokenRegex = new("access_token=(.*?)&scope", RegexOptions.Compiled);
+        internal string ParseAccessToken(string accessToken)
+        {
+            return AccessTokenRegex.Match(accessToken).Groups[1].Value;
+        }
+
+        internal async Task<(string, string)> GetTokensFromSsid()
+        {
+            CookieContainer container = new();
+            using HttpClient httpClient = new(new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
+                AllowAutoRedirect = true,
+                CookieContainer = container
+            });
+
+            container.Add(new System.Net.Cookie("ssid", SuppliedAuth?.SSID, "/", "auth.riotgames.com"));
+
+            HttpResponseMessage response = await httpClient.GetAsync("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
+            string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
+
+            if (string.IsNullOrEmpty(redirectRequest))
+                throw new RadiantConnectAuthException("Failed to redirect to Valorant RSO");
+            if (!redirectRequest.Contains("access_token"))
+                throw new RadiantConnectAuthException("Failed to get Valorant RSO (Access_Token)");
+
+            string accessToken = ParseAccessToken(redirectRequest);
+
+            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {accessToken}");
+            response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
+            string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
+
+            
+            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
+
+            if (File.Exists(cacheFile))
+            {
+                CookieCollection clientCookies = container.GetCookies(new Uri("https://auth.riotgames.com"));
+
+                List<HttpClientCookie>? cookeRoots = JsonSerializer.Deserialize<List<HttpClientCookie>>(JsonSerializer.Serialize(clientCookies));
+                CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
+
+                List<Cookie>? cookies = cookieRoot?.Result.Cookies.ToList();
+
+                foreach (HttpClientCookie cookie in cookeRoots!)
+                {
+                    if (cookies!.All(x => x.Name != cookie.Name)) continue;
+
+                    Cookie newCookie = cookies!.First(x => x.Name == cookie.Name);
+                    cookies![cookies.IndexOf(newCookie)] = newCookie with { Value = cookie.Value };
+                }
+
+                CookieRoot newCookieRoot = cookieRoot! with { Result = new Result(cookies!) };
+
+                await File.WriteAllTextAsync(cacheFile, JsonSerializer.Serialize(newCookieRoot));
+            }
+
+
+            return (accessToken, entitlementToken);
+        }
+
         internal async Task<(string, string)> GetAuthorizationToken()
         {
-            if (SuppliedAuth is not null) return (SuppliedAuth.JsonWebToken, SuppliedAuth.Authorization);
+            if (SuppliedAuth is not null) return await GetTokensFromSsid();
 
             UserAuth? auth = GetAuth();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
@@ -137,7 +220,7 @@ namespace RadiantConnect.Network
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
             try
             {
-                while (InternalValorantMethods.IsValorantProcessRunning())
+                while (InternalValorantMethods.IsValorantProcessRunning() || SuppliedAuth is not null)
                 {
                     if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
                         await SetBasicAuth();

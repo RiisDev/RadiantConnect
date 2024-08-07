@@ -6,9 +6,8 @@
 
 ## Credits
 
-### Huge Credits to these two repo's for making most of the advanced features!
+### Huge Credits molenzwiebel for his Deceive code, helping make MITM Connection
 * XMPP MITM Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
-* RiotAuth Integration Modified but still heavy base (basically ctrl c, v): @aPinat | [RiotAuth](https://github.com/aPinat/RiotAuth)
 
 * Get Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
 * Riot API Documentaiton: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)

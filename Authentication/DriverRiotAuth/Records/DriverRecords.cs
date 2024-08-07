@@ -3,7 +3,7 @@
 namespace RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 
-internal record Cookie(
+public record Cookie(
     [property: JsonPropertyName("name")] string Name,
     [property: JsonPropertyName("value")] string Value,
     [property: JsonPropertyName("domain")] string Domain,
@@ -21,7 +21,7 @@ internal record Cookie(
     [property: JsonPropertyName("partitionKey")] PartitionKey PartitionKey
 );
 
-internal record PartitionKey(
+public record PartitionKey(
     [property: JsonPropertyName("topLevelSite")] string TopLevelSite,
     [property: JsonPropertyName("hasCrossSiteAncestor")] bool? HasCrossSiteAncestor
 );

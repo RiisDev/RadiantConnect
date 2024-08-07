@@ -11,6 +11,7 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
+using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect
 {
@@ -49,9 +50,9 @@ namespace RadiantConnect
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
 
-        public Initiator(bool ignoreVpn = true, SuppliedAuth? suppliedAuth = null)
+        public Initiator(bool ignoreVpn = true, RadiantConnectRSO? suppliedAuth = null)
         {
-            while (!ClientIsReady())
+            while (!ClientIsReady() && suppliedAuth == null)
             {
                 Debug.WriteLine("[INITIATOR] Waiting For Client...");
                 Task.Delay(2000);
