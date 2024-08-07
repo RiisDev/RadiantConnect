@@ -1,7 +1,7 @@
 # Pregame Methods
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 ## FetchPreGamePlayerAsync
 This API endpoint is used to retrieve details of a pre-game player associated with a specific user.

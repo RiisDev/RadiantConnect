@@ -15,10 +15,15 @@ dotnet add package RadiantConnect
 ## Step 2: Initialize RadiantConnect
 
 Initialize the RadiantConnect library by creating an instance of the `Initiator` class.
+Note: You can provide your own SSID for remote authentication
 
 ```csharp
 // Initialize RadiantConnect
 Initiator Init = new Initiator();
+
+// If you're using your own credentials
+string ssid = "yourSsid";
+Initiator Init = new Init(suppliedAuth: new RadiantConnectRSO(ssid))
 ```
 
 ## Step 3: Hook Desired Events
@@ -28,15 +33,15 @@ Hook into the events related to the game queue to respond to various states.
 ```csharp
 // Hook into Queue events
 Init.GameEvents.Queue.OnEnteredQueue += _ => {
-    Debug.WriteLine("Queue Entered");
+	Debug.WriteLine("Queue Entered");
 };
 
 Init.GameEvents.Queue.OnLeftQueue += _ => {
-    Debug.WriteLine("Queue Left");
+	Debug.WriteLine("Queue Left");
 };
 
 Init.GameEvents.Queue.OnQueueChanged += queueChangeType => {
-    Debug.WriteLine($"Queue Changed to: {queueChangeType}");
+	Debug.WriteLine($"Queue Changed to: {queueChangeType}");
 };
 ```
 

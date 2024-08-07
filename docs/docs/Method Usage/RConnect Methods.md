@@ -1,7 +1,7 @@
 # RConnect Methods Methods
 
 !!! Info 
-    This is **Unofficial** and a fan-made project. Do not ask Riot or Valorant for support.
+	This is **Unofficial** and a fan-made project. Do not ask Riot or Valorant for support.
 
 
 ## GetRiotIdByPuuidAsync
@@ -38,7 +38,7 @@ Task<string?> GetPuuidByNameAsync(string gameName, string tagLine)
 
 
 !!! Info 
-    This is currently broken as of 05/08/2024
+	This is currently broken as of 05/08/2024
 
 ## GetPeakValorantRankAsync
 This API endpoint is used to retrieve the peak valorant rank

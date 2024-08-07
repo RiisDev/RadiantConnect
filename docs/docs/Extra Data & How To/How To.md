@@ -1,7 +1,7 @@
 # How To
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 
 ## How to get local PUUID
@@ -16,12 +16,12 @@ string clientId = init.Client.UserId;
 ```C#
 public enum HttpMethod
 {
-    Get,
-    Post, 
-    Put, 
-    Delete,
-    Patch,
-    Options,
-    Head
+	Get,
+	Post, 
+	Put, 
+	Delete,
+	Patch,
+	Options,
+	Head
 }
 ```

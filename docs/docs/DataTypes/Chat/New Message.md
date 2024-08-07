@@ -35,8 +35,8 @@ The `ChatType` enum represents the type of chat associated with a new message.
 // Example Usage:
 var newMessage = new NewMessage
 {
-    ConversationId = "123",
-    Message = "Hello, world!",
-    ChatType = ChatType.chat.ToString()
+	ConversationId = "123",
+	Message = "Hello, world!",
+	ChatType = ChatType.chat.ToString()
 };
 ```

@@ -1,10 +1,10 @@
 # Queue Events
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 !!! danger
-    Some queues aren't named as they appear on the UI. Example: Team Deathmatch = ggteam.
+	Some queues aren't named as they appear on the UI. Example: Team Deathmatch = ggteam.
 
 ## OnQueueChanged
 This event is fired when you change queue types.
@@ -15,7 +15,7 @@ string OnQueueChanged;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `string`(Queue Id, Competitive, Unrated)               | `Competitive`  |
+| `string`(Queue Id, Competitive, Unrated)			   | `Competitive`  |
 
 
 ## OnEnteredQueue
@@ -27,7 +27,7 @@ string OnEnteredQueue;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `string`(Queue Id, Competitive, Unrated)               | `Competitive`  |
+| `string`(Queue Id, Competitive, Unrated)			   | `Competitive`  |
 
 
 ## OnLeftQueue
@@ -39,7 +39,7 @@ string OnLeftQueue;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `string`(Queue Id, Competitive, Unrated)               | `Competitive`  |
+| `string`(Queue Id, Competitive, Unrated)			   | `Competitive`  |
 
 
 ## OnCustomGameLobbyCreated 
@@ -51,7 +51,7 @@ CustomGameData OnCustomGameLobbyCreated;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `CustomGameData`       | A record class of the custom game data. |
+| `CustomGameData`	   | A record class of the custom game data. |
 
 
 ## OnTravelToMenu 
@@ -63,7 +63,7 @@ void OnCustomGameLobbyCreated;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 
 ## OnMatchFound 
@@ -75,4 +75,4 @@ void OnMatchFound;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |

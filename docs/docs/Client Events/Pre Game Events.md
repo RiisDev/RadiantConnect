@@ -1,7 +1,7 @@
 # Pre-Game Events
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 ## OnPreGamePlayerLoaded
 This event is fired when the user has entered agent select.
@@ -48,4 +48,4 @@ string OnAgentSelected;
 | `string`(Agent Name) | `Jett`  |
 
 !!! danger
-    If the client is selecting different agents quite fast, it may not fire event.
+	If the client is selecting different agents quite fast, it may not fire event.

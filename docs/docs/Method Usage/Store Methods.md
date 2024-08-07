@@ -1,7 +1,7 @@
 # Store Methods
 
 !!! Info 
-    This is **Unofficial** and a fan-made project. Do not ask Riot or Valorant for support.
+	This is **Unofficial** and a fan-made project. Do not ask Riot or Valorant for support.
 
 ## FetchStorefrontAsync
 This API endpoint is used to retrieve the details of a storefront associated with a specific user.

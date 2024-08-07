@@ -1,10 +1,10 @@
 # Local Riot Client Methods
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 !!! Info
-    Find available additional endpoints @ https://irisapp.ca/RadiantConnect/OpenAPI/
+	Find available additional endpoints @ https://irisapp.ca/RadiantConnect/OpenAPI/
 
 ## GetHelpAsync
 This API endpoint is used to get general help information.

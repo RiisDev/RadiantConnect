@@ -1,7 +1,7 @@
 # Menu Events
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 ## OnBattlePassView 
 N/A
@@ -12,7 +12,7 @@ void OnBattlePassView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnAgentsView 
 N/A
@@ -23,7 +23,7 @@ void OnAgentsView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnCareerView 
 N/A
@@ -34,7 +34,7 @@ void OnCareerView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnPlayScreen 
 N/A
@@ -45,7 +45,7 @@ void OnPlayScreen;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnEsportView 
 N/A
@@ -56,7 +56,7 @@ void OnEsportView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnCollectionView 
 N/A
@@ -67,7 +67,7 @@ void OnCollectionView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnStoreView 
 N/A
@@ -78,7 +78,7 @@ void OnStoreView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |
 
 ## OnPremierView 
 N/A
@@ -89,4 +89,4 @@ void OnPremierView;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `null`       | Does not return anything |
+| `null`	   | Does not return anything |

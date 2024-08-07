@@ -1,7 +1,7 @@
 # In-Game Methods
 
 !!! Info 
-    This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
+	This is an **Unofficial** and fan-made project. Please refrain from seeking support from Riot or Valorant.
 
 ## OnBuyMenuOpened
 
@@ -13,7 +13,7 @@ int OnBuyMenuOpened;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `int`                  | `1` (TRUE)               |
+| `int`				  | `1` (TRUE)			   |
 
 ## OnBuyMenuClosed
 
@@ -25,7 +25,7 @@ int OnBuyMenuClosed;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `int`                  | `0` (FALSE)              |
+| `int`				  | `0` (FALSE)			  |
 
 ## OnUtilPlaced (Unused)
 
@@ -37,4 +37,4 @@ string OnUtilPlaced;
 
 | **Event Return Type** | **Example Return Value** |
 |------------------------|--------------------------|
-| `string` (Actor ID)              | `Pawn_Killjoy_Q_StealthAlarmbot_C_2147405434`                 |
+| `string` (Actor ID)			  | `Pawn_Killjoy_Q_StealthAlarmbot_C_2147405434`				 |

@@ -1,7 +1,7 @@
 # Val Socket Setup Guide
 
 !! danger
-    The socket does not have any datatypes built in, it returns the json data that valorant intended you must parse by yourself!
+	The socket does not have any datatypes built in, it returns the json data that valorant intended you must parse by yourself!
 
 ## Step 1: Initialize RadiantConnect 
 
@@ -34,7 +34,7 @@ This is where you'll receive the messages
 ```csharp
 socket.OnNewMessage += (data) =>
 {
-    Debug.WriteLine($"Socket Message: {data}");
+	Debug.WriteLine($"Socket Message: {data}");
 };
 ```
 
@@ -48,6 +48,6 @@ ValSocket socket = new(ValorantNet.GetAuth()!, init);
 socket.InitializeConnection();
 socket.OnNewMessage += (data) =>
 {
-    Debug.WriteLine($"Socket Message: {data}");
+	Debug.WriteLine($"Socket Message: {data}");
 };
 ```
