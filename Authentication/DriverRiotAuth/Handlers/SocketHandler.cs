@@ -34,7 +34,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
         }
 
-        internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket)
+        internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)
         {
             Dictionary<string, object> dataToSend = new()
             {
@@ -46,7 +46,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
 
-            await DriverHandler.WaitForPage(pageTitle, port, socket, 999999);
+            if (waitForPage)
+                await DriverHandler.WaitForPage(pageTitle, port, socket, 999999);
         }
 
         internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, ClientWebSocket socket, bool output = false, bool skipCheck = false)

@@ -1,6 +1,6 @@
 # XMPP Remote Setup Guide
 
-!! danger
+!!! Danger 
 	The socket does not have any datatypes built in, it returns raw XML data from the socket
 
 ## Step 1: Initialize Auth Records

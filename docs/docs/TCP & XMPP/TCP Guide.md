@@ -1,6 +1,6 @@
 # Val Socket Setup Guide
 
-!! danger
+!!! Danger 
 	The socket does not have any datatypes built in, it returns the json data that valorant intended you must parse by yourself!
 
 ## Step 1: Initialize RadiantConnect 

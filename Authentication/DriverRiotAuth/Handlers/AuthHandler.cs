@@ -24,8 +24,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         public event Events.DriverEvent? OnDriverUpdate;
 
-        // Internal Variables
-        internal bool CookiesValid;
         internal int DriverPort { get; } = Win32.GetFreePort();
         internal Random ActionIdGenerator { get; } = new();
         internal SocketHandler SocketHandler = null!;
@@ -55,9 +53,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
             SocketHandler = new SocketHandler(Socket, this, DriverPort);
 
-            await SocketHandler.InitiatePageEvents(Socket);
-
             Task.Run(() => DriverHandler.ListenAsync(Socket));
+
+            await SocketHandler.InitiatePageEvents(Socket);
 
             Log(Authentication.DriverStatus.Driver_Created);
 
@@ -79,38 +77,66 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
         }
 
+        internal readonly Dictionary<string, string> RiotUrls = new()
+        {
+            {"AccessToken", "https://playvalorant.com/en-us/opt_in/#access_token=" },
+            {"LoginUrl", "https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id"},
+            {"SignInDetected", "https://authenticate.riotgames.com/?client_id=play-valorant-web-prod&method=riot_identity&platform=web&redirect_uri=https%3A%2F%2Fauth.riotgames.com%2Fauthorize%3Fclient_id%3Dplay-valorant-web-prod%26nonce%3D1%26redirect_uri%3Dhttps%253A%252F%252Fplayvalorant.com%252Fopt_in%26response_type%3Dtoken%2520id_token%26scope%3Daccount%2520email%2520profile%2520openid%2520link%2520lol_region%2520id"}
+        };
+
         internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> PerformSignInAsync(string username, string password)
         {
             bool navComplete = false;
+            bool signInRequired = false;
             string navId = string.Empty;
+            DriverHandler.OnDocumentNavigate += (url, _) =>
+            {
+                if (url is null) return;
 
-            DriverHandler.OnFrameNavigation += (url, frame) => { if (url == "https://account.riotgames.com/") navId = frame; };
+                if (url.Contains(RiotUrls["AccessToken"]))
+                {
+                    navComplete = true;
+                }
+                else if (url == RiotUrls["SignInDetected"])
+                {
+                    signInRequired = true;
+                }
+            };
+            DriverHandler.OnFrameNavigation += (url, frame) => { if (url == RiotUrls["SignInDetected"]) signInRequired = true; navId = frame; };
             DriverHandler.OnFrameLoaded += (_, frame) => { if (frame == navId) navComplete = true; };
 
-            CookiesValid = await CheckCookieCache(username);
+            bool reloadCookies = await CheckCookieCache(username);
 
-            if (CookiesValid) goto Complete;
+            if (reloadCookies)
+                await SocketHandler.ClearCookies();
 
-            Log(Authentication.DriverStatus.Clearing_Cached_Auth);
-            await SocketHandler.ClearCookies();
-
-            Log(Authentication.DriverStatus.Redirecting_To_RSO);
-            await SocketHandler.NavigateTo("https://account.riotgames.com/", "Sign in", DriverPort, Socket);
-
-            Log(Authentication.DriverStatus.Checking_RSO_Login_Page);
-            if (await SocketHandler.IsLoginPageDetectedAsync()) await SocketHandler.SendLoginDataAsync(username, password);
-
-            Log(Authentication.DriverStatus.Checking_RSO_Multi_Factor);
-            if (await SocketHandler.IsMfaRequiredAsync()) await HandleMfaAsync();
+            Log(Authentication.DriverStatus.Logging_Into_Valorant);
+            await SocketHandler.NavigateTo(RiotUrls["LoginUrl"], "VALORANT_RSO", DriverPort, Socket, false);
 
             while (!navComplete) await Task.Delay(100);
 
-            Complete:
-            Log(Authentication.DriverStatus.Logging_Into_Valorant);
-            (IEnumerable<Records.Cookie>? cookies, string accessToken) = await GetAccessTokenRedirect();
+            navComplete = false;
+            
+            if (signInRequired)
+            {
+                Log(Authentication.DriverStatus.Checking_RSO_Login_Page);
+                if (await SocketHandler.IsLoginPageDetectedAsync()) await SocketHandler.SendLoginDataAsync(username, password);
+
+                Log(Authentication.DriverStatus.Checking_RSO_Multi_Factor);
+                if (await SocketHandler.IsMfaRequiredAsync()) await HandleMfaAsync();
+
+                while (!navComplete) await Task.Delay(100);
+            }
+
+            string? data = await DriverHandler.GetPageUrl(DriverPort);
+
+            if (string.IsNullOrEmpty(data)) throw new RadiantConnectAuthException("Failed to get access token");
+
+            Log(Authentication.DriverStatus.Grabbing_Required_Tokens);
+            (IEnumerable<Records.Cookie>? cookies, string accessToken) = await GetAccessTokenRedirect(data);
 
             Log(Authentication.DriverStatus.SignIn_Completed);
-            return await CheckCookieStatusAsync(accessToken, cookies!);
+            return await GetRSOUserData(accessToken, cookies!);
         }
 
         // This isn't in 'SocketHandler' due to MFA properties
@@ -139,20 +165,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Log(Authentication.DriverStatus.Multi_Factor_Completed);
         }
         
-        internal async Task<(IEnumerable<Records.Cookie>?, string)> GetAccessTokenRedirect(bool killClient = true)
+        internal async Task<(IEnumerable<Records.Cookie>?, string)> GetAccessTokenRedirect(string accessToken)
         {
-            if (killClient && !CookiesValid)
-                await DriverHandler.WaitForPage("Riot Account Management", DriverPort, Socket, 999999);
-
-            CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("Riot Account Management");
-            HttpResponseMessage response = await PerformCookieRequest("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
-
-            string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
-
-            if (string.IsNullOrEmpty(redirectRequest))
-                throw new RadiantConnectAuthException("Failed to redirect to Valorant RSO");
-            if (!redirectRequest.Contains("access_token"))
-                throw new RadiantConnectAuthException("Failed to get valorant auth");
+            CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
             if (cacheCookies)
             {
@@ -160,7 +175,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await File.WriteAllTextAsync($@"{ Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
             }
 
-            return (getCookies?.Result.Cookies, ParseAccessToken(redirectRequest));
+            return (getCookies?.Result.Cookies, ParseAccessToken(accessToken));
         }
 
         internal async Task<bool> CheckCookieCache(string username)
@@ -171,29 +186,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await SocketHandler.SetCookieCacheAsync();
 
                 Log(Authentication.DriverStatus.Checking_Cached_Auth);
-                (_, string accessToken) = await GetAccessTokenRedirect(false);
+                HttpResponseMessage response = await PerformCookieRequest(RiotUrls["LoginUrl"]);
+                string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
 
-                HttpResponseMessage response = await PerformCookieRequest("https://account.riotgames.com/api/account/v1/user");
-                UserInfo? userInfoData = await response.Content.ReadFromJsonAsync<UserInfo>();
-
-                if (userInfoData == null || string.IsNullOrEmpty(accessToken))
-                {
-                    return false;
-                }
-
-                Log(Authentication.DriverStatus.Checking_Auth_Validity);
-                string loggedUser = userInfoData.Username;
-                string modifiedUser = loggedUser.Replace("*", "");
-                string modifiedLocalUser = $"{username[..2]}{username[^2..]}";
-
-                if (loggedUser.Length != username.Length || modifiedUser != modifiedLocalUser)
-                {
-                    return false;
-                }
-
-                (string pasToken, string entitlementToken, _, string userInfo) = await GetTokens(accessToken);
-
-                return !string.IsNullOrEmpty(pasToken) && !string.IsNullOrEmpty(entitlementToken) && !string.IsNullOrEmpty(userInfo);
+                return !string.IsNullOrEmpty(redirectRequest) && redirectRequest.Contains("access_token");
             }
             catch
             {
@@ -201,7 +197,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
         }
 
-        internal async Task<HttpResponseMessage> PerformCookieRequest(string url)
+        internal async Task<HttpResponseMessage> PerformCookieRequest(string url, AuthenticationHeaderValue? authentication = null)
         {
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
@@ -216,10 +212,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 CookieContainer = clientCookies
             });
 
+            if (authentication != null)
+                httpClient.DefaultRequestHeaders.Authorization = authentication;
+
             return await httpClient.GetAsync(url);
         }
 
-        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> CheckCookieStatusAsync(string accessToken, IEnumerable<Records.Cookie> riotCookies)
+        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> GetRSOUserData(string accessToken, IEnumerable<Records.Cookie> riotCookies)
         {
             (string pasToken, string entitlementToken, object clientConfig, string userInfo) = await GetTokens(accessToken);
             Log(Authentication.DriverStatus.Cookies_Received);

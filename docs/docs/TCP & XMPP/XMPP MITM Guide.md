@@ -1,8 +1,8 @@
 # XMPP MITM Setup Guide
 
-!! danger
+!!! Danger 
 	The socket does not have any datatypes built in, it returns the xmpp data that valorant intended you must parse by yourself!
-!! danger
+!!! Danger 
 	This setup uses MITM (Man In The Middle) all riot services will need to be closed before running, if your software closes before riot your chat services will be offline until you restart your Riot Clients
 
 ## Step 1: Initialize RadiantConnect 

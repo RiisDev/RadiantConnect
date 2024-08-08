@@ -1,6 +1,6 @@
 # Image Recognition *Beta*
 
-!! danger
+!!! Danger 
 	This is still experimental and needs testings and fixes
 
 ## This will be rewritten but here is a sample codeblock

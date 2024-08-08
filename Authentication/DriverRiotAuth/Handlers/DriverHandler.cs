@@ -1,6 +1,9 @@
 ﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
+using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.WebSockets;
+using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -18,8 +21,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal static event FrameChangedEvent? OnFrameNavigation;
         internal static event FrameChangedEvent? OnFrameLoaded;
+        internal static event FrameChangedEvent? OnDocumentNavigate;
 
         internal static readonly Regex FrameNavigatedRegex = new("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
+        internal static readonly Regex NavigatedWithinDocument = new("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex FrameStoppedLoadingRegex = new("\"frameId\":\"([^\"]+)\"", RegexOptions.Compiled);
 
         internal static void DoDriverCheck(string browserProcess, string browserExecutable, bool killBrowser)
@@ -49,6 +54,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                     match = FrameStoppedLoadingRegex.Match(message);
                     if (match.Success)
                         OnFrameLoaded?.Invoke(null, match.Groups[1].Value);
+                    break;
+                case var _ when message.Contains("navigatedWithinDocument"):
+                    match = NavigatedWithinDocument.Match(message);
+                    if (match.Success)
+                        OnDocumentNavigate?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
                     break;
             }
 
@@ -99,9 +109,20 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 retries++;
                 List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
 
-                if (debugResponse is null) continue;
-                if (debugResponse.Count == 0) continue;
-                if (!debugResponse.Any(x => x.Title.Contains(title))) continue;
+                switch (debugResponse)
+                {
+                    case null:
+                        continue;
+                    case var _ when debugResponse.Count == 0:
+                        continue;
+                    case var _ when title == "VALORANT_RSO" && debugResponse.Any(x => x.Title == "Sign in" || x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token=")):
+                        break;
+                    case var _ when title == "Verification Required" && debugResponse.Any(x => x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token=")):
+                        break;
+                    case var _ when !debugResponse.Any(x => x.Title.Contains(title)):
+                        continue;
+                }
+
                 if (needsReturn) foundSocket = debugResponse.First(x => x.Title.Contains(title)).WebSocketDebuggerUrl;
 
                 break;
@@ -109,6 +130,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             } while (retries <= maxRetries);
 
             return foundSocket;
+        }
+
+        internal static async Task<string?> GetPageUrl(int port)
+        {
+            using HttpClient httpClient = new();
+            List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
+            return debugResponse?.FirstOrDefault(x=> x.Type == "page")?.Url;
         }
 
         internal static async Task<bool> PageExists(string pageTitle, int port)
@@ -122,6 +150,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
                 if (debugResponse is null) continue;
                 if (debugResponse.Count == 0) continue;
+                if (pageTitle == "ACCESS_TOKEN_AUTH" && debugResponse.Any(x => x.Title.Contains("#access_token="))) break;
                 if (debugResponse.Any(x => x.Title.Contains(pageTitle))) break;
             } while (retries <= 150);
 
@@ -143,7 +172,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Debug.WriteLine($"Debug: http://localhost:{port}/json");
 
-            Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
+            //Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill();
 
             string? socketUrl = await WaitForPage("Google", port, null, 999999, true);

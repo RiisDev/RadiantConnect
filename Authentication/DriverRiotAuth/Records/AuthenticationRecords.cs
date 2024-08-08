@@ -20,7 +20,6 @@ public record RSOAuth(
     string? TDID,
     string? CSID,
     string? CLID,
-    string? IdToken,
     string? AccessToken,
     string? PasToken,
     string? Entitlement,
