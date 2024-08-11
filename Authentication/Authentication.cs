@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.IdentityModel.JsonWebTokens;
+using RadiantConnect.Authentication.CaptchaRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
@@ -34,7 +35,11 @@ namespace RadiantConnect.Authentication
             Cookies_Received
         }
 
-        public enum CaptchaService;
+        public enum CaptchaService
+        {
+            SuperMemory,
+            CaptchaSolverNet
+        };
         
         public event Events.MultiFactorEvent? OnMultiFactorRequested;
 
@@ -48,7 +53,24 @@ namespace RadiantConnect.Authentication
 
         internal AuthHandler authHandler = null!;
 
-        public Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization) => throw new NotImplementedException();
+        public async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
+        {
+#if DEBUG
+            switch (service)
+            {
+                case CaptchaService.SuperMemory | CaptchaService.CaptchaSolverNet:
+                    SuperMemory superMemory = new(captchaAuthorization);
+                    RSOAuth? rsoData = await superMemory.BeginSignIn(username, password);
+                    superMemory.Dispose();
+                    return rsoData;
+                default:
+                    throw new NotImplementedException();
+            }
+#else
+
+            throw new NotImplementedException();
+#endif
+        }
 
         private readonly string[] UnSupportedBrowsers = ["chrome", "firefox"];
 
