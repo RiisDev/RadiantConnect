@@ -23,17 +23,55 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         #region StaticHandlers
 
-        internal static async Task InitiatePageEvents(ClientWebSocket socket)
+        internal static async Task InitiateRuntimeHandles(ClientWebSocket socket)
         {
-            Dictionary<string, object> dataToSend = new()
+            int eventPassed = -1;
+            DriverHandler.OnRuntimeChanged += () => eventPassed++;
+
+            Random hookRandomizer = new ((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            List<Dictionary<string, object>> eventList =
+            [
+                new Dictionary<string, object>
+                {
+                    { "id", hookRandomizer.Next() },
+                    { "method", "Page.enable" }
+                },
+                new Dictionary<string, object>
+                {
+                    { "id", hookRandomizer.Next() },
+                    { "method", "Network.enable" }
+                },
+                new Dictionary<string, object>
+                {
+                    { "id", hookRandomizer.Next() },
+                    { "method", "Network.setBlockedURLs" },
+                    { "params", new Dictionary<string, object> {
+                        { "urls", new[] {
+                            "*.jpg",
+                            "*.png",
+                            "*.webp",
+                            "*.jpeg",
+                        }}
+                    }}
+                },
+
+
+                new Dictionary<string, object> // Fire this at the end so user can get expected output
+                {
+                    { "id", hookRandomizer.Next() },
+                    { "method", "Page.reload" }
+                },
+            ];
+
+            for (int eventId = 0; eventId < eventList.Count; eventId++)
             {
-                { "id",new Random((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()).Next() },
-                { "method", "Page.enable" }
-            };
+                await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventList[eventId]))), WebSocketMessageType.Text, true, CancellationToken.None);
+                while (eventPassed != eventId) await Task.Delay(50);
+            }
 
-            await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
+            await Task.Delay(500);
         }
-
+        
         internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)
         {
             Dictionary<string, object> dataToSend = new()

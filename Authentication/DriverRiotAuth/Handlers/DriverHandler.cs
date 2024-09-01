@@ -17,6 +17,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
     internal class DriverHandler
     {
+        internal delegate void RuntimeChanged();
+        internal static event RuntimeChanged? OnRuntimeChanged;
+
         internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = new();
 
         internal static event FrameChangedEvent? OnFrameNavigation;
@@ -68,6 +71,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static async Task HandleMessage(string message)
         {
             await CheckForEvent(message);
+            if (OnRuntimeChanged is not null && message.Contains("\"result\":{}}")) OnRuntimeChanged.Invoke();
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 

@@ -55,7 +55,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Task.Run(() => DriverHandler.ListenAsync(Socket));
 
-            await SocketHandler.InitiatePageEvents(Socket);
+            await SocketHandler.InitiateRuntimeHandles(Socket);
 
             Log(Authentication.DriverStatus.Driver_Created);
 
@@ -203,7 +203,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             CookieContainer clientCookies = new();
             foreach (Records.Cookie cookie in getCookies?.Result.Cookies!)
+            {
+                if (cookie.Value.Contains("\u0022")) continue;
                 clientCookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
+            }
+                
 
             using HttpClient httpClient = new(new HttpClientHandler
             {
