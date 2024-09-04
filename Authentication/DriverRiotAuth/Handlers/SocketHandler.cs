@@ -51,6 +51,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                             "*.png",
                             "*.webp",
                             "*.jpeg",
+                            "*.css",
+                            "*.ico"
                         }}
                     }}
                 },
