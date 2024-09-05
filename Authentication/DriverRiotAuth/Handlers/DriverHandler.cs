@@ -1,9 +1,6 @@
 ﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Net.Http;
 using System.Net.Http.Json;
 using System.Net.WebSockets;
-using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -25,7 +22,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static event FrameChangedEvent? OnFrameLoaded;
         internal static event FrameChangedEvent? OnDocumentNavigate;
 
-        internal static event RadiantConsoleDetected? OnLoginDetected;
         internal static event RadiantConsoleDetected? OnMfaDetected;
         internal static event RadiantConsoleDetected? OnAccessTokenFound;
 
@@ -68,9 +64,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                         OnDocumentNavigate?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
                     break;
 
-                case var _ when message.Contains("[RADIANTCONNECT] Login Detected"):
-                    OnLoginDetected?.Invoke();
-                    break;
                 case var _ when message.Contains("[RADIANTCONNECT] MFA Detected"):
                     OnMfaDetected?.Invoke();
                     break;
@@ -204,6 +197,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             };
 
             Process? driverProcess = Process.Start(processInfo);
+#if DEBUG
+#else
+            Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
+#endif
             driverProcess!.PriorityClass = ProcessPriorityClass.High;
 
             string? socketUrl = await GetInitialSocket(port);
@@ -211,7 +208,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Debug.WriteLine($"Debug: http://localhost:{port}/json");
 
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill();
-            //Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
             Debug.WriteLine($"{DateTime.Now} Finished Driver");
             

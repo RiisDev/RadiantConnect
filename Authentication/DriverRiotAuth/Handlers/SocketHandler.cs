@@ -95,7 +95,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
 				setTimeout(() =>{
 					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-				}, 100)
+				}, 75)
 				signInDetected = true;
 			}
 		}
@@ -175,69 +175,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         }
 
         #endregion
-
-        internal async Task SendLoginDataAsync(string username, string password, bool rso = true)
-        {
-            AuthHandler.Log(rso ? Authentication.DriverStatus.Logging_Into_RSO : Authentication.DriverStatus.Logging_Into_Valorant);
-
-            Dictionary<string, object> loginData = new()
-            {
-                { "id", ActionIdGenerator.Next() },
-                { "method", "Runtime.evaluate" },
-                { "params", new Dictionary<string, string>
-                    {
-                        { "expression", $"function set(e,t){{for(let[n,s]of(t(e),Object.entries(e)))n.includes(\"__reactEventHandlers\")&&s.onChange&&s.onChange({{target:e}})}}set(document.getElementsByName(\"username\")[0],e=>e.value=\"{username}\"),set(document.getElementsByName(\"password\")[0],e=>e.value=\"{password}\"),document.querySelectorAll(\"[data-testid='btn-signin-submit']\")[0].click();" }
-                    }
-                }
-            };
-            await ExecuteOnPageWithResponse("Sign in", DriverPort, loginData, "result\":{\"type\":\"undefined\"}", Socket);
-        }
-
-        internal async Task CheckError()
-        {
-            Dictionary<string, object> faData = new()
-            {
-                { "id", ActionIdGenerator.Next() },
-                { "method", "Runtime.evaluate" },
-                { "params", new Dictionary<string, string>
-                    {
-                        { "expression", "document.querySelector(\"[data-testid='panel-title']\").innerText.includes(\"Oops!\")" }
-                    }
-                }
-            };
-
-            string? response = await ExecuteOnPageWithResponse("Sign in", DriverPort, faData, "", Socket, false, true);
-
-            if (response is not null && response.Contains("result\":{\"type\":\"boolean\",\"value\":true}"))
-            {
-                throw new RadiantConnectAuthException("Error occurred during login");
-            }
-        }
-
-        internal async Task<bool> IsMfaRequiredAsync()
-        {
-            bool mfaDetected = await DriverHandler.PageExists("Verification Required", DriverPort);
-            bool signInNotChanged = await DriverHandler.PageExists("Sign in", DriverPort);
-
-            if (signInNotChanged) await CheckError();
-            if (!mfaDetected) return false;
-
-            Dictionary<string, object> faData = new()
-            {
-                { "id", ActionIdGenerator.Next() },
-                { "method", "Runtime.evaluate" },
-                { "params", new Dictionary<string, string>
-                    {
-                        { "expression", "document.querySelectorAll('input[minlength=\"1\"][maxlength=\"1\"][type=\"text\"][inputmode=\"numeric\"]').length == 6" }
-                    }
-                }
-            };
-
-            await ExecuteOnPageWithResponse("Verification Required", DriverPort, faData, "result\":{\"type\":\"boolean\",\"value\":true}", Socket);
-
-            return true;
-        }
-
+        
         internal async Task<CookieRoot?> GetCookiesAsync(string pageTitle)
         {
             Dictionary<string, object> cookieResponse = new()
@@ -314,21 +252,5 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
         }
 
-        internal async Task<bool> IsLoginPageDetectedAsync()
-        {
-            Dictionary<string, object> initialSignInCheck = new()
-            {
-                { "id", ActionIdGenerator.Next() },
-                { "method", "Runtime.evaluate" },
-                { "params", new Dictionary<string, string>
-                    {
-                        { "expression", "document.getElementsByName('username').length>0" }
-                    }
-                }
-            };
-
-            string? response = await ExecuteOnPageWithResponse("Sign in", DriverPort, initialSignInCheck, "result\":{\"type\":\"boolean\",\"value\":true}", Socket, true);
-            return response is not null && response.Contains("true");
-        }
     }
 }
