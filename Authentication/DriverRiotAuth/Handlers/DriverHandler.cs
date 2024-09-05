@@ -17,7 +17,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
     internal class DriverHandler
     {
-        internal delegate void RuntimeChanged();
         internal static event RuntimeChanged? OnRuntimeChanged;
 
         internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = new();
@@ -26,9 +25,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static event FrameChangedEvent? OnFrameLoaded;
         internal static event FrameChangedEvent? OnDocumentNavigate;
 
+        internal static event RadiantConsoleDetected? OnLoginDetected;
+        internal static event RadiantConsoleDetected? OnMfaDetected;
+        internal static event RadiantConsoleDetected? OnAccessTokenFound;
+
         internal static readonly Regex FrameNavigatedRegex = new("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex NavigatedWithinDocument = new("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex FrameStoppedLoadingRegex = new("\"frameId\":\"([^\"]+)\"", RegexOptions.Compiled);
+        internal static readonly Regex AccessTokenRegex = new("(access_token=[^}]*)", RegexOptions.Compiled);
 
         internal static void DoDriverCheck(string browserProcess, string browserExecutable, bool killBrowser)
         {
@@ -63,6 +67,18 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                     if (match.Success)
                         OnDocumentNavigate?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
                     break;
+
+                case var _ when message.Contains("[RADIANTCONNECT] Login Detected"):
+                    OnLoginDetected?.Invoke();
+                    break;
+                case var _ when message.Contains("[RADIANTCONNECT] MFA Detected"):
+                    OnMfaDetected?.Invoke();
+                    break;
+                case var _ when message.Contains("[RADIANTCONNECT] Access Token"):
+                    match = AccessTokenRegex.Match(message);
+                    if (match.Success)
+                        OnAccessTokenFound?.Invoke(match.Groups[1].Value);
+                    break;
             }
 
             return Task.CompletedTask;
@@ -71,7 +87,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static async Task HandleMessage(string message)
         {
             await CheckForEvent(message);
-            if (OnRuntimeChanged is not null && message.Contains("\"result\":{}}")) OnRuntimeChanged.Invoke();
+            if (OnRuntimeChanged is not null && (message.Contains("\"result\":{}}") || message.Contains("\"result\":{\"identifier\":\"1\"}}"))) OnRuntimeChanged.Invoke();
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 
@@ -102,6 +118,22 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
         }
 
+        internal static async Task<string?> GetInitialSocket(int port)
+        {
+            using HttpClient httpClient = new();
+
+            while (true)
+            {
+                string pageData = await httpClient.GetStringAsync($"http://localhost:{port}/json");
+                if (pageData.IndexOf("\"title\": \"Google\"", StringComparison.OrdinalIgnoreCase) == -1) continue;
+                int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
+                if (urlStartIndex == -1) continue;
+                int urlValueStart = pageData.IndexOf("ws://", urlStartIndex, StringComparison.OrdinalIgnoreCase);
+                int urlValueEnd = pageData.IndexOf("\"", urlValueStart, StringComparison.OrdinalIgnoreCase);
+
+                return pageData.Substring(urlValueStart, urlValueEnd - urlValueStart);
+            }
+        }
 
         internal static async Task<string?> WaitForPage(string title, int port, ClientWebSocket? socket, int maxRetries = 250, bool needsReturn = false)
         {
@@ -161,29 +193,28 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             return retries < 150;
         }
 
-        internal static async Task<(Process?, string)> StartDriver(string browserExecutable, int port)
+        internal static async Task<(Process?, string?)> StartDriver(string browserExecutable, int port)
         {
+            Debug.WriteLine($"{DateTime.Now} Starting driver");
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
                 Arguments = $"--remote-debugging-port={port} --incognito --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer https://www.google.com/",
-                CreateNoWindow = true,
-                UseShellExecute = false,
-                WindowStyle = ProcessWindowStyle.Minimized
+                RedirectStandardOutput = true
             };
 
             Process? driverProcess = Process.Start(processInfo);
+            driverProcess!.PriorityClass = ProcessPriorityClass.High;
+
+            string? socketUrl = await GetInitialSocket(port);
 
             Debug.WriteLine($"Debug: http://localhost:{port}/json");
 
-            Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
             AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill();
+            //Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
-            string? socketUrl = await WaitForPage("Google", port, null, 999999, true);
-
-            if (string.IsNullOrEmpty(socketUrl))
-                throw new RadiantConnectAuthException("Failed to start driver");
-
+            Debug.WriteLine($"{DateTime.Now} Finished Driver");
+            
             return (driverProcess, socketUrl);
         }
     }

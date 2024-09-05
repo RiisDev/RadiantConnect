@@ -23,7 +23,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         #region StaticHandlers
 
-        internal static async Task InitiateRuntimeHandles(ClientWebSocket socket)
+        internal static async Task InitiateRuntimeHandles(ClientWebSocket socket, string username, string password)
         {
             int eventPassed = -1;
             DriverHandler.OnRuntimeChanged += () => eventPassed++;
@@ -44,6 +44,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 new Dictionary<string, object>
                 {
                     { "id", hookRandomizer.Next() },
+                    { "method", "Runtime.enable" }
+                },
+                new Dictionary<string, object>
+                {
+                    { "id", hookRandomizer.Next() },
                     { "method", "Network.setBlockedURLs" },
                     { "params", new Dictionary<string, object> {
                         { "urls", new[] {
@@ -52,17 +57,80 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                             "*.webp",
                             "*.jpeg",
                             "*.css",
-                            "*.ico"
+                            "*.ico",
+                            "*.svg",
+                            "*valorant.secure.dyn.riotcdn.net/*",
+                            "*cdn.rgpub.io/*",
+                            "*google-analytics.com/*",
+                            "*googletagmanager.com/*"
                         }}
                     }}
                 },
-
-
-                new Dictionary<string, object> // Fire this at the end so user can get expected output
+                new Dictionary<string, object>
                 {
                     { "id", hookRandomizer.Next() },
-                    { "method", "Page.reload" }
-                },
+                    { "method", "Page.addScriptToEvaluateOnNewDocument" },
+
+                    { "params", new Dictionary<string, string>
+                    {
+                        {"source", (@"(function () {
+	'use strict';
+	let signInDetected = false;
+	let mfaDetected = false;
+	let accessToken = false;
+
+	function set(obj, callback) {
+		callback(obj);
+		for (let [k, v] of Object.entries(obj)) {
+			if (k.includes('__reactEventHandlers') && v.onChange) {
+				v.onChange({target: obj});
+			}
+		}
+	}
+
+	function doPageChecks() {
+		if (document.title.includes('Sign in')) {
+			if (document.getElementsByName('username').length > 0 && !signInDetected) {
+				set(document.getElementsByName('username')[0],e=>e.value = '%USERNAME_DATA%');
+				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
+				setTimeout(() =>{
+					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
+				}, 100)
+				signInDetected = true;
+			}
+		}
+
+		if (document.title.includes('Verification Required')) {
+			if (document.getElementsByTagName('h5')[0].innerText == 'Verification Required' && !mfaDetected) {
+				console.log('[RADIANTCONNECT] MFA Detected');
+				mfaDetected = true;
+			}
+		}
+
+		if (document.location.href.includes('https://playvalorant.com/en-us/opt_in/#access_token=') && !accessToken) {
+			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
+			accessToken = true;
+		}
+	}
+
+	window.addEventListener('load', doPageChecks);
+
+	let interval = setInterval(() => {
+		if (document.querySelector('title')) {
+			new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
+				childList: true
+			});
+			clearInterval(interval);
+		}
+	}, 5);
+
+})();")
+                            .Replace("%PASSWORD_DATA%", password)
+                            .Replace("%USERNAME_DATA%", username)
+
+                        }
+                    }}
+                }
             ];
 
             for (int eventId = 0; eventId < eventList.Count; eventId++)
@@ -70,8 +138,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventList[eventId]))), WebSocketMessageType.Text, true, CancellationToken.None);
                 while (eventPassed != eventId) await Task.Delay(50);
             }
-
-            await Task.Delay(500);
         }
         
         internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)

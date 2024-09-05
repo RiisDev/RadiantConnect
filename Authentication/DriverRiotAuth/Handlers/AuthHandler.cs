@@ -37,7 +37,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         
         internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> Initialize(string username, string password)
         {
-
             Log(Authentication.DriverStatus.Checking_Existing_Processes);
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
 
@@ -55,14 +54,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Task.Run(() => DriverHandler.ListenAsync(Socket));
 
-            await SocketHandler.InitiateRuntimeHandles(Socket);
-
+            await SocketHandler.InitiateRuntimeHandles(Socket, username, password);
+            
             Log(Authentication.DriverStatus.Driver_Created);
 
             try
             {
                 Log(Authentication.DriverStatus.Begin_SignIn);
-                return await PerformSignInAsync(username, password);
+                return await PerformSignInAsync();
             }
             catch (Exception e)
             {
@@ -84,62 +83,29 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             {"SignInDetected", "https://authenticate.riotgames.com/?client_id=play-valorant-web-prod&method=riot_identity&platform=web&redirect_uri=https%3A%2F%2Fauth.riotgames.com%2Fauthorize%3Fclient_id%3Dplay-valorant-web-prod%26nonce%3D1%26redirect_uri%3Dhttps%253A%252F%252Fplayvalorant.com%252Fopt_in%26response_type%3Dtoken%2520id_token%26scope%3Daccount%2520email%2520profile%2520openid%2520link%2520lol_region%2520id"}
         };
 
-        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> PerformSignInAsync(string username, string password)
+        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> PerformSignInAsync()
         {
-            bool navComplete = false;
-            bool signInRequired = false;
-            string navId = string.Empty;
-            DriverHandler.OnDocumentNavigate += (url, _) =>
-            {
-                if (url is null) return;
-
-                if (url.Contains(RiotUrls["AccessToken"]))
-                {
-                    navComplete = true;
-                }
-                else if (url == RiotUrls["SignInDetected"])
-                {
-                    signInRequired = true;
-                }
-            };
-            DriverHandler.OnFrameNavigation += (url, frame) => { if (url == RiotUrls["SignInDetected"]) signInRequired = true; navId = frame; };
-            DriverHandler.OnFrameLoaded += (_, frame) => { if (frame == navId) navComplete = true; };
-
-            bool reloadCookies = await CheckCookieCache(username);
-
-            if (reloadCookies)
-                await SocketHandler.ClearCookies();
-
+            string accessTokenFound = string.Empty;
             Log(Authentication.DriverStatus.Logging_Into_Valorant);
             await SocketHandler.NavigateTo(RiotUrls["LoginUrl"], "VALORANT_RSO", DriverPort, Socket, false);
 
-            while (!navComplete) await Task.Delay(100);
-
-            navComplete = false;
-            
-            if (signInRequired)
+            DriverHandler.OnMfaDetected += async (_) =>
             {
-                Log(Authentication.DriverStatus.Checking_RSO_Login_Page);
-                if (await SocketHandler.IsLoginPageDetectedAsync()) await SocketHandler.SendLoginDataAsync(username, password);
-
                 Log(Authentication.DriverStatus.Checking_RSO_Multi_Factor);
-                if (await SocketHandler.IsMfaRequiredAsync()) await HandleMfaAsync();
+                await HandleMfaAsync();
+            };
 
-                while (!navComplete) await Task.Delay(100);
-            }
+            DriverHandler.OnAccessTokenFound += (data) => accessTokenFound = data!;
 
-            string? data = await DriverHandler.GetPageUrl(DriverPort);
-
-            if (string.IsNullOrEmpty(data)) throw new RadiantConnectAuthException("Failed to get access token");
+            while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
 
             Log(Authentication.DriverStatus.Grabbing_Required_Tokens);
-            (IEnumerable<Records.Cookie>? cookies, string accessToken) = await GetAccessTokenRedirect(data);
+            (IEnumerable<Records.Cookie>? cookies, string accessToken) = await GetAccessTokenRedirect(accessTokenFound);
 
             Log(Authentication.DriverStatus.SignIn_Completed);
             return await GetRSOUserData(accessToken, cookies!);
         }
-
-        // This isn't in 'SocketHandler' due to MFA properties
+        
         internal async Task HandleMfaAsync()
         {
             Log(Authentication.DriverStatus.Multi_Factor_Requested);

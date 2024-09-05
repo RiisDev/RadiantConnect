@@ -91,8 +91,12 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
+            Debug.WriteLine($"{DateTime.Now} LOGIN STARTED");
+
             (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement, object? clientConfig, string? _) = 
                 await authHandler.Initialize(username, password);
+
+            Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
             if (cookies == null) return null;
 
