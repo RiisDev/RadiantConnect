@@ -336,6 +336,7 @@ public static class ValorantTables
         { "6f2a04ca-43e0-be17-7f36-b3908627744d", "Skye" },
         { "320b2a48-4d9b-a075-30f1-1f93a9b638fa", "Sova" },
         { "707eab51-4836-f488-046a-cda6bf494859", "Viper" },
+        { "efba5359-4016-a1e5-7626-b1ae76895940", "Vyse" },
         { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" },
         { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" },
         { "1dbf2edd-4729-0984-3115-daa5eed44993", "Clove" }
