@@ -4,7 +4,6 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using static RadiantConnect.Authentication.DriverRiotAuth.Misc.Events;
 
@@ -80,7 +79,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static async Task HandleMessage(string message)
         {
             await CheckForEvent(message);
-            if (OnRuntimeChanged is not null && (message.Contains("\"result\":{}}") || message.Contains("\"result\":{\"identifier\":\"1\"}}"))) OnRuntimeChanged.Invoke();
+            if (OnRuntimeChanged is not null && (message.Contains("frameScheduledNavigation") || message.Contains("\"result\":{}}") || message.Contains("\"result\":{\"identifier\":\"1\"}}"))) OnRuntimeChanged.Invoke();
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 

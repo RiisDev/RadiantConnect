@@ -78,16 +78,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal readonly Dictionary<string, string> RiotUrls = new()
         {
-            {"AccessToken", "https://playvalorant.com/en-us/opt_in/#access_token=" },
-            {"LoginUrl", "https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id"},
-            {"SignInDetected", "https://authenticate.riotgames.com/?client_id=play-valorant-web-prod&method=riot_identity&platform=web&redirect_uri=https%3A%2F%2Fauth.riotgames.com%2Fauthorize%3Fclient_id%3Dplay-valorant-web-prod%26nonce%3D1%26redirect_uri%3Dhttps%253A%252F%252Fplayvalorant.com%252Fopt_in%26response_type%3Dtoken%2520id_token%26scope%3Daccount%2520email%2520profile%2520openid%2520link%2520lol_region%2520id"}
+            {"LoginUrl", "https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id summoner offline_access ban"},
         };
 
         internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?)> PerformSignInAsync()
         {
             string accessTokenFound = string.Empty;
             Log(Authentication.DriverStatus.Logging_Into_Valorant);
-            await SocketHandler.NavigateTo(RiotUrls["LoginUrl"], "VALORANT_RSO", DriverPort, Socket, false);
 
             DriverHandler.OnMfaDetected += async (_) =>
             {

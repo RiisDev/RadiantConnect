@@ -5,7 +5,7 @@
   },
   "projects": {
     "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj": {
-      "version": "9.0.1",
+      "version": "9.0.2",
       "restore": {
         "projectUniqueName": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
         "projectName": "RadiantConnect",
@@ -75,7 +75,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.400/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.403/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

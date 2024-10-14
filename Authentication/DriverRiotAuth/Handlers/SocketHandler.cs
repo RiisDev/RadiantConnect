@@ -26,7 +26,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static async Task InitiateRuntimeHandles(ClientWebSocket socket, string username, string password)
         {
             int eventPassed = -1;
-            DriverHandler.OnRuntimeChanged += () => eventPassed++;
+
+            DriverHandler.OnRuntimeChanged += Changed;
 
             Random hookRandomizer = new ((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             List<Dictionary<string, object>> eventList =
@@ -39,12 +40,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 new Dictionary<string, object>
                 {
                     { "id", hookRandomizer.Next() },
-                    { "method", "Network.enable" }
+                    { "method", "Runtime.enable" }
                 },
                 new Dictionary<string, object>
                 {
                     { "id", hookRandomizer.Next() },
-                    { "method", "Runtime.enable" }
+                    { "method", "Network.enable" }
                 },
                 new Dictionary<string, object>
                 {
@@ -89,13 +90,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 	}
 
 	function doPageChecks() {
+
 		if (document.title.includes('Sign in')) {
 			if (document.getElementsByName('username').length > 0 && !signInDetected) {
 				set(document.getElementsByName('username')[0],e=>e.value = '%USERNAME_DATA%');
 				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
 				setTimeout(() =>{
 					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-				}, 75)
+				}, 250)
 				signInDetected = true;
 			}
 		}
@@ -130,7 +132,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
                         }
                     }}
-                }
+                },
+                new Dictionary<string, object>
+                {
+                    { "id", hookRandomizer.Next() },
+                    { "method", "Runtime.evaluate" },
+                    { "params", new Dictionary<string, string> { {"expression", "document.location.href = 'https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id summoner offline_access ban';" } }}
+                },
             ];
 
             for (int eventId = 0; eventId < eventList.Count; eventId++)
@@ -138,6 +146,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventList[eventId]))), WebSocketMessageType.Text, true, CancellationToken.None);
                 while (eventPassed != eventId) await Task.Delay(50);
             }
+
+            DriverHandler.OnRuntimeChanged -= Changed;
+
+            return;
+
+            void Changed() => eventPassed++;
         }
         
         internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)

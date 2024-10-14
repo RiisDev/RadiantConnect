@@ -8,6 +8,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using RadiantConnect.Methods;
+using System.Reflection.Metadata;
 
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 // ReSharper disable CheckNamespace
@@ -30,6 +31,8 @@ namespace RadiantConnect.XMPP
 
         public delegate void SocketHandled(XMPPSocketHandle handle);
         public event SocketHandled? OnSocketCreated;
+
+        public XMPPSocketHandle Handle { get; private set; } = null!;
 
         public static void KillRiot()
         {
@@ -166,6 +169,7 @@ namespace RadiantConnect.XMPP
 
                     XMPPSocketHandle handler = new(incomingStream, outgoingStream);
                     OnSocketCreated?.Invoke(handler);
+                    Handle = handler;
                     handler.OnClientMessage += (data) => OnClientMessage?.Invoke(data);
                     handler.OnServerMessage += (data) =>
                     {
@@ -188,7 +192,6 @@ namespace RadiantConnect.XMPP
                 }
             }
         }
-
 
         public Process InitializeConnection(string patchLine = "live")
         {
