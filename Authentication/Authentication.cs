@@ -7,6 +7,7 @@ using RadiantConnect.Authentication.CaptchaRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Authentication.QRSignIn;
 using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 
@@ -18,6 +19,8 @@ namespace RadiantConnect.Authentication
 {
     public class Authentication
     {
+        private readonly string[] UnSupportedBrowsers = ["chrome", "firefox"];
+
         public enum DriverStatus {
             Checking_Existing_Processes,
             Creating_Driver,
@@ -33,6 +36,24 @@ namespace RadiantConnect.Authentication
             Multi_Factor_Completed,
             SignIn_Completed,
             Cookies_Received
+        }
+
+        public enum CountryCode
+        {
+            NA,
+            KR,
+            JP,
+            CN,
+            TW,
+            EUW,
+            RU,
+            TR,
+            TH,
+            VN,
+            ID,
+            MY,
+            EUN,
+            BR,
         }
 
         public enum CaptchaService
@@ -72,7 +93,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        private readonly string[] UnSupportedBrowsers = ["chrome", "firefox"];
+        public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode) => await SignInManager.InitiateSignIn(countryCode);
 
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
         {   
