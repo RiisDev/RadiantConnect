@@ -7,7 +7,7 @@ using RadiantConnect.Authentication.CaptchaRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Authentication.QRSignIn;
+using RadiantConnect.Authentication.QRSignIn.Handlers;
 using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 

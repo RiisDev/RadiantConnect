@@ -1,12 +1,18 @@
-﻿using System.Collections.Specialized;
+﻿using RadiantConnect.Authentication.QRSignIn.Modules;
+using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Net.Http.Json;
 using System.Web;
 
-namespace RadiantConnect.Authentication.QRSignIn
+namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
     internal class UrlBuilder(HttpClient client)
     {
+        private static readonly string TraceId = Guid.NewGuid().ToString("N");
+        private static readonly string ParentId = Guid.NewGuid().ToString("N")[..16];
+        private static readonly string SdkId = Guid.NewGuid().ToString();
+        private readonly string _traceparent = $"00-{TraceId}-{ParentId}-00";
+
         internal static Dictionary<Authentication.CountryCode, string> CountryRegion = new()
         {
             { Authentication.CountryCode.NA, "en-US" },
@@ -28,7 +34,7 @@ namespace RadiantConnect.Authentication.QRSignIn
         internal async Task Stage1(string sdkId, string traceparent, Authentication.CountryCode countryCode)
         {
             client.DefaultRequestHeaders.Clear();
-            
+
             Dictionary<string, string> headers = new()
             {
                 { "Host", "clientconfig.rpg.riotgames.com" },
@@ -50,9 +56,9 @@ namespace RadiantConnect.Authentication.QRSignIn
                 { "patchline", "KeystoneFoundationLiveWin" }
             };
 
-            foreach (KeyValuePair<string, string> header in headers) 
+            foreach (KeyValuePair<string, string> header in headers)
                 client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-            
+
             HttpResponseMessage response = await client.GetAsync(BuildUrlWithQueryParameters("https://clientconfig.rpg.riotgames.com/api/v1/config/public", getParams));
 
             Debug.WriteLine($"Stage1: {await response.Content.ReadAsStringAsync()}");
@@ -75,12 +81,12 @@ namespace RadiantConnect.Authentication.QRSignIn
                 { "traceparent", traceparent },
                 { "country-code", countryCode.ToString() },
             };
-            
-            foreach (KeyValuePair<string, string> header in headers) 
+
+            foreach (KeyValuePair<string, string> header in headers)
                 client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
 
             HttpResponseMessage response = await client.GetAsync("https://auth.riotgames.com/.well-known/openid-configuration");
-            
+
             Debug.WriteLine($"Stage2: {await response.Content.ReadAsStringAsync()}");
 
             client.DefaultRequestHeaders.Clear();
@@ -118,12 +124,12 @@ namespace RadiantConnect.Authentication.QRSignIn
             HttpResponseMessage response = await client.PostAsJsonAsync("https://authenticate.riotgames.com/api/v1/login", postParams);
 
             Stage3Return? responseBody = await response.Content.ReadFromJsonAsync<Stage3Return>();
-            
+
             client.DefaultRequestHeaders.Clear();
 
-            if (responseBody == null || 
+            if (responseBody == null ||
                 string.IsNullOrEmpty(responseBody.Cluster) ||
-                string.IsNullOrEmpty(responseBody.Suuid) || 
+                string.IsNullOrEmpty(responseBody.Suuid) ||
                 string.IsNullOrEmpty(responseBody.Timestamp))
                 throw new RadiantConnectAuthException("Failed to find required fields");
 
@@ -132,28 +138,25 @@ namespace RadiantConnect.Authentication.QRSignIn
 
         internal async Task<BuiltData> Build(Authentication.CountryCode countryCode)
         {
-            string traceId = Guid.NewGuid().ToString("N");
-            string parentId = Guid.NewGuid().ToString("N")[..16];
-            string traceparent = $"00-{traceId}-{parentId}-00";
-            string sdkId = Guid.NewGuid().ToString();
+            await Stage1(SdkId, _traceparent, countryCode);
 
-            await Stage1(sdkId, traceparent, countryCode);
+            await Stage2(SdkId, _traceparent, countryCode);
 
-            await Stage2(sdkId, traceparent, countryCode);
-
-            (string cluster, string suuid, string timestamp) = await Stage3(sdkId, traceparent, countryCode);
+            (string cluster, string suuid, string timestamp) = await Stage3(SdkId, _traceparent, countryCode);
 
             return new BuiltData(
                 LoginUrl: $"https://qrlogin.riotgames.com/riotmobile?cluster={cluster}&suuid={suuid}&timestamp={timestamp}&utm_source=riotclient&utm_medium=client&utm_campaign=qrlogin-riotmobile",
                 Session: "",
-                SdkSid: sdkId,
+                SdkSid: SdkId,
                 Cluster: cluster,
-                Suuid: suuid, 
-                Timestamp: timestamp
+                Suuid: suuid,
+                Timestamp: timestamp,
+                Language: CountryRegion[countryCode],
+                CountryCode: countryCode
             );
         }
 
-        internal string BuildUrlWithQueryParameters(string baseUrl, Dictionary<string, string> queryParams)
+        internal static string BuildUrlWithQueryParameters(string baseUrl, Dictionary<string, string> queryParams)
         {
             UriBuilder uriBuilder = new(baseUrl);
             if (uriBuilder is { Scheme: "https", Port: 443 } or { Scheme: "http", Port: 80 }) uriBuilder.Port = -1;

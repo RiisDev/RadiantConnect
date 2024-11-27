@@ -1,11 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Authentication.QRSignIn.Modules;
 
 /*
  *
@@ -13,7 +18,7 @@ using RadiantConnect.Authentication.DriverRiotAuth.Records;
  *
  */
 
-namespace RadiantConnect.Authentication.QRSignIn
+namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
     internal class SignInManager : IDisposable
     {
@@ -29,10 +34,17 @@ namespace RadiantConnect.Authentication.QRSignIn
         internal static async Task<RSOAuth?> InitiateSignIn(Authentication.CountryCode code)
         {
             UrlBuilder builder = new(HttpClient);
+            BuiltData qrData = await builder.Build(code);
 
-            BuiltData loginUrl = await builder.Build(code);
+            string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
+            byte[] imageData = await HttpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
 
-            Debug.WriteLine($"https://api.qrserver.com/v1/create-qr-code/?size=512x512&data={loginUrl.LoginUrl}");
+            MemoryStream stream = new(imageData);
+            Bitmap bitmap = new(stream);
+            Win32Form form = new(bitmap);
+            TokenManager manager = new(form, qrData, HttpClient);
+            
+            manager.InitiateTimer();
 
             return null;
         }
