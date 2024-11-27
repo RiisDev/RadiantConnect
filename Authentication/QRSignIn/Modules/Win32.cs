@@ -1,7 +1,11 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.InteropServices;
+#pragma warning disable SYSLIB1054 // I cba to convert the DllImport to LibraryImport
 
 namespace RadiantConnect.Authentication.QRSignIn.Modules
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
+    [SuppressMessage("ReSharper", "IdentifierTypo")]
     internal static class Win32
     {
         [DllImport("user32.dll")]
@@ -10,7 +14,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         [DllImport("user32.dll", SetLastError = true)]
         internal static extern ushort RegisterClassEx(ref WNDCLASSEX lpwcx);
 
-        [DllImport("user32.dll", SetLastError = true)]
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Unicode)]
         internal static extern nint CreateWindowEx(
             int dwExStyle, string lpClassName, string lpWindowName,
             uint dwStyle, int X, int Y, int nWidth, int nHeight,
@@ -43,10 +47,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
 
         [DllImport("user32.dll")]
         internal static extern nint GetDC(nint hWnd);
-
-        [DllImport("user32.dll")]
-        internal static extern int ReleaseDC(nint hWnd, nint hDC);
-
+        
         [DllImport("user32.dll")]
         internal static extern int GetMessage(out MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
@@ -69,10 +70,6 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         [DllImport("user32.dll")]
         internal static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
 
-        [DllImport("user32.dll")]
-        internal static extern IntPtr FindWindow(string lpClassName, string lpWindowName);
-
-
         // Constants
         internal const int WS_OVERLAPPED = 0x00000000;
         internal const int WS_SYSMENU = 0x00080000;
@@ -81,8 +78,6 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         internal const int WM_PAINT = 0x000F;
         internal const int WM_DESTROY = 0x0002;
         internal const int SRCCOPY = 0x00CC0020;
-        internal const int GWL_STYLE = -16; // Get/Set window style
-        internal const int WS_OVERLAPPEDWINDOW = 0x00CF0000;
         internal const int SW_SHOWNORMAL = 1;
         internal const uint WM_CLOSE = 0x0010;
 
