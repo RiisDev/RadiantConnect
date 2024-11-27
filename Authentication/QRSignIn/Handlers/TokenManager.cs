@@ -1,4 +1,5 @@
 ﻿using System.Diagnostics;
+using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using RadiantConnect.Authentication.QRSignIn.Modules;
@@ -8,61 +9,64 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
     internal class TokenManager(Win32Form form, BuiltData qrData, HttpClient client)
     {
-        internal string SdkData = Guid.NewGuid().ToString();
-
-        internal async Task<string> GetLoginToken()
+        internal static string GenerateTraceParent()
         {
             string traceId = Guid.NewGuid().ToString("N");
             string parentId = Guid.NewGuid().ToString("N")[..16];
-            string traceparent = $"00-{traceId}-{parentId}-00";
+            return $"00-{traceId}-{parentId}-00";
+        }
 
+        internal void SetHeaders(string host, string traceparent, string useragent, Dictionary<string, string>? additionalHeaders = null)
+        {
             client.DefaultRequestHeaders.Clear();
 
             Dictionary<string, string> headers = new()
             {
-                { "Host", "authenticate.riotgames.com" },
-                { "user-agent", "RiotGamesApi/24.9.1.4445 rso-authenticator (Windows;10;;Professional, x64) riot_client/0" },
+                { "Host", host },
+                { "User-Agent", useragent },
                 { "Accept-Encoding", "deflate, gzip, zstd" },
                 { "Accept", "application/json" },
                 { "Connection", "keep-alive" },
                 { "baggage", $"sdksid={qrData.SdkSid}" },
                 { "traceparent", traceparent },
-                { "country-code", qrData.CountryCode.ToString() },
             };
+            
+            if (additionalHeaders != null)
+                foreach (KeyValuePair<string, string> header in additionalHeaders)
+                    headers[header.Key] = header.Value;
 
             foreach (KeyValuePair<string, string> header in headers)
                 client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
+        }
+
+        internal async Task<string> GetLoginToken()
+        {
+            string traceparent = GenerateTraceParent();
+            SetHeaders("authenticate.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-authenticator (Windows;10;;Professional, x64) riot_client/0");
 
             HttpResponseMessage response = await client.GetAsync("https://authenticate.riotgames.com/api/v1/login");
-            
             string responseData = await response.Content.ReadAsStringAsync();
-            
             client.DefaultRequestHeaders.Clear();
 
-            if (!responseData.Contains("success")) return "";
+            if (!responseData.Contains("success")) return string.Empty;
 
             QrDataSuccess? data = JsonSerializer.Deserialize<QrDataSuccess>(responseData);
-
-            return data?.Success?.LoginToken ?? "";
+            
+            return data?.Success?.LoginToken ?? string.Empty;
         }
 
         internal async Task<string> GetAccessTokenStage1(string loginToken)
         {
-            string traceId = Guid.NewGuid().ToString("N");
-            string parentId = Guid.NewGuid().ToString("N")[..16];
-            string traceparent = $"00-{traceId}-{parentId}-00";
-            client.DefaultRequestHeaders.Clear();
-
-            Dictionary<string, string> headers = new()
-            {
-                { "Host", "auth.riotgames.com" },
-                { "User-Agent", "RiotGamesApi/24.10.1.4471 rso-auth (Windows;10;;Professional, x64) riot_client/0" },
-                { "Accept-Encoding", "deflate, gzip, zstd" },
-                { "Accept", "application/json" },
-                { "Connection", "keep-alive" },
-                { "baggage", $"sdksid={SdkData}" },
-                { "traceparent", traceparent },
-            };
+            string traceparent = GenerateTraceParent();
+            SetHeaders(
+                host: "auth.riotgames.com", 
+                traceparent: traceparent, 
+                useragent: "RiotGamesApi/24.11.0.4602 rso-auth (Windows;10;;Professional, x64) riot_client/0", 
+                additionalHeaders: new Dictionary<string, string>()
+                {
+                    {"Cache-Control", "no-cache"}
+                }
+            );
 
             Dictionary<string, object?> postParams = new()
             {
@@ -72,13 +76,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 { "persist_login", false },
             };
 
-            foreach (KeyValuePair<string, string> header in headers)
-                client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-
             HttpResponseMessage response = await client.PostAsJsonAsync("https://auth.riotgames.com/api/v1/login-token", postParams);
-
             Debug.WriteLine($"AccessTokenStage1: {await response.Content.ReadAsStringAsync()}");
-
             client.DefaultRequestHeaders.Clear();
 
             return traceparent;
@@ -86,18 +85,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
         internal async Task<string> GetAccessTokenStage2(string traceparent)
         {
-            client.DefaultRequestHeaders.Clear();
-
-            Dictionary<string, string> headers = new()
-            {
-                { "Host", "auth.riotgames.com" },
-                { "User-Agent", "RiotGamesApi/24.10.1.4471 rso-auth (Windows;10;;Professional, x64) riot_client/0" },
-                { "Accept-Encoding", "deflate, gzip, zstd" },
-                { "Accept", "application/json" },
-                { "Connection", "keep-alive" },
-                { "baggage", $"sdksid={SdkData}" },
-                { "traceparent", traceparent },
-            };
+            SetHeaders("auth.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-auth (Windows;10;;Professional, x64) riot_client/0");
 
             Dictionary<string, object?> postParams = new()
             {
@@ -106,19 +94,14 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 { "client_id", "riot-client" },
                 { "code_challenge", "" },
                 { "code_challenge_method", "" },
-                { "nonce", Guid.NewGuid().ToString("N") },
+                { "nonce", Guid.NewGuid().ToString("N")[..22] },
                 { "redirect_uri", "http://localhost/redirect" },
                 { "response_type", "token id_token" },
-                { "scope", "account email profile openid link lol_region id summoner offline_access ban" },
+                { "scope", "account email profile openid link lol_region id summoner offline_access ban" }, // Just for shits, doesn't actually work
             };
 
-            foreach (KeyValuePair<string, string> header in headers)
-                client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-
             HttpResponseMessage response = await client.PostAsJsonAsync("https://auth.riotgames.com/api/v1/authorization", postParams);
-
             Debug.WriteLine($"AccessTokenStage2: {await response.Content.ReadAsStringAsync()}");
-
             client.DefaultRequestHeaders.Clear();
 
             return traceparent;
@@ -128,7 +111,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
         {
             string traceData = await GetAccessTokenStage1(loginToken);
             string stage2Data = await GetAccessTokenStage2(traceData);
-            return "";
+            return stage2Data;
         }
 
         internal void InitiateTimer()

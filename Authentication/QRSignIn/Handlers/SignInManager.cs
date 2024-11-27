@@ -33,7 +33,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
         internal static async Task<RSOAuth?> InitiateSignIn(Authentication.CountryCode code)
         {
-            UrlBuilder builder = new(HttpClient);
+            LoginQrManager builder = new(HttpClient);
             BuiltData qrData = await builder.Build(code);
 
             string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
@@ -43,7 +43,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             Bitmap bitmap = new(stream);
             Win32Form form = new(bitmap);
             TokenManager manager = new(form, qrData, HttpClient);
-            
+
             manager.InitiateTimer();
 
             return null;
