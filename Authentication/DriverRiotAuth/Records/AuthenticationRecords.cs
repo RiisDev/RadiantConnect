@@ -26,5 +26,5 @@ public record RSOAuth(
     string? Affinity,
     string? ChatAffinity,
     object? ClientConfig,
-    IEnumerable<Cookie> RiotCookies
+    IEnumerable<Cookie>? RiotCookies
 );

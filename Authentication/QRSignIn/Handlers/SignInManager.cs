@@ -44,9 +44,13 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             Win32Form form = new(bitmap);
             TokenManager manager = new(form, qrData, HttpClient);
 
+            TaskCompletionSource<RSOAuth?> tcs = new ();
+
+            manager.OnTokensFinished += (authData) => tcs.SetResult(authData);
+
             manager.InitiateTimer();
 
-            return null;
+            return await tcs.Task;
         }
 
         public void Dispose() => HttpClient.Dispose();

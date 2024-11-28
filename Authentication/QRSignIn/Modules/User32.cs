@@ -6,7 +6,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal static class Win32
+    internal static class User32
     {
         [DllImport("user32.dll")]
         internal static extern bool ShowWindow(nint hWnd, int nCmdShow);

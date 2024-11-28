@@ -44,3 +44,18 @@ public record Success(
     [property: JsonPropertyName("auth_method")] string? AuthMethod,
     [property: JsonPropertyName("puuid")] string? Puuid
 );
+
+public record Parameters(
+    [property: JsonPropertyName("uri")] string Uri
+);
+
+public record Response(
+    [property: JsonPropertyName("mode")] string Mode,
+    [property: JsonPropertyName("parameters")] Parameters Parameters
+);
+
+public record AccessTokenReturn(
+    [property: JsonPropertyName("type")] string Type,
+    [property: JsonPropertyName("response")] Response Response,
+    [property: JsonPropertyName("country")] string Country
+);
