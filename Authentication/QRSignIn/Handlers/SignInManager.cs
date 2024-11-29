@@ -5,9 +5,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
@@ -20,10 +17,15 @@ using RadiantConnect.Authentication.QRSignIn.Modules;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-    internal class SignInManager : IDisposable
+    public delegate void UrlBuilder(string url);
+
+    internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false) : IDisposable
     {
+
+        internal event UrlBuilder? OnUrlBuilt;
+
         internal static CookieContainer Container = new();
-        internal static HttpClient HttpClient = new(new HttpClientHandler
+        internal HttpClient HttpClient = new(new HttpClientHandler
         {
             ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
             UseCookies = true,
@@ -31,18 +33,29 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             AutomaticDecompression = DecompressionMethods.All
         });
 
-        internal static async Task<RSOAuth?> InitiateSignIn(Authentication.CountryCode code)
+        internal async Task<RSOAuth?> InitiateSignIn()
         {
             LoginQrManager builder = new(HttpClient);
             BuiltData qrData = await builder.Build(code);
+            Win32Form? form = null;
 
-            string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
-            byte[] imageData = await HttpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
+            if (returnUrl)
+            {
+                OnUrlBuilt?.Invoke(qrData.LoginUrl);
+            }
+            else
+            {
+                string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
+                byte[] imageData =
+                    await HttpClient.GetByteArrayAsync(
+                        $"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
 
-            MemoryStream stream = new(imageData);
-            Bitmap bitmap = new(stream);
-            Win32Form form = new(bitmap);
-            TokenManager manager = new(form, qrData, HttpClient);
+                MemoryStream stream = new(imageData);
+                Bitmap bitmap = new(stream);
+                form = new Win32Form(bitmap);
+            }
+
+            TokenManager manager = new(form, qrData, HttpClient, returnUrl);
 
             TaskCompletionSource<RSOAuth?> tcs = new ();
 

@@ -66,6 +66,8 @@ namespace RadiantConnect.Authentication
 
         public event Events.DriverEvent? OnDriverUpdate;
 
+        public event UrlBuilder? OnUrlBuilt;
+
         public string? MultiFactorCode
         {
             get => authHandler.MultiFactorCode;
@@ -93,7 +95,15 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode) => await SignInManager.InitiateSignIn(countryCode);
+        public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
+        {
+            using SignInManager manager = new(countryCode, returnLoginUrl);
+            
+            if (returnLoginUrl)
+                manager.OnUrlBuilt += OnUrlBuilt;
+
+            return await manager.InitiateSignIn();
+        }
 
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
         {   

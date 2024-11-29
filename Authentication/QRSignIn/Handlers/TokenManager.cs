@@ -14,10 +14,10 @@ using Timer = System.Timers.Timer;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-    internal class TokenManager(Win32Form form, BuiltData qrData, HttpClient client)
+    internal class TokenManager(Win32Form? form, BuiltData qrData, HttpClient client, bool returnUrl)
     {
         internal delegate void TokensFinished(RSOAuth authData);
-        internal event TokensFinished OnTokensFinished;
+        internal event TokensFinished? OnTokensFinished;
 
         internal static string GenerateTraceParent()
         {
@@ -183,24 +183,27 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             timer.Interval = 1000;
             timer.AutoReset = true;
 
-            Task.Run(async () =>
+            if (!returnUrl)
             {
-                await Task.Delay(30000);
-
-                if (User32.IsWindow(form.WindowHandle))
+                Task.Run(async () =>
                 {
-                    timer.Stop();
-                    timer.Dispose();
-                    form.Dispose();
-                }
-            });
+                    await Task.Delay(30000);
+
+                    if (User32.IsWindow(form.WindowHandle))
+                    {
+                        timer.Stop();
+                        timer.Dispose();
+                        form.Dispose();
+                    }
+                });
+            }
 
             timer.Elapsed += async (_, _) =>
             {
                 string loginToken = await GetLoginToken();
                 if (string.IsNullOrEmpty(loginToken)) return;
 
-                form.Dispose();
+                form?.Dispose();
 
                 string accessToken = await GetAccessToken(loginToken);
                 if (string.IsNullOrEmpty(accessToken)) return;
