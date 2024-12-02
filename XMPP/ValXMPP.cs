@@ -17,6 +17,8 @@ namespace RadiantConnect.XMPP
 {
     public partial class ValXMPP
     {
+        public string StreamUrl { get; set; }
+
         public delegate void InternalMessage(string data);
         public delegate void PresenceUpdated(ValorantPresence presence);
         public delegate void PlayerPresenceUpdated(PlayerPresence presence);
@@ -211,6 +213,7 @@ namespace RadiantConnect.XMPP
             {
                 if (serverHooked) return;
                 serverHooked = true;
+                StreamUrl = args.ChatAffinity;
                 await HandleClients(currentTcpListener, args.ChatHost, args.ChatPort);
             };
 

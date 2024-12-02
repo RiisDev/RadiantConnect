@@ -16,6 +16,7 @@ namespace RadiantConnect.XMPP
     {
         internal string ChatHost { get; set; } = null!;
         internal int ChatPort { get; set; }
+        internal string? ChatAffinity { get; set; } = null!;
     }
 
     internal class InternalProxy
@@ -98,6 +99,8 @@ namespace RadiantConnect.XMPP
                 HttpRequestMessage pasRequest = new(HttpMethod.Get, GeoPasUrl);
                 pasRequest.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
 
+
+                string? affinity = string.Empty;
                 try
                 {
                     string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
@@ -105,7 +108,7 @@ namespace RadiantConnect.XMPP
                     string validBase64 = pasJwtContent.PadRight((pasJwtContent.Length / 4 * 4) + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
                     string pasJwtString = validBase64.FromBase64();
                     JsonNode? pasJwtJson = JsonSerializer.Deserialize<JsonNode>(pasJwtString);
-                    string? affinity = pasJwtJson?["affinity"]?.GetValue<string>();
+                    affinity = pasJwtJson?["affinity"]?.GetValue<string>();
 
                     if (affinity is null) return;
 
@@ -119,7 +122,7 @@ namespace RadiantConnect.XMPP
                     riotClientConfig["chat.allow_bad_cert.enabled"] = true;
 
                 if (riotChatHost is not null && ChatPort != 0)
-                    OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort});
+                    OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort, ChatAffinity = affinity});
 
                 responseString = JsonSerializer.Serialize(riotClientConfig);
             }
