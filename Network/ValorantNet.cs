@@ -44,6 +44,7 @@ namespace RadiantConnect.Network
     public class ValorantNet
     {
         public RadiantConnectRSO? SuppliedAuth { get; set; }
+        public RSOAuth? AuthCodes { get; set; }
 
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
 
@@ -71,9 +72,10 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService? valorantClient = null, RadiantConnectRSO? suppliedAuth = null)
+        public ValorantNet(ValorantService? valorantClient = null, RadiantConnectRSO? suppliedAuth = null, RSOAuth authCodes = null)
         {
             SuppliedAuth = suppliedAuth;
+            AuthCodes = authCodes;
             Client.Timeout = TimeSpan.FromSeconds(10);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", valorantClient?.ValorantClientVersion.UserPlatform);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}");
@@ -112,6 +114,9 @@ namespace RadiantConnect.Network
 
         internal async Task<(string, string)> GetTokensFromSsid()
         {
+            if (AuthCodes is not null)
+                return (AuthCodes?.AccessToken, AuthCodes?.Entitlement)!;
+
             CookieContainer container = new();
             using HttpClient httpClient = new(new HttpClientHandler
             {
@@ -168,6 +173,7 @@ namespace RadiantConnect.Network
         internal async Task<(string, string)> GetAuthorizationToken()
         {
             if (SuppliedAuth is not null) return await GetTokensFromSsid();
+            if (AuthCodes is not null) return await GetTokensFromSsid();
 
             UserAuth? auth = GetAuth();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
@@ -201,6 +207,8 @@ namespace RadiantConnect.Network
         {
             if (SuppliedAuth is not null)
                 throw new RadiantConnectException("Cannot use local endpoints with SuppliedAuth");
+            if (AuthCodes is not null)
+                throw new RadiantConnectException("Cannot use local endpoints with AuthCodes");
 
             Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             Client.DefaultRequestHeaders.Remove("Authorization");
@@ -220,7 +228,7 @@ namespace RadiantConnect.Network
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
             try
             {
-                while (InternalValorantMethods.IsValorantProcessRunning() || SuppliedAuth is not null)
+                while (InternalValorantMethods.IsValorantProcessRunning() || (SuppliedAuth is not null || AuthCodes is not null))
                 {
                     if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
                         await SetBasicAuth();

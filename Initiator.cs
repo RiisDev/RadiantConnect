@@ -50,9 +50,9 @@ namespace RadiantConnect
         public GameEvents GameEvents { get; set; } = null!;
         public LogService.ClientData Client { get; }
 
-        public Initiator(bool ignoreVpn = true, RadiantConnectRSO? suppliedAuth = null)
+        public Initiator(bool ignoreVpn = true, RadiantConnectRSO? suppliedAuth = null, RSOAuth newRsoAuth = null)
         {
-            while (!ClientIsReady() && suppliedAuth == null)
+            while (!ClientIsReady() && suppliedAuth == null && newRsoAuth == null)
             {
                 Debug.WriteLine("[INITIATOR] Waiting For Client...");
                 Task.Delay(2000);
@@ -60,7 +60,7 @@ namespace RadiantConnect
             ValorantService client = new();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
-            ValorantNet net = new(client, suppliedAuth);
+            ValorantNet net = new(client, suppliedAuth, newRsoAuth);
 
             string vpnDetected = IsVpnDetected();
 

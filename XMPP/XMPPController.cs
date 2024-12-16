@@ -25,7 +25,7 @@ namespace RadiantConnect.XMPP
             _remoteClient = remoteClient;
             _onRemoteMessage += data => OnXMPPReceived?.Invoke(data);
 
-            if (string.IsNullOrEmpty(remoteClient.AuthData.Affinity))
+            if (remoteClient.AuthData is null || string.IsNullOrEmpty(remoteClient.AuthData.Affinity))
                 throw new RadiantConnectXMPPException("Failed to find stream url");
 
             _affinity = remoteClient.ChatAffinity[remoteClient.AuthData.Affinity];

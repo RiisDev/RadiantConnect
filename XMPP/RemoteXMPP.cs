@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
@@ -121,6 +122,8 @@ namespace RadiantConnect.XMPP
                 OnMessage?.Invoke(contentBuilder.ToString());
             }
             
+            Debug.WriteLine(contentBuilder.ToString());
+
             return contentBuilder.ToString();
         }
 

@@ -19,7 +19,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
     public delegate void UrlBuilder(string url);
 
-    internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false) : IDisposable
+    internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false)// : IDisposable
     {
 
         internal event UrlBuilder? OnUrlBuilt;
@@ -59,13 +59,14 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
             TaskCompletionSource<RSOAuth?> tcs = new ();
 
-            manager.OnTokensFinished += (authData) => tcs.SetResult(authData);
+            manager.OnTokensFinished += authData => 
+                tcs.SetResult(authData);
 
             manager.InitiateTimer();
 
             return await tcs.Task;
         }
 
-        public void Dispose() => HttpClient.Dispose();
+        //public void Dispose() => HttpClient.Dispose();
     }
 }

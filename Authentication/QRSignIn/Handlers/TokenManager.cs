@@ -189,7 +189,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 {
                     await Task.Delay(30000);
 
-                    if (User32.IsWindow(form.WindowHandle))
+                    if (User32.IsWindow(form!.WindowHandle))
                     {
                         timer.Stop();
                         timer.Dispose();

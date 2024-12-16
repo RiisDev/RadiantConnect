@@ -97,7 +97,7 @@ namespace RadiantConnect.Authentication
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
-            using SignInManager manager = new(countryCode, returnLoginUrl);
+            SignInManager manager = new(countryCode, returnLoginUrl);
             
             if (returnLoginUrl)
                 manager.OnUrlBuilt += OnUrlBuilt;
