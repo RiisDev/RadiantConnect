@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
+using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Methods;
 using RadiantConnect.Services;
@@ -13,37 +14,8 @@ using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 
 namespace RadiantConnect.Network
 {
-    public class SuppliedAuth(string jsonWebToken, string authorization)
-    {
-        public string JsonWebToken { get; set; } = jsonWebToken;
-        public string Authorization { get; set; } = authorization;
-
-        public void SetJsonWebToken(string jsonWebToken) => JsonWebToken = jsonWebToken;
-        public void SetAuthorization(string jsonWebToken) => Authorization = jsonWebToken;
-    }
-
-    public record UserAuth(int AuthorizationPort, string OAuth);
-
-    internal record HttpClientCookie(
-        [property: JsonPropertyName("Comment")] string Comment,
-        [property: JsonPropertyName("CommentUri")] object CommentUri,
-        [property: JsonPropertyName("HttpOnly")] bool? HttpOnly,
-        [property: JsonPropertyName("Discard")] bool? Discard,
-        [property: JsonPropertyName("Domain")] string Domain,
-        [property: JsonPropertyName("Expired")] bool? Expired,
-        [property: JsonPropertyName("Expires")] DateTime? Expires,
-        [property: JsonPropertyName("Name")] string Name,
-        [property: JsonPropertyName("Path")] string Path,
-        [property: JsonPropertyName("Port")] string Port,
-        [property: JsonPropertyName("Secure")] bool? Secure,
-        [property: JsonPropertyName("TimeStamp")] DateTime? TimeStamp,
-        [property: JsonPropertyName("Value")] string Value,
-        [property: JsonPropertyName("Version")] int? Version
-    );
-
     public class ValorantNet
     {
-        public RadiantConnectRSO? SuppliedAuth { get; set; }
         public RSOAuth? AuthCodes { get; set; }
 
         internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
@@ -72,10 +44,35 @@ namespace RadiantConnect.Network
             Head
         }
 
-        public ValorantNet(ValorantService? valorantClient = null, RadiantConnectRSO? suppliedAuth = null, RSOAuth authCodes = null)
+        public ValorantNet(RSOAuth rsoAuth)
         {
-            SuppliedAuth = suppliedAuth;
-            AuthCodes = authCodes;
+            AuthCodes = rsoAuth;
+            Client.Timeout = TimeSpan.FromSeconds(value: 10);
+
+            using HttpClient client = new();
+            ValorantVersionApiRoot apiData = client.GetFromJsonAsync<ValorantVersionApiRoot>(requestUri: "https://valorant-api.com/v1/version").Result!;
+
+            ValorantService.Version valorantClient = new (
+                RiotClientVersion: apiData.Data.RiotClientVersion.Replace("-shipping", ""), 
+                Branch: "live", 
+                BuildVersion: apiData.Data.BuildVersion, 
+                Changelist: apiData.Data.ManifestId, 
+                EngineVersion: apiData.Data.EngineVersion, 
+                VanguardVersion: "0.0.0",
+                UserClientVersion: "10.0.19042.1.256.64bit",
+                UserPlatform: "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
+            );
+
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", valorantClient?.UserPlatform);
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", value: $"ShooterGame/{valorantClient?.BuildVersion} {valorantClient?.UserClientVersion}");
+            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", valorantClient?.RiotClientVersion);
+
+        }
+
+        public ValorantNet(string ssid) : this(BuildRSOFromSsid(ssid).Result) {}
+
+        public ValorantNet(ValorantService? valorantClient = null)
+        {
             Client.Timeout = TimeSpan.FromSeconds(10);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", valorantClient?.ValorantClientVersion.UserPlatform);
             Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}");
@@ -106,74 +103,9 @@ namespace RadiantConnect.Network
             return new UserAuth(authPort, oAuth);
         }
 
-        internal readonly Regex AccessTokenRegex = new("access_token=(.*?)&scope", RegexOptions.Compiled);
-        internal string ParseAccessToken(string accessToken)
-        {
-            return AccessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
-
-        internal async Task<(string, string)> GetTokensFromSsid()
-        {
-            if (AuthCodes is not null)
-                return (AuthCodes?.AccessToken, AuthCodes?.Entitlement)!;
-
-            CookieContainer container = new();
-            using HttpClient httpClient = new(new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
-                AllowAutoRedirect = true,
-                CookieContainer = container
-            });
-
-            container.Add(new System.Net.Cookie("ssid", SuppliedAuth?.SSID, "/", "auth.riotgames.com"));
-
-            HttpResponseMessage response = await httpClient.GetAsync("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
-            string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
-
-            if (string.IsNullOrEmpty(redirectRequest))
-                throw new RadiantConnectAuthException("Failed to redirect to Valorant RSO");
-            if (!redirectRequest.Contains("access_token"))
-                throw new RadiantConnectAuthException("Failed to get Valorant RSO (Access_Token)");
-
-            string accessToken = ParseAccessToken(redirectRequest);
-
-            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {accessToken}");
-            response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
-            string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
-
-            
-            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
-
-            if (File.Exists(cacheFile))
-            {
-                CookieCollection clientCookies = container.GetCookies(new Uri("https://auth.riotgames.com"));
-
-                List<HttpClientCookie>? cookeRoots = JsonSerializer.Deserialize<List<HttpClientCookie>>(JsonSerializer.Serialize(clientCookies));
-                CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
-
-                List<Cookie>? cookies = cookieRoot?.Result.Cookies.ToList();
-
-                foreach (HttpClientCookie cookie in cookeRoots!)
-                {
-                    if (cookies!.All(x => x.Name != cookie.Name)) continue;
-
-                    Cookie newCookie = cookies!.First(x => x.Name == cookie.Name);
-                    cookies![cookies.IndexOf(newCookie)] = newCookie with { Value = cookie.Value };
-                }
-
-                CookieRoot newCookieRoot = cookieRoot! with { Result = new Result(cookies!) };
-
-                await File.WriteAllTextAsync(cacheFile, JsonSerializer.Serialize(newCookieRoot));
-            }
-
-
-            return (accessToken, entitlementToken);
-        }
-
         internal async Task<(string, string)> GetAuthorizationToken()
         {
-            if (SuppliedAuth is not null) return await GetTokensFromSsid();
-            if (AuthCodes is not null) return await GetTokensFromSsid();
+            if (AuthCodes is not null) return (AuthCodes.AccessToken, AuthCodes.Entitlement)!;
 
             UserAuth? auth = GetAuth();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
@@ -181,11 +113,11 @@ namespace RadiantConnect.Network
 
             if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
 
-            InternalRecords.Entitlement? entitlement = JsonSerializer.Deserialize<InternalRecords.Entitlement>(response.Content.ReadAsStringAsync().Result);
+            Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
 
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
-
+       
         internal async Task ResetAuth()
         {
             try
@@ -205,8 +137,6 @@ namespace RadiantConnect.Network
 
         internal async Task SetBasicAuth()
         {
-            if (SuppliedAuth is not null)
-                throw new RadiantConnectException("Cannot use local endpoints with SuppliedAuth");
             if (AuthCodes is not null)
                 throw new RadiantConnectException("Cannot use local endpoints with AuthCodes");
 
@@ -228,7 +158,7 @@ namespace RadiantConnect.Network
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
             try
             {
-                while (InternalValorantMethods.IsValorantProcessRunning() || (SuppliedAuth is not null || AuthCodes is not null))
+                while (InternalValorantMethods.IsValorantProcessRunning() || AuthCodes is not null)
                 {
                     if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic")
                         await SetBasicAuth();
@@ -300,10 +230,114 @@ namespace RadiantConnect.Network
             }
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
-    }
 
-    public class InternalRecords
-    {
+        #region SSIDParse
+
+        internal static string ParseAccessToken(string accessToken)
+        {
+            Regex accessTokenRegex = new("access_token=(.*?)&scope");
+            return accessTokenRegex.Match(accessToken).Groups[1].Value;
+        }
+        internal static string ParseIdToken(string accessToken)
+        {
+            Regex accessTokenRegex = new("id_token=(.*?)&token_type");
+            return accessTokenRegex.Match(accessToken).Groups[1].Value;
+        }
+
+        internal static async Task<(string, string, string, string)> GetTokensFromSsid(string ssid)
+        {
+            CookieContainer container = new();
+            using HttpClient httpClient = new(new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
+                AllowAutoRedirect = true,
+                CookieContainer = container
+            });
+
+            container.Add(new System.Net.Cookie("ssid", ssid, "/", "auth.riotgames.com"));
+
+            HttpResponseMessage response = await httpClient.GetAsync("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
+            string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
+
+            if (string.IsNullOrEmpty(redirectRequest))
+                throw new RadiantConnectAuthException("Failed to redirect to Valorant RSO");
+            if (!redirectRequest.Contains("access_token"))
+                throw new RadiantConnectAuthException("Failed to get Valorant RSO (Access_Token)");
+
+            string accessToken = ParseAccessToken(redirectRequest);
+            string idToken = ParseIdToken(redirectRequest);
+
+            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {accessToken}");
+            response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
+            string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
+
+            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
+
+            if (File.Exists(cacheFile))
+            {
+                CookieCollection clientCookies = container.GetCookies(new Uri("https://auth.riotgames.com"));
+
+                List<HttpClientCookie>? cookeRoots = JsonSerializer.Deserialize<List<HttpClientCookie>>(JsonSerializer.Serialize(clientCookies));
+                CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
+
+                List<Cookie>? cookies = cookieRoot?.Result.Cookies.ToList();
+
+                foreach (HttpClientCookie cookie in cookeRoots!)
+                {
+                    if (cookies!.All(x => x.Name != cookie.Name)) continue;
+
+                    Cookie newCookie = cookies!.First(x => x.Name == cookie.Name);
+                    cookies![cookies.IndexOf(newCookie)] = newCookie with { Value = cookie.Value };
+                }
+
+                CookieRoot newCookieRoot = cookieRoot! with { Result = new Result(cookies!) };
+
+                await File.WriteAllTextAsync(cacheFile, JsonSerializer.Serialize(newCookieRoot));
+            }
+
+            return (accessToken, entitlementToken, idToken, await GetPasToken(accessToken));
+        }
+
+        internal static async Task<string> GetPasToken(string accessToken)
+        {
+            using HttpClient httpClient = new();
+            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
+            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+
+            HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
+            return await response.Content.ReadAsStringAsync();
+        }
+
+        internal static async Task<RSOAuth> BuildRSOFromSsid(string ssid)
+        {
+            (string accessToken, string entitlementToken, string idToken, string pasToken) = await GetTokensFromSsid(ssid);
+
+            JsonWebToken jwt = new(pasToken);
+            string? affinity = jwt.GetPayloadValue<string>("affinity");
+            string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
+            string? subject = new JsonWebToken(accessToken).GetPayloadValue<string>("sub");
+
+            return new RSOAuth(
+                subject,
+                ssid,
+                null,
+                null,
+                null,
+                accessToken,
+                pasToken,
+                entitlementToken,
+                affinity,
+                chatAffinity,
+                null,
+                null,
+                idToken
+            );
+        }
+
+        #endregion
+        #region  Records
+        public record UserAuth(int AuthorizationPort, string OAuth);
+
         internal record Entitlement(
             [property: JsonPropertyName("accessToken")] string AccessToken,
             [property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,
@@ -311,5 +345,41 @@ namespace RadiantConnect.Network
             [property: JsonPropertyName("subject")] string Subject,
             [property: JsonPropertyName("token")] string Token
         );
+
+        internal record HttpClientCookie(
+            [property: JsonPropertyName("Comment")] string Comment,
+            [property: JsonPropertyName("CommentUri")] object CommentUri,
+            [property: JsonPropertyName("HttpOnly")] bool? HttpOnly,
+            [property: JsonPropertyName("Discard")] bool? Discard,
+            [property: JsonPropertyName("Domain")] string Domain,
+            [property: JsonPropertyName("Expired")] bool? Expired,
+            [property: JsonPropertyName("Expires")] DateTime? Expires,
+            [property: JsonPropertyName("Name")] string Name,
+            [property: JsonPropertyName("Path")] string Path,
+            [property: JsonPropertyName("Port")] string Port,
+            [property: JsonPropertyName("Secure")] bool? Secure,
+            [property: JsonPropertyName("TimeStamp")] DateTime? TimeStamp,
+            [property: JsonPropertyName("Value")] string Value,
+            [property: JsonPropertyName("Version")] int? Version
+        );
+
+        public record ValorantVersionApi(
+            [property: JsonPropertyName("manifestId")] string ManifestId,
+            [property: JsonPropertyName("branch")] string Branch,
+            [property: JsonPropertyName("version")] string Version,
+            [property: JsonPropertyName("buildVersion")] string BuildVersion,
+            [property: JsonPropertyName("engineVersion")] string EngineVersion,
+            [property: JsonPropertyName("riotClientVersion")] string RiotClientVersion,
+            [property: JsonPropertyName("riotClientBuild")] string RiotClientBuild,
+            [property: JsonPropertyName("buildDate")] DateTime? BuildDate
+        );
+
+        public record ValorantVersionApiRoot(
+            [property: JsonPropertyName("status")] int? Status,
+            [property: JsonPropertyName("data")] ValorantVersionApi Data
+        );
+
+        #endregion
+
     }
 }

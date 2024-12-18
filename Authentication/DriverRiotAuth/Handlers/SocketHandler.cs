@@ -63,7 +63,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                             "*valorant.secure.dyn.riotcdn.net/*",
                             "*cdn.rgpub.io/*",
                             "*google-analytics.com/*",
-                            "*googletagmanager.com/*"
+                            "*googletagmanager.com/*",
+                            "!*hcaptcha*"
                         }}
                     }}
                 },

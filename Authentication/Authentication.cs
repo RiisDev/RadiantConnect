@@ -124,7 +124,7 @@ namespace RadiantConnect.Authentication
 
             Debug.WriteLine($"{DateTime.Now} LOGIN STARTED");
 
-            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement, object? clientConfig, string? _) = 
+            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement, object? clientConfig, string? _, string idToken) = 
                 await authHandler.Initialize(username, password);
 
             Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
@@ -150,7 +150,7 @@ namespace RadiantConnect.Authentication
             string? affinity = jwt.GetPayloadValue<string>("affinity");
             string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
             
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, riotCookies);
+            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, riotCookies, idToken);
         }
 
         public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()

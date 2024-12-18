@@ -140,13 +140,18 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             Regex accessTokenRegex = new("access_token=(.*?)&scope");
             return accessTokenRegex.Match(accessToken).Groups[1].Value;
         }
+        internal string ParseIdToken(string accessToken)
+        {
+            Regex accessTokenRegex = new("id_token=(.*?)&token_type");
+            return accessTokenRegex.Match(accessToken).Groups[1].Value;
+        }
 
-        internal async Task<string> GetAccessToken(string loginToken)
+        internal async Task<(string, string)> GetAccessTokens(string loginToken)
         {
             string traceData = await GetAccessTokenStage1(loginToken);
             string accessTokenUri = await GetAccessTokenStage2(traceData);
             
-            return ParseAccessToken(accessTokenUri);
+            return (ParseAccessToken(accessTokenUri), ParseIdToken(accessTokenUri));
         }
 
         internal async Task<(string, string, object, string)> GetTokens(string accessToken)
@@ -205,10 +210,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
                 form?.Dispose();
 
-                string accessToken = await GetAccessToken(loginToken);
+                (string accessToken, string idToken) = await GetAccessTokens(loginToken);
                 if (string.IsNullOrEmpty(accessToken)) return;
 
-                (string pasToken, string entitlementToken, object clientConfig, string userInfo) = await GetTokens(accessToken);
+                (string pasToken, string entitlementToken, object clientConfig, string _) = await GetTokens(accessToken);
 
                 JsonWebToken jwt = new(pasToken);
                 string? affinity = jwt.GetPayloadValue<string>("affinity");
@@ -227,7 +232,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                     affinity,
                     chatAffinity,
                     clientConfig,
-                    null
+                    null,
+                    idToken
                 ));
             };
 

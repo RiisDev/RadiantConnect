@@ -3,14 +3,18 @@ using System.Diagnostics.CodeAnalysis;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace RadiantConnect.XMPP
 {
-    public class RemoteXMPP
+    public partial class RemoteXMPP
     {
+        [GeneratedRegex("<jid>(.*?)</jid>", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
+        private static partial Regex JidGrabber();
+
         public enum XMPPStatus
         {
             Connecting,
@@ -81,6 +85,8 @@ namespace RadiantConnect.XMPP
 
         internal XMPPStatus InternalStatus;
 
+        internal string XmppBind { get; set; } = null!;
+
         internal RSOAuth AuthData { get; private set; } = null!;
 
         public XMPPStatus Status
@@ -122,7 +128,7 @@ namespace RadiantConnect.XMPP
                 OnMessage?.Invoke(contentBuilder.ToString());
             }
             
-            Debug.WriteLine(contentBuilder.ToString());
+            //Debug.WriteLine(contentBuilder.ToString());
 
             return contentBuilder.ToString();
         }
@@ -172,7 +178,16 @@ namespace RadiantConnect.XMPP
 
             Status = XMPPStatus.BindingStream;
             await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
-            await AsyncSocketRead(SslStream);
+            incomingData = await AsyncSocketRead(SslStream);
+
+            if (incomingData.Contains("jid"))
+            {
+                Match jidMatch = JidGrabber().Match(incomingData);
+                if (jidMatch.Success)
+                {
+                    XmppBind = jidMatch.Groups[1].Value;
+                }
+            }
 
             Status = XMPPStatus.BindingSession;
             await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");

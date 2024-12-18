@@ -7,7 +7,7 @@ using RadiantConnect.Network;
 
 namespace RadiantConnect.ValSocket
 {
-    public class ValSocket(UserAuth authentication, Initiator init)
+    public class ValSocket(ValorantNet.UserAuth authentication, Initiator init)
     {
         public void ShutdownConnection() => ShutdownSocket.Cancel();
         public delegate void SocketFired(string value);
