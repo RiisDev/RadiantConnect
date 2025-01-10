@@ -15,7 +15,7 @@ using RadiantConnect.XMPP;
 
 namespace RadiantConnect.ShadowClient
 {
-    public record GameTagLine(
+    internal record GameTagLine(
         [property: JsonPropertyName("game_name")] string GameName,
         [property: JsonPropertyName("tag_line")] string TagLine
     );

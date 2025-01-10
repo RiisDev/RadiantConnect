@@ -286,7 +286,7 @@
     "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
-    "version": "9.1.0",
+    "version": "9.2.0",
     "restore": {
       "projectUniqueName": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
       "projectName": "RadiantConnect",

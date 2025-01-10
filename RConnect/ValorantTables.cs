@@ -306,6 +306,7 @@ public static class ValorantTables
         { "e336c6b8-418d-9340-d77f-7a9e4cfe0702", "Sheriff" },
         { "42da8ccc-40d5-affc-beec-15aa47b42eda", "Shorty" },
         { "a03b24d3-4319-996d-0f8c-94bbfba1dfc7", "Operator" },
+        { "5f0aaf7a-4289-3998-d5ff-eb9a5cf7ef5c", "Outlaw" },
         { "4ade7faa-4cf1-8376-95ef-39884480959b", "Guardian" },
         { "c4883e50-4494-202c-3ec3-6b8a9284f00b", "Marshal" },
         { "462080d1-4035-2937-7c09-27aa2a5c27a7", "Spectre" },
@@ -319,6 +320,7 @@ public static class ValorantTables
         { "5f8d3a7f-467b-97f3-062c-13acf203c006", "Breach" },
         { "9f0d8ba9-4140-b941-57d3-a7ad57c6b417", "Brimstone" },
         { "22697a3d-45bf-8dd7-4fec-84a9e28c69d7", "Chamber" },
+        { "1dbf2edd-4729-0984-3115-daa5eed44993", "Clove" },
         { "117ed9e3-49f3-6512-3ccf-0cada7e3823b", "Cypher" },
         { "cc8b64c8-4b25-4ff9-6e7f-37b4da43d235", "Deadlock" },
         { "dade69b4-4f5a-8528-247b-219e5a1facd6", "Fade" },
@@ -326,6 +328,7 @@ public static class ValorantTables
         { "95b78ed7-4637-86d9-7e41-71ba8c293152", "Harbor" },
         { "0e38b510-41a8-5780-5e8f-568b2a4f2d6c", "ISO" },
         { "add6443a-41bd-e414-f6ad-e58d267f4e95", "Jett" },
+        { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" },
         { "1e58de9c-4950-5125-93e9-a0aee9f98746", "Killjoy" },
         { "bb2a4828-46eb-8cd1-e765-15848195d751", "Neon" },
         { "8e253930-4c05-31dd-1b6c-968525494517", "Omen" },
@@ -335,11 +338,10 @@ public static class ValorantTables
         { "569fdd95-4d10-43ab-ca70-79becc718b46", "Sage" },
         { "6f2a04ca-43e0-be17-7f36-b3908627744d", "Skye" },
         { "320b2a48-4d9b-a075-30f1-1f93a9b638fa", "Sova" },
+        { "b444168c-4e35-8076-db47-ef9bf368f384", "Tejo" },
         { "707eab51-4836-f488-046a-cda6bf494859", "Viper" },
         { "efba5359-4016-a1e5-7626-b1ae76895940", "Vyse" },
-        { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" },
-        { "601dbbe7-43ce-be57-2a40-4abd24953621", "KAY/O" },
-        { "1dbf2edd-4729-0984-3115-daa5eed44993", "Clove" }
+        { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" }
     };
     
     public static readonly Dictionary<long, string> TierToRank = new()
