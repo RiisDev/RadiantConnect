@@ -14,7 +14,7 @@ using Timer = System.Timers.Timer;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-    internal class TokenManager(Win32Form? form, BuiltData qrData, HttpClient client, bool returnUrl)
+    internal class TokenManager(Win32Form? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
     {
         internal delegate void TokensFinished(RSOAuth authData);
         internal event TokensFinished? OnTokensFinished;
@@ -220,12 +220,15 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
                 string? subject = new JsonWebToken(accessToken).GetPayloadValue<string>("sub");
 
+                CookieCollection cookies = container.GetAllCookies();
+                
+
                 OnTokensFinished?.Invoke(new RSOAuth(
                     subject,
-                    null,
-                    null,
-                    null,
-                    null,
+                    cookies.First(x=> x.Name == "ssid").Value,
+                    cookies.First(x => x.Name == "tdid").Value,
+                    cookies.First(x => x.Name == "csid").Value,
+                    cookies.First(x => x.Name == "clid").Value,
                     accessToken,
                     pasToken,
                     entitlementToken,

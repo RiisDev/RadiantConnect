@@ -5,6 +5,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Net;
+using System.Text.Json;
 using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
@@ -55,12 +56,15 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 form = new Win32Form(bitmap);
             }
 
-            TokenManager manager = new(form, qrData, HttpClient, returnUrl);
+            TokenManager manager = new(form, qrData, HttpClient, returnUrl, Container);
 
             TaskCompletionSource<RSOAuth?> tcs = new ();
 
-            manager.OnTokensFinished += authData => 
+            manager.OnTokensFinished += authData =>
+            {
+                Debug.WriteLine(JsonSerializer.Serialize(Container.GetAllCookies()));
                 tcs.SetResult(authData);
+            };
 
             manager.InitiateTimer();
 
