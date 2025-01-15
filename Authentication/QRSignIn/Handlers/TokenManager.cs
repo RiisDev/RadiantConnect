@@ -222,7 +222,6 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
                 CookieCollection cookies = container.GetAllCookies();
                 
-
                 OnTokensFinished?.Invoke(new RSOAuth(
                     subject,
                     cookies.First(x=> x.Name == "ssid").Value,

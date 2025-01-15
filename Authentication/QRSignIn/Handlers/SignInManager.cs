@@ -60,11 +60,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
             TaskCompletionSource<RSOAuth?> tcs = new ();
 
-            manager.OnTokensFinished += authData =>
-            {
-                Debug.WriteLine(JsonSerializer.Serialize(Container.GetAllCookies()));
-                tcs.SetResult(authData);
-            };
+            manager.OnTokensFinished += authData => tcs.SetResult(authData);
 
             manager.InitiateTimer();
 
