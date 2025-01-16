@@ -28,7 +28,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static readonly Regex FrameNavigatedRegex = new("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex NavigatedWithinDocument = new("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex FrameStoppedLoadingRegex = new("\"frameId\":\"([^\"]+)\"", RegexOptions.Compiled);
-        internal static readonly Regex AccessTokenRegex = new("(access_token=[^}]*)", RegexOptions.Compiled);
 
         internal static void DoDriverCheck(string browserProcess, string browserExecutable, bool killBrowser)
         {
@@ -68,9 +67,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                     OnMfaDetected?.Invoke();
                     break;
                 case var _ when message.Contains("[RADIANTCONNECT] Access Token"):
-                    match = AccessTokenRegex.Match(message);
-                    if (match.Success)
-                        OnAccessTokenFound?.Invoke(match.Groups[1].Value);
+                    OnAccessTokenFound?.Invoke(Util.ParseAccessToken(message));
                     break;
             }
 

@@ -22,20 +22,12 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
     internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false)// : IDisposable
     {
-
         internal event UrlBuilder? OnUrlBuilt;
-
-        internal static CookieContainer Container = new();
-        internal HttpClient HttpClient = new(new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
-            UseCookies = true,
-            CookieContainer = Container,
-            AutomaticDecompression = DecompressionMethods.All
-        });
-
+        
         internal async Task<RSOAuth?> InitiateSignIn()
         {
+            (HttpClient HttpClient, CookieContainer Container) = Util.BuildClient();
+
             LoginQrManager builder = new(HttpClient);
             BuiltData qrData = await builder.Build(code);
             Win32Form? form = null;

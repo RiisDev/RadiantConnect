@@ -154,34 +154,6 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             return (ParseAccessToken(accessTokenUri), ParseIdToken(accessTokenUri));
         }
 
-        internal async Task<(string, string, object, string)> GetTokens(string accessToken)
-        {
-            using HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            // Get PAS token
-            HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
-            string pasToken = await response.Content.ReadAsStringAsync();
-
-            // GetUserInfo 
-            response = await httpClient.GetAsync("https://auth.riotgames.com/userinfo");
-            string userInfo = await response.Content.ReadAsStringAsync();
-
-            // Get entitlement token
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
-            string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
-
-            // Get client config
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-            httpClient.DefaultRequestHeaders.Add("X-Riot-Entitlements-JWT", entitlementToken);
-            response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client");
-            object clientConfig = await response.Content.ReadFromJsonAsync<object>() ?? new { };
-
-            return (pasToken, entitlementToken, clientConfig, userInfo);
-        }
-
         internal void InitiateTimer()
         {
             Timer timer = new();
@@ -213,7 +185,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
                 if (string.IsNullOrEmpty(accessToken)) return;
 
-                (string pasToken, string entitlementToken, object clientConfig, string _) = await GetTokens(accessToken);
+                (string pasToken, string entitlementToken, object clientConfig, string _) = await Util.GetTokens(accessToken);
 
                 JsonWebToken jwt = new(pasToken);
                 string? affinity = jwt.GetPayloadValue<string>("affinity");

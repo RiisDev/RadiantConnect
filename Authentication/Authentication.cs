@@ -10,6 +10,7 @@ using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Handlers;
 using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
+using TokenManager = RadiantConnect.Authentication.SSIDReAuth.SSIDAuthManager;
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable IdentifierTypo
@@ -93,6 +94,11 @@ namespace RadiantConnect.Authentication
 
             throw new NotImplementedException();
 #endif
+        }
+
+        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid)
+        {
+            return await new TokenManager().SignIn(ssid);
         }
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
