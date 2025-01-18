@@ -5,6 +5,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Utilities;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -12,8 +13,6 @@ namespace RadiantConnect.XMPP
 {
     public partial class RemoteXMPP
     {
-        [GeneratedRegex("<jid>(.*?)</jid>", RegexOptions.IgnoreCase | RegexOptions.Compiled)]
-        private static partial Regex JidGrabber();
 
         public enum XMPPStatus
         {
@@ -182,11 +181,7 @@ namespace RadiantConnect.XMPP
 
             if (incomingData.Contains("jid"))
             {
-                Match jidMatch = JidGrabber().Match(incomingData);
-                if (jidMatch.Success)
-                {
-                    XmppBind = jidMatch.Groups[1].Value;
-                }
+                XmppBind = incomingData.ExtractValue("<jid>(.*?)</jid>", 1);
             }
 
             Status = XMPPStatus.BindingSession;

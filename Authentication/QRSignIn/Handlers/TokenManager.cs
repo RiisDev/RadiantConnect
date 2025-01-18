@@ -137,23 +137,12 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             return accessTokenData?.Response?.Parameters?.Uri ?? "";
         }
 
-        internal string ParseAccessToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("access_token=(.*?)&scope");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
-        internal string ParseIdToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("id_token=(.*?)&token_type");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
-
         internal async Task<(string, string)> GetAccessTokens(string loginToken)
         {
             string traceData = await GetAccessTokenStage1(loginToken);
             string accessTokenUri = await GetAccessTokenStage2(traceData);
             
-            return (ParseAccessToken(accessTokenUri), ParseIdToken(accessTokenUri));
+            return (AuthUtil.ParseAccessToken(accessTokenUri), AuthUtil.ParseAccessToken((accessTokenUri));
         }
 
         internal void InitiateTimer()
