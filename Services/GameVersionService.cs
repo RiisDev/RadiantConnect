@@ -2,7 +2,7 @@
 using System.Reflection;
 using System.Text;
 using System.Text.Json;
-using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services

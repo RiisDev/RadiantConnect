@@ -1,7 +1,8 @@
-﻿using RadiantConnect.Network.LocalEndpoints;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.Text.Json;
-namespace RadiantConnect.Methods;
+using RadiantConnect.Network.LocalEndpoints;
+
+namespace RadiantConnect.Utilities;
 // ReSharper disable All
 
 public class InternalValorantMethods

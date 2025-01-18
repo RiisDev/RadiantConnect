@@ -2,15 +2,11 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
-using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Methods;
 using RadiantConnect.Services;
-using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
+using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Network
 {
@@ -18,7 +14,7 @@ namespace RadiantConnect.Network
     {
         public RSOAuth? AuthCodes { get; set; }
 
-        internal HttpClient Client = new(new HttpClientHandler { ServerCertificateCustomValidationCallback = (_, _, _, _) => true });
+        internal HttpClient Client = AuthUtil.BuildClient().Item1;
 
         public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
 
@@ -49,7 +45,7 @@ namespace RadiantConnect.Network
             AuthCodes = rsoAuth;
             Client.Timeout = TimeSpan.FromSeconds(value: 10);
 
-            using HttpClient client = new();
+            using HttpClient client = AuthUtil.BuildClient().Item1;
             ValorantVersionApiRoot apiData = client.GetFromJsonAsync<ValorantVersionApiRoot>(requestUri: "https://valorant-api.com/v1/version").Result!;
 
             ValorantService.Version valorantClient = new (
@@ -69,7 +65,8 @@ namespace RadiantConnect.Network
 
         }
 
-        public ValorantNet(string ssid) : this(BuildRSOFromSsid(ssid).Result) {}
+        // This is terrible I'm sorry, but backwards compatibility :(
+        public ValorantNet(string ssid) : this(new Authentication.Authentication().AuthenticateWithSSID(ssid).Result ?? throw new RadiantConnectAuthException("Failed to bind SSID to Net")) {}
 
         public ValorantNet(ValorantService? valorantClient = null)
         {
@@ -223,118 +220,16 @@ namespace RadiantConnect.Network
         public async Task<T?> PutAsync<T>(string baseUrl, string endPoint,HttpContent httpContent)
         {
             string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
-            if (endPoint == "name-service/v2/players")
+
+            if (endPoint == "name-service/v2/players") // I forget why this is here, but I'm too scared to remove it
             {
                 jsonData = jsonData?.Trim();
                 jsonData = jsonData?[1..^1];
             }
+
             return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        #region SSIDParse
-
-        internal static string ParseAccessToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("access_token=(.*?)&scope");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
-        internal static string ParseIdToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("id_token=(.*?)&token_type");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
-
-        internal static async Task<(string, string, string, string)> GetTokensFromSsid(string ssid)
-        {
-            CookieContainer container = new();
-            using HttpClient httpClient = new(new HttpClientHandler
-            {
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
-                AllowAutoRedirect = true,
-                CookieContainer = container
-            });
-
-            container.Add(new System.Net.Cookie("ssid", ssid, "/", "auth.riotgames.com"));
-
-            HttpResponseMessage response = await httpClient.GetAsync("https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid");
-            string redirectRequest = response.RequestMessage?.RequestUri?.ToString() ?? "";
-
-            if (string.IsNullOrEmpty(redirectRequest))
-                throw new RadiantConnectAuthException("Failed to redirect to Valorant RSO");
-            if (!redirectRequest.Contains("access_token"))
-                throw new RadiantConnectAuthException("Failed to get Valorant RSO (Access_Token)");
-
-            string accessToken = ParseAccessToken(redirectRequest);
-            string idToken = ParseIdToken(redirectRequest);
-
-            httpClient.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {accessToken}");
-            response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
-            string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
-
-            string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
-
-            if (File.Exists(cacheFile))
-            {
-                CookieCollection clientCookies = container.GetCookies(new Uri("https://auth.riotgames.com"));
-
-                List<HttpClientCookie>? cookeRoots = JsonSerializer.Deserialize<List<HttpClientCookie>>(JsonSerializer.Serialize(clientCookies));
-                CookieRoot? cookieRoot = JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile));
-
-                List<Cookie>? cookies = cookieRoot?.Result.Cookies.ToList();
-
-                foreach (HttpClientCookie cookie in cookeRoots!)
-                {
-                    if (cookies!.All(x => x.Name != cookie.Name)) continue;
-
-                    Cookie newCookie = cookies!.First(x => x.Name == cookie.Name);
-                    cookies![cookies.IndexOf(newCookie)] = newCookie with { Value = cookie.Value };
-                }
-
-                CookieRoot newCookieRoot = cookieRoot! with { Result = new Result(cookies!) };
-
-                await File.WriteAllTextAsync(cacheFile, JsonSerializer.Serialize(newCookieRoot));
-            }
-
-            return (accessToken, entitlementToken, idToken, await GetPasToken(accessToken));
-        }
-
-        internal static async Task<string> GetPasToken(string accessToken)
-        {
-            using HttpClient httpClient = new();
-            httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
-            httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-
-            HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
-            return await response.Content.ReadAsStringAsync();
-        }
-
-        internal static async Task<RSOAuth> BuildRSOFromSsid(string ssid)
-        {
-            (string accessToken, string entitlementToken, string idToken, string pasToken) = await GetTokensFromSsid(ssid);
-
-            JsonWebToken jwt = new(pasToken);
-            string? affinity = jwt.GetPayloadValue<string>("affinity");
-            string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
-            string? subject = new JsonWebToken(accessToken).GetPayloadValue<string>("sub");
-
-            return new RSOAuth(
-                subject,
-                ssid,
-                null,
-                null,
-                null,
-                accessToken,
-                pasToken,
-                entitlementToken,
-                affinity,
-                chatAffinity,
-                null,
-                null,
-                idToken
-            );
-        }
-
-        #endregion
         #region  Records
         public record UserAuth(int AuthorizationPort, string OAuth);
 
@@ -380,6 +275,5 @@ namespace RadiantConnect.Network
         );
 
         #endregion
-
     }
 }

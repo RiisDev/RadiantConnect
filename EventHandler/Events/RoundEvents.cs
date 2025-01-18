@@ -1,4 +1,5 @@
 ﻿using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 
 // ReSharper disable RedundantDefaultMemberInitializer
 

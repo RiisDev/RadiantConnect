@@ -1,6 +1,8 @@
 ﻿using System.Net;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 using Cookie = System.Net.Cookie;
 
 namespace RadiantConnect.Authentication.SSIDReAuth
@@ -9,7 +11,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
     {
         internal async Task<RSOAuth> SignIn(string ssid)
         {
-            (HttpClient client, CookieContainer container) = Util.BuildClient();
+            (HttpClient client, CookieContainer container) = AuthUtil.BuildClient();
 
             container.Add(new Cookie("ssid", ssid, "/", "auth.riotgames.com"));
             HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid"));
@@ -19,9 +21,9 @@ namespace RadiantConnect.Authentication.SSIDReAuth
             if (string.IsNullOrEmpty(validAuthUrl))
                 throw new RadiantConnectAuthException("Failed to get Auth Url");
 
-            string accessToken = Util.ParseAccessToken(validAuthUrl);
-            string idToken = Util.ParseIdToken(validAuthUrl);
-            (string pasToken, string entitlementToken, object clientConfig, string _) = await Util.GetTokens(accessToken);
+            string accessToken = AuthUtil.ParseAccessToken(validAuthUrl);
+            string idToken = AuthUtil.ParseIdToken(validAuthUrl);
+            (string pasToken, string entitlementToken, object clientConfig, string _) = await AuthUtil.GetTokens(accessToken);
 
             JsonWebToken token = new (accessToken);
             string suuid = token.Subject;

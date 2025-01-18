@@ -9,6 +9,8 @@ using System.Text.Json;
 using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
+using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 
 /*
  *
@@ -26,7 +28,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
         
         internal async Task<RSOAuth?> InitiateSignIn()
         {
-            (HttpClient HttpClient, CookieContainer Container) = Util.BuildClient();
+            (HttpClient HttpClient, CookieContainer Container) = AuthUtil.BuildClient();
 
             LoginQrManager builder = new(HttpClient);
             BuiltData qrData = await builder.Build(code);

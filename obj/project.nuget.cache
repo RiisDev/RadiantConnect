@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "DMQ/ylQ9JO0=",
+  "dgSpecHash": "Og1gA16VWLY=",
   "success": true,
-  "projectFilePath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
+  "projectFilePath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\RadiantConnect.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.identitymodel.abstractions\\8.0.1\\microsoft.identitymodel.abstractions.8.0.1.nupkg.sha512",
     "C:\\Users\\irisd\\.nuget\\packages\\microsoft.identitymodel.jsonwebtokens\\8.0.1\\microsoft.identitymodel.jsonwebtokens.8.0.1.nupkg.sha512",

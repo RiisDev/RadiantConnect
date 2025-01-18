@@ -4,6 +4,7 @@ using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.RConnect.DataTypes;
+using RadiantConnect.Utilities;
 using Player = RadiantConnect.RConnect.DataTypes.Player;
 using Stats = RadiantConnect.RConnect.DataTypes.Stats;
 
@@ -95,7 +96,7 @@ namespace RadiantConnect.RConnect
 
     public static class RConnectMethods
     {
-        public static bool IsValorantRunning() => Process.GetProcessesByName("VALORANT-Win64-Shipping").Length > 0;
+        public static bool IsValorantRunning() => InternalValorantMethods.IsValorantProcessRunning();
 
         public static async Task<string?> GetRiotIdByPuuidAsync(this Initiator initiator, string puuid)
         {

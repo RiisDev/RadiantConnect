@@ -1,5 +1,4 @@
 ﻿using RadiantConnect.EventHandler;
-using RadiantConnect.Methods;
 using RadiantConnect.Services;
 using RadiantConnect.Network;
 using RadiantConnect.Network.ChatEndpoints;
@@ -15,6 +14,7 @@ using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.JsonWebTokens;
+using RadiantConnect.Utilities;
 
 namespace RadiantConnect
 {

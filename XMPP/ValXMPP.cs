@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.RegularExpressions;
 using RadiantConnect.Methods;
 using System.Reflection.Metadata;
+using RadiantConnect.Utilities;
 
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 // ReSharper disable CheckNamespace

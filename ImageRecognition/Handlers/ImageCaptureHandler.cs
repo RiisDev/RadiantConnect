@@ -3,6 +3,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 
 #pragma warning disable CA1416
 

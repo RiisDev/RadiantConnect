@@ -1,25 +1,17 @@
-﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
+using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
-namespace RadiantConnect.Authentication
+namespace RadiantConnect.Utilities
 {
-    internal static class Util
+    internal static class AuthUtil
     {
-        internal static string ParseAccessToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("access_token=(.*?)&scope");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
+        internal static string ParseAccessToken(string accessToken) => accessToken.ExtractValue("access_token=(.*?)&scope", 1);
 
-        internal static string ParseIdToken(string accessToken)
-        {
-            Regex accessTokenRegex = new("id_token=(.*?)&token_type");
-            return accessTokenRegex.Match(accessToken).Groups[1].Value;
-        }
+        internal static string ParseIdToken(string accessToken) => accessToken.ExtractValue("id_token=(.*?)&token_type", 1);
 
         internal static (HttpClient, CookieContainer) BuildClient()
         {
@@ -62,6 +54,14 @@ namespace RadiantConnect.Authentication
             object clientConfig = await response.Content.ReadFromJsonAsync<object>() ?? new { };
 
             return (pasToken, entitlementToken, clientConfig, userInfo);
+        }
+
+        internal static int GetFreePort()
+        {
+            using TcpListener listener = new(IPAddress.Loopback, 0);
+            listener.Start();
+            int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+            return port;
         }
     }
 }

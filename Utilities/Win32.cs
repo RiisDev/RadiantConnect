@@ -1,12 +1,14 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
+
 #pragma warning disable SYSLIB1054 // I cba to convert the DllImport to LibraryImport
 
-namespace RadiantConnect.Authentication.QRSignIn.Modules
+namespace RadiantConnect.Utilities
 {
     [SuppressMessage("ReSharper", "InconsistentNaming")]
     [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal static class User32
+    internal static class Win32
     {
         [DllImport("user32.dll")]
         internal static extern bool ShowWindow(nint hWnd, int nCmdShow);
@@ -21,7 +23,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
             nint hWndParent, nint hMenu, nint hInstance, nint lpParam);
 
         [DllImport("user32.dll")]
-        internal static extern bool IsWindow(IntPtr hWnd);
+        internal static extern bool IsWindow(nint hWnd);
 
         [DllImport("user32.dll")]
         internal static extern nint DefWindowProc(nint hWnd, uint uMsg, nint wParam, nint lParam);
@@ -47,7 +49,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
 
         [DllImport("user32.dll")]
         internal static extern nint GetDC(nint hWnd);
-        
+
         [DllImport("user32.dll")]
         internal static extern int GetMessage(out MSG lpMsg, nint hWnd, uint wMsgFilterMin, uint wMsgFilterMax);
 
@@ -68,7 +70,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         internal static extern bool DeleteDC(nint hdc);
 
         [DllImport("user32.dll")]
-        internal static extern bool PostMessage(IntPtr hWnd, uint Msg, IntPtr wParam, IntPtr lParam);
+        internal static extern bool PostMessage(nint hWnd, uint Msg, nint wParam, nint lParam);
+
+        [DllImport("user32.dll", SetLastError = true)]
+        internal static extern nint FindWindow(string lpClassName, string lpWindowName);
 
         // Constants
         internal const int WS_OVERLAPPED = 0x00000000;
@@ -136,6 +141,17 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         {
             internal int x;
             internal int y;
+        }
+
+        internal static Task HideDriver(Process driver)
+        {
+            while (!driver.HasExited)
+            {
+                ShowWindow(driver.MainWindowHandle, 0);
+                ShowWindow(FindWindow("Chrome_WidgetWin_1", "Restore pages"), 0);
+            }
+
+            return Task.CompletedTask;
         }
     }
 }

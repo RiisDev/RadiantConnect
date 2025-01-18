@@ -2,6 +2,8 @@
 using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Network.PartyEndpoints.DataTypes;
+using RadiantConnect.Utilities;
+
 // ReSharper disable StringLiteralTypo
 
 namespace RadiantConnect.EventHandler.Events

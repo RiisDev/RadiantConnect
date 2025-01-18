@@ -1,5 +1,7 @@
-﻿using System.Drawing;
+﻿using RadiantConnect.Methods;
+using System.Drawing;
 using System.Runtime.InteropServices;
+using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Authentication.QRSignIn.Modules
 {
@@ -16,21 +18,21 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
                 const string className = "CustomBitmapWindowClass";
                 nint hBitmap = bitmap.GetHbitmap();
 
-                User32.WNDCLASSEX wndClass = new()
+                Win32.WNDCLASSEX wndClass = new()
                 {
-                    cbSize = (uint)Marshal.SizeOf<User32.WNDCLASSEX>(),
+                    cbSize = (uint)Marshal.SizeOf<Win32.WNDCLASSEX>(),
                     lpfnWndProc = Marshal.GetFunctionPointerForDelegate((WndProcDelegate)WndProc),
                     lpszClassName = className,
                     hInstance = nint.Zero
                 };
 
-                User32.RegisterClassEx(ref wndClass);
+                Win32.RegisterClassEx(ref wndClass);
 
-                nint hWnd = User32.CreateWindowEx(
+                nint hWnd = Win32.CreateWindowEx(
                     dwExStyle: 0,
                     lpClassName: className, 
                     lpWindowName: "RadiantConnect QR",
-                    dwStyle: User32.WS_OVERLAPPED | User32.WS_SYSMENU | User32.WS_CAPTION | User32.WS_VISIBLE,
+                    dwStyle: Win32.WS_OVERLAPPED | Win32.WS_SYSMENU | Win32.WS_CAPTION | Win32.WS_VISIBLE,
                     X: 100,
                     Y: 100, 
                     nWidth: bitmap.Width + 16,
@@ -43,43 +45,43 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
 
                 WindowHandle = hWnd;
 
-                User32.ShowWindow(hWnd, User32.SW_SHOWNORMAL);
+                Win32.ShowWindow(hWnd, Win32.SW_SHOWNORMAL);
 
-                while (User32.GetMessage(out User32.MSG msg, nint.Zero, 0, 0) > 0)
+                while (Win32.GetMessage(out Win32.MSG msg, nint.Zero, 0, 0) > 0)
                 {
-                    User32.TranslateMessage(ref msg);
-                    User32.DispatchMessage(ref msg);
+                    Win32.TranslateMessage(ref msg);
+                    Win32.DispatchMessage(ref msg);
                 }
 
-                User32.DestroyWindow(hWnd);
+                Win32.DestroyWindow(hWnd);
                 return;
 
                 IntPtr WndProc(IntPtr wndhWnd, uint uMsg, IntPtr wParam, IntPtr lParam)
                 {
                     switch (uMsg)
                     {
-                        case User32.WM_PAINT:
+                        case Win32.WM_PAINT:
                         {
-                            User32.PAINTSTRUCT ps = new();
-                            nint hdc = User32.BeginPaint(wndhWnd, ref ps);
+                            Win32.PAINTSTRUCT ps = new();
+                            nint hdc = Win32.BeginPaint(wndhWnd, ref ps);
 
-                            nint hdcMem = User32.CreateCompatibleDC(hdc);
-                            nint hBitmapOld = User32.SelectObject(hdcMem, hBitmap);
+                            nint hdcMem = Win32.CreateCompatibleDC(hdc);
+                            nint hBitmapOld = Win32.SelectObject(hdcMem, hBitmap);
 
-                            User32.BitBlt(hdc, 0, 0, bitmap.Width, bitmap.Height, hdcMem, 0, 0, User32.SRCCOPY);
+                            Win32.BitBlt(hdc, 0, 0, bitmap.Width, bitmap.Height, hdcMem, 0, 0, Win32.SRCCOPY);
 
-                            User32.SelectObject(hdcMem, hBitmapOld);
-                            User32.DeleteDC(hdcMem);
+                            Win32.SelectObject(hdcMem, hBitmapOld);
+                            Win32.DeleteDC(hdcMem);
 
-                            User32.EndPaint(wndhWnd, ref ps);
+                            Win32.EndPaint(wndhWnd, ref ps);
                             return nint.Zero;
                         }
-                        case User32.WM_DESTROY:
-                            User32.DeleteObject(hBitmap);
-                            User32.PostQuitMessage(0);
+                        case Win32.WM_DESTROY:
+                            Win32.DeleteObject(hBitmap);
+                            Win32.PostQuitMessage(0);
                             return nint.Zero;
                         default:
-                            return User32.DefWindowProc(wndhWnd, uMsg, wParam, lParam);
+                            return Win32.DefWindowProc(wndhWnd, uMsg, wParam, lParam);
                     }
                 }
             });
@@ -87,7 +89,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
             while (WindowHandle == 0) Thread.Sleep(50);
         }
 
-        private void CloseWindow() => User32.PostMessage(WindowHandle, User32.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+        private void CloseWindow() => Win32.PostMessage(WindowHandle, Win32.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
 
         public void Dispose() => CloseWindow();
     }

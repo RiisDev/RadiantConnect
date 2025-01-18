@@ -2,7 +2,7 @@
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace RadiantConnect.Methods;
+namespace RadiantConnect.Utilities;
 
 public static class StringExtensions
 {
@@ -33,8 +33,5 @@ public static class StringExtensions
 
     }
 
-    internal static string ToBase64(this string value)
-    {
-        return Convert.ToBase64String(Encoding.ASCII.GetBytes(value));
-    }
+    internal static string ToBase64(this string value) => Convert.ToBase64String(Encoding.ASCII.GetBytes(value));
 }

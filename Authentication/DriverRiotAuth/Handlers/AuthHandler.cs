@@ -6,8 +6,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
+
 // ReSharper disable AccessToDisposedClosure <--- It's handled in DriverHandler
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
@@ -138,7 +140,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await File.WriteAllTextAsync($@"{ Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
             }
 
-            return (getCookies?.Result.Cookies, Util.ParseAccessToken(accessToken), Util.ParseIdToken(accessToken));
+            return (getCookies?.Result.Cookies, AuthUtil.ParseAccessToken(accessToken), AuthUtil.ParseIdToken(accessToken));
         }
 
         internal async Task<bool> CheckCookieCache(string username)
@@ -171,7 +173,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 clientCookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
             }
 
-            using HttpClient httpClient = Util.BuildClient().Item1;
+            using HttpClient httpClient = AuthUtil.BuildClient().Item1;
 
             if (authentication != null)
                 httpClient.DefaultRequestHeaders.Authorization = authentication;
@@ -181,7 +183,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?, string)> GetRSOUserData(string accessToken, IEnumerable<Records.Cookie> riotCookies, string idToken)
         {
-            (string pasToken, string entitlementToken, object clientConfig, string userInfo) = await Util.GetTokens(accessToken);
+            (string pasToken, string entitlementToken, object clientConfig, string userInfo) = await AuthUtil.GetTokens(accessToken);
             Log(Authentication.DriverStatus.Cookies_Received);
             return (riotCookies, accessToken, pasToken, entitlementToken, clientConfig, userInfo, idToken);
         }

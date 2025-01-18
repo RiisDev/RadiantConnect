@@ -1,7 +1,6 @@
-﻿
-using static RadiantConnect.Authentication.Authentication;
+﻿using static RadiantConnect.Authentication.Authentication;
 
-namespace RadiantConnect.Authentication.DriverRiotAuth.Misc
+namespace RadiantConnect.Authentication.DriverRiotAuth
 {
     public static class Events
     {

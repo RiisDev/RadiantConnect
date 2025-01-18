@@ -1,5 +1,6 @@
 ﻿using System.Diagnostics;
 using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Services
 {

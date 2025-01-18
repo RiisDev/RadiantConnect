@@ -288,11 +288,11 @@
   "project": {
     "version": "9.2.0",
     "restore": {
-      "projectUniqueName": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
+      "projectUniqueName": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\RadiantConnect.csproj",
       "projectName": "RadiantConnect",
-      "projectPath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\RadiantConnect.csproj",
+      "projectPath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\RadiantConnect.csproj",
       "packagesPath": "C:\\Users\\irisd\\.nuget\\packages\\",
-      "outputPath": "G:\\Sources\\C#\\Public Source Releases\\RadiantConnect\\obj\\",
+      "outputPath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\obj\\",
       "projectStyle": "PackageReference",
       "fallbackFolders": [
         "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"

@@ -7,6 +7,7 @@ using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Net.Sockets;
 using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
 
 // ReSharper disable CheckNamespace
 

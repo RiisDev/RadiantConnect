@@ -4,9 +4,10 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using RadiantConnect.Authentication.DriverRiotAuth.Misc;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using static RadiantConnect.Authentication.DriverRiotAuth.Misc.Events;
+using RadiantConnect.Methods;
+using RadiantConnect.Utilities;
+using static RadiantConnect.Authentication.DriverRiotAuth.Events;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -67,7 +68,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                     OnMfaDetected?.Invoke();
                     break;
                 case var _ when message.Contains("[RADIANTCONNECT] Access Token"):
-                    OnAccessTokenFound?.Invoke(Util.ParseAccessToken(message));
+                    OnAccessTokenFound?.Invoke(AuthUtil.ParseAccessToken(message));
                     break;
             }
 
@@ -77,7 +78,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static async Task HandleMessage(string message)
         {
             await CheckForEvent(message);
-            if (OnRuntimeChanged is not null && (message.Contains("frameScheduledNavigation") || message.Contains("\"result\":{}}") || message.Contains("\"result\":{\"identifier\":\"1\"}}"))) OnRuntimeChanged.Invoke();
+            if (OnRuntimeChanged is not null && (
+                    message.Contains("frameScheduledNavigation") || 
+                    message.Contains("\"result\":{}}") || 
+                    message.Contains("\"result\":{\"identifier\":\"1\"}}"))
+            ) OnRuntimeChanged.Invoke();
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 

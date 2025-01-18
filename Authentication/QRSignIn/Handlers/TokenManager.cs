@@ -8,8 +8,10 @@ using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
+using RadiantConnect.Methods;
 using RadiantConnect.Network.LocalEndpoints.DataTypes;
 using RadiantConnect.Network.PVPEndpoints.DataTypes;
+using RadiantConnect.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
@@ -166,7 +168,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 {
                     await Task.Delay(30000);
 
-                    if (User32.IsWindow(form!.WindowHandle))
+                    if (Win32.IsWindow(form!.WindowHandle))
                     {
                         timer.Stop();
                         timer.Dispose();
@@ -185,7 +187,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
                 if (string.IsNullOrEmpty(accessToken)) return;
 
-                (string pasToken, string entitlementToken, object clientConfig, string _) = await Util.GetTokens(accessToken);
+                (string pasToken, string entitlementToken, object clientConfig, string _) = await AuthUtil.GetTokens(accessToken);
 
                 JsonWebToken jwt = new(pasToken);
                 string? affinity = jwt.GetPayloadValue<string>("affinity");
