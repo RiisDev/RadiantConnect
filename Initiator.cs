@@ -89,18 +89,6 @@ namespace RadiantConnect
             );
         }
 
-        public Initiator(RSOAuth rsoAuth)
-        {
-            ValorantNet net = new(rsoAuth);
-            Initialize(net, rsoAuth);
-        }
-
-        public Initiator(RadiantConnectRSO ssid)
-        {
-            ValorantNet net = new(ssid.SSID);
-            Initialize(net, net.AuthCodes!);
-        }
-
         internal void Initialize(ValorantNet net, RSOAuth rsoAuth)
         {
             Client = BuildClientData(net, rsoAuth).Result;
@@ -122,6 +110,18 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
+        }
+
+        public Initiator(RSOAuth rsoAuth)
+        {
+            ValorantNet net = new(rsoAuth);
+            Initialize(net, rsoAuth);
+        }
+
+        public Initiator(RadiantConnectRSO ssid)
+        {
+            ValorantNet net = new(ssid.SSID);
+            Initialize(net, net.AuthCodes!);
         }
 
         public Initiator(bool ignoreVpn = true)

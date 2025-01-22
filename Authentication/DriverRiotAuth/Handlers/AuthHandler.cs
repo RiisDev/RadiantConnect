@@ -26,7 +26,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         public event Events.DriverEvent? OnDriverUpdate;
 
-        internal int DriverPort { get; } = Win32.GetFreePort();
+        internal int DriverPort { get; } = AuthUtil.GetFreePort();
         internal Random ActionIdGenerator { get; } = new();
         internal SocketHandler SocketHandler = null!;
 
@@ -37,7 +37,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         // User Variables
         public string? MultiFactorCode { get; set; }
         
-        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?, string)> Initialize(string username, string password)
+        internal async Task<string> Initialize(string username, string password)
         {
             Log(Authentication.DriverStatus.Checking_Existing_Processes);
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
@@ -83,7 +83,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             {"LoginUrl", "https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id summoner offline_access ban"},
         };
 
-        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?, string)> PerformSignInAsync()
+        internal async Task<string> PerformSignInAsync()
         {
             string accessTokenFound = string.Empty;
             Log(Authentication.DriverStatus.Logging_Into_Valorant);
@@ -99,10 +99,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
 
             Log(Authentication.DriverStatus.Grabbing_Required_Tokens);
-            (IEnumerable<Records.Cookie>? cookies, string accessToken, string idToken) = await GetAccessTokenRedirect(accessTokenFound);
-
-            Log(Authentication.DriverStatus.SignIn_Completed);
-            return await GetRSOUserData(accessToken, cookies!, idToken);
+            return await GetSsidFromCookies(accessTokenFound);
         }
         
         internal async Task HandleMfaAsync()
@@ -130,7 +127,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Log(Authentication.DriverStatus.Multi_Factor_Completed);
         }
         
-        internal async Task<(IEnumerable<Records.Cookie>?, string, string)> GetAccessTokenRedirect(string accessToken)
+        internal async Task<string> GetSsidFromCookies(string accessToken)
         {
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
@@ -140,7 +137,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await File.WriteAllTextAsync($@"{ Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
             }
 
-            return (getCookies?.Result.Cookies, AuthUtil.ParseAccessToken(accessToken), AuthUtil.ParseIdToken(accessToken));
+            return getCookies?.Result.Cookies.First(x=> x.Name == "ssid").Value ?? throw new RadiantConnectAuthException("Failed to fetch SSID");
         }
 
         internal async Task<bool> CheckCookieCache(string username)
@@ -179,13 +176,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 httpClient.DefaultRequestHeaders.Authorization = authentication;
 
             return await httpClient.GetAsync(url);
-        }
-
-        internal async Task<(IEnumerable<Records.Cookie>?, string?, string?, string?, object?, string?, string)> GetRSOUserData(string accessToken, IEnumerable<Records.Cookie> riotCookies, string idToken)
-        {
-            (string pasToken, string entitlementToken, object clientConfig, string userInfo) = await AuthUtil.GetTokens(accessToken);
-            Log(Authentication.DriverStatus.Cookies_Received);
-            return (riotCookies, accessToken, pasToken, entitlementToken, clientConfig, userInfo, idToken);
         }
 
         public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket);

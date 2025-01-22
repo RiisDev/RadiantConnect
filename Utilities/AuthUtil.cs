@@ -3,6 +3,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Utilities
@@ -51,7 +52,15 @@ namespace RadiantConnect.Utilities
             httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             httpClient.DefaultRequestHeaders.Add("X-Riot-Entitlements-JWT", entitlementToken);
             response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client");
-            object clientConfig = await response.Content.ReadFromJsonAsync<object>() ?? new { };
+            object clientConfig;
+            try
+            {
+                clientConfig = await response.Content.ReadFromJsonAsync<object>() ?? new { };
+            }
+            catch
+            {
+                clientConfig = new { data = "FAILED_TO_GRAB" };
+            }
 
             return (pasToken, entitlementToken, clientConfig, userInfo);
         }

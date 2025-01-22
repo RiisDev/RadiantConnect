@@ -98,7 +98,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
 				setTimeout(() =>{
 					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-				}, 250)
+				}, 400)
 				signInDetected = true;
 			}
 		}

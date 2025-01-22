@@ -142,7 +142,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             string traceData = await GetAccessTokenStage1(loginToken);
             string accessTokenUri = await GetAccessTokenStage2(traceData);
             
-            return (AuthUtil.ParseAccessToken(accessTokenUri), AuthUtil.ParseAccessToken((accessTokenUri));
+            return (AuthUtil.ParseAccessToken(accessTokenUri), AuthUtil.ParseAccessToken((accessTokenUri)));
         }
 
         internal void InitiateTimer()

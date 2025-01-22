@@ -130,33 +130,11 @@ namespace RadiantConnect.Authentication
 
             Debug.WriteLine($"{DateTime.Now} LOGIN STARTED");
 
-            (IEnumerable<Cookie>? cookies, string? accessToken, string? pasToken, string? entitlement, object? clientConfig, string? _, string idToken) = 
-                await authHandler.Initialize(username, password);
+            string ssid = await authHandler.Initialize(username, password);
 
             Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
-            if (cookies == null) return null;
-
-            Dictionary<string, string> cookieDict = new();
-            HashSet<string> seenNames = [];
-
-            IEnumerable<Cookie> riotCookies = cookies as Cookie[] ?? cookies.ToArray();
-
-            foreach (Cookie cookie in riotCookies)
-                if (seenNames.Add(cookie.Name))
-                    cookieDict[cookie.Name] = cookie.Value;
-
-            string? rsoSubject = cookieDict.GetValueOrDefault("sub");
-            string? rsoSsid = cookieDict.GetValueOrDefault("ssid");
-            string? rsoTdid = cookieDict.GetValueOrDefault("tdid");
-            string? rsoCsid = cookieDict.GetValueOrDefault("csid");
-            string? rsoClid = cookieDict.GetValueOrDefault("clid");
-
-            JsonWebToken jwt = new (pasToken);
-            string? affinity = jwt.GetPayloadValue<string>("affinity");
-            string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
-            
-            return new RSOAuth(rsoSubject, rsoSsid, rsoTdid, rsoCsid, rsoClid, accessToken, pasToken, entitlement, affinity, chatAffinity, clientConfig, riotCookies, idToken);
+            return await AuthenticateWithSSID(ssid);
         }
 
         public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
