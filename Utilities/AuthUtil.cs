@@ -10,7 +10,7 @@ namespace RadiantConnect.Utilities
 {
     internal static class AuthUtil
     {
-        internal static string ParseAccessToken(string accessToken) => accessToken.ExtractValue("access_token=(.*?)&scope", 1);
+        internal static string ParseAccessToken(string accessToken) => accessToken.ExtractValue(@"access_token=([^&\n\r]*)", 1); // Somehow broke this
 
         internal static string ParseIdToken(string accessToken) => accessToken.ExtractValue("id_token=(.*?)&token_type", 1);
 

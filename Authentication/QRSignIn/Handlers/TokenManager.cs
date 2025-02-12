@@ -184,7 +184,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 string? subject = new JsonWebToken(accessToken).GetPayloadValue<string>("sub");
 
                 CookieCollection cookies = container.GetAllCookies();
-                
+
                 OnTokensFinished?.Invoke(new RSOAuth(
                     subject,
                     cookies.First(x=> x.Name == "ssid").Value,
