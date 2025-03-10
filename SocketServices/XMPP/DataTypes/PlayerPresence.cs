@@ -1,4 +1,4 @@
-﻿namespace RadiantConnect.XMPP;
+﻿namespace RadiantConnect.SocketServices.XMPP.DataTypes;
 
 public record PlayerPresence(
     string ChatServer,

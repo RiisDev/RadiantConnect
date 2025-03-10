@@ -8,10 +8,12 @@ using System.Text.Json;
 using System.Net.Sockets;
 using RadiantConnect.Methods;
 using RadiantConnect.Utilities;
+using RadiantConnect.XMPP;
+
 
 // ReSharper disable CheckNamespace
 
-namespace RadiantConnect.XMPP
+namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 {
     internal class ChatServerEventArgs : EventArgs
     {
@@ -24,7 +26,7 @@ namespace RadiantConnect.XMPP
     {
         internal event EventHandler<ChatServerEventArgs>? OnChatPatched;
         internal event ValXMPP.InternalMessage? OnOutboundMessage;
-        internal event ValXMPP.InternalMessage? OnInboundMessage; 
+        internal event ValXMPP.InternalMessage? OnInboundMessage;
 
         internal HttpListener ProxyServer = new();
         internal HttpClient Client { get; } = new();
@@ -53,9 +55,9 @@ namespace RadiantConnect.XMPP
             HttpListenerContext listenerContext = listener.EndGetContext(result);
             HttpListenerRequest listenerRequest = listenerContext.Request;
             HttpListenerResponse listenerResponse = listenerContext.Response;
-            
+
             string rawUrl = ConfigUrl + listenerRequest.RawUrl;
-            
+
             HttpRequestMessage message = new(HttpMethod.Get, rawUrl);
             message.Headers.TryAddWithoutValidation("User-Agent", listenerRequest.UserAgent);
 
@@ -64,13 +66,13 @@ namespace RadiantConnect.XMPP
 
             if (listenerRequest.Headers["authorization"] is not null)
                 message.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
-            
-            OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{(message.Headers)}");
+
+            OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{message.Headers}");
 
             HttpResponseMessage responseMessage = await Client.SendAsync(message);
             string responseString = await responseMessage.Content.ReadAsStringAsync();
 
-            OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{(responseMessage.Headers)}\nResponse:{responseString}");
+            OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{responseMessage.Headers}\nResponse:{responseString}");
 
             if (!responseMessage.IsSuccessStatusCode)
                 goto DoResponse;
@@ -106,7 +108,7 @@ namespace RadiantConnect.XMPP
                 {
                     string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
                     string pasJwtContent = pasJwt.Split('.')[1];
-                    string validBase64 = pasJwtContent.PadRight((pasJwtContent.Length / 4 * 4) + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
+                    string validBase64 = pasJwtContent.PadRight(pasJwtContent.Length / 4 * 4 + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
                     string pasJwtString = validBase64.FromBase64();
                     JsonNode? pasJwtJson = JsonSerializer.Deserialize<JsonNode>(pasJwtString);
                     affinity = pasJwtJson?["affinity"]?.GetValue<string>();
@@ -115,7 +117,7 @@ namespace RadiantConnect.XMPP
 
                     riotChatHost = affinities?[affinity]?.GetValue<string>();
                 }
-                catch{/**/}
+                catch {/**/}
 
                 affinities?.AsObject().Select(pair => pair.Key).ToList().ForEach(s => affinities[s] = "127.0.0.1");
 
@@ -123,13 +125,13 @@ namespace RadiantConnect.XMPP
                     riotClientConfig["chat.allow_bad_cert.enabled"] = true;
 
                 if (riotChatHost is not null && ChatPort != 0)
-                    OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort, ChatAffinity = affinity});
+                    OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort, ChatAffinity = affinity });
 
                 responseString = JsonSerializer.Serialize(riotClientConfig);
             }
-            catch{/**/}
-            
-            DoResponse:
+            catch {/**/}
+
+        DoResponse:
             byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
             listenerResponse.StatusCode = (int)responseMessage.StatusCode;
             listenerResponse.SendChunked = false;
@@ -139,7 +141,8 @@ namespace RadiantConnect.XMPP
             {
                 await listenerResponse.OutputStream
                     .WriteAsync(responseBytes); // The specified network name is no longer available.
-            }catch{/**/}
+            }
+            catch {/**/}
 
             ProxyServer.BeginGetContext(DoProxy, ProxyServer);
             message.Dispose();

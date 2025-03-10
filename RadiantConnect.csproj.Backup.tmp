@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GenerateDocumentationFile>False</GenerateDocumentationFile>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
+    <Version>9.2.0</Version>
+    <Authors>IrisDev</Authors>
+    <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
+    <Copyright>https://github.com/RiisDev</Copyright>
+    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers &amp; image recognition, XMPP Integration, Riot Login, TCP Integration</Description>
+    <PackageIcon>icon.png</PackageIcon>
+    <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
+    <LangVersion>preview</LangVersion>
+    <PackageReleaseNotes>Some backwards compatibility will be broken with some of these changes, I apologize.
+
+* ReWrote how initiator is handled, as well as how you're able to use initiator with your own credentials, you may now send, SSID, or RSOData type to use any network instance.
+* Adjusted XMPP Systems to handle new RSO implementations.
+
+* Minor code based edits
+
++Added Tejo to table
++Added Outlaw gun to tabel (somehow forgot?)</PackageReleaseNotes>
+    <NeutralLanguage>en</NeutralLanguage>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <RepositoryType>git</RepositoryType>
+    <AssemblyVersion>1.0.0.0</AssemblyVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="docs\**" />
+    <Compile Remove="packages\**" />
+    <EmbeddedResource Remove="docs\**" />
+    <EmbeddedResource Remove="packages\**" />
+    <None Remove="docs\**" />
+    <None Remove="packages\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.IdentityModel.JsonWebTokens" Version="8.0.1" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="icon.png">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+    <None Update="README.md">
+      <Pack>True</Pack>
+      <PackagePath>\</PackagePath>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="SocketServices\RMS\" />
+  </ItemGroup>
+
+</Project>

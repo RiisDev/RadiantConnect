@@ -66,15 +66,13 @@ namespace RadiantConnect
         internal async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
         {
             if (net == null) throw new RadiantConnectException("Failed to build net data");
-
+            
             GeoRoot? data = await net.PutAsync<GeoRoot>(
                 "https://riot-geo.pas.si.riotgames.com",
                 "/pas/v1/product/valorant", 
                 new StringContent($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}")
             );
-
-            Debug.WriteLine(JsonSerializer.Serialize(data));
-
+            
             Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
 
             JsonWebToken token = new (data?.Token);

@@ -29,7 +29,7 @@ namespace RadiantConnect.Utilities
             );
         }
 
-        internal static async Task<(string, string, object, string)> GetTokens(string accessToken)
+        internal static async Task<(string, string, object, string, string)> GetTokens(string accessToken)
         {
             using HttpClient httpClient = new();
             httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
@@ -38,6 +38,10 @@ namespace RadiantConnect.Utilities
             // Get PAS token
             HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
             string pasToken = await response.Content.ReadAsStringAsync();
+
+            // Get RMS PAS Token
+            response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/rms");
+            string rmsToken = await response.Content.ReadAsStringAsync();
 
             // GetUserInfo 
             response = await httpClient.GetAsync("https://auth.riotgames.com/userinfo");
@@ -62,7 +66,7 @@ namespace RadiantConnect.Utilities
                 clientConfig = new { data = "FAILED_TO_GRAB" };
             }
 
-            return (pasToken, entitlementToken, clientConfig, userInfo);
+            return (pasToken, entitlementToken, clientConfig, userInfo, rmsToken);
         }
 
         internal static int GetFreePort()

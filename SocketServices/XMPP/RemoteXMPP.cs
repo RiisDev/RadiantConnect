@@ -9,7 +9,7 @@ using RadiantConnect.Utilities;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
-namespace RadiantConnect.XMPP
+namespace RadiantConnect.SocketServices.XMPP
 {
     public partial class RemoteXMPP
     {
@@ -126,7 +126,7 @@ namespace RadiantConnect.XMPP
             {
                 OnMessage?.Invoke(contentBuilder.ToString());
             }
-            
+
             //Debug.WriteLine(contentBuilder.ToString());
 
             return contentBuilder.ToString();
@@ -176,7 +176,7 @@ namespace RadiantConnect.XMPP
             } while (!incomingData.Contains("stream:features"));
 
             Status = XMPPStatus.BindingStream;
-            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"></bind></iq>");
+            await AsyncSocketWrite(SslStream, "<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"><puuid-mode enabled=\"true\"/></bind></iq>");
             incomingData = await AsyncSocketRead(SslStream);
 
             if (incomingData.Contains("jid"))

@@ -141,8 +141,13 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
         {
             string traceData = await GetAccessTokenStage1(loginToken);
             string accessTokenUri = await GetAccessTokenStage2(traceData);
-            
-            return (AuthUtil.ParseAccessToken(accessTokenUri), AuthUtil.ParseAccessToken((accessTokenUri)));
+
+            string[] urlTokens = accessTokenUri.Split('&');
+
+            string idToken = urlTokens[^1][9..];
+            string accessToken = urlTokens[^2][13..];
+
+            return (accessToken, idToken);
         }
 
         internal void InitiateTimer()
@@ -176,7 +181,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
                 if (string.IsNullOrEmpty(accessToken)) return;
 
-                (string pasToken, string entitlementToken, object clientConfig, string _) = await AuthUtil.GetTokens(accessToken);
+                (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetTokens(accessToken);
 
                 JsonWebToken jwt = new(pasToken);
                 string? affinity = jwt.GetPayloadValue<string>("affinity");
@@ -185,9 +190,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
                 CookieCollection cookies = container.GetAllCookies();
 
+
                 OnTokensFinished?.Invoke(new RSOAuth(
                     subject,
-                    cookies.First(x=> x.Name == "ssid").Value,
+                    cookies.First(x => x.Name == "ssid").Value,
                     cookies.First(x => x.Name == "tdid").Value,
                     cookies.First(x => x.Name == "csid").Value,
                     cookies.First(x => x.Name == "clid").Value,
@@ -199,7 +205,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                     clientConfig,
                     null,
                     idToken
-                ));
+                )
+                {
+                    RmsToken = rmsToken
+                });
             };
 
             timer.Start();

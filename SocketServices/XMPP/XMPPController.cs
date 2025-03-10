@@ -1,6 +1,7 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using RadiantConnect.XMPP;
+using System.Diagnostics.CodeAnalysis;
 
-namespace RadiantConnect.XMPP
+namespace RadiantConnect.SocketServices.XMPP
 {
     public class XMPPController
     {

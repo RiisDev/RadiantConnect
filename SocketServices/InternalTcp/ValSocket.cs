@@ -6,7 +6,7 @@ using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Utilities;
 
-namespace RadiantConnect.ValSocket
+namespace RadiantConnect.SocketServices.InternalTcp
 {
     public class ValSocket(ValorantNet.UserAuth authentication, Initiator init)
     {
@@ -32,7 +32,7 @@ namespace RadiantConnect.ValSocket
 
             return Array.Empty<string>();
         }
-        
+
         internal async Task ReceiveMessageAsync(ClientWebSocket webSocket)
         {
             const int bufferSize = 1024;
@@ -56,7 +56,7 @@ namespace RadiantConnect.ValSocket
                 OnNewMessage?.Invoke(messageBuilder.ToString());
             }
         }
-        
+
         public void InitializeConnection()
         {
             Task.Run(async () =>
@@ -75,7 +75,7 @@ namespace RadiantConnect.ValSocket
                     clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
                     clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{authentication.OAuth}".ToBase64()}");
                     await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
-                    
+
                     foreach (string eventName in await GetEvents())
                     {
                         await clientWebSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]").ToArray()), WebSocketMessageType.Text, true, CancellationToken.None);
@@ -91,7 +91,7 @@ namespace RadiantConnect.ValSocket
 
                     clientWebSocket.Dispose();
                 }
-                catch(Exception ex) {Debug.WriteLine(ex.ToString());}
+                catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
             });
         }
     }

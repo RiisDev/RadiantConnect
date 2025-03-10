@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace RadiantConnect.XMPP;
+namespace RadiantConnect.SocketServices.XMPP.DataTypes;
 //ReSharper disable All
 public record ValorantPresence(
     [property: JsonPropertyName("isValid")] bool? IsValid,

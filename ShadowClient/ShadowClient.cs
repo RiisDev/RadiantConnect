@@ -11,7 +11,10 @@ using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Network;
 using RadiantConnect.Services;
-using RadiantConnect.XMPP;
+using RadiantConnect.SocketServices.RMS;
+using RadiantConnect.SocketServices.XMPP;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using static System.Text.RegularExpressions.Regex;
 
 namespace RadiantConnect.ShadowClient
 {
@@ -21,7 +24,7 @@ namespace RadiantConnect.ShadowClient
     );
 
 
-    internal class ShadowClient(RSOAuth rsoAuth)
+    public class ShadowClient(RSOAuth rsoAuth)
     {
         private bool _built;
         private RemoteXMPP _remoteXmpp = null!;
@@ -49,7 +52,7 @@ namespace RadiantConnect.ShadowClient
             _controller = new XMPPController(_remoteXmpp);
 
             _built = true;
-            
+
             if (autorun)
                 await InitiateConnections();
 
@@ -59,43 +62,53 @@ namespace RadiantConnect.ShadowClient
         public async Task InitiateConnections()
         {
             if (!_built) throw new RadiantConnectShadowClientException("Client has not been built");
+            string xmppBindParsed = Match(_xmppBind, "(.*)@", RegexOptions.Compiled).Value[..^1];
+            string xmppRcConnect = Match(_xmppBind, "\\/(.*)", RegexOptions.Compiled).Value[1..];
+            string xmppUrl = Match(_xmppBind, "@(.*)\\/", RegexOptions.Compiled).Value[1..^1];
 
-            await _controller.SendMessage("<iq id='update_session_active_4' type='set'><query xmlns='jabber:iq:riotgames:session'><session mode='active'/></query></iq>");
+            await _controller.SendMessage("""
+                                          <iq id="_xmpp_session1" type="set">
+                                              <session xmlns="urn:ietf:params:xml:ns:xmpp-session">
+                                                  <platform>riot</platform>
+                                              </session>
+                                          </iq>
+                                          """);
+
+
+            RmsClient client = new(rsoAuth, RmsRegion.Us);
+
+            await client.StartClient();
+
+            await _controller.SendMessage("""
+                                          <iq id='update_session_active_4' type='set'>
+                                              <query xmlns='jabber:iq:riotgames:session'>
+                                                  <session mode='active'/>
+                                              </query>
+                                          </iq>
+                                          """);
+
+            await _controller.SendMessage($"<iq from='{xmppBindParsed}@{xmppUrl}' to='{_xmppBind}' id='update_session_active_4' type='result' />");
 
             await _controller.SendMessage($"""
-                                           <presence id='presence_5'>
-                                           	<show>chat</show>
-                                           	<status></status>
-                                           	<games>
-                                           		<keystone>
-                                           			<st>chat</st>
-                                           			<s.t>{DateTimeOffset.UtcNow.ToUnixTimeMilliseconds()}</s.t>
-                                           			<m></m>
-                                           			<s.p>keystone</s.p>
-                                           			<pty/>
-                                           		</keystone>
-                                           	</games>
-                                           </presence>
-                                           """);
+                                          <presence from='{_xmppBind}'
+                                                    to='{_xmppBind}' id='presence_5'>
+                                              <games>
+                                                  <keystone>
+                                                      <st>chat</st>
+                                                      <s.t>{DateTime.Now.ToFileTimeUtc()}</s.t>
+                                                      <m />
+                                                      <s.p>keystone</s.p>
+                                                      <pty />
+                                                  </keystone>
+                                              </games>
+                                              <platform>windows</platform>
+                                              <show>chat</show>
+                                              <status />
+                                          </presence>
+                                          """);
 
-            await _net.PostAsync<object>(_clientData.PdUrl, "/name-service/v3/players");
-            await _net.PostAsync<object>(GetLoginKeystone(), $"/login-queue/v2/login/products/valorant/regions/{_region}");
-            await _net.PostAsync<object>(_clientData.GlzUrl, $"/session/v2/sessions/{rsoAuth.Subject}/connect");
-
-            GameTagLine tagLine = GetNameTagLine();
-
-            await _controller.SendMessage($"""
-                                           <iq type="result" id="_xmpp_session1">
-                                             <session xmlns="urn:ietf:params:xml:ns:xmpp-session">
-                                               <platform>windows</platform>
-                                               <id name="{tagLine.GameName}" tagline="{tagLine.TagLine}"/>
-                                               <platforms>
-                                                 <riot name="{tagLine.GameName}" tagline="{tagLine.TagLine}"/>
-                                               </platforms>
-                                               <ts>{DateTimeOffset.UtcNow:yyyy-MM-dd HH:mm:ss.fff}</ts>
-                                             </session>
-                                           </iq>
-                                           """);
+            await _net.GetAsync<object>(_clientData.GlzUrl, $"/sessions/{xmppBindParsed}/reconnect");
+            
 
             await _controller.SendPresenceEvent();
         }

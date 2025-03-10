@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Text;
 // ReSharper disable CheckNamespace
 
-namespace RadiantConnect.XMPP
+namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 {
     public class XMPPSocketHandle(Stream? incomingStream, Stream outgoingStream)
     {

@@ -28,4 +28,7 @@ public record RSOAuth(
     object? ClientConfig,
     IEnumerable<Cookie>? RiotCookies,
     string? IdToken
-);
+)
+{
+    public string? RmsToken { get; set; }
+};
