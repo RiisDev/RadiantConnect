@@ -20,7 +20,7 @@ jobs:
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-          dotnet-version: '8.0.x'  # Specify the .NET version to use
+          dotnet-version: '8.*'
 
     - name: Restore dependencies
       run: dotnet restore
@@ -32,7 +32,7 @@ jobs:
       run: dotnet publish --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
 
     - name: Archive published files
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: published-files
         path: ./bin/Release/net8.0/publish/
