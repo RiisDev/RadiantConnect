@@ -1,4 +1,3 @@
-
 name: .NET
 
 on:
@@ -22,6 +21,9 @@ jobs:
       with:
           dotnet-version: '8.*'
 
+    - name: Get Structure
+      run: ls
+      
     - name: Restore dependencies
       run: dotnet restore
 
