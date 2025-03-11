@@ -22,13 +22,13 @@ jobs:
           dotnet-version: '8.*'
       
     - name: Restore dependencies
-      run: dotnet restore ./RadiantConnect.csproj
+      run: dotnet restore ./RadiantConnect/RadiantConnect.csproj
 
     - name: Build the project
-      run: dotnet build ./RadiantConnect.csproj --configuration Release --framework net8.0
+      run: dotnet build ./RadiantConnect/RadiantConnect.csproj --configuration Release --framework net8.0
 
     - name: Publish the project
-      run: dotnet publish ./RadiantConnect.csproj --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
+      run: dotnet publish ./RadiantConnect/RadiantConnect.csproj --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
 
     - name: Archive published files
       uses: actions/upload-artifact@v4
