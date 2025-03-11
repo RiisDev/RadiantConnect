@@ -39,34 +39,3 @@ jobs:
         name: published-files
         path: ./bin/Release/net8.0/publish/
 
-    - name: Get latest tag and increment version
-      id: version
-      run: |
-        git fetch --tags
-        latest_tag=$(git tag --sort=-v:refname | head -n 1)
-
-        if [[ -z "$latest_tag" ]]; then
-          new_version="0.1.0"
-        else
-          IFS='.' read -r major minor patch <<< "${latest_tag#v}"
-          new_version="$major.$minor.$((patch + 1))"
-        fi
-
-        echo "New version: $new_version"
-        echo "VERSION=$new_version" >> $GITHUB_ENV
-
-    - name: Create new Git tag
-      run: |
-        git config user.name "github-actions"
-        git config user.email "github-actions@github.com"
-        git tag "v${{ env.VERSION }}"
-        git push origin "v${{ env.VERSION }}"
-
-    - name: Create GitHub pre-release
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        gh release create "v${{ env.VERSION }}" ./bin/Release/net8.0/publish/* \
-          --title "Pre-release v${{ env.VERSION }}" \
-          --notes "Pre-release for version ${{ env.VERSION }}" \
-          --prerelease
