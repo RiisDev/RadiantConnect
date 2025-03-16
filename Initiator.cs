@@ -1,4 +1,5 @@
-﻿using RadiantConnect.EventHandler;
+﻿using System.Data;
+using RadiantConnect.EventHandler;
 using RadiantConnect.Services;
 using RadiantConnect.Network;
 using RadiantConnect.Network.ChatEndpoints;
@@ -110,23 +111,26 @@ namespace RadiantConnect
             );
         }
 
+
+        [Obsolete("Method is no longer supported, move to RSOAuth", true)]
+        public Initiator(RadiantConnectRSO ssid) => throw new RowNotInTableException("Method is no longer supported, move to RSOAuth");
+
         public Initiator(RSOAuth rsoAuth)
         {
             ValorantNet net = new(rsoAuth);
             Initialize(net, rsoAuth);
         }
 
-        public Initiator(RadiantConnectRSO ssid)
-        {
-            ValorantNet net = new(ssid.SSID);
-            Initialize(net, net.AuthCodes!);
-        }
-
         public Initiator(bool ignoreVpn = true)
         {
+            DateTime startTime = DateTime.Now;
+            TimeSpan timeout = TimeSpan.FromMinutes(1);
+
             while (!ClientIsReady())
             {
-                Debug.WriteLine("[INITIATOR] Waiting For Client...");
+                if (DateTime.Now - startTime > timeout)
+                    throw new TimeoutException("Client did not become ready within 1 minute.");
+
                 Task.Delay(2000);
             }
 

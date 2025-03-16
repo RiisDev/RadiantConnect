@@ -1,19 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Network;
 using RadiantConnect.Services;
 using RadiantConnect.SocketServices.RMS;
 using RadiantConnect.SocketServices.XMPP;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using static System.Text.RegularExpressions.Regex;
 
 namespace RadiantConnect.ShadowClient
@@ -24,7 +17,7 @@ namespace RadiantConnect.ShadowClient
     );
 
 
-    public class ShadowClient(RSOAuth rsoAuth)
+    internal class ShadowClient(RSOAuth rsoAuth)
     {
         private bool _built;
         private RemoteXMPP _remoteXmpp = null!;
@@ -33,8 +26,8 @@ namespace RadiantConnect.ShadowClient
         private LogService.ClientData _clientData = null!;
         private string _region = null!;
         private string _xmppBind = null!;
-        
-        public async Task BuildClient(bool autorun = true)
+
+        internal async Task BuildClient(bool autorun = true)
         {
             if (_built)
                 throw new RadiantConnectShadowClientException("Client has already been built");
@@ -59,7 +52,7 @@ namespace RadiantConnect.ShadowClient
             _remoteXmpp.OnMessage += data => Console.WriteLine($"XMPP: {data}");
         }
 
-        public async Task InitiateConnections()
+        internal async Task InitiateConnections()
         {
             if (!_built) throw new RadiantConnectShadowClientException("Client has not been built");
             string xmppBindParsed = Match(_xmppBind, "(.*)@", RegexOptions.Compiled).Value[..^1];
@@ -113,7 +106,7 @@ namespace RadiantConnect.ShadowClient
             await _controller.SendPresenceEvent();
         }
 
-        private string GetLoginKeystone()
+        internal string GetLoginKeystone()
         {
             string playerConfig = JsonSerializer.Serialize(rsoAuth.ClientConfig);
             
@@ -128,7 +121,7 @@ namespace RadiantConnect.ShadowClient
             return found.Groups[1].Value;
         }
 
-        private GameTagLine GetNameTagLine()
+        internal GameTagLine GetNameTagLine()
         {
             JsonWebToken token = new (rsoAuth.IdToken);
             JsonElement acctToken = token.GetPayloadValue<JsonElement>("acct");

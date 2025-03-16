@@ -86,9 +86,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 
-            if (json == null || !json.ContainsKey("id")) return;
+            if (json == null || !json.TryGetValue("id", out object? value)) return;
 
-            int id = int.Parse(json["id"].ToString()!);
+            int id = int.Parse(value.ToString()!);
             if (!PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
 
             tcs.SetResult(message);

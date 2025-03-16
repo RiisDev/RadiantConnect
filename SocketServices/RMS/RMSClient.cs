@@ -19,12 +19,12 @@ using System.Security.Cryptography;
 
 namespace RadiantConnect.SocketServices.RMS
 {
-    public record RmsData(
+    internal record RmsData(
         [property: JsonPropertyName("rms.affinities")]
         RmsAffinities RmsAffinities
     );
 
-    public record RmsAffinities(
+    internal record RmsAffinities(
         [property: JsonPropertyName("asia")]
         string Asia,
         [property: JsonPropertyName("eu")]
@@ -35,7 +35,7 @@ namespace RadiantConnect.SocketServices.RMS
         string Us
     );
 
-    public enum RmsRegion
+    internal enum RmsRegion
     {
         Asia,
         Eu,
@@ -43,7 +43,7 @@ namespace RadiantConnect.SocketServices.RMS
         Us
     }
 
-    public class RmsClient(RSOAuth authData, RmsRegion region)
+    internal class RmsClient(RSOAuth authData, RmsRegion region)
     {
         private SslStream SslStream = null!;
         internal async Task AsyncSocketWrite(SslStream sslStream, string message)
@@ -75,7 +75,7 @@ namespace RadiantConnect.SocketServices.RMS
             return contentBuilder.ToString();
         }
 
-        private static string GenerateNonce(int length = 16)
+        internal static string GenerateNonce(int length = 16)
         {
             byte[] nonceBytes = new byte[length];
             using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
@@ -85,7 +85,7 @@ namespace RadiantConnect.SocketServices.RMS
             return Convert.ToBase64String(nonceBytes);
         }
 
-        public async Task StartClient()
+        internal async Task StartClient()
         {
             string rmsData = $"{{{Match(authData?.ClientConfig?.ToString()!, "(\"rms\\.affinities\"\\s*:\\s*{[^}]*})").Value}}}";
             RmsData? rmsAffinitiesData = JsonSerializer.Deserialize<RmsData>(rmsData);

@@ -32,22 +32,22 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Random hookRandomizer = new ((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             List<Dictionary<string, object>> eventList =
             [
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Page.enable" }
                 },
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Runtime.enable" }
                 },
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Network.enable" }
                 },
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Network.setBlockedURLs" },
@@ -68,7 +68,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                         }}
                     }}
                 },
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Page.addScriptToEvaluateOnNewDocument" },
@@ -98,7 +98,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
 				setTimeout(() =>{
 					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-				}, 400)
+				}, 500)
 				signInDetected = true;
 			}
 		}
@@ -134,7 +134,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                         }
                     }}
                 },
-                new Dictionary<string, object>
+                new()
                 {
                     { "id", hookRandomizer.Next() },
                     { "method", "Runtime.evaluate" },

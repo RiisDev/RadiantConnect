@@ -9,7 +9,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 {
     internal class SSIDAuthManager
     {
-        internal async Task<RSOAuth> SignIn(string ssid)
+        internal async Task<RSOAuth> Authenticate(string ssid)
         {
             (HttpClient client, CookieContainer container) = AuthUtil.BuildClient();
 

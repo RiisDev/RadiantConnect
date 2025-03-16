@@ -2,7 +2,6 @@
 using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
-using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Utilities;
 

@@ -26,6 +26,7 @@ namespace RadiantConnect.ImageRecognition
             g.DrawLine(pen, x, y, x + width, y);
         }
 
+        [Obsolete("No longer maintained, may not work correctly.")]
         public void Initiator(Config config)
         {
             KillFeedConfig feedConfig = config.KillFeedConfig;

@@ -3,6 +3,7 @@ namespace RadiantConnect.Methods;
 
 public static class ValorantTables
 {
+    [Obsolete("Table is no longer maintained, and should be used with caution.")]
     public static readonly Dictionary<string, string> GamePodsDictionary = new()
     {
         { "aresqa.aws-rclusterprod-use1-1.dev1-gp-ashburn-1", "Ashburn" },

@@ -2,15 +2,10 @@
 using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
-using RadiantConnect.Methods;
-using RadiantConnect.Network.LocalEndpoints.DataTypes;
-using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.Utilities;
 using Timer = System.Timers.Timer;
 
@@ -176,6 +171,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 string loginToken = await GetLoginToken();
                 if (string.IsNullOrEmpty(loginToken)) return;
 
+                timer.Stop();
                 form?.Dispose();
 
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);

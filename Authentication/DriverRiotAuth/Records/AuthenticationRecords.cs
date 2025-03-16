@@ -12,6 +12,7 @@ public record DriverSettings(
     bool CacheCookies = true
 );
 
+[Obsolete("Record is no longer used, and will throw an error.", true)]
 public record RadiantConnectRSO(string SSID); // Supposedly all you need for authorization?
 
 public record RSOAuth(

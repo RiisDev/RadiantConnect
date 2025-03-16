@@ -11,7 +11,7 @@
         "projectName": "RadiantConnect",
         "projectPath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\RadiantConnect.csproj",
         "packagesPath": "C:\\Users\\irisd\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\obj\\",
+        "outputPath": "C:\\Users\\irisd\\Documents\\GitHub\\RadiantConnect\\obj\\publish\\win-x64\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -77,6 +77,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.100/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     }

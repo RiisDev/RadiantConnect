@@ -31,7 +31,7 @@ public class StoreEndpoints(Initiator initiator)
 
     public async Task<Storefront?> FetchStorefrontAsync(string userId)
     {
-        return await initiator.ExternalSystem.Net.GetAsync<Storefront>(Url, $"/store/v2/storefront/{userId}");
+        return await initiator.ExternalSystem.Net.PostAsync<Storefront>(Url, $"/store/v3/storefront/{userId}", new StringContent("{}"));
     }
 
     public async Task<BalancesMain?> FetchBalancesAsync(string userId)

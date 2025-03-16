@@ -65,8 +65,8 @@ namespace RadiantConnect.Network
 
         }
 
-        // This is terrible I'm sorry, but backwards compatibility :(
-        public ValorantNet(string ssid) : this(new Authentication.Authentication().AuthenticateWithSSID(ssid).Result ?? throw new RadiantConnectAuthException("Failed to bind SSID to Net")) {}
+        [Obsolete("Please use AuthenticateWithSSID, method is no longer maintained,", true)]
+        public ValorantNet(string ssid) => throw new NotSupportedException("Please use RSOAuth, method is no longer maintained,");
 
         public ValorantNet(ValorantService? valorantClient = null)
         {
@@ -147,8 +147,9 @@ namespace RadiantConnect.Network
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
         }
 
-        internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null)
+        internal async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, bool outputDebugData = false)
         {
+            int retries = 0;
             // Stupid hack to fix URLs that I imported incorrectly
             if (baseUrl[^1] == '/' && endPoint[0] == '/') { endPoint = endPoint[1..]; }
 
@@ -173,6 +174,12 @@ namespace RadiantConnect.Network
                         case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.InternalServerError }:
                         case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.Forbidden }:
                             await ResetAuth();
+
+                            // Should fix the weird timeout
+                            retries++;
+                            if (retries == 5)
+                                return null;
+
                             continue;
                         case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.NotFound }:
                         case { IsSuccessStatusCode: false, StatusCode: HttpStatusCode.MethodNotAllowed }:
@@ -182,6 +189,9 @@ namespace RadiantConnect.Network
                     string responseContent = await responseMessage.Content.ReadAsStringAsync();
                     
                     Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+                    
+                    if (outputDebugData)
+                        Console.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
                     
                     httpRequest.Dispose();
                     responseMessage.Dispose();
@@ -198,16 +208,9 @@ namespace RadiantConnect.Network
 
         public async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
         {
-            try
-            {
-                string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
+            string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
 
-                return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-            }
-            catch
-            {
-                return default;
-            }
+            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
         }
 
         public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)

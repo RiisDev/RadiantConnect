@@ -11,6 +11,7 @@ using RadiantConnect.Authentication.QRSignIn.Handlers;
 using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 using TokenManager = RadiantConnect.Authentication.SSIDReAuth.SSIDAuthManager;
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 // ReSharper disable StringLiteralTypo
 // ReSharper disable IdentifierTypo
@@ -75,9 +76,9 @@ namespace RadiantConnect.Authentication
             set => authHandler.MultiFactorCode = value;
         }
 
-        internal AuthHandler authHandler = null!;
+        internal AuthHandler? authHandler = null!;
 
-        public async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
+        internal async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
         {
 #if DEBUG
             switch (service)
@@ -96,10 +97,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid)
-        {
-            return await new TokenManager().SignIn(ssid);
-        }
+        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid) => await new TokenManager().Authenticate(ssid);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -108,7 +106,7 @@ namespace RadiantConnect.Authentication
             if (returnLoginUrl)
                 manager.OnUrlBuilt += OnUrlBuilt;
 
-            return await manager.InitiateSignIn();
+            return await manager.Authenticate();
         }
 
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
@@ -128,13 +126,24 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            Debug.WriteLine($"{DateTime.Now} LOGIN STARTED");
+            Task<string> authTask = authHandler.Authenticate(username, password);
+            Task delayTask = Task.Delay(TimeSpan.FromSeconds(45));
 
-            string ssid = await authHandler.Initialize(username, password);
+            if (await Task.WhenAny(authTask, delayTask) == authTask)
+            {
+                // Authentication completed within timeout
+                string ssid = await authTask;
+                Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
-            Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
+                authHandler?.Dispose();
 
-            return await AuthenticateWithSSID(ssid);
+                return await AuthenticateWithSSID(ssid);
+            }
+
+            authHandler?.Dispose();
+
+            Debug.WriteLine($"{DateTime.Now} LOGIN TIMEOUT");
+            throw new TimeoutException("Authentication timed out after 45 seconds.");
         }
 
         public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
@@ -149,52 +158,10 @@ namespace RadiantConnect.Authentication
             return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
         }
 
-        public async Task<string?> PerformDriverCacheRequest(ValorantNet.HttpMethod httpMethod, string baseUrl, string endPoint, IEnumerable<Cookie> cookies, string userAgent = "", Dictionary<string, string>? extraHeaders = null, AuthenticationHeaderValue? authentication = null, HttpContent? content = null)
-        {
-            CookieContainer container = new();
-            using HttpClient Client = new(new HttpClientHandler()
-            {
-                AllowAutoRedirect = true,
-                CookieContainer = container,
-                AutomaticDecompression = DecompressionMethods.All,
-                UseCookies = true,
-                ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-            });
+        [Obsolete("Method is no longer used, please use 'AuthenticateWithSSID', will throw an error.", true)]
+        public async Task<string?> PerformDriverCacheRequest(ValorantNet.HttpMethod httpMethod, string baseUrl, string endPoint, IEnumerable<Cookie> cookies, string userAgent = "", Dictionary<string, string>? extraHeaders = null, AuthenticationHeaderValue? authentication = null, HttpContent? content = null) 
+            => throw new NotSupportedException("Method is no longer used, please use 'AuthenticateWithSSID'");
 
-            Client.DefaultRequestHeaders.Authorization = authentication;
-
-            if (extraHeaders != null)
-                foreach (KeyValuePair<string, string> header in extraHeaders)
-                    Client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
-
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", userAgent);
-            
-            if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
-            try
-            {
-                HttpRequestMessage httpRequest = new();
-                httpRequest.Method = ValorantNet.InternalToHttpMethod[httpMethod];
-                httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
-                httpRequest.Content = content;
-               
-                foreach (Cookie cookie in cookies)
-                    container.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
-
-                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync();
-                Debug.WriteLine($"[Authorization Log] Client: {JsonSerializer.Serialize(Client)}\n[Authorization Log] Uri:{baseUrl}{endPoint}\n[Authorization Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[Authorization Log] Request Content: {JsonSerializer.Serialize(content)}\n[Authorization Log] Response Content:{responseContent}[Authorization Log] Response Data: {responseMessage}");
-
-                httpRequest.Dispose();
-                responseMessage.Dispose();
-                return responseContent.Contains("<html>") || responseContent.Contains("errorCode") ? null : responseContent;
-            }
-            catch
-            {
-                return null;
-            }
-        }
-
-        public async Task Logout() => await authHandler.Logout();
+        public async Task Logout() => await authHandler?.Logout();
     }
 }

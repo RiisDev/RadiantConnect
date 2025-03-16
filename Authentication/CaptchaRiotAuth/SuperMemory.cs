@@ -20,7 +20,7 @@ namespace RadiantConnect.Authentication.CaptchaRiotAuth
         internal CookieContainer Cookies;
         internal string Authorization;
 
-        public SuperMemory(string authorization)
+        internal SuperMemory(string authorization)
         {
             Authorization = authorization;
             Cookies = new CookieContainer();
