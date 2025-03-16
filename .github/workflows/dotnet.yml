@@ -33,9 +33,23 @@ jobs:
     - name: Publish the project
       run: dotnet publish RadiantConnect.csproj --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
 
-    - name: Archive published files
+    - name: Create Artifact
       uses: actions/upload-artifact@v4
       with:
         name: published-files
         path: ./bin/Release/net8.0/publish/
 
+    - name: Zip Artifact For Pre-Release
+      run: Compress-Archive -Path ./bin/Release/net8.0/publish* -DestinationPath ./RadiantConnect.zip
+
+    - name: Create GitHub Pre-Release
+      id: create_release
+      uses: softprops/action-gh-release@v2
+      with:
+        tag_name: pre-release-${{ github.run_number }}
+        release_name: "Pre-Release Build ${{ github.run_number }}"
+        draft: false
+        prerelease: true
+        files: ./RadiantConnect.zip
+      env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
