@@ -1,56 +1,18 @@
 ## Request Record
 
-The `Request` record represents a request in the RadiantConnect network.
+```csharp
+public record Request(
+    [property: JsonPropertyName("game_name")] string GameName,
+    [property: JsonPropertyName("game_tag")] string GameTag,
+    [property: JsonPropertyName("name")] string Name,
+    [property: JsonPropertyName("note")] string Note,
+    [property: JsonPropertyName("pid")] string Pid,
+    [property: JsonPropertyName("puuid")] string Puuid,
+    [property: JsonPropertyName("region")] string Region,
+    [property: JsonPropertyName("subscription")] string Subscription
+);
 
-### Properties
-
-#### `GameName`
-
-- Type: `string`
-- Description: Represents the game name associated with the request.
-
-#### `GameTag`
-
-- Type: `string`
-- Description: Represents the game tag associated with the request.
-
-#### `Name`
-
-- Type: `string`
-- Description: Represents the name associated with the request.
-
-#### `Note`
-
-- Type: `string`
-- Description: Represents a note associated with the request.
-
-#### `Pid`
-
-- Type: `string`
-- Description: Represents the Pid associated with the request.
-
-#### `Puuid`
-
-- Type: `string`
-- Description: Represents the Puuid associated with the request.
-
-#### `Region`
-
-- Type: `string`
-- Description: Represents the region associated with the request.
-
-#### `Subscription`
-
-- Type: `string`
-- Description: Represents the subscription associated with the request.
-
-## InternalRequests Record
-
-The `InternalRequests` record represents a list of internal requests in the RadiantConnect network.
-
-### Properties
-
-#### `Requests`
-
-- Type: `IReadOnlyList<Request>`
-- Description: Represents a list of requests.
+public record InternalRequests(
+    [property: JsonPropertyName("requests")] IReadOnlyList<Request> Requests
+);
+```

@@ -1,177 +1,175 @@
 ## PlayerMMR Record
 
-The `PlayerMMR` record represents the Matchmaking Rating (MMR) information of a player in the RadiantConnect network.
-
-### Properties
-
-#### `Version`
-
-- Type: `long?`
-- Description: Represents the version information associated with the player's MMR.
-
-#### `Subject`
-
-- Type: `string`
-- Description: Represents the unique identifier associated with the player.
-
-#### `NewPlayerExperienceFinished`
-
-- Type: `bool?`
-- Description: Indicates whether the new player experience has been finished.
-
-#### `QueueSkills`
-
-- Type: `QueueSkills`
-- Description: Represents the MMR information for different game queues.
-
-#### `LatestCompetitiveUpdate`
-
-- Type: `LatestCompetitiveUpdate`
-- Description: Represents the latest competitive update information for the player.
-
-#### `IsLeaderboardAnonymized`
-
-- Type: `bool?`
-- Description: Indicates whether the player's leaderboard information is anonymized.
-
-#### `IsActRankBadgeHidden`
-
-- Type: `bool?`
-- Description: Indicates whether the Act Rank badge is hidden for the player.
-
-### QueueSkills Record
-
-The `QueueSkills` record represents the MMR information for different game queues.
-
-#### `Competitive`
-
-- Type: `Competitive`
-- Description: Represents the MMR information for the competitive game queue.
-
-#### `Deathmatch`
-
-- Type: `Deathmatch`
-- Description: Represents the MMR information for the deathmatch game queue.
-
-#### `Ggteam`
-
-- Type: `Ggteam`
-- Description: Represents the MMR information for the ggteam game queue.
-
-#### `Hurm`
-
-- Type: `Hurm`
-- Description: Represents the MMR information for the hurm game queue.
-
-#### `Newmap`
-
-- Type: `Newmap`
-- Description: Represents the MMR information for the newmap game queue.
-
-#### `Onefa`
-
-- Type: `Onefa`
-- Description: Represents the MMR information for the onefa game queue.
-
-#### `Premier`
-
-- Type: `Premier`
-- Description: Represents the MMR information for the premier game queue.
-
-#### `Seeding`
-
-- Type: `Seeding`
-- Description: Represents the MMR information for the seeding game queue.
-
-#### `Snowball`
-
-- Type: `Snowball`
-- Description: Represents the MMR information for the snowball game queue.
-
-#### `Spikerush`
-
-- Type: `Spikerush`
-- Description: Represents the MMR information for the spikerush game queue.
-
-#### `Swiftplay`
-
-- Type: `Swiftplay`
-- Description: Represents the MMR information for the swiftplay game queue.
-
-#### `Unrated`
-
-- Type: `Unrated`
-- Description: Represents the MMR information for the unrated game queue.
-
-### LatestCompetitiveUpdate Record
-
-The `LatestCompetitiveUpdate` record represents the latest competitive update information for a player.
-
-#### `MatchID`
-
-- Type: `string`
-- Description: Represents the unique identifier associated with the match.
-
-#### `MapID`
-
-- Type: `string`
-- Description: Represents the unique identifier associated with the map.
-
-#### `SeasonID`
-
-- Type: `string`
-- Description: Represents the unique identifier associated with the season.
-
-#### `MatchStartTime`
-
-- Type: `long?`
-- Description: Represents the start time of the match.
-
-#### `TierAfterUpdate`
-
-- Type: `long?`
-- Description: Represents the tier after the MMR update.
-
-#### `TierBeforeUpdate`
-
-- Type: `long?`
-- Description: Represents the tier before the MMR update.
-
-#### `RankedRatingAfterUpdate`
-
-- Type: `long?`
-- Description: Represents the ranked rating after the MMR update.
-
-#### `RankedRatingBeforeUpdate`
-
-- Type: `long?`
-- Description: Represents the ranked rating before the MMR update.
-
-#### `RankedRatingEarned`
-
-- Type: `long?`
-- Description: Represents the ranked rating earned in the update.
-
-#### `RankedRatingPerformanceBonus`
-
-- Type: `long?`
-- Description: Represents the performance bonus in ranked rating.
-
-#### `CompetitiveMovement`
-
-- Type: `string`
-- Description: Represents the competitive movement of the player.
-
-#### `AFKPenalty`
-
-- Type: `long?`
-- Description: Represents the AFK penalty applied to the player.
-
-### WinsByTier Record
-
-The `WinsByTier` record represents the number of wins for each tier.
-
-#### `0` to `29`
-
-- Type: `long?`
-- Description: Represents the number of wins for the corresponding tier.
+```csharp
+public record SeasonId(
+    [property: JsonPropertyName("SeasonID")] string SeasonID,
+    [property: JsonPropertyName("NumberOfWins")] long? NumberOfWins,
+    [property: JsonPropertyName("NumberOfWinsWithPlacements")] long? NumberOfWinsWithPlacements,
+    [property: JsonPropertyName("NumberOfGames")] long? NumberOfGames,
+    [property: JsonPropertyName("Rank")] long? Rank,
+    [property: JsonPropertyName("CapstoneWins")] long? CapstoneWins,
+    [property: JsonPropertyName("LeaderboardRank")] long? LeaderboardRank,
+    [property: JsonPropertyName("CompetitiveTier")] long? CompetitiveTier,
+    [property: JsonPropertyName("RankedRating")] long? RankedRating,
+    [property: JsonPropertyName("WinsByTier")] WinsByTier WinsByTier,
+    [property: JsonPropertyName("GamesNeededForRating")] long? GamesNeededForRating,
+    [property: JsonPropertyName("TotalWinsNeededForRank")] long? TotalWinsNeededForRank
+);
+
+public record Competitive(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Deathmatch(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Ggteam(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Hurm(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record LatestCompetitiveUpdate(
+    [property: JsonPropertyName("MatchID")] string MatchID,
+    [property: JsonPropertyName("MapID")] string MapID,
+    [property: JsonPropertyName("SeasonID")] string SeasonID,
+    [property: JsonPropertyName("MatchStartTime")] long? MatchStartTime,
+    [property: JsonPropertyName("TierAfterUpdate")] long? TierAfterUpdate,
+    [property: JsonPropertyName("TierBeforeUpdate")] long? TierBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingAfterUpdate")] long? RankedRatingAfterUpdate,
+    [property: JsonPropertyName("RankedRatingBeforeUpdate")] long? RankedRatingBeforeUpdate,
+    [property: JsonPropertyName("RankedRatingEarned")] long? RankedRatingEarned,
+    [property: JsonPropertyName("RankedRatingPerformanceBonus")] long? RankedRatingPerformanceBonus,
+    [property: JsonPropertyName("CompetitiveMovement")] string CompetitiveMovement,
+    [property: JsonPropertyName("AFKPenalty")] long? AFKPenalty
+);
+
+public record Newmap(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Onefa(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Premier(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record QueueSkills(
+    [property: JsonPropertyName("competitive")] Competitive Competitive,
+    [property: JsonPropertyName("deathmatch")] Deathmatch Deathmatch,
+    [property: JsonPropertyName("ggteam")] Ggteam Ggteam,
+    [property: JsonPropertyName("hurm")] Hurm Hurm,
+    [property: JsonPropertyName("newmap")] Newmap Newmap,
+    [property: JsonPropertyName("onefa")] Onefa Onefa,
+    [property: JsonPropertyName("premier")] Premier Premier,
+    [property: JsonPropertyName("seeding")] Seeding Seeding,
+    [property: JsonPropertyName("snowball")] Snowball Snowball,
+    [property: JsonPropertyName("spikerush")] Spikerush Spikerush,
+    [property: JsonPropertyName("swiftplay")] Swiftplay Swiftplay,
+    [property: JsonPropertyName("unrated")] Unrated Unrated
+);
+
+public record PlayerMMR(
+    [property: JsonPropertyName("Version")] long? Version,
+    [property: JsonPropertyName("Subject")] string Subject,
+    [property: JsonPropertyName("NewPlayerExperienceFinished")] bool? NewPlayerExperienceFinished,
+    [property: JsonPropertyName("QueueSkills")] QueueSkills QueueSkills,
+    [property: JsonPropertyName("LatestCompetitiveUpdate")] LatestCompetitiveUpdate LatestCompetitiveUpdate,
+    [property: JsonPropertyName("IsLeaderboardAnonymized")] bool? IsLeaderboardAnonymized,
+    [property: JsonPropertyName("IsActRankBadgeHidden")] bool? IsActRankBadgeHidden
+);
+
+public record Seeding(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Snowball(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Spikerush(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Swiftplay(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record Unrated(
+    [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
+    [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
+    [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+);
+
+public record WinsByTier( // Todo find what these actually are?
+    [property: JsonPropertyName("0")] long? _0,
+    [property: JsonPropertyName("1")] long? _1,
+    [property: JsonPropertyName("2")] long? _2,
+    [property: JsonPropertyName("3")] long? _3,
+    [property: JsonPropertyName("4")] long? _4,
+    [property: JsonPropertyName("5")] long? _5,
+    [property: JsonPropertyName("6")] long? _6,
+    [property: JsonPropertyName("7")] long? _7,
+    [property: JsonPropertyName("8")] long? _8,
+    [property: JsonPropertyName("9")] long? _9,
+    [property: JsonPropertyName("10")] long? _10,
+    [property: JsonPropertyName("11")] long? _11,
+    [property: JsonPropertyName("12")] long? _12,
+    [property: JsonPropertyName("13")] long? _13,
+    [property: JsonPropertyName("14")] long? _14,
+    [property: JsonPropertyName("15")] long? _15,
+    [property: JsonPropertyName("16")] long? _16,
+    [property: JsonPropertyName("17")] long? _17,
+    [property: JsonPropertyName("18")] long? _18,
+    [property: JsonPropertyName("19")] long? _19,
+    [property: JsonPropertyName("20")] long? _20,
+    [property: JsonPropertyName("21")] long? _21,
+    [property: JsonPropertyName("22")] long? _22,
+    [property: JsonPropertyName("23")] long? _23,
+    [property: JsonPropertyName("24")] long? _24,
+    [property: JsonPropertyName("25")] long? _25,
+    [property: JsonPropertyName("26")] long? _26,
+    [property: JsonPropertyName("27")] long? _27,
+    [property: JsonPropertyName("28")] long? _28,
+    [property: JsonPropertyName("29")] long? _29
+);
+```

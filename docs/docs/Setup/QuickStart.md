@@ -15,18 +15,10 @@ dotnet add package RadiantConnect
 ## Step 2: Initialize RadiantConnect
 
 Initialize the RadiantConnect library by creating an instance of the `Initiator` class.
-Note: You can provide your own SSID for remote authentication
 
-```csharp
-// Initialize RadiantConnect
-Initiator Init = new Initiator();
+**Note: Initiator can be constructed in many different ways please read the [How To Documentation](https://irisapp.ca/RadiantConnect/Extra%20Data%20%26%20How%20To/How%20To/)**
 
-// If you're using your own credentials
-string ssid = "yourSsid";
-Initiator Init = new Init(suppliedAuth: new RadiantConnectRSO(ssid))
-```
-
-## Step 3: Hook Desired Events
+## Step 3: If you're wanting any game hooks, hook desired events
 
 Hook into the events related to the game queue to respond to various states.
 

@@ -5,39 +5,11 @@
 
 ## Step 1: Initialize Auth Records
 
-To use XMPP you must use the RSOAuth record type, specifically: Affinity, AccessToken, PasToken, Entitlement Token
+To use XMPP you must use the [RSOAuth](https://irisapp.ca/RadiantConnect/DataTypes/Authentication/RIot%20Sign%20On/) record type
 You may also use the built in login methods to provide RSOAuth
 
-```csharp
-// Initialize Auth Client
-Authentication authentication = new();
+**Note: Initiator can be constructed in many different ways please read the [How To Documentation](https://irisapp.ca/RadiantConnect/Extra%20Data%20%26%20How%20To/How%20To/)**
 
-authentication.OnMultiFactorRequested += () =>
-{
-	Console.WriteLine("Enter MultiFactor Code: ");
-	authentication.MultiFactorCode = Console.ReadLine();
-};
-authentication.OnDriverUpdate += status => Console.WriteLine($"[Driver] Authentication.DriverStatus.{status}");
-
-DriverSettings driverSettings = new DriverSettings(
-	string ProcessName = "msedge",
-	string BrowserExecutable = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
-	bool KillBrowser = false,
-	bool CacheCookies = true
-);
-
-RSOAuth rsoAuthData = authentication.AuthenticateWithDriver(username, password, driverSettings);
-
-// Or if you can provide your own
-
-RSOAuth rsoAuthData = new RSOAuth(
-	Affinity: "na1",
-	AccessToken: "accessToken",
-	PasToken: "pasToken",
-	Entitlement: "entitlementToken"
-);
-
-```
 
 ## Step 2: Connect to XMPP Server
 

@@ -1,111 +1,38 @@
 ## PlayerLoadout Record
 
-The `PlayerLoadout` record represents the loadout information for a player in the RadiantConnect network PVP endpoints.
+```csharp
 
-### Properties
+public record Gun(
+    [property: JsonPropertyName("ID")] string ID,
+    [property: JsonPropertyName("SkinID")] string SkinID,
+    [property: JsonPropertyName("SkinLevelID")] string SkinLevelID,
+    [property: JsonPropertyName("ChromaID")] string ChromaID,
+    [property: JsonPropertyName("CharmInstanceID")] string CharmInstanceID,
+    [property: JsonPropertyName("CharmID")] string CharmID,
+    [property: JsonPropertyName("CharmLevelID")] string CharmLevelID,
+    [property: JsonPropertyName("Attachments")] IReadOnlyList<object> Attachments
+);
 
-- **Subject**
-  - Type: `string`
-  - Description: Represents the subject associated with the player loadout.
+public record Identity(
+    [property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
+    [property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
+    [property: JsonPropertyName("AccountLevel")] long? AccountLevel,
+    [property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
+    [property: JsonPropertyName("HideAccountLevel")] bool? HideAccountLevel
+);
 
-- **Version**
-  - Type: `long?`
-  - Description: Represents the version of the player loadout information.
+public record PlayerLoadout(
+    [property: JsonPropertyName("Subject")] string Subject,
+    [property: JsonPropertyName("Version")] long? Version,
+    [property: JsonPropertyName("Guns")] IReadOnlyList<Gun> Guns,
+    [property: JsonPropertyName("Sprays")] IReadOnlyList<Spray> Sprays,
+    [property: JsonPropertyName("Identity")] Identity Identity,
+    [property: JsonPropertyName("Incognito")] bool? Incognito
+);
 
-- **Guns**
-  - Type: `IReadOnlyList<Gun>`
-  - Description: Represents a list of guns in the player's loadout.
-
-- **Sprays**
-  - Type: `IReadOnlyList<Spray>`
-  - Description: Represents a list of sprays in the player's loadout.
-
-- **Identity**
-  - Type: `Identity`
-  - Description: Represents the identity information associated with the player.
-
-- **Incognito**
-  - Type: `bool?`
-  - Description: Indicates whether the player is in incognito mode.
-
-## Gun Record
-
-The `Gun` record represents information about a gun in the player's loadout.
-
-### Properties
-
-- **ID**
-  - Type: `string`
-  - Description: Represents the ID of the gun.
-
-- **SkinID**
-  - Type: `string`
-  - Description: Represents the ID of the skin associated with the gun.
-
-- **SkinLevelID**
-  - Type: `string`
-  - Description: Represents the ID of the skin level associated with the gun.
-
-- **ChromaID**
-  - Type: `string`
-  - Description: Represents the ID of the chroma associated with the gun.
-
-- **CharmInstanceID**
-  - Type: `string`
-  - Description: Represents the ID of the charm instance associated with the gun.
-
-- **CharmID**
-  - Type: `string`
-  - Description: Represents the ID of the charm associated with the gun.
-
-- **CharmLevelID**
-  - Type: `string`
-  - Description: Represents the ID of the charm level associated with the gun.
-
-- **Attachments**
-  - Type: `IReadOnlyList<object>`
-  - Description: Represents a list of attachments associated with the gun. The exact structure of each attachment object may vary.
-
-## Spray Record
-
-The `Spray` record represents information about a spray in the player's loadout.
-
-### Properties
-
-- **EquipSlotID**
-  - Type: `string`
-  - Description: Represents the ID of the equip slot associated with the spray.
-
-- **SprayID**
-  - Type: `string`
-  - Description: Represents the ID of the spray.
-
-- **SprayLevelID**
-  - Type: `object`
-  - Description: Represents the ID of the spray level associated with the spray.
-
-## Identity Record
-
-The `Identity` record represents identity information associated with the player.
-
-### Properties
-
-- **PlayerCardID**
-  - Type: `string`
-  - Description: Represents the ID of the player card associated with the player.
-
-- **PlayerTitleID**
-  - Type: `string`
-  - Description: Represents the ID of the player title associated with the player.
-
-- **AccountLevel**
-  - Type: `long?`
-  - Description: Represents the account level of the player.
-
-- **PreferredLevelBorderID**
-  - Type: `string`
-  - Description: Represents the ID of the preferred level border associated with the player.
-
-- **HideAccountLevel**
-  - Type: `bool?`
-  - Description: Indicates whether the account level should be hidden.
+public record Spray(
+    [property: JsonPropertyName("EquipSlotID")] string EquipSlotID,
+    [property: JsonPropertyName("SprayID")] string SprayID,
+    [property: JsonPropertyName("SprayLevelID")] object SprayLevelID
+);
+```

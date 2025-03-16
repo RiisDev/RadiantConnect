@@ -7,7 +7,7 @@
 
 ## Step 1: Initialize RadiantConnect 
 
-Initialize the XMPP Instance, it's suggested to run the KillRiot method before continuing
+Initialize the XMPP Instance, it's **required** to run the KillRiot method before continuing
 
 ```csharp
 ValXMPP.KillRiot();

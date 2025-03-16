@@ -1,165 +1,78 @@
-## AllyTeam Record
-
-The `AllyTeam` record represents an ally team in a pre-game match within the RadiantConnect network.
-
-### Properties
-
-#### `TeamID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the ally team.
-
-#### `Players`
-
-- Type: `IReadOnlyList<Player>`
-- Description: Represents the list of players in the ally team.
-
-## CastedVotes Record
-
-The `CastedVotes` record represents casted votes in a pre-game match within the RadiantConnect network.
-
-### Properties
-
-This record does not have any properties.
-
-## Player Record
-
-The `Player` record represents a player in a pre-game match within the RadiantConnect network.
-
-### Properties
-
-#### `Subject`
-
-- Type: `string`
-- Description: Represents the unique identifier for the player.
-
-#### `CharacterID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the character associated with the player.
-
-#### `CharacterSelectionState`
-
-- Type: `string`
-- Description: Represents the state of character selection for the player.
-
-#### `PregamePlayerState`
-
-- Type: `string`
-- Description: Represents the state of the player in the pre-game phase.
-
-#### `CompetitiveTier`
-
-- Type: `long`
-- Description: Represents the competitive tier associated with the player.
-
-#### `PlayerIdentity`
-
-- Type: `PlayerIdentity`
-- Description: Represents the identity information for the player.
-
-#### `SeasonalBadgeInfo`
-
-- Type: `SeasonalBadgeInfo`
-- Description: Represents seasonal badge information for the player.
-
-#### `IsCaptain`
-
-- Type: `bool`
-- Description: Indicates whether the player is the captain of the team.
-
-## PlayerIdentity Record
-
-The `PlayerIdentity` record represents the identity information for a player in a pre-game match within the RadiantConnect network.
-
-### Properties
-
-#### `Subject`
-
-- Type: `string`
-- Description: Represents the unique identifier for the player.
-
-#### `PlayerCardID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the player's card.
-
-#### `PlayerTitleID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the player's title.
-
-#### `AccountLevel`
-
-- Type: `long`
-- Description: Represents the account level of the player.
-
-#### `PreferredLevelBorderID`
-
-- Type: `string`
-- Description: Represents the preferred level border identifier for the player.
-
-#### `Incognito`
-
-- Type: `bool`
-- Description: Indicates whether the player is in incognito mode.
-
-#### `HideAccountLevel`
-
-- Type: `bool`
-- Description: Indicates whether the player's account level is hidden.
-
 ## PreGameMatch Record
 
-The `PreGameMatch` record represents a pre-game match within the RadiantConnect network.
+```csharp
+public record AllyTeam(
+	[property: JsonPropertyName("TeamID")] string TeamID,
+	[property: JsonPropertyName("Players")] IReadOnlyList<Player> Players
+);
 
-### Properties
+public record CastedVotes();
 
-... (skipping detailed description for brevity)
+public record Player(
+	[property: JsonPropertyName("Subject")] string Subject,
+	[property: JsonPropertyName("CharacterID")] string CharacterID,
+	[property: JsonPropertyName("CharacterSelectionState")] string CharacterSelectionState,
+	[property: JsonPropertyName("PregamePlayerState")] string PregamePlayerState,
+	[property: JsonPropertyName("CompetitiveTier")] long CompetitiveTier,
+	[property: JsonPropertyName("PlayerIdentity")] PlayerIdentity PlayerIdentity,
+	[property: JsonPropertyName("SeasonalBadgeInfo")] SeasonalBadgeInfo SeasonalBadgeInfo,
+	[property: JsonPropertyName("IsCaptain")] bool IsCaptain
+);
 
-## SeasonalBadgeInfo Record
+public record PlayerIdentity(
+	[property: JsonPropertyName("Subject")] string Subject,
+	[property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
+	[property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
+	[property: JsonPropertyName("AccountLevel")] long AccountLevel,
+	[property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
+	[property: JsonPropertyName("Incognito")] bool Incognito,
+	[property: JsonPropertyName("HideAccountLevel")] bool HideAccountLevel
+);
 
-The `SeasonalBadgeInfo` record represents seasonal badge information for a player in a pre-game match within the RadiantConnect network.
+public record PreGameMatch(
+	[property: JsonPropertyName("ID")] string ID,
+	[property: JsonPropertyName("Version")] long Version,
+	[property: JsonPropertyName("Teams")] IReadOnlyList<Team> Teams,
+	[property: JsonPropertyName("AllyTeam")] AllyTeam AllyTeam,
+	[property: JsonPropertyName("EnemyTeam")] object EnemyTeam,
+	[property: JsonPropertyName("ObserverSubjects")] IReadOnlyList<object> ObserverSubjects,
+	[property: JsonPropertyName("MatchCoaches")] IReadOnlyList<object> MatchCoaches,
+	[property: JsonPropertyName("EnemyTeamSize")] long EnemyTeamSize,
+	[property: JsonPropertyName("EnemyTeamLockCount")] long EnemyTeamLockCount,
+	[property: JsonPropertyName("PregameState")] string PregameState,
+	[property: JsonPropertyName("LastUpdated")] DateTime LastUpdated,
+	[property: JsonPropertyName("MapID")] string MapID,
+	[property: JsonPropertyName("MapSelectPool")] IReadOnlyList<object> MapSelectPool,
+	[property: JsonPropertyName("BannedMapIDs")] IReadOnlyList<object> BannedMapIDs,
+	[property: JsonPropertyName("CastedVotes")] CastedVotes CastedVotes,
+	[property: JsonPropertyName("MapSelectSteps")] IReadOnlyList<object> MapSelectSteps,
+	[property: JsonPropertyName("MapSelectStep")] long MapSelectStep,
+	[property: JsonPropertyName("Team1")] string Team1,
+	[property: JsonPropertyName("GamePodID")] string GamePodID,
+	[property: JsonPropertyName("Mode")] string Mode,
+	[property: JsonPropertyName("VoiceSessionID")] string VoiceSessionID,
+	[property: JsonPropertyName("MUCName")] string MUCName,
+	[property: JsonPropertyName("TeamMatchToken")] string TeamMatchToken,
+	[property: JsonPropertyName("QueueID")] string QueueID,
+	[property: JsonPropertyName("ProvisioningFlowID")] string ProvisioningFlowID,
+	[property: JsonPropertyName("IsRanked")] bool IsRanked,
+	[property: JsonPropertyName("PhaseTimeRemainingNS")] long PhaseTimeRemainingNS,
+	[property: JsonPropertyName("StepTimeRemainingNS")] long StepTimeRemainingNS,
+	[property: JsonPropertyName("altModesFlagADA")] bool AltModesFlagADA,
+	[property: JsonPropertyName("TournamentMetadata")] object TournamentMetadata,
+	[property: JsonPropertyName("RosterMetadata")] object RosterMetadata
+);
 
-### Properties
+public record SeasonalBadgeInfo(
+	[property: JsonPropertyName("SeasonID")] string SeasonID,
+	[property: JsonPropertyName("NumberOfWins")] long NumberOfWins,
+	[property: JsonPropertyName("WinsByTier")] object WinsByTier,
+	[property: JsonPropertyName("Rank")] long Rank,
+	[property: JsonPropertyName("LeaderboardRank")] long LeaderboardRank
+);
 
-#### `SeasonID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the season.
-
-#### `NumberOfWins`
-
-- Type: `long`
-- Description: Represents the number of wins for the player in the season.
-
-#### `WinsByTier`
-
-- Type: `object`
-- Description: Represents wins by tier information for the player.
-
-#### `Rank`
-
-- Type: `long`
-- Description: Represents the rank of the player in the season.
-
-#### `LeaderboardRank`
-
-- Type: `long`
-- Description: Represents the leaderboard rank of the player in the season.
-
-## Team Record
-
-The `Team` record represents a team in a pre-game match within the RadiantConnect network.
-
-### Properties
-
-#### `TeamID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the team.
-
-#### `Players`
-
-- Type: `IReadOnlyList<Player>`
-- Description: Represents the list of players in the team.
+public record Team(
+	[property: JsonPropertyName("TeamID")] string TeamID,
+	[property: JsonPropertyName("Players")] IReadOnlyList<Player> Players
+);
+```

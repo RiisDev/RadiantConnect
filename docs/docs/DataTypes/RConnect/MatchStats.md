@@ -1,7 +1,5 @@
 ## MatchStats Record
 
-Sorry, too lazy to write proper, so here is the record.
-
 ```csharp
 public record Stats(
 	long RoundsPlayed,

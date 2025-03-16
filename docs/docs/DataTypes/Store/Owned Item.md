@@ -1,32 +1,13 @@
-## Entitlement Record
+## OwnedItem
 
-The `Entitlement` record represents an entitlement within the RadiantConnect network.
+```csharp
+public record Entitlement(
+    [property: JsonPropertyName("TypeID")] string TypeID,
+    [property: JsonPropertyName("ItemID")] string ItemID
+);
 
-### Properties
-
-#### `TypeID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the entitlement type.
-
-#### `ItemID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the item associated with the entitlement.
-
-## OwnedItem Record
-
-The `OwnedItem` record represents an owned item along with its entitlements within the RadiantConnect network.
-
-### Properties
-
-#### `ItemTypeID`
-
-- Type: `string`
-- Description: Represents the unique identifier for the item type.
-
-#### `Entitlements`
-
-- Type: `IReadOnlyList<Entitlement>`
-- Description: Represents a list of entitlements associated with the owned item.
-
+public record OwnedItem(
+    [property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
+    [property: JsonPropertyName("Entitlements")] IReadOnlyList<Entitlement> Entitlements
+);
+```

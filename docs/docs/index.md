@@ -8,6 +8,9 @@ hide:
 
 Welcome to the documentation for RadiantConnect – your gateway to seamless Valorant client integration and communication! 
 
+## Code Samples
+To find quick examples feel free to check [here!](https://irisapp.ca/RadiantConnect/Extra%20Data%20%26%20How%20To/Samples/)
+
 ## Join our Discord Community
 
 Connect with fellow developers, and get support by joining our Discord server. [**Join Now**](https://discord.gg/yyuggrH)

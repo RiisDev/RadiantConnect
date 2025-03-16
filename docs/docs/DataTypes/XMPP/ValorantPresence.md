@@ -1,8 +1,5 @@
 ## ValorantPresence Record
 
-Sorry, too lazy to write proper, so here is the record.
-
-
 ```csharp
 public record ValorantPresence(
 	[property: JsonPropertyName("isValid")] bool? IsValid,
