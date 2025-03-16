@@ -47,9 +47,9 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: pre-release-${{ github.run_number }}
-        release_name: "Pre-Release Build ${{ github.run_number }}"
+        release_name: "Beta Pre-Build ${{ github.run_number }}"
         draft: false
         prerelease: true
         files: ./RadiantConnect.zip
       env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
