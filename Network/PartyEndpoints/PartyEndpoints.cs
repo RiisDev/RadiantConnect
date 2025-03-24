@@ -74,7 +74,7 @@ public class PartyEndpoints(Initiator initiator)
 
     public async Task<Party?> ChangeQueueAsync(string partyId, QueueId queueId)
     {
-        JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "queueId", queueId.ToString() } });
+        JsonContent jsonContent = JsonContent.Create(new { queueID = queueId.ToString() });
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue",  jsonContent);
     }
 

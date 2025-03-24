@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.3.0</Version>
+    <Version>9.4.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,15 +16,22 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>Massive overhaul and feature additions
+    <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
 
-* Now forcing x64 Windows target, will look into adding linux support in the future for server usage.
-* Giving this, x86 programs will no longer be supported and maintaned please update your targetting.
-* Old methods will now be labelled obsolete redirecting to new versions
-* All Auth methods have been updated and improved
-* Storefront V3 is now supported
+* Fixed
+- ChangeQueueAsync
+- SelectCharacterAsync
+- LockCharacterAsync
+- AgentTable in *CharacterAsync
 
--Deprecated quite a few items that have been 'holding back' progress while trying to maintain compatibility</PackageReleaseNotes>
++ Added
+- All HttpMethods are available in ValorantNet
+- Documentation Updated proving usage
+- ValorantNet output can now be viewed via event handler, or with bool value
+- See documentation for all ValorantNet changes
+
+** Breaking Changes
+- Status code errors are no longer handled internally, and must be handled via user</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
