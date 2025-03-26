@@ -76,7 +76,7 @@ namespace RadiantConnect.Authentication
             set => authHandler.MultiFactorCode = value;
         }
 
-        internal AuthHandler? authHandler = null!;
+        internal AuthHandler authHandler = null!;
 
         internal async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
         {
@@ -97,7 +97,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid) => await new TokenManager().Authenticate(ssid);
+        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "") => await new TokenManager().Authenticate(ssid, clid);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -108,7 +108,7 @@ namespace RadiantConnect.Authentication
 
             return await manager.Authenticate();
         }
-
+        
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
         {   
             driverSettings ??= new DriverSettings();
@@ -126,7 +126,7 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            Task<string> authTask = authHandler.Authenticate(username, password);
+            Task<(string, string)> authTask = authHandler.Authenticate(username, password);
 #if DEBUG
             Task delayTask = Task.Delay(TimeSpan.FromDays(1));
 #else
@@ -135,12 +135,12 @@ namespace RadiantConnect.Authentication
             if (await Task.WhenAny(authTask, delayTask) == authTask)
             {
                 // Authentication completed within timeout
-                string ssid = await authTask;
+                (string, string) rsoCookies = await authTask;
                 Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
                 authHandler?.Dispose();
 
-                return await AuthenticateWithSSID(ssid);
+                return await new TokenManager().Authenticate(rsoCookies.Item1, rsoCookies.Item2);
             }
 
             authHandler?.Dispose();
@@ -165,6 +165,6 @@ namespace RadiantConnect.Authentication
         public async Task<string?> PerformDriverCacheRequest(ValorantNet.HttpMethod httpMethod, string baseUrl, string endPoint, IEnumerable<Cookie> cookies, string userAgent = "", Dictionary<string, string>? extraHeaders = null, AuthenticationHeaderValue? authentication = null, HttpContent? content = null) 
             => throw new NotSupportedException("Method is no longer used, please use 'AuthenticateWithSSID'");
 
-        public async Task Logout() => await authHandler?.Logout();
+        public async Task Logout() => await authHandler.Logout();
     }
 }

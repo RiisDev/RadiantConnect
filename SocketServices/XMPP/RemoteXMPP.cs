@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Utilities;
+#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 

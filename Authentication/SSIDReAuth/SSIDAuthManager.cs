@@ -9,17 +9,25 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 {
     internal class SSIDAuthManager
     {
-        internal async Task<RSOAuth> Authenticate(string ssid)
+        internal async Task<RSOAuth> Authenticate(string ssid, string? clid = "")
         {
             (HttpClient client, CookieContainer container) = AuthUtil.BuildClient();
 
             container.Add(new Cookie("ssid", ssid, "/", "auth.riotgames.com"));
+            container.Add(new Cookie("clid", clid, "/", "auth.riotgames.com"));
+
             HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid"));
 
             string? validAuthUrl = response.RequestMessage?.RequestUri?.ToString();
 
             if (string.IsNullOrEmpty(validAuthUrl))
                 throw new RadiantConnectAuthException("Failed to get Auth Url");
+
+            if (!validAuthUrl.Contains("access_token"))
+                throw new RadiantConnectAuthException("Failed to find access tokens in auth, note in certain regions you must specify CLID");
+
+            if (!validAuthUrl.Contains("id_token"))
+                throw new RadiantConnectAuthException("Failed to find id tokens in auth, note in certain regions you must specify CLID");
 
             string accessToken = AuthUtil.ParseAccessToken(validAuthUrl);
             string idToken = AuthUtil.ParseIdToken(validAuthUrl);

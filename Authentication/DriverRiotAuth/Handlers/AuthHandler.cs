@@ -5,6 +5,7 @@ using System.Net.WebSockets;
 using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Utilities;
+using static RadiantConnect.Authentication.Authentication;
 
 // ReSharper disable AccessToDisposedClosure <--- It's handled in DriverHandler
 
@@ -40,7 +41,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         // User Variables
         public string? MultiFactorCode { get; set; }
 
-        internal async Task<string> Authenticate(string username, string password)
+        internal async Task<(string, string)> Authenticate(string username, string password)
         {
             DriverStatus = Authentication.DriverStatus.Checking_Existing_Processes;
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
@@ -86,7 +87,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Process.GetProcessesByName(browserProcess).ToList().ForEach(x => x.Kill()); // Kill driver processes
         }
 
-        internal async Task<string> PerformSignInAsync()
+        internal async Task<(string, string)> PerformSignInAsync()
         {
             string accessTokenFound = string.Empty;
             DriverStatus = Authentication.DriverStatus.Logging_Into_Valorant;
@@ -102,7 +103,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
 
             DriverStatus = Authentication.DriverStatus.Grabbing_Required_Tokens;
-            return await GetSsidFromCookies(accessTokenFound);
+            return await GetRsoCookiesFromDriver(accessTokenFound);
         }
 
         internal async Task HandleMfaAsync()
@@ -130,7 +131,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverStatus = Authentication.DriverStatus.Multi_Factor_Completed;
         }
 
-        internal async Task<string> GetSsidFromCookies(string accessToken)
+        internal async Task<(string, string)> GetRsoCookiesFromDriver(string accessToken)
         {
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
@@ -140,7 +141,15 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 await File.WriteAllTextAsync($@"{Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
             }
 
-            return getCookies?.Result.Cookies.First(x => x.Name == "ssid").Value ?? throw new RadiantConnectAuthException("Failed to fetch SSID");
+            Dictionary<string, string> cookieDict = getCookies?.Result.Cookies.GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.First().Value) ?? [];
+
+            string ssid = cookieDict.GetValueOrDefault("ssid", "");
+            string clid = cookieDict.GetValueOrDefault("clid", "");
+
+            if (string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid))
+                throw new RadiantConnectAuthException("Failed to gather required cookies");
+
+            return (ssid, clid);
         }
         
         public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket!);

@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.5.0</Version>
+    <Version>9.5.1</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -18,6 +18,11 @@
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
 
+**9.5.1**
+- Fixed Driver Auth for certain regions
+- Added CLID Param to SSID Auth
+
+**9.5.0**
 **Fixed**
 - AuthenticateWithDriver not returning tokens properly (internal fix)
 - XMPP Controller is fixed overall

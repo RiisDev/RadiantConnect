@@ -68,9 +68,9 @@ namespace RadiantConnect.ShadowClient
                                           """);
 
 
-            RmsClient client = new(rsoAuth, RmsRegion.Us);
+            //RmsClient client = new(rsoAuth, RmsRegion.Us);
 
-            await client.StartClient();
+           // await client.StartClient();
 
             await _controller.SendMessage("""
                                           <iq id='update_session_active_4' type='set'>

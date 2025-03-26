@@ -65,7 +65,7 @@ namespace RadiantConnect.SocketServices.XMPP
         public async Task SendInternalMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
         {
             if (_valClient is not null)
-                await _valClient.Handle.SendXmlToIncomingStream(message);
+                await _valClient.Handle.SendXmlMessageAsync(message);
             else if (_remoteClient is not null && _valClient is null)
                 throw new RadiantConnectXMPPException("Cannot send internal XMPP to remote client.");
             else
@@ -108,7 +108,7 @@ namespace RadiantConnect.SocketServices.XMPP
                                """);
         }
 
-        internal async Task SendUserStatus(Status status)
+        internal void SendUserStatus(Status status)
         {
             // Todo
 

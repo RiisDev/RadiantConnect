@@ -115,7 +115,7 @@ namespace RadiantConnect.RConnect
         }
 
         [Obsolete("Method no longer works, is not maintained.", true)]
-        public static async Task<string?> GetPeakValorantRankAsync(this Initiator initiator, string puuid) => ValorantTables.TierToRank[0];
+        public static string GetPeakValorantRankAsync(this Initiator initiator, string puuid) => ValorantTables.TierToRank[0];
 
         public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
         {

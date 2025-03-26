@@ -27,6 +27,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
                 byte[] bytes = new byte[8192];
                 do
                 {
+                    if (incomingStream is null) break;
                     byteCount = await incomingStream.ReadAsync(bytes);
                     string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
                     await outgoingStream.WriteAsync(bytes.AsMemory(0, byteCount));
@@ -48,6 +49,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
                 byte[] bytes = new byte[8192];
                 do
                 {
+                    if (incomingStream is null) break;
                     byteCount = await outgoingStream.ReadAsync(bytes);
                     string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
                     await incomingStream.WriteAsync(bytes.AsMemory(0, byteCount));
@@ -61,16 +63,17 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
             }
         }
 
-        // I would love to rename the method, but due to backwards compatibility, I can't.
-        public async Task SendXmlToIncomingStream([StringSyntax(StringSyntaxAttribute.Xml)] string data) => await SendXmlMessageAsync(data);
-
-        [Obsolete("Superseded by (SendXmlToIncomingStream)")]
         public async Task SendXmlMessageAsync([StringSyntax(StringSyntaxAttribute.Xml)] string data)
         {
             try
             {
-                while (!incomingStream.CanWrite) { await Task.Delay(50); }
+                while (!incomingStream?.CanWrite ?? false)
+                {
+                    if (incomingStream is null) break; 
+                    await Task.Delay(50); }
                 byte[] bytes = Encoding.UTF8.GetBytes(data);
+
+                if (incomingStream is null) return;
                 await incomingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
             }
             catch (Exception ex) { Debug.WriteLine(ex); }
