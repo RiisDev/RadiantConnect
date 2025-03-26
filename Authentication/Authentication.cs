@@ -127,8 +127,11 @@ namespace RadiantConnect.Authentication
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
             Task<string> authTask = authHandler.Authenticate(username, password);
+#if DEBUG
+            Task delayTask = Task.Delay(TimeSpan.FromDays(1));
+#else
             Task delayTask = Task.Delay(TimeSpan.FromSeconds(45));
-
+#endif
             if (await Task.WhenAny(authTask, delayTask) == authTask)
             {
                 // Authentication completed within timeout

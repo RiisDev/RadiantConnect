@@ -3,6 +3,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Network.PVPEndpoints.DataTypes;
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
@@ -29,118 +30,44 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             DriverHandler.OnRuntimeChanged += Changed;
 
-            Random hookRandomizer = new ((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
-            List<Dictionary<string, object>> eventList =
-            [
-                new()
+            Random hookRandomizer = new((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            List<Dictionary<string, object>> eventList = [];
+
+            AddCommand("Page.enable");
+            AddCommand("Runtime.enable");
+            AddCommand("Network.enable");
+            AddCommand("Network.setBlockedURLs", new Dictionary<string, object>
+            {
                 {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Page.enable" }
-                },
-                new()
+                    "urls", (string[])
+                    [
+                        "*.png",
+                        "*.webp",
+                        "*.css",
+                        "*.ico",
+                        "*.svg",
+                        "*valorant.secure.dyn.riotcdn.net/*",
+                        "*cdn.rgpub.io/*",
+                        "*google-analytics.com/*",
+                        "*googletagmanager.com/*",
+                        "!*hcaptcha*"
+                    ]
+                }
+            });
+
+            AddCommand("Page.addScriptToEvaluateOnNewDocument", new Dictionary<string, object>
+            {
                 {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Runtime.enable" }
-                },
-                new()
+                    "source", BuildScript()
+                }
+            });
+
+            AddCommand("Runtime.evaluate", new Dictionary<string, object>
+            {
                 {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Network.enable" }
-                },
-                new()
-                {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Network.setBlockedURLs" },
-                    { "params", new Dictionary<string, object> {
-                        { "urls", new[] {
-                            "*.jpg",
-                            "*.png",
-                            "*.webp",
-                            "*.jpeg",
-                            "*.css",
-                            "*.ico",
-                            "*.svg",
-                            "*valorant.secure.dyn.riotcdn.net/*",
-                            "*cdn.rgpub.io/*",
-                            "*google-analytics.com/*",
-                            "*googletagmanager.com/*",
-                            "!*hcaptcha*"
-                        }}
-                    }}
-                },
-                new()
-                {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Page.addScriptToEvaluateOnNewDocument" },
-
-                    { "params", new Dictionary<string, string>
-                    {
-                        {"source", (@"(function () {
-	'use strict';
-	let signInDetected = false;
-	let mfaDetected = false;
-	let accessToken = false;
-
-	function set(obj, callback) {
-		callback(obj);
-		for (let [k, v] of Object.entries(obj)) {
-			if (k.includes('__reactEventHandlers') && v.onChange) {
-				v.onChange({target: obj});
-			}
-		}
-	}
-
-	function doPageChecks() {
-
-		if (document.title.includes('Sign in')) {
-			if (document.getElementsByName('username').length > 0 && !signInDetected) {
-				set(document.getElementsByName('username')[0],e=>e.value = '%USERNAME_DATA%');
-				set(document.getElementsByName('password')[0],e=>e.value = '%PASSWORD_DATA%');
-				setTimeout(() =>{
-					document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-				}, 500)
-				signInDetected = true;
-			}
-		}
-
-		if (document.title.includes('Verification Required')) {
-			if (document.getElementsByTagName('h5')[0].innerText == 'Verification Required' && !mfaDetected) {
-				console.log('[RADIANTCONNECT] MFA Detected');
-				mfaDetected = true;
-			}
-		}
-
-		if (document.location.href.includes('https://playvalorant.com/en-us/opt_in/#access_token=') && !accessToken) {
-			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
-			accessToken = true;
-		}
-	}
-
-	window.addEventListener('load', doPageChecks);
-
-	let interval = setInterval(() => {
-		if (document.querySelector('title')) {
-			new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
-				childList: true
-			});
-			clearInterval(interval);
-		}
-	}, 5);
-
-})();")
-                            .Replace("%PASSWORD_DATA%", password)
-                            .Replace("%USERNAME_DATA%", username)
-
-                        }
-                    }}
-                },
-                new()
-                {
-                    { "id", hookRandomizer.Next() },
-                    { "method", "Runtime.evaluate" },
-                    { "params", new Dictionary<string, string> { {"expression", "document.location.href = 'https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id summoner offline_access ban';" } }}
-                },
-            ];
+                    "expression", "document.location.href = 'https://auth.riotgames.com/authorize?redirect_uri=https://playvalorant.com/opt_in&client_id=play-valorant-web-prod&response_type=token id_token&nonce=1&scope=account email profile openid link lol_region id summoner offline_access ban';"
+                }
+            });
 
             for (int eventId = 0; eventId < eventList.Count; eventId++)
             {
@@ -153,8 +80,105 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             return;
 
             void Changed() => eventPassed++;
+
+            void AddCommand(string method, Dictionary<string, object>? parameters = null)
+            {
+                int id = hookRandomizer.Next();
+                Dictionary<string, object> dataToSend = new()
+                {
+                    { "id", id },
+                    { "method", method }
+                };
+                if (parameters is not null)
+                    dataToSend.Add("params", parameters);
+                eventList.Add(dataToSend);
+            }
+
+            string BuildScript()
+            {
+                return ("""
+                        (function () {
+                            'use strict';
+                            let signInDetected = false;
+                            let mfaDetected = false;
+                            let accessToken = false;
+                        
+                            function set(obj, callback) {
+                                callback(obj);
+                                for (let [k, v] of Object.entries(obj)) {
+                                    if (k.includes('__reactEventHandlers') && v.onChange) {
+                                        v.onChange({
+                                            target: obj
+                                        });
+                                    }
+                                }
+                            }
+                        
+                            function doPageChecks() {
+                        
+                                if (document.title.includes('Sign in')) {
+                                    if (document.getElementsByName('username').length > 0 && !signInDetected) {
+                                        set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
+                                        set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
+                                        setTimeout(() => {
+                                            document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
+                                        }, 1000)
+                                        signInDetected = true;
+                                    }
+                                }
+                        
+                                if (document.title.includes('Verification Required')) {
+                                    if (document.getElementsByTagName('h5')[0].innerText == 'Verification Required' && !mfaDetected) {
+                                        console.log('[RADIANTCONNECT] MFA Detected');
+                                        mfaDetected = true;
+                                    }
+                                }
+                        
+                                if (document.title.includes('Success')) {
+                                    console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
+                                }
+                        
+                                if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
+                                    console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
+                                    console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
+                                    accessToken = true;
+                                }
+                        
+                            }
+                        
+                            window.addEventListener('load', doPageChecks);
+                        
+                            let interval = setInterval(() => {
+                                if (document.querySelector('title')) {
+                                    new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
+                                        childList: true
+                                    });
+                                    clearInterval(interval);
+                                }
+                            }, 5);
+                        
+                            let capInt = setInterval(() => {
+                                if (document.title.includes('Sign in'))
+                                {
+                                    document.querySelectorAll('iframe[src*="hcaptcha"]').forEach((iframe) => {
+                                        let displayer = iframe.parentNode?.parentNode;
+                                        if (!displayer) return;
+                                
+                                        let computedStyle = window.getComputedStyle(displayer);
+                                        let zIndex = computedStyle["z-index"];
+                                        if (zIndex > 0) {
+                                            console.log("[RADIANTCONNECT] CAPTCHAFOUND");
+                                            clearInterval(capInt);
+                                        }
+                                    });
+                                }
+                            }, 150);
+                        
+                        })();
+                        """).Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
+            }
         }
-        
+
         internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)
         {
             Dictionary<string, object> dataToSend = new()

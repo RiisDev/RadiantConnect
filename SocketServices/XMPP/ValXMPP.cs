@@ -67,7 +67,7 @@ namespace RadiantConnect.XMPP
             return new X509Certificate2(generatedCert.Export(X509ContentType.Pfx));
         }
 
-        internal ValorantPresence? HandlePresenceObject(string data, bool invoke = true)
+        internal static ValorantPresence? HandlePresenceObject(string data, Action<ValorantPresence>? presenceAction = null)
         {
             // Pull the <presence> XML out of the stream.
             // I do regex in case an error with the stream includes extra data
@@ -77,13 +77,13 @@ namespace RadiantConnect.XMPP
             string valorant64Data = match.Groups[1].Value;
             ValorantPresence? presenceData = JsonSerializer.Deserialize<ValorantPresence>(valorant64Data.FromBase64());
 
-            if (invoke)
-                OnValorantPresenceUpdated?.Invoke(presenceData!);
+            if (presenceData is not null)
+                presenceAction?.Invoke(presenceData);
 
             return presenceData;
         }
 
-        internal void HandlePlayerPresence(string data)
+        internal static void HandlePlayerPresence(string data, Action<PlayerPresence>? action = null)
         {
             if (!data.Contains("<item jid=")) return;
 
@@ -105,8 +105,7 @@ namespace RadiantConnect.XMPP
                 Match platformsData = PlatformsDataRegex().Match(newData);
                 Match chatServerData = ChatServerDataRegex().Match(newData);
                 Match lobbyServerData = LobbyServerDataRegex().Match(newData);
-
-
+                
                 if (chatServerData.Success)
                     chatServer = chatServerData.Groups[1].Value;
                 if (lobbyServerData.Success)
@@ -124,16 +123,15 @@ namespace RadiantConnect.XMPP
                     platformsData = platformsData.NextMatch();
                 }
 
-
-                OnPlayerPresenceUpdated?.Invoke(new PlayerPresence(
+                action?.Invoke(new PlayerPresence(
                     chatServer,
                     lobbyServer,
                     "riot",
                     riotId,
                     tagLine,
-                    lobbyServer[(lobbyServer.IndexOf('/')+1)..],
+                    lobbyServer[(lobbyServer.IndexOf('/') + 1)..],
                     platforms,
-                    HandlePresenceObject(newData, false)!
+                    HandlePresenceObject(newData)!
                 ));
             }
         }
@@ -143,9 +141,9 @@ namespace RadiantConnect.XMPP
             try
             {
                 if (OnValorantPresenceUpdated is not null)
-                    HandlePresenceObject(data);
+                    HandlePresenceObject(data, presenceData => OnValorantPresenceUpdated?.Invoke(presenceData));
                 if (OnPlayerPresenceUpdated is not null)
-                    HandlePlayerPresence(data);
+                    HandlePlayerPresence(data, presenceData => OnPlayerPresenceUpdated?.Invoke(presenceData));
             }
             catch{/**/}
         }

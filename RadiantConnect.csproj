@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.4.0</Version>
+    <Version>9.5.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -18,20 +18,14 @@
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
 
-* Fixed
-- ChangeQueueAsync
-- SelectCharacterAsync
-- LockCharacterAsync
-- AgentTable in *CharacterAsync
+**Fixed**
+- AuthenticateWithDriver not returning tokens properly (internal fix)
+- XMPP Controller is fixed overall
 
 + Added
-- All HttpMethods are available in ValorantNet
-- Documentation Updated proving usage
-- ValorantNet output can now be viewed via event handler, or with bool value
-- See documentation for all ValorantNet changes
-
-** Breaking Changes
-- Status code errors are no longer handled internally, and must be handled via user</PackageReleaseNotes>
+- PlayerPresence event to XMPPControler
+- ValorantPresence event to XMPPController
+</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

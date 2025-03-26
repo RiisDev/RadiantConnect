@@ -14,17 +14,17 @@ namespace RadiantConnect.SocketServices.XMPP
         public delegate void XMPPReceived(string xmlData);
 
         public event XMPPReceived? OnXMPPReceived;
+        public event ValXMPP.PresenceUpdated? OnPresenceUpdated;
+        public event ValXMPP.PlayerPresenceUpdated? OnPlayerPresenceUpdated;
 
         #region Controller Setup
-        private readonly RemoteXMPP.XMPPMessage? _onRemoteMessage;
-        private readonly ValXMPP.InternalMessage? _onMITMMessage;
         private readonly RemoteXMPP? _remoteClient;
         private readonly ValXMPP? _valClient;
         private readonly string _affinity;
         public XMPPController(RemoteXMPP remoteClient)
         {
             _remoteClient = remoteClient;
-            _onRemoteMessage += data => OnXMPPReceived?.Invoke(data);
+            remoteClient.OnMessage += HandleXMPPData;
 
             if (remoteClient.AuthData is null || string.IsNullOrEmpty(remoteClient.AuthData.Affinity))
                 throw new RadiantConnectXMPPException("Failed to find stream url");
@@ -35,7 +35,7 @@ namespace RadiantConnect.SocketServices.XMPP
         public XMPPController(ValXMPP valClient)
         {
             _valClient = valClient;
-            _onMITMMessage += data => OnXMPPReceived?.Invoke(data);
+            _valClient.OnServerMessage += HandleXMPPData;
 
             if (string.IsNullOrEmpty(valClient.StreamUrl))
                 throw new RadiantConnectXMPPException("Failed to find stream url");
@@ -45,6 +45,13 @@ namespace RadiantConnect.SocketServices.XMPP
 
         #endregion
         #region Base Methods
+        private void HandleXMPPData(string data)
+        {
+            OnXMPPReceived?.Invoke(data);
+            ValXMPP.HandlePlayerPresence(data, presence => OnPlayerPresenceUpdated?.Invoke(presence));
+            ValXMPP.HandlePresenceObject(data, valorantPresence => OnPresenceUpdated?.Invoke(valorantPresence));
+        }
+
         public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
         {
             if (_remoteClient is not null)

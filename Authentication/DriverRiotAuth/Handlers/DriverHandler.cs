@@ -70,6 +70,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 case var _ when message.Contains("[RADIANTCONNECT] Access Token"):
                     OnAccessTokenFound?.Invoke(AuthUtil.ParseAccessToken(message));
                     break;
+                case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAFOUND"):
+                    Win32.CaptchaFound = true;
+                    break;
+                case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAREMOVED"):
+                    Win32.CaptchaFound = false;
+                    break;
             }
 
             return Task.CompletedTask;
@@ -146,9 +152,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                         continue;
                     case var _ when debugResponse.Count == 0:
                         continue;
-                    case var _ when title == "VALORANT_RSO" && debugResponse.Any(x => x.Title == "Sign in" || x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token=")):
+                    case var _ when title == "VALORANT_RSO" && debugResponse.Any(x => x.Title == "Sign in" || x.Title.Contains("/opt_in/#access_token=")):
                         break;
-                    case var _ when title == "Verification Required" && debugResponse.Any(x => x.Title.Contains("playvalorant.com/en-us/opt_in/#access_token=")):
+                    case var _ when title == "Verification Required" && debugResponse.Any(x => x.Title.Contains("/opt_in/#access_token=")):
                         break;
                     case var _ when !debugResponse.Any(x => x.Title.Contains(title)):
                         continue;
@@ -162,47 +168,22 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             return foundSocket;
         }
-
-        internal static async Task<string?> GetPageUrl(int port)
-        {
-            using HttpClient httpClient = new();
-            List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-            return debugResponse?.FirstOrDefault(x=> x.Type == "page")?.Url;
-        }
-
-        internal static async Task<bool> PageExists(string pageTitle, int port)
-        {
-            using HttpClient httpClient = new();
-            int retries = 0;
-            do
-            {
-                retries++;
-                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
-
-                if (debugResponse is null) continue;
-                if (debugResponse.Count == 0) continue;
-                if (pageTitle == "ACCESS_TOKEN_AUTH" && debugResponse.Any(x => x.Title.Contains("#access_token="))) break;
-                if (debugResponse.Any(x => x.Title.Contains(pageTitle))) break;
-            } while (retries <= 150);
-
-            return retries < 150;
-        }
-
+        
         internal static async Task<(Process?, string?)> StartDriver(string browserExecutable, int port)
         {
             Debug.WriteLine($"{DateTime.Now} Starting driver");
             ProcessStartInfo processInfo = new()
             {
                 FileName = browserExecutable,
-                Arguments = $"--remote-debugging-port={port} --incognito --disable-gpu --disable-extensions --disable-hang-monitor --disable-breakpad --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer https://www.google.com/",
-                RedirectStandardOutput = true
+                Arguments = $"--remote-debugging-port={port} --disable-session-crashed-bubble --hide-crash-restore-bubble --disable-gpu --no-first-run --disable-extensions --disable-notifications --disable-hang-monitor --disable-remote-fonts --disable-crashpad-forwarding --disable-breakpad --disable-crashpad-for-testing --disable-first-run-ui  --disable-dinosaur-easter-egg  --disable-crash-reporter  --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer https://www.google.com/",
+                RedirectStandardOutput = true,
+                WindowStyle = ProcessWindowStyle.Minimized
             };
 
             Process? driverProcess = Process.Start(processInfo);
-#if DEBUG
-#else
+
             Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
-#endif
+
             driverProcess!.PriorityClass = ProcessPriorityClass.High;
 
             string? socketUrl = await GetInitialSocket(port);

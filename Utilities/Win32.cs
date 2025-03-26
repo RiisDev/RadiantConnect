@@ -143,14 +143,21 @@ namespace RadiantConnect.Utilities
             internal int y;
         }
 
+
+        // Yknow "thread safety" and all that
+        private static int _captchaFound;
+        internal static bool CaptchaFound
+        {
+            get => Interlocked.CompareExchange(ref _captchaFound, 1, 1) == 1;
+            set => Interlocked.Exchange(ref _captchaFound, value ? 1 : 0);
+        }
+
         internal static Task HideDriver(Process driver)
         {
             while (!driver.HasExited)
             {
-                ShowWindow(driver.MainWindowHandle, 0);
-                ShowWindow(FindWindow("Chrome_WidgetWin_1", "Restore pages"), 0);
+                ShowWindow(driver.MainWindowHandle, CaptchaFound ? 1 : 0);
             }
-
             return Task.CompletedTask;
         }
     }

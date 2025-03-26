@@ -142,26 +142,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             return getCookies?.Result.Cookies.First(x => x.Name == "ssid").Value ?? throw new RadiantConnectAuthException("Failed to fetch SSID");
         }
-
-        internal async Task<HttpResponseMessage> PerformCookieRequest(string url, AuthenticationHeaderValue? authentication = null)
-        {
-            CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
-
-            CookieContainer clientCookies = new();
-            foreach (Records.Cookie cookie in getCookies?.Result.Cookies!)
-            {
-                if (cookie.Value.Contains('\u0022')) continue;
-                clientCookies.Add(new System.Net.Cookie(cookie.Name, cookie.Value, cookie.Path, cookie.Domain));
-            }
-
-            using HttpClient httpClient = AuthUtil.BuildClient().Item1;
-
-            if (authentication != null)
-                httpClient.DefaultRequestHeaders.Authorization = authentication;
-
-            return await httpClient.GetAsync(url);
-        }
-
+        
         public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket!);
     }
 }

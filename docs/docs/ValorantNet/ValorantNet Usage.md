@@ -74,3 +74,9 @@ I currently do not have an example endpoint using HeadAsync, feel free to create
 
 ### OptionsAsync
 I currently do not have an example endpoint using OptionsAsync, feel free to create a [Pull Request](https://github.com/RiisDev/RadiantConnect/pulls) or [Issue](https://github.com/RiisDev/RadiantConnect/issues) if you have one
+
+## Raw Http Request
+Do not use this method unless you know what you're doing, note when specifying `customHeaders` you **must** declare your own authentication headers
+```csharp
+await CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, bool outputDebugData = false, Dictionary<string, string>? customHeaders = null);
+```
