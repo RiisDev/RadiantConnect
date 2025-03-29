@@ -98,14 +98,13 @@ If you have any questions, issues, or need assistance, feel free to join our Dis
 
 **[Join our Discord Community](https://discord.gg/yyuggrH)**
 
-You can also check out our [FAQ](#) or [Submit an Issue](https://github.com/IrisV3rm/RadiantConnect/issues).
+You can also check out our [FAQ](https://discord.gg/yyuggrH) or [Submit an Issue](https://github.com/IrisV3rm/RadiantConnect/issues).
 
 ---
 ## Credits
 
 ### Huge Credits molenzwiebel for his Deceive code, helping make MITM Connection
 * XMPP MITM Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
-
 * Get Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
 * Riot API Documentaiton: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)
 * And can not stress this enough, the nice people at [Valorant App Developer Discord](https://discord.gg/a9yzrw3KAm) for assisting all the time. 
