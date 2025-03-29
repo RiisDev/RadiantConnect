@@ -243,9 +243,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 { "value", cookie.Value },
                 { "domain", cookie.Domain },
                 { "path", cookie.Path },
-                { "expires", cookie.Expires },
-                { "httpOnly", cookie.HttpOnly },
-                { "secure", cookie.Secure }
+                { "expires", cookie.Expires ?? 0.0 },
+                { "httpOnly", cookie.HttpOnly ?? true },
+                { "secure", cookie.Secure ?? true }
             }));
             
             Dictionary<string, object> setCookiesRequest = new()

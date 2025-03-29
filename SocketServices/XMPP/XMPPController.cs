@@ -20,7 +20,7 @@ namespace RadiantConnect.SocketServices.XMPP
         #region Controller Setup
         private readonly RemoteXMPP? _remoteClient;
         private readonly ValXMPP? _valClient;
-        private readonly string _affinity;
+        private readonly string? _affinity;
         public XMPPController(RemoteXMPP remoteClient)
         {
             _remoteClient = remoteClient;

@@ -1,5 +1,7 @@
 ﻿using RadiantConnect.Methods;
+#if WINDOWS
 using System.Drawing;
+#endif
 using System.Runtime.InteropServices;
 using RadiantConnect.Utilities;
 
@@ -10,9 +12,13 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
         private delegate nint WndProcDelegate(nint hWnd, uint uMsg, nint wParam, nint lParam);
 
         internal nint WindowHandle { get; set; }
-
+#if WINDOWS
         internal Win32Form(Bitmap bitmap)
+#else
+        internal Win32Form(object bitmap)
+#endif
         {
+#if WINDOWS
             Task.Run(() =>
             {
                 const string className = "CustomBitmapWindowClass";
@@ -87,10 +93,27 @@ namespace RadiantConnect.Authentication.QRSignIn.Modules
             });
 
             while (WindowHandle == 0) Thread.Sleep(50);
+#else
+            throw new PlatformNotSupportedException("Win32Form is only supported on Windows.");
+#endif
         }
 
-        private void CloseWindow() => Win32.PostMessage(WindowHandle, Win32.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+        private void CloseWindow()
+        {
+#if WINDOWS
+            Win32.PostMessage(WindowHandle, Win32.WM_CLOSE, IntPtr.Zero, IntPtr.Zero);
+#else
+            throw new PlatformNotSupportedException("Win32Form is only supported on Windows.");
+#endif
+        }
 
-        public void Dispose() => CloseWindow();
+        public void Dispose()
+        {
+#if WINDOWS
+            CloseWindow();
+#else
+            throw new PlatformNotSupportedException("Win32Form is only supported on Windows.");
+#endif
+        }
     }
 }

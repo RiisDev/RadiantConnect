@@ -1,20 +1,21 @@
-﻿using System.Drawing;
+﻿#if WINDOWS
+using System.Drawing;
+#endif
 using RadiantConnect.ImageRecognition.Handlers.KillFeed;
 using RadiantConnect.ImageRecognition.Handlers.Spike;
 using RadiantConnect.ImageRecognition.Internals;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-#pragma warning disable CA1416 // idk bitmap only supported on windows
 
 namespace RadiantConnect.ImageRecognition
 {
-
     public class ImageRecognition
     {
+#if WINDOWS
         public delegate void HandlerCreated<in T>(T value);
 
-        public event HandlerCreated<KillFeedHandler>? OnKillFeedHandlerCreated; 
-        public event HandlerCreated<SpikeHandler>? OnSpikeHandlerCreated; 
+        public event HandlerCreated<KillFeedHandler>? OnKillFeedHandlerCreated;
+        public event HandlerCreated<SpikeHandler>? OnSpikeHandlerCreated;
 
         public KillFeedHandler? KillFeedHandler { get; internal set; }
         public SpikeHandler? SpikeHandler { get; internal set; }
@@ -25,10 +26,13 @@ namespace RadiantConnect.ImageRecognition
             using Pen pen = new(color, width);
             g.DrawLine(pen, x, y, x + width, y);
         }
+#endif
+
 
         [Obsolete("No longer maintained, may not work correctly.")]
         public void Initiator(Config config)
         {
+#if WINDOWS
             KillFeedConfig feedConfig = config.KillFeedConfig;
 
             if (feedConfig.CheckAssists || feedConfig.CheckKilled || feedConfig.CheckWasKilled) Task.Run(() =>
@@ -44,7 +48,9 @@ namespace RadiantConnect.ImageRecognition
                 OnSpikeHandlerCreated?.Invoke(SpikeHandler);
                 SpikeHandler.StartSpikeDetection(config.ColorConfig);
             }
-
+#else
+            throw new PlatformNotSupportedException("This library is only supported on Windows.");
+#endif
         }
     }
 }

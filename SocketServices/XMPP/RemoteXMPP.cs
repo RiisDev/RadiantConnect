@@ -51,7 +51,7 @@ namespace RadiantConnect.SocketServices.XMPP
             {"us-la2", "la2.chat.si.riotgames.com"}
         };
 
-        internal readonly Dictionary<string, string> ChatAffinity = new()
+        internal readonly Dictionary<string, string?> ChatAffinity = new()
         {
             { "asia", "jp1" },
             { "br1", "br1" },
@@ -144,7 +144,7 @@ namespace RadiantConnect.SocketServices.XMPP
 
             Status = XMPPStatus.Connecting;
 
-            string affinityDomain = ChatAffinity[auth.Affinity!];
+            string? affinityDomain = ChatAffinity[auth.Affinity!];
             string? token = auth.AccessToken;
             string? pasToken = auth.PasToken;
             string? entitlement = auth.Entitlement;

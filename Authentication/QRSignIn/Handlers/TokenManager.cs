@@ -9,6 +9,13 @@ using RadiantConnect.Authentication.QRSignIn.Modules;
 using RadiantConnect.Utilities;
 using Timer = System.Timers.Timer;
 
+#if !WINDOWS
+// ReSharper disable FieldCanBeMadeReadOnly
+// ReSharper disable UnusedField
+// ReSharper disable UnusedParameter
+#pragma warning disable CS9113
+#endif
+
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
     internal class TokenManager(Win32Form? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
@@ -150,7 +157,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             Timer timer = new();
             timer.Interval = 1000;
             timer.AutoReset = true;
-
+#if WINDOWS
             if (!returnUrl)
             {
                 Task.Run(async () =>
@@ -165,7 +172,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                     }
                 });
             }
-
+#endif
             timer.Elapsed += async (_, _) =>
             {
                 string loginToken = await GetLoginToken();

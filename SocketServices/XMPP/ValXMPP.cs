@@ -20,7 +20,7 @@ namespace RadiantConnect.XMPP
 {
     public partial class ValXMPP
     {
-        public string StreamUrl { get; set; }
+        public string? StreamUrl { get; set; }
 
         public delegate void InternalMessage(string data);
         public delegate void PresenceUpdated(ValorantPresence presence);

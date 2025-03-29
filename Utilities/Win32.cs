@@ -154,11 +154,15 @@ namespace RadiantConnect.Utilities
 
         internal static Task HideDriver(Process driver)
         {
+#if WINDOWS
             while (!driver.HasExited)
             {
                 ShowWindow(driver.MainWindowHandle, CaptchaFound ? 1 : 0);
             }
             return Task.CompletedTask;
+#else
+            return Task.CompletedTask;
+#endif
         }
     }
 }
