@@ -18,6 +18,7 @@
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
 **9.5.2**
+- For windows client, please mark your project as 'Targetting Windows' to improve your experience within RadiantConnect, as it overwrites system methods.
 - Now semi-supporting other OS's, please report issues.
 
 **9.5.1**
