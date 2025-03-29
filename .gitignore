@@ -1,16 +1,16 @@
-/bin/*
-/bin/Debug
-/obj/Debug
-/bin/Release
-/obj/Release
-/FileContentIndex
+# Build artifacts
+bin/
+obj/
+
+# Visual Studio-related files
+.vs/
+
+# Documentation cache and generated files
 /docs/site
 /docs/.cache
-.vs/*
-.vs/
-/.vs
-/.vs/*
 
+# Miscellaneous
+/FileContentIndex
 *.nupkg
 *.nuspec
 *.suo

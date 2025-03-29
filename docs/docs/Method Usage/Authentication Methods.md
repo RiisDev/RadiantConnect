@@ -1,102 +1,64 @@
 # Authentication Methods
 
-
-# Authentication Class Methods
-
 This document provides an overview of the methods available in the `Authentication` class, along with usage examples and descriptions. (Auto Generated, please report any issues)
 
-## Methods
-
-### `AuthenticateWithSSID`
-
+## AuthenticateWithSSID
+It was noted during testing that the CLID paremeter and cookie is **required** to authenticate (Notably EU regions), in NA you should be fine without.
 ```csharp
-public async Task<RSOAuth?> AuthenticateWithSSID(string ssid)
+public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string clid? = "")
 ```
 
-- **Description**: Authenticates a user using an SSID.
-- **Parameters**:
-  - `ssid`: The SSID token.
-- **Returns**: An `RSOAuth` object containing authentication data.
-- **Usage**:
-  ```csharp
-  RSOAuth? authData = await authentication.AuthenticateWithSSID("ssidToken");
-  ```
+| **Method Parameter Type** | **Method Parameter Example** |
+|------------------------|--------------------------|
+| `string` | `SSID Token`  |
+| `string` | `CLID Token` (OPTIONAL) |
 
-### `AuthenticateWithQr`
+| **Event Return Type** | **Example Return Value** |
+|------------------------|--------------------------|
+| `Task<RSOAuth?>` (RSOAuth Record) | A record containg all RSO Tokens and User Config |
 
+## AuthenticateWithQr
+Note with QR, it has a built in display to show the user the QR code generated. though it offers an `event` if you want to handle the QR yourself.
+*Event: OnUrlBuilt*
 ```csharp
-public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
+public enum CountryCode
+{
+    NA,
+    KR,
+    JP,
+    CN,
+    TW,
+    EUW,
+    RU,
+    TR,
+    TH,
+    VN,
+    ID,
+    MY,
+    EUN,
+    BR,
+}
+public async Task<RSOAuth?> AuthenticateWithQr(Authentication.CountryCode countryCode, bool returnLoginUrl = false)
 ```
 
-- **Description**: Authenticates a user using a QR code.
-- **Parameters**:
-  - `countryCode`: The country code for the authentication.
-  - `returnLoginUrl`: If true, returns the login URL.
-- **Returns**: An `RSOAuth` object containing authentication data.
-- **Usage**:
-  ```csharp
-  RSOAuth? authData = await authentication.AuthenticateWithQr(CountryCode.NA, true);
-  ```
+| **Method Parameter Type** | **Method Parameter Example** |
+|------------------------|--------------------------|
+| `string` | `SSID Token`  |
+| `bool` | `false` (OPTIONAL) |
 
-### `AuthenticateWithDriver`
+| **Event Return Type** | **Example Return Value** |
+|------------------------|--------------------------|
+| `Task<RSOAuth?>` (RSOAuth Record) | A record containg all RSO Tokens and User Config |
 
+
+## AuthenticateWithDriver
+It was noted during testing it takes approximately 5-15 seconds to complete, high success (95%) with Edge browser signed in on a Windows 11/10 Machine, without a VPN 
 ```csharp
 public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null)
 ```
 
-- **Description**: Authenticates a user using a web driver.
-- **Parameters**:
-  - `username`: The username of the user.
-  - `password`: The password of the user.
-  - `driverSettings`: Optional settings for the driver.
-- **Returns**: An `RSOAuth` object containing authentication data.
-- **Usage**:
-  ```csharp
-  DriverSettings settings = new DriverSettings("msedge", "path/to/msedge", false, true);
-  RSOAuth? authData = await authentication.AuthenticateWithDriver("user", "pass", settings);
-  ```
-
-### `GetCachedCookies`
-
-```csharp
-public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
-```
-
-- **Description**: Retrieves cached cookies.
-- **Returns**: A list of cookies if available.
-- **Usage**:
-  ```csharp
-  IReadOnlyList<Cookie>? cookies = await authentication.GetCachedCookies();
-  ```
-
-### `GetSsidFromDriverCache`
-
-```csharp
-public async Task<string?> GetSsidFromDriverCache()
-```
-
-- **Description**: Retrieves the SSID from the driver cache.
-- **Returns**: The SSID if available.
-- **Usage**:
-  ```csharp
-  string? ssid = await authentication.GetSsidFromDriverCache();
-  ```
-
-### `Logout`
-
-```csharp
-public async Task Logout()
-```
-
-- **Description**: Logs out the user, from the web driver.
-- **Usage**:
-  ```csharp
-  await authentication.Logout();
-  ```
-
-## Obsolete Methods
-
-### `PerformDriverCacheRequest`
-
-- **Description**: This method is obsolete and should not be used. Use `AuthenticateWithSSID` instead.
-
+| **Method Parameter Type** | **Method Parameter Example** |
+|------------------------|--------------------------|
+| `string` | `username`  |
+| `string` | `password`  |
+| `DriverSettings` | [DriverSettings](https://irisapp.ca/RadiantConnect/DataTypes/Authentication/DriverSettings/) |

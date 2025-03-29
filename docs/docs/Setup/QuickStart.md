@@ -16,7 +16,7 @@ dotnet add package RadiantConnect
 
 Initialize the RadiantConnect library by creating an instance of the `Initiator` class.
 
-**Note: Initiator can be constructed in many different ways please read the [How To Documentation](https://irisapp.ca/RadiantConnect/Extra%20Data%20%26%20How%20To/How%20To/)**
+**Note: Initiator can be constructed in many different ways please read the [How To Documentation](https://irisapp.ca/RadiantConnect/Method%20Usage/Authentication%20Methods/)**
 
 ## Step 3: If you're wanting any game hooks, hook desired events
 
