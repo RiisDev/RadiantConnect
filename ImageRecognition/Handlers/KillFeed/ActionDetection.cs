@@ -1,7 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-#if WINDOWS
 using System.Drawing;
-#endif
 using RadiantConnect.ImageRecognition.Internals;
 #pragma warning disable CA1416
 
@@ -9,13 +7,8 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
     internal class ActionDetection
     {
-#if WINDOWS
         internal static KillFeedPositions GetKillHalfPosition(Bitmap killFeedItem, ColorConfig? colorConfig = null)
-#else
-        internal static KillFeedPositions GetKillHalfPosition(object killFeedItem, ColorConfig? colorConfig = null)
-#endif
         {
-#if WINDOWS
             TimeOnly killTime = TimeOnly.FromDateTime(DateTime.Now);
 
             int middlePoint = 0;
@@ -59,16 +52,12 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             bool validPosition = firstGreenPixel > 15 && middlePoint > 15 && firstRedPixel > 15;
 
             return new KillFeedPositions(firstRedPixel, firstGreenPixel, middlePoint, validPosition, killTime);
-#else
-            throw new PlatformNotSupportedException("This method is only supported on Windows.");
-#endif
         }
 
         [SuppressMessage("ReSharper", "ForCanBeConvertedToForeach")]
         [SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
         internal static bool ActionDetected(Color[] colors, ColorConfig? colorConfig = null)
         {
-#if WINDOWS
             bool wasFound = false;
 
             for (int colorIndex = 0; colorIndex < colors.Length; colorIndex++)
@@ -80,17 +69,10 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             }
 
             return wasFound;
-#else
-            throw new PlatformNotSupportedException("This method is only supported on Windows.");
-#endif
         }
-#if WINDOWS
+
         internal static KillFeedAction ActionResult(Bitmap killFeedItem, KillFeedPositions positions, ColorConfig? colorConfig = null)
-#else
-        internal static KillFeedAction ActionResult(object killFeedItem, KillFeedPositions positions, ColorConfig? colorConfig = null)
-#endif
         {
-#if WINDOWS
             const int borderTop = 4;
             bool wasKilled = false;
             bool performedKill = false;
@@ -151,9 +133,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                 wasInFeed,
                 positions
             );
-#else
-            throw new PlatformNotSupportedException("This method is only supported on Windows.");
-#endif
         }
     }
 }

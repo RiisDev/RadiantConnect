@@ -1,13 +1,13 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-	<TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.5.2</Version>
+    <Version>9.5.3</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -17,23 +17,15 @@
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
-**9.5.2**
-- For windows client, please mark your project as 'Targetting Windows' to improve your experience within RadiantConnect, as it overwrites system methods.
-- Now semi-supporting other OS's, please report issues.
+      **9.5.2 &amp;&amp; 9.5.3**
+      - For windows client, please mark your project as 'Targetting Windows' to improve your
+      experience within RadiantConnect.
+      - Now semi-supporting other OS's, please report issues.
 
-**9.5.1**
-- Fixed Driver Auth for certain regions
-- Added CLID Param to SSID Auth
-
-**9.5.0**
-**Fixed**
-- AuthenticateWithDriver not returning tokens properly (internal fix)
-- XMPP Controller is fixed overall
-
-+ Added
-- PlayerPresence event to XMPPControler
-- ValorantPresence event to XMPPController
-</PackageReleaseNotes>
+      **9.5.1**
+      - Fixed Driver Auth for certain regions
+      - Added CLID Param to SSID Auth
+    </PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -64,7 +56,20 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-	<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Remove ImageRecognition folder from Content for non-Windows platforms -->
+    <Content Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+
+    <!-- Remove ImageRecognition folder from EmbeddedResources for non-Windows platforms -->
+    <EmbeddedResource Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+
+    <!-- Remove ImageRecognition folder from any other type if included, such as None -->
+    <None Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" /> 
+    
+    <Compile Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
   </ItemGroup>
 
   <ItemGroup>

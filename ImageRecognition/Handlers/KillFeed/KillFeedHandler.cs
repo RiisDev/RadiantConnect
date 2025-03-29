@@ -1,26 +1,19 @@
 ﻿
-#if WINDOWS
 using System.Drawing;
-#endif 
 using RadiantConnect.ImageRecognition.Internals;
 
 // ReSharper disable MethodSupportsCancellation
 #pragma warning disable CA1416
 
-#if !WINDOWS
-#pragma warning disable CS1998
-#endif
-
 namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
     public class KillFeedHandler
     {
-#if WINDOWS
         public delegate void KillFeedEvent();
         public event KillFeedEvent? OnKill;
         public event KillFeedEvent? OnAssist;
         public event KillFeedEvent? OnDeath;
-#endif
+
         internal CancellationTokenSource KillFeedCancellationSource = new();
         internal CancellationToken KillFeedCancellationToken;
 
@@ -54,7 +47,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 
         public async Task StartKillDetection(KillFeedConfig config, ColorConfig? colorConfig = null)
         {
-#if WINDOWS
             KillFeedCancellationSource.TryReset();
 
             while (!KillFeedCancellationToken.IsCancellationRequested)
@@ -120,9 +112,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 
                 await Task.Delay(1);
             }
-#else
-            throw new PlatformNotSupportedException("This method is only supported on Windows.");
-#endif
         }
 
         public void StopKillDetection() { KillFeedCancellationSource.Cancel(); }

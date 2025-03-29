@@ -1,6 +1,4 @@
-﻿#if WINDOWS
-using System.Drawing;
-#endif
+﻿using System.Drawing;
 using RadiantConnect.ImageRecognition.Handlers.KillFeed;
 using RadiantConnect.ImageRecognition.Handlers.Spike;
 using RadiantConnect.ImageRecognition.Internals;
@@ -11,7 +9,6 @@ namespace RadiantConnect.ImageRecognition
 {
     public class ImageRecognition
     {
-#if WINDOWS
         public delegate void HandlerCreated<in T>(T value);
 
         public event HandlerCreated<KillFeedHandler>? OnKillFeedHandlerCreated;
@@ -26,13 +23,10 @@ namespace RadiantConnect.ImageRecognition
             using Pen pen = new(color, width);
             g.DrawLine(pen, x, y, x + width, y);
         }
-#endif
-
 
         [Obsolete("No longer maintained, may not work correctly.")]
         public void Initiator(Config config)
         {
-#if WINDOWS
             KillFeedConfig feedConfig = config.KillFeedConfig;
 
             if (feedConfig.CheckAssists || feedConfig.CheckKilled || feedConfig.CheckWasKilled) Task.Run(() =>
@@ -48,9 +42,6 @@ namespace RadiantConnect.ImageRecognition
                 OnSpikeHandlerCreated?.Invoke(SpikeHandler);
                 SpikeHandler.StartSpikeDetection(config.ColorConfig);
             }
-#else
-            throw new PlatformNotSupportedException("This library is only supported on Windows.");
-#endif
         }
     }
 }
