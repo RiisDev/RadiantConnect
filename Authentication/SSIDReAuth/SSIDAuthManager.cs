@@ -9,12 +9,14 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 {
     internal class SSIDAuthManager
     {
-        internal async Task<RSOAuth> Authenticate(string ssid, string? clid = "")
+        internal async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "")
         {
             (HttpClient client, CookieContainer container) = AuthUtil.BuildClient();
 
             container.Add(new Cookie("ssid", ssid, "/", "auth.riotgames.com"));
             container.Add(new Cookie("clid", clid, "/", "auth.riotgames.com"));
+            container.Add(new Cookie("csid", csid, "/", "auth.riotgames.com"));
+            container.Add(new Cookie("tdid", tdid, "/", "auth.riotgames.com"));
 
             HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid"));
 

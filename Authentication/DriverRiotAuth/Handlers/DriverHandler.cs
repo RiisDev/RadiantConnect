@@ -176,8 +176,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             {
                 FileName = browserExecutable,
                 Arguments = $"--remote-debugging-port={port} --disable-session-crashed-bubble --hide-crash-restore-bubble --disable-gpu --no-first-run --disable-extensions --disable-notifications --disable-hang-monitor --disable-remote-fonts --disable-crashpad-forwarding --disable-breakpad --disable-crashpad-for-testing --disable-first-run-ui  --disable-dinosaur-easter-egg  --disable-crash-reporter  --disable-client-side-phishing-detection --no-sandbox --disable-site-isolation-trials --disable-features=IsolateOrigins,SitePerProcess --disable-accelerated-2d-canvas --disable-accelerated-compositing --disable-smooth-scrolling --disable-application-cache --disable-background-networking --disable-site-engagement --disable-webgl --disable-predictive-service --disable-perf --disable-media-internals --disable-ppapi --disable-software-rasterizer https://www.google.com/",
-                RedirectStandardOutput = true,
-                WindowStyle = ProcessWindowStyle.Minimized
+                RedirectStandardOutput = true
             };
 
             Process? driverProcess = Process.Start(processInfo);

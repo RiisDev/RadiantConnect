@@ -41,7 +41,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         // User Variables
         public string? MultiFactorCode { get; set; }
 
-        internal async Task<(string, string)> Authenticate(string username, string password)
+        internal async Task<(string, string, string, string)> Authenticate(string username, string password)
         {
             DriverStatus = Authentication.DriverStatus.Checking_Existing_Processes;
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
@@ -87,7 +87,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Process.GetProcessesByName(browserProcess).ToList().ForEach(x => x.Kill()); // Kill driver processes
         }
 
-        internal async Task<(string, string)> PerformSignInAsync()
+        internal async Task<(string, string, string, string)> PerformSignInAsync()
         {
             string accessTokenFound = string.Empty;
             DriverStatus = Authentication.DriverStatus.Logging_Into_Valorant;
@@ -131,7 +131,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverStatus = Authentication.DriverStatus.Multi_Factor_Completed;
         }
 
-        internal async Task<(string, string)> GetRsoCookiesFromDriver(string accessToken)
+        internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver(string accessToken)
         {
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
@@ -145,11 +145,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             string ssid = cookieDict.GetValueOrDefault("ssid", "");
             string clid = cookieDict.GetValueOrDefault("clid", "");
+            string tdid = cookieDict.GetValueOrDefault("tdid", "");
+            string csid = cookieDict.GetValueOrDefault("csid", "");
 
-            if (string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid))
+            if (string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid) || string.IsNullOrEmpty(tdid) || string.IsNullOrEmpty(csid))
                 throw new RadiantConnectAuthException("Failed to gather required cookies");
 
-            return (ssid, clid);
+            return (ssid, clid, tdid, csid);
         }
         
         public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket!);

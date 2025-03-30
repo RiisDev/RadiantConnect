@@ -97,7 +97,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "") => await new TokenManager().Authenticate(ssid, clid);
+        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await new TokenManager().Authenticate(ssid, clid, csid, tdid);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -131,7 +131,7 @@ namespace RadiantConnect.Authentication
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
             authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            Task<(string, string)> authTask = authHandler.Authenticate(username, password);
+            Task<(string, string, string, string)> authTask = authHandler.Authenticate(username, password);
 #if DEBUG
             Task delayTask = Task.Delay(TimeSpan.FromDays(1));
 #else
@@ -140,12 +140,12 @@ namespace RadiantConnect.Authentication
             if (await Task.WhenAny(authTask, delayTask) == authTask)
             {
                 // Authentication completed within timeout
-                (string, string) rsoCookies = await authTask;
+                (string ssid, string clid, string tdid, string csid) = await authTask;
                 Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
                 authHandler?.Dispose();
 
-                return await new TokenManager().Authenticate(rsoCookies.Item1, rsoCookies.Item2);
+                return await new TokenManager().Authenticate(ssid, clid, csid, tdid);
             }
 
             authHandler?.Dispose();

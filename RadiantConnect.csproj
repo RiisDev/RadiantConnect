@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.5.3</Version>
+    <Version>9.5.4</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,16 +16,8 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>ValorantNet overhaul and some bug fixes
-      **9.5.2 &amp;&amp; 9.5.3**
-      - For windows client, please mark your project as 'Targetting Windows' to improve your
-      experience within RadiantConnect.
-      - Now semi-supporting other OS's, please report issues.
-
-      **9.5.1**
-      - Fixed Driver Auth for certain regions
-      - Added CLID Param to SSID Auth
-    </PackageReleaseNotes>
+    <PackageReleaseNotes>- Modified some error returns for RemoteXMPP clients
+- Added 3 optional cookies for SSIDReAuth to improve re-auth success rate (tdid, csid, clid).</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
