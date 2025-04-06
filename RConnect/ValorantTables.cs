@@ -312,7 +312,6 @@ public static class ValorantTables
         { "c4883e50-4494-202c-3ec3-6b8a9284f00b", "Marshal" },
         { "462080d1-4035-2937-7c09-27aa2a5c27a7", "Spectre" },
         { "f7e1b454-4ad4-1063-ec0a-159e56b58941", "Stinger" },
-        { "5f0aaf7a-4289-3998-d5ff-eb9a5cf7ef5c", "Outlaw" }
     };
 
     public static readonly Dictionary<string, string> AgentIdToAgent = new()

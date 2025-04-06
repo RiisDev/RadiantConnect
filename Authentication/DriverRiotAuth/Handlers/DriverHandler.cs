@@ -180,7 +180,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             };
 
             Process? driverProcess = Process.Start(processInfo);
-
+            
             Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
             driverProcess!.PriorityClass = ProcessPriorityClass.High;
