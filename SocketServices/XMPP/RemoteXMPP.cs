@@ -14,9 +14,8 @@ using IOException = System.IO.IOException;
 
 namespace RadiantConnect.SocketServices.XMPP
 {
-    public partial class RemoteXMPP
+    public class RemoteXMPP
     {
-
         public enum XMPPStatus
         {
             Connecting,

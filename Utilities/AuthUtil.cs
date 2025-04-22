@@ -2,6 +2,7 @@
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Net.Sockets;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
@@ -75,6 +76,17 @@ namespace RadiantConnect.Utilities
             listener.Start();
             int port = ((IPEndPoint)listener.LocalEndpoint).Port;
             return port;
+        }
+
+
+        internal static string GenerateNonce(int length = 16)
+        {
+            byte[] nonceBytes = new byte[length];
+            using (RandomNumberGenerator rng = RandomNumberGenerator.Create())
+            {
+                rng.GetBytes(nonceBytes);
+            }
+            return Convert.ToBase64String(nonceBytes);
         }
     }
 }

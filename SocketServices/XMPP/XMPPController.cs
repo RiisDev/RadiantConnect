@@ -1,5 +1,6 @@
 ﻿using RadiantConnect.XMPP;
 using System.Diagnostics.CodeAnalysis;
+using RadiantConnect.Utilities;
 
 namespace RadiantConnect.SocketServices.XMPP
 {
@@ -72,21 +73,17 @@ namespace RadiantConnect.SocketServices.XMPP
                 throw new RadiantConnectXMPPException("No client connected");
         }
 
-        internal string GetUnixTimestamp() => DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString();
-
-        internal bool IsValidGuid([StringSyntax(StringSyntaxAttribute.GuidFormat)] string guid) => Guid.TryParse(guid, out Guid _) && guid.Contains('-');
-
         #endregion
 
         public async Task SendPresenceEvent() => await SendMessage("<presence/>");
 
         public async Task SendChatMessage([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient, string message)
         {
-            if (!IsValidGuid(recipient))
+            if (!SocketUtil.IsValidGuid(recipient))
                 throw new RadiantConnectXMPPException("Invalid user Id provided.");
 
             await SendMessage($"""
-                              <message id="{GetUnixTimestamp()}:1" to="{recipient}@{_affinity}.pvp.net" type="chat">
+                              <message id="{SocketUtil.GetUnixTimestamp()}:1" to="{recipient}@{_affinity}.pvp.net" type="chat">
                               	<body>{message}</body>
                               </message>
                               """);
@@ -96,7 +93,7 @@ namespace RadiantConnect.SocketServices.XMPP
 
         public async Task GetChatMessages([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient)
         {
-            if (!IsValidGuid(recipient))
+            if (!SocketUtil.IsValidGuid(recipient))
                 throw new RadiantConnectXMPPException("Invalid user Id provided.");
 
             await SendMessage($"""

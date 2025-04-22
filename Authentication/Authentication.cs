@@ -28,16 +28,11 @@ namespace RadiantConnect.Authentication
             Creating_Driver,
             Driver_Created,
             Begin_SignIn,
-            Checking_Cached_Auth,
-            Checking_RSO_Login_Page,
-            Logging_Into_RSO,
             Logging_Into_Valorant,
             Checking_RSO_Multi_Factor,
             Grabbing_Required_Tokens,
             Multi_Factor_Requested,
             Multi_Factor_Completed,
-            SignIn_Completed,
-            Cookies_Received
         }
 
         public enum CountryCode
