@@ -10,7 +10,7 @@ For a complete and detailed guide on all features, check out the official docume
 
 ![C#](https://img.shields.io/badge/-.NET%208.0-blueviolet?style=for-the-badge&logo=windows&logoColor=white)
 [![Support Server](https://img.shields.io/discord/477201632204161025.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/yyuggrH)
-![GitHub](https://img.shields.io/github/license/IrisV3rm/RadiantConnect?style=for-the-badge)
+![GitHub](https://img.shields.io/github/license/RiisDev/RadiantConnect?style=for-the-badge)
 ![Nuget All Releases](https://img.shields.io/nuget/dt/RadiantConnect?label=Nuget%20Downloads&style=for-the-badge)
 ![Build](https://img.shields.io/github/actions/workflow/status/RiisDev/RadiantConnect/dotnet.yml?style=for-the-badge)
 
