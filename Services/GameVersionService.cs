@@ -22,10 +22,10 @@ namespace RadiantConnect.Services
 
             byte[] pattern = "+\0+\0A\0r\0e\0s\0-\0C\0o\0r\0e\0+\0"u8.ToArray();
             byte[] data = reader.ReadBytes((int)reader.BaseStream.Length);
+            
+            int pos = data.AsSpan().IndexOf(pattern);
 
-            int pos = FindPattern(data, pattern) + pattern.Length;
-
-            string?[] block = Encoding.Unicode.GetString(data, pos, 128).Split(Separator, StringSplitOptions.RemoveEmptyEntries);
+            string?[] block = Encoding.Unicode.GetString(data, pos, 256).Split(Separator, StringSplitOptions.RemoveEmptyEntries);
 
             string? branch = block[0];
             string? buildVersion = block[2];
