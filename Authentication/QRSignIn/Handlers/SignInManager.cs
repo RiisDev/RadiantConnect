@@ -1,7 +1,6 @@
-﻿#if WINDOWS
-using System.Drawing;
-#endif
+﻿using System.Diagnostics;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
@@ -21,17 +20,35 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
     {
         internal event UrlBuilder? OnUrlBuilt;
 
+        internal Process DisplayImage(string path)
+        {
+            if (!File.Exists(path)) throw new FileNotFoundException("QR code image not found", path);
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+            {
+                return new Process { StartInfo = new ProcessStartInfo { FileName = path, UseShellExecute = true} };
+            }
+
+            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
+            {
+                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? Environment.GetEnvironmentVariable("DESKTOP_SESSION")))
+                    throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.");
+                return Process.Start("xdg-open", path);
+            }
+
+            throw new PlatformNotSupportedException("Unsupported OS");
+        }
+
         internal async Task<RSOAuth?> Authenticate()
         {
             (HttpClient httpClient, CookieContainer container) = AuthUtil.BuildClient();
 
             LoginQrManager builder = new(httpClient);
             BuiltData qrData = await builder.Build(code);
-#if WINDOWS
-            MemoryStream? stream = null;
-            Win32Form? form = null;
-            Bitmap? bitmap = null;
-#endif
+
+            string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N)}.jpg");
+            Process? form = null;
+
             try
             {
                 if (returnUrl)
@@ -40,22 +57,13 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 }
                 else
                 {
-#if WINDOWS
                     string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
                     byte[] imageData = await httpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
-
-                    stream = new MemoryStream(imageData);
-                    bitmap = new Bitmap(stream);
-                    form = new Win32Form(bitmap);
-#else
-                    throw new RadiantConnectAuthException("QR Code generation cannot be displayed on non-windows applications, please hook `OnUrlBuilt`");
-#endif
+                    await File.WriteAllBytesAsync(tempName, imageData);
+                    form = DisplayImage(tempName);
                 }
-#if WINDOWS
+                
                 TokenManager manager = new(form, qrData, httpClient, returnUrl, container);
-#else
-                TokenManager manager = new(null, qrData, httpClient, returnUrl, container);
-#endif
                 TaskCompletionSource<RSOAuth?> tcs = new();
 
                 manager.OnTokensFinished += authData => tcs.SetResult(authData);
@@ -66,11 +74,9 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             finally
             {
                 httpClient.Dispose();
-#if WINDOWS
                 form?.Dispose();
-                bitmap?.Dispose();
-                stream?.Dispose();
-#endif
+
+                if (File.Exists(tempName)) File.Delete(tempName);
             }
         }
     }

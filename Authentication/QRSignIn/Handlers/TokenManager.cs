@@ -9,16 +9,9 @@ using RadiantConnect.Authentication.QRSignIn.Modules;
 using RadiantConnect.Utilities;
 using Timer = System.Timers.Timer;
 
-#if !WINDOWS
-// ReSharper disable FieldCanBeMadeReadOnly
-// ReSharper disable UnusedField
-// ReSharper disable UnusedParameter
-#pragma warning disable CS9113
-#endif
-
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-    internal class TokenManager(Win32Form? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
+    internal class TokenManager(Process? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
     {
         internal delegate void TokensFinished(RSOAuth authData);
         internal event TokensFinished? OnTokensFinished;
@@ -136,7 +129,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
             AccessTokenReturn? accessTokenData = await response.Content.ReadFromJsonAsync<AccessTokenReturn>();
 
-            return accessTokenData?.Response?.Parameters?.Uri ?? "";
+            return accessTokenData?.Response.Parameters.Uri ?? "";
         }
 
         internal async Task<(string, string)> GetAccessTokens(string loginToken)
@@ -157,28 +150,25 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             Timer timer = new();
             timer.Interval = 1000;
             timer.AutoReset = true;
-#if WINDOWS
+
             if (!returnUrl)
             {
                 Task.Run(async () =>
                 {
                     await Task.Delay(30000);
-
-                    if (Win32.IsWindow(form!.WindowHandle))
-                    {
-                        timer.Stop();
-                        timer.Dispose();
-                        form.Dispose();
-                    }
+                    timer.Stop();
+                    timer.Dispose();
+                    form?.Dispose();
                 });
             }
-#endif
+
             timer.Elapsed += async (_, _) =>
             {
                 string loginToken = await GetLoginToken();
                 if (string.IsNullOrEmpty(loginToken)) return;
 
                 timer.Stop();
+                timer.Dispose();
                 form?.Dispose();
 
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
