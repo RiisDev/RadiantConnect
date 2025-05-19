@@ -42,26 +42,6 @@ namespace RadiantConnect.Services
             return new VersionData(branch!, buildVersion!, versionNumber, $"{branch}-shipping-{parsedBuild}-{versionNumber}");
         }
 
-        internal static int FindPattern(byte[] data, byte[] pattern)
-        {
-            for (int i = 0; i <= data.Length - pattern.Length; i++)
-            {
-                bool found = true;
-                for (int j = 0; j < pattern.Length; j++) // Do not convert to linq, adds +5 seconds to runtime
-                {
-                    if (data[i + j] == pattern[j]) continue;
-
-                    found = false;
-                    break;
-                }
-                if (found)
-                {
-                    return i;
-                }
-            }
-            return -1;
-        }
-        
         internal static string GetOsVersion()
         {
             try
