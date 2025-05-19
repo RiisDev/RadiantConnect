@@ -123,6 +123,7 @@ namespace RadiantConnect
 
         public Initiator(bool ignoreVpn = true)
         {
+#if !DEBUG
             DateTime startTime = DateTime.Now;
             TimeSpan timeout = TimeSpan.FromMinutes(1);
 
@@ -133,7 +134,7 @@ namespace RadiantConnect
 
                 Task.Delay(2000);
             }
-
+#endif
             ValorantService client = new();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
