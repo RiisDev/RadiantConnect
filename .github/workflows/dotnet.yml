@@ -1,4 +1,4 @@
-name: .NET
+name: Build & Test
 
 on:
   push:
@@ -29,7 +29,10 @@ jobs:
 
     - name: Build the project
       run: dotnet build RadiantConnect.csproj --configuration Release --framework net8.0
-
+      
+    - name: Test
+      run: dotnet test --no-restore --verbosity normal
+      
     - name: Publish the project
       run: dotnet publish RadiantConnect.csproj --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
 
