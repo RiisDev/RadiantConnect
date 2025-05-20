@@ -23,7 +23,7 @@ public record Competitive(
     [property: JsonPropertyName("TotalGamesNeededForRating")] long? TotalGamesNeededForRating,
     [property: JsonPropertyName("TotalGamesNeededForLeaderboard")] long? TotalGamesNeededForLeaderboard,
     [property: JsonPropertyName("CurrentSeasonGamesNeededForRating")] long? CurrentSeasonGamesNeededForRating,
-    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId> SeasonalInfoBySeasonID
+    [property: JsonPropertyName("SeasonalInfoBySeasonID")] Dictionary<string, SeasonId>? SeasonalInfoBySeasonID
 );
 
 public record Deathmatch(

@@ -5,7 +5,6 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Methods;
 using RadiantConnect.Utilities;
 using static RadiantConnect.Authentication.DriverRiotAuth.Events;
 
@@ -183,13 +182,15 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             
             Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
-            driverProcess!.PriorityClass = ProcessPriorityClass.High;
+            if (driverProcess is null) throw new RadiantConnectException("Failed to start the driver process.");
+
+            driverProcess.PriorityClass = ProcessPriorityClass.High;
 
             string? socketUrl = await GetInitialSocket(port);
 
             Debug.WriteLine($"Debug: http://localhost:{port}/json");
 
-            AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess?.Kill();
+            AppDomain.CurrentDomain.ProcessExit += (_, _) => driverProcess.Kill();
 
             Debug.WriteLine($"{DateTime.Now} Finished Driver");
             

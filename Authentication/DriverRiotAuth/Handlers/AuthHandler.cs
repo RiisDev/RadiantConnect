@@ -1,11 +1,8 @@
 ﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Utilities;
-using static RadiantConnect.Authentication.Authentication;
 
 // ReSharper disable AccessToDisposedClosure <--- It's handled in DriverHandler
 

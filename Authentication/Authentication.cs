@@ -1,16 +1,15 @@
 ﻿using System.Diagnostics;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Text.Json;
-using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.CaptchaRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Handlers;
+using RadiantConnect.Authentication.SSIDReAuth;
 using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
-using TokenManager = RadiantConnect.Authentication.SSIDReAuth.SSIDAuthManager;
+
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
 
 // ReSharper disable StringLiteralTypo
@@ -53,6 +52,7 @@ namespace RadiantConnect.Authentication
             BR,
         }
 
+        [Flags]
         public enum CaptchaService
         {
             SuperMemory,
@@ -92,7 +92,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await new TokenManager().Authenticate(ssid, clid, csid, tdid);
+        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -138,12 +138,12 @@ namespace RadiantConnect.Authentication
                 (string ssid, string clid, string tdid, string csid) = await authTask;
                 Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
-                authHandler?.Dispose();
+                authHandler.Dispose();
 
-                return await new TokenManager().Authenticate(ssid, clid, csid, tdid);
+                return await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
             }
 
-            authHandler?.Dispose();
+            authHandler.Dispose();
 
             Debug.WriteLine($"{DateTime.Now} LOGIN TIMEOUT");
             throw new TimeoutException("Authentication timed out after 45 seconds.");
@@ -165,6 +165,5 @@ namespace RadiantConnect.Authentication
         public async Task<string?> PerformDriverCacheRequest(ValorantNet.HttpMethod httpMethod, string baseUrl, string endPoint, IEnumerable<Cookie> cookies, string userAgent = "", Dictionary<string, string>? extraHeaders = null, AuthenticationHeaderValue? authentication = null, HttpContent? content = null) 
             => throw new NotSupportedException("Method is no longer used, please use 'AuthenticateWithSSID'");
 
-        public async Task Logout() => await authHandler.Logout();
     }
 }

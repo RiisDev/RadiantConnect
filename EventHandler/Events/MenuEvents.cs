@@ -1,6 +1,6 @@
 ﻿namespace RadiantConnect.EventHandler.Events
 {
-    public class MenuEvents()
+    public class MenuEvents
     {
         public delegate void MenuEvent<in T>(T value);
 

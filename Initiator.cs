@@ -11,7 +11,6 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
-using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using System.Text.Json.Serialization;
 using Microsoft.IdentityModel.JsonWebTokens;
@@ -113,7 +112,7 @@ namespace RadiantConnect
 
 
         [Obsolete("Method is no longer supported, move to RSOAuth", true)]
-        public Initiator(RadiantConnectRSO ssid) => throw new RowNotInTableException("Method is no longer supported, move to RSOAuth");
+        public Initiator(RadiantConnectRSO _) => throw new RowNotInTableException("Method is no longer supported, move to RSOAuth");
 
         public Initiator(RSOAuth rsoAuth)
         {

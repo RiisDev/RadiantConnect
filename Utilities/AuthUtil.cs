@@ -4,7 +4,6 @@ using System.Net.Http.Json;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Text;
-using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Utilities

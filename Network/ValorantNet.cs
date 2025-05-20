@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using System.Net;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -293,24 +292,7 @@ namespace RadiantConnect.Network
             [property: JsonPropertyName("subject")] string Subject,
             [property: JsonPropertyName("token")] string Token
         );
-
-        internal record HttpClientCookie(
-            [property: JsonPropertyName("Comment")] string Comment,
-            [property: JsonPropertyName("CommentUri")] object CommentUri,
-            [property: JsonPropertyName("HttpOnly")] bool? HttpOnly,
-            [property: JsonPropertyName("Discard")] bool? Discard,
-            [property: JsonPropertyName("Domain")] string Domain,
-            [property: JsonPropertyName("Expired")] bool? Expired,
-            [property: JsonPropertyName("Expires")] DateTime? Expires,
-            [property: JsonPropertyName("Name")] string Name,
-            [property: JsonPropertyName("Path")] string Path,
-            [property: JsonPropertyName("Port")] string Port,
-            [property: JsonPropertyName("Secure")] bool? Secure,
-            [property: JsonPropertyName("TimeStamp")] DateTime? TimeStamp,
-            [property: JsonPropertyName("Value")] string Value,
-            [property: JsonPropertyName("Version")] int? Version
-        );
-
+        
         public record ValorantVersionApi(
             [property: JsonPropertyName("manifestId")] string ManifestId,
             [property: JsonPropertyName("branch")] string Branch,

@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Globalization;
+﻿using System.Globalization;
 using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Network.PVPEndpoints.DataTypes;

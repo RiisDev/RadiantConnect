@@ -1,9 +1,7 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Text;
-using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Utilities;
 using IOException = System.IO.IOException;

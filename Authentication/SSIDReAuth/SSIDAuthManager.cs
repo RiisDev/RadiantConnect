@@ -1,15 +1,14 @@
 ﻿using System.Net;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Methods;
 using RadiantConnect.Utilities;
 using Cookie = System.Net.Cookie;
 
 namespace RadiantConnect.Authentication.SSIDReAuth
 {
-    internal class SSIDAuthManager
+    internal class SsidAuthManager
     {
-        internal async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "")
+        internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "")
         {
             (HttpClient client, CookieContainer container) = AuthUtil.BuildClient();
 

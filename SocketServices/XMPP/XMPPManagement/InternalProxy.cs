@@ -6,7 +6,6 @@ using System.Text;
 using System.Text.Json.Nodes;
 using System.Text.Json;
 using System.Net.Sockets;
-using RadiantConnect.Methods;
 using RadiantConnect.Utilities;
 using RadiantConnect.XMPP;
 
@@ -19,7 +18,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
     {
         internal string ChatHost { get; set; } = null!;
         internal int ChatPort { get; set; }
-        internal string? ChatAffinity { get; set; } = null!;
+        internal string? ChatAffinity { get; set; }
     }
 
     internal class InternalProxy
@@ -51,103 +50,107 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 
         internal async void DoProxy(IAsyncResult result)
         {
-            HttpListener listener = (HttpListener)result.AsyncState!;
-            HttpListenerContext listenerContext = listener.EndGetContext(result);
-            HttpListenerRequest listenerRequest = listenerContext.Request;
-            HttpListenerResponse listenerResponse = listenerContext.Response;
-
-            string rawUrl = ConfigUrl + listenerRequest.RawUrl;
-
-            HttpRequestMessage message = new(HttpMethod.Get, rawUrl);
-            message.Headers.TryAddWithoutValidation("User-Agent", listenerRequest.UserAgent);
-
-            if (listenerRequest.Headers["x-riot-entitlements-jwt"] is not null)
-                message.Headers.TryAddWithoutValidation("X-Riot-Entitlements-JWT", listenerRequest.Headers["x-riot-entitlements-jwt"]);
-
-            if (listenerRequest.Headers["authorization"] is not null)
-                message.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
-
-            OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{message.Headers}");
-
-            HttpResponseMessage responseMessage = await Client.SendAsync(message);
-            string responseString = await responseMessage.Content.ReadAsStringAsync();
-
-            OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{responseMessage.Headers}\nResponse:{responseString}");
-
-            if (!responseMessage.IsSuccessStatusCode)
-                goto DoResponse;
             try
             {
-                JsonNode? riotClientConfig = JsonSerializer.Deserialize<JsonNode>(responseString);
-                string? riotChatHost = null;
-                int riotChatPort = 0;
+                HttpListener listener = (HttpListener)result.AsyncState!;
+                HttpListenerContext listenerContext = listener.EndGetContext(result);
+                HttpListenerRequest listenerRequest = listenerContext.Request;
+                HttpListenerResponse listenerResponse = listenerContext.Response;
 
-                if (riotClientConfig?["chat.affinities"] is null) goto DoResponse;
-                if (!(riotClientConfig["chat.affinity.enabled"]?.GetValue<bool>() ?? false)) goto DoResponse;
+                string rawUrl = ConfigUrl + listenerRequest.RawUrl;
 
-                if (riotClientConfig["chat.host"] is not null)
-                {
-                    riotChatHost = riotClientConfig["chat.host"]!.GetValue<string>();
-                    riotClientConfig["chat.host"] = "127.0.0.1";
-                }
+                HttpRequestMessage message = new(HttpMethod.Get, rawUrl);
+                message.Headers.TryAddWithoutValidation("User-Agent", listenerRequest.UserAgent);
 
-                if (riotClientConfig["chat.port"] is not null)
-                {
-                    riotChatPort = riotClientConfig["chat.port"]!.GetValue<int>();
-                    riotClientConfig["chat.port"] = ChatPort;
-                }
+                if (listenerRequest.Headers["x-riot-entitlements-jwt"] is not null)
+                    message.Headers.TryAddWithoutValidation("X-Riot-Entitlements-JWT", listenerRequest.Headers["x-riot-entitlements-jwt"]);
 
-                JsonNode? affinities = riotClientConfig["chat.affinities"];
+                if (listenerRequest.Headers["authorization"] is not null)
+                    message.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
 
-                HttpRequestMessage pasRequest = new(HttpMethod.Get, GeoPasUrl);
-                pasRequest.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
+                OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{message.Headers}");
 
+                HttpResponseMessage responseMessage = await Client.SendAsync(message);
+                string responseString = await responseMessage.Content.ReadAsStringAsync();
 
-                string? affinity = string.Empty;
+                OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{responseMessage.Headers}\nResponse:{responseString}");
+
+                if (!responseMessage.IsSuccessStatusCode)
+                    goto DoResponse;
                 try
                 {
-                    string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
-                    string pasJwtContent = pasJwt.Split('.')[1];
-                    string validBase64 = pasJwtContent.PadRight(pasJwtContent.Length / 4 * 4 + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
-                    string pasJwtString = validBase64.FromBase64();
-                    JsonNode? pasJwtJson = JsonSerializer.Deserialize<JsonNode>(pasJwtString);
-                    affinity = pasJwtJson?["affinity"]?.GetValue<string>();
+                    JsonNode? riotClientConfig = JsonSerializer.Deserialize<JsonNode>(responseString);
+                    string? riotChatHost = null;
+                    int riotChatPort = 0;
 
-                    if (affinity is null) return;
+                    if (riotClientConfig?["chat.affinities"] is null) goto DoResponse;
+                    if (!(riotClientConfig["chat.affinity.enabled"]?.GetValue<bool>() ?? false)) goto DoResponse;
 
-                    riotChatHost = affinities?[affinity]?.GetValue<string>();
+                    if (riotClientConfig["chat.host"] is not null)
+                    {
+                        riotChatHost = riotClientConfig["chat.host"]!.GetValue<string>();
+                        riotClientConfig["chat.host"] = "127.0.0.1";
+                    }
+
+                    if (riotClientConfig["chat.port"] is not null)
+                    {
+                        riotChatPort = riotClientConfig["chat.port"]!.GetValue<int>();
+                        riotClientConfig["chat.port"] = ChatPort;
+                    }
+
+                    JsonNode? affinities = riotClientConfig["chat.affinities"];
+
+                    HttpRequestMessage pasRequest = new(HttpMethod.Get, GeoPasUrl);
+                    pasRequest.Headers.TryAddWithoutValidation("Authorization", listenerRequest.Headers["authorization"]);
+
+
+                    string? affinity = string.Empty;
+                    try
+                    {
+                        string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
+                        string pasJwtContent = pasJwt.Split('.')[1];
+                        string validBase64 = pasJwtContent.PadRight(pasJwtContent.Length / 4 * 4 + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
+                        string pasJwtString = validBase64.FromBase64();
+                        JsonNode? pasJwtJson = JsonSerializer.Deserialize<JsonNode>(pasJwtString);
+                        affinity = pasJwtJson?["affinity"]?.GetValue<string>();
+
+                        if (affinity is null) return;
+
+                        riotChatHost = affinities?[affinity]?.GetValue<string>();
+                    }
+                    catch {/**/}
+
+                    affinities?.AsObject().Select(pair => pair.Key).ToList().ForEach(s => affinities[s] = "127.0.0.1");
+
+                    if (riotClientConfig["chat.allow_bad_cert.enabled"] is not null)
+                        riotClientConfig["chat.allow_bad_cert.enabled"] = true;
+
+                    if (riotChatHost is not null && ChatPort != 0)
+                        OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort, ChatAffinity = affinity });
+
+                    responseString = JsonSerializer.Serialize(riotClientConfig);
                 }
                 catch {/**/}
 
-                affinities?.AsObject().Select(pair => pair.Key).ToList().ForEach(s => affinities[s] = "127.0.0.1");
+                DoResponse:
+                byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
+                listenerResponse.StatusCode = (int)responseMessage.StatusCode;
+                listenerResponse.SendChunked = false;
+                listenerResponse.ContentLength64 = responseBytes.Length;
+                listenerResponse.ContentType = "application/json";
+                try
+                {
+                    await listenerResponse.OutputStream
+                        .WriteAsync(responseBytes); // The specified network name is no longer available.
+                }
+                catch {/**/}
 
-                if (riotClientConfig["chat.allow_bad_cert.enabled"] is not null)
-                    riotClientConfig["chat.allow_bad_cert.enabled"] = true;
-
-                if (riotChatHost is not null && ChatPort != 0)
-                    OnChatPatched?.Invoke(this, new ChatServerEventArgs { ChatHost = riotChatHost, ChatPort = riotChatPort, ChatAffinity = affinity });
-
-                responseString = JsonSerializer.Serialize(riotClientConfig);
+                ProxyServer.BeginGetContext(DoProxy, ProxyServer);
+                message.Dispose();
+                responseMessage.Dispose();
+                listenerResponse.Close();
             }
-            catch {/**/}
-
-        DoResponse:
-            byte[] responseBytes = Encoding.UTF8.GetBytes(responseString);
-            listenerResponse.StatusCode = (int)responseMessage.StatusCode;
-            listenerResponse.SendChunked = false;
-            listenerResponse.ContentLength64 = responseBytes.Length;
-            listenerResponse.ContentType = "application/json";
-            try
-            {
-                await listenerResponse.OutputStream
-                    .WriteAsync(responseBytes); // The specified network name is no longer available.
-            }
-            catch {/**/}
-
-            ProxyServer.BeginGetContext(DoProxy, ProxyServer);
-            message.Dispose();
-            responseMessage.Dispose();
-            listenerResponse.Close();
+            catch {/**/} // Just ignore output
         }
     }
 }

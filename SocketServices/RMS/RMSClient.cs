@@ -1,11 +1,9 @@
-﻿using System.Net.Security;
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using static System.Text.RegularExpressions.Regex;
 using System.Net.WebSockets;
-using System.Security.Cryptography;
 using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Utilities;
 
@@ -51,11 +49,11 @@ namespace RadiantConnect.SocketServices.RMS
         internal async Task StartClient()
 #endif
         {
-            string rmsData = $"{{{Match(authData?.ClientConfig?.ToString()!, "(\"rms\\.affinities\"\\s*:\\s*{[^}]*})").Value}}}";
+            string rmsData = $"{{{Match(authData.ClientConfig?.ToString()!, "(\"rms\\.affinities\"\\s*:\\s*{[^}]*})").Value}}}";
             RmsData? rmsAffinitiesData = JsonSerializer.Deserialize<RmsData>(rmsData);
 
             if (rmsAffinitiesData == null) throw new RadiantConnectXMPPException("Failed to find affinity url");
-            if (string.IsNullOrEmpty(authData?.RmsToken)) throw new RadiantConnectXMPPException("Failed to get RMSToken");
+            if (string.IsNullOrEmpty(authData.RmsToken)) throw new RadiantConnectXMPPException("Failed to get RMSToken");
 
             string affinityUrl = region switch
             {

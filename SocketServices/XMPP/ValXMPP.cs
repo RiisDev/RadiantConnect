@@ -7,11 +7,10 @@ using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
 using System.Text.Json;
 using System.Text.RegularExpressions;
-using RadiantConnect.Methods;
-using System.Reflection.Metadata;
 using RadiantConnect.Utilities;
 using RadiantConnect.SocketServices.XMPP.DataTypes;
 using RadiantConnect.SocketServices.XMPP.XMPPManagement;
+#pragma warning disable SYSLIB0057
 
 // Credit to https://github.com/molenzwiebel/Deceive for guide
 // ReSharper disable CheckNamespace

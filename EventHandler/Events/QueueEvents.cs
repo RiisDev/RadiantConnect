@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Network.PartyEndpoints.DataTypes;
 using RadiantConnect.Utilities;
@@ -41,34 +40,38 @@ namespace RadiantConnect.EventHandler.Events
 
         public async void HandleQueueEvent(string invoker, string logData)
         {
-            string parsedEndPoint = logData.Replace("/queue", "")
-                                    .Replace("/matchmaking/join", "")
-                                    .Replace("/matchmaking/leave", "")
-                                    .Replace("/makecustomgame", "");
-            if (!logData.Contains("https") && !logData.Contains("LogTravelManager")) return;
-            
-            switch (invoker)
+            try
             {
-                case "Party_ChangeQueue":
-                    OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
-                    break;
-                case "Party_EnterMatchmakingQueue":
-                    OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
-                    break;
-                case "Party_LeaveMatchmakingQueue":
-                    OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
-                    break;
-                case "Party_MakePartyIntoCustomGame":
-                    OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
-                    break;
-                case "Travel_To_Menu":
-                    OnTravelToMenu?.Invoke(null);
-                    break;
-                case "Match_Found":
-                    OnMatchFound?.Invoke(null);
-                    break;
+                string parsedEndPoint = logData.Replace("/queue", "")
+                    .Replace("/matchmaking/join", "")
+                    .Replace("/matchmaking/leave", "")
+                    .Replace("/makecustomgame", "");
+                if (!logData.Contains("https") && !logData.Contains("LogTravelManager")) return;
+            
+                switch (invoker)
+                {
+                    case "Party_ChangeQueue":
+                        OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                        break;
+                    case "Party_EnterMatchmakingQueue":
+                        OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                        break;
+                    case "Party_LeaveMatchmakingQueue":
+                        OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                        break;
+                    case "Party_MakePartyIntoCustomGame":
+                        OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+                        break;
+                    case "Travel_To_Menu":
+                        OnTravelToMenu?.Invoke(null);
+                        break;
+                    case "Match_Found":
+                        OnMatchFound?.Invoke(null);
+                        break;
 
+                }
             }
+            catch {/**/}
         }
     }
 }

@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.5.7</Version>
+    <Version>9.5.8</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,7 +16,11 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>* Critical bug fix using default Initiator, required upgrade.</PackageReleaseNotes>
+    <PackageReleaseNotes>* QR Bug fixes since last update
+* Fixed All ValorantTables (Except Servers)
+* GameVersionService has be publicalized
+
+- ValorantTables should be more up to date frequently, unit tests will compare to ValorantAPI to make sure they're up-to-date!</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -67,10 +71,10 @@
 
 	<ItemGroup> <!--We don't need the tests in the build file-->
 
-		<Compile Remove="RadiantConnect.Tests\**"/>
-		<None Remove="RadiantConnect.Tests\**"/>
-		<Content Remove="RadiantConnect.Tests\**"/>
-		<EmbeddedResource Remove="RadiantConnect.Tests\**"/>
+		<Compile Remove="RadiantConnect.Tests\**" />
+		<None Remove="RadiantConnect.Tests\**" />
+		<Content Remove="RadiantConnect.Tests\**" />
+		<EmbeddedResource Remove="RadiantConnect.Tests\**" />
 	</ItemGroup>
 
   <ItemGroup>

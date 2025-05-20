@@ -1,6 +1,5 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using RadiantConnect.EventHandler;
-using RadiantConnect.Methods;
 using RadiantConnect.Utilities;
 using static System.Enum;
 using Path = System.IO.Path;
