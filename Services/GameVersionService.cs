@@ -1,5 +1,4 @@
-﻿using System.Diagnostics;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
 using RadiantConnect.Utilities;
@@ -7,15 +6,15 @@ using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services
 {
-    internal class GameVersionService
+    public class GameVersionService
     {
         internal static readonly char[] Separator = ['\0'];
 
-        internal record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
+        public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
         private static int GetBuildNumberFromLog() => int.Parse(LogService.GetLogText().ExtractValue(@"Build version: (\d+)", 1));
 
-        internal static VersionData GetClientVersion(string filePath)
+        public static VersionData GetClientVersion(string filePath)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new(fileStream, Encoding.Unicode);
@@ -24,7 +23,6 @@ namespace RadiantConnect.Services
             byte[] data = reader.ReadBytes((int)reader.BaseStream.Length);
             
             int pos = data.AsSpan().IndexOf(pattern);
-
             string?[] block = Encoding.Unicode.GetString(data, pos, 256).Split(Separator, StringSplitOptions.RemoveEmptyEntries);
 
             string? branch = block[0];
@@ -64,7 +62,7 @@ namespace RadiantConnect.Services
             return (arch is null || !arch.Contains("64")) ? "Unknown" : arch.ToLowerInvariant();
         }
 
-        internal static string GetClientPlatform()
+        public static string GetClientPlatform()
         {
 
             Dictionary<string, string> platform = new()

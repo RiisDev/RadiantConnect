@@ -75,7 +75,7 @@ namespace RadiantConnect.Network
             );
 
             DefaultPlatform = valorantClient.UserPlatform;
-            DefaultUserAgent = $"ShooterGame/{valorantClient.BuildVersion} {valorantClient.UserClientVersion}";
+            DefaultUserAgent = $"ShooterGame/{valorantClient.BuildVersion} Windows/{valorantClient.UserClientVersion}";
             DefaultClientVersion = valorantClient.RiotClientVersion;
 
             ResetDefaultHeaders();
@@ -207,7 +207,7 @@ namespace RadiantConnect.Network
                 OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
 
                 if (!responseMessage.IsSuccessStatusCode)
-                    throw new RadiantConnectNetworkStatusException(responseMessage.StatusCode);
+                    throw new RadiantConnectNetworkStatusException($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
 
                 httpRequest.Dispose();
                 responseMessage.Dispose();

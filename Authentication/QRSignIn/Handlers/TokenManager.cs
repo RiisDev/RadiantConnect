@@ -145,7 +145,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             return (accessToken, idToken);
         }
 
-        internal void InitiateTimer()
+        internal void InitiateTimer(string tempName)
         {
             Timer timer = new();
             timer.Interval = 1000;
@@ -158,6 +158,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                     await Task.Delay(30000);
                     timer.Stop();
                     timer.Dispose();
+                    try { form?.Kill(true); } catch {/**/}
+                    try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
                     form?.Dispose();
                 });
             }
@@ -169,6 +171,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
                 timer.Stop();
                 timer.Dispose();
+                try { form?.Kill(true); } catch {/**/}
+                try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
                 form?.Dispose();
 
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);

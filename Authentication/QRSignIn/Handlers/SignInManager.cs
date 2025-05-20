@@ -26,7 +26,12 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
             {
-                return new Process { StartInfo = new ProcessStartInfo { FileName = path, UseShellExecute = true} };
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = path,
+                    UseShellExecute = true
+                };
+                return Process.Start(startInfo)!;
             }
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
@@ -46,9 +51,9 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             LoginQrManager builder = new(httpClient);
             BuiltData qrData = await builder.Build(code);
 
-            string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N)}.jpg");
+            string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.jpg");
             Process? form = null;
-
+            
             try
             {
                 if (returnUrl)
@@ -67,13 +72,16 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 TaskCompletionSource<RSOAuth?> tcs = new();
 
                 manager.OnTokensFinished += authData => tcs.SetResult(authData);
-                manager.InitiateTimer();
+                manager.InitiateTimer(tempName);
 
                 return await tcs.Task;
             }
             finally
             {
                 httpClient.Dispose();
+                try { form?.Kill(true); }catch{/**/}
+                try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
+
                 form?.Dispose();
 
                 if (File.Exists(tempName)) File.Delete(tempName);

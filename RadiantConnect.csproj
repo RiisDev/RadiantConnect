@@ -61,7 +61,17 @@
     <None Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" /> 
     
     <Compile Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+
+
   </ItemGroup>
+
+	<ItemGroup> <!--We don't need the tests in the build file-->
+
+		<Compile Remove="RadiantConnect.Tests\**"/>
+		<None Remove="RadiantConnect.Tests\**"/>
+		<Content Remove="RadiantConnect.Tests\**"/>
+		<EmbeddedResource Remove="RadiantConnect.Tests\**"/>
+	</ItemGroup>
 
   <ItemGroup>
     <None Include="icon.png">

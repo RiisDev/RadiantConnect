@@ -252,44 +252,57 @@ public static class ValorantTables
         {"aresriot.aws-atl2-prod.na-gp-atlanta-2", "Atlanta"}
     };
 
-    public static Dictionary<string, string> CurrencyIdToCurrency = new()
+    public readonly static Dictionary<string, string> CurrencyIdToCurrency = new()
     {
-        { "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "VP" },
+        { "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "Valorant Points" },
         { "85ca954a-41f2-ce94-9b45-8ca3dd39a00d", "Kingdom Credits" },
         { "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
         { "e59aa87c-4cbf-517a-5983-6e81511be9b7", "Radianite Points" },
     };
 
-    public static Dictionary<string, string> InternalMapNames = new()
+    public readonly static Dictionary<string, string> InternalMapNames = new()
     {
-        { "Juliett", "Sunset" },
-        { "Jam", "Lotus" },
-        { "Pitt", "Pearl" },
-        { "Canyon", "Fracture" },
-        { "Foxtrot", "Breeze" },
-        { "Port", "Icebox" },
-        { "Ascent", "Ascent" },
-        { "Bonsai", "Split" },
-        { "Triad", "Haven" },
-        { "Duality", "Bind" },
-        { "7eaecc1b-4337-bbf6-6ab9-04b8f06b3319", "Ascent" },
-        { "d960549e-485c-e861-8d71-aa9d1aed12a2", "Split" },
-        { "b529448b-4d60-346e-e89e-00a4c527a405", "Fracture" },
+        { "1f10dab3-4294-3827-fa35-c2aa00213cf3", "Basic Training"},
+        { "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047", "Haven" },
+        { "2c09d728-42d5-30d8-43dc-96a05cc7ee9d", "Drift" },
         { "2c9d57ec-4431-9c5e-2939-8f9ef6dd5cba", "Bind" },
         { "2fb9a4fd-47b8-4e7d-a969-74b4046ebd53", "Breeze" },
-        { "690b3ed2-4dff-945b-8223-6da834e30d24", "District" },
-        { "12452a9d-48c3-0b02-e7eb-0381c3520404", "Kasbah" },
-        { "2c09d728-42d5-30d8-43dc-96a05cc7ee9d", "Drift" },
-        { "de28aa9b-4cbe-1003-320e-6cb3ec309557", "Piazza" },
         { "2fe4ed3a-450a-948b-6d6b-e89a78e680a9", "Lotus" },
+        { "7eaecc1b-4337-bbf6-6ab9-04b8f06b3319", "Ascent" },
+        { "224b0a95-48b9-f703-1bd8-67aca101a61f", "Abyss"},
+        { "690b3ed2-4dff-945b-8223-6da834e30d24", "District" },
+        { "5914d1e0-40c4-cfdd-6b88-eba06347686c", "The Range"},
+        { "12452a9d-48c3-0b02-e7eb-0381c3520404", "Kasbah" },
         { "92584fbe-486a-b1b2-9faa-39b0f486b498", "Sunset" },
-        { "fd267378-4d1d-484f-ff52-77821ed10dc2", "Pearl" },
+        { "b529448b-4d60-346e-e89e-00a4c527a405", "Fracture" },
+        { "d6336a5a-428f-c591-98db-c8a291159134", "Glitch"},
+        { "d960549e-485c-e861-8d71-aa9d1aed12a2", "Split" },
+        { "de28aa9b-4cbe-1003-320e-6cb3ec309557", "Piazza" },
         { "e2ad5c54-4114-a870-9641-8ea21279579a", "Icebox" },
         { "ee613ee9-28b7-4beb-9666-08db13bb2244", "The Range" },
-        { "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047", "Haven" }
+        { "fd267378-4d1d-484f-ff52-77821ed10dc2", "Pearl" },
+        { "Ascent", "Ascent" },
+        { "Bonsai", "Split" },
+        { "Canyon", "Fracture" },
+        { "Duality", "Bind" },
+        { "Foxtrot", "Breeze" },
+        { "HURM_Alley", "District" },
+        { "HURM_Bowl", "Kasbah"},
+        { "HURM_Helix", "Drift"},
+        { "HURM_HighTide", "Glitch"},
+        { "HURM_Yard", "Piazza"},
+        { "Infinity", "Abyss"},
+        { "Jam", "Lotus" },
+        { "Juliett", "Sunset" },
+        { "NPEV2", "Basic Training"},
+        { "Pitt", "Pearl" },
+        { "Port", "Icebox" },
+        { "RangeV2", "The Range"},
+        { "Range", "The Range"},
+        { "Triad", "Haven" },
     };
 
-    public static Dictionary<string, string> GunIdToGun = new()
+    public readonly static Dictionary<string, string> GunIdToGun = new()
     {
         { "0afb2636-4093-c63b-4ef1-1e97966e2a3e", "SPIKE" },
         { "3de32920-4a8f-0499-7740-648a5bf95470", "Golden Gun" },
@@ -341,7 +354,7 @@ public static class ValorantTables
         { "b444168c-4e35-8076-db47-ef9bf368f384", "Tejo" },
         { "707eab51-4836-f488-046a-cda6bf494859", "Viper" },
         { "efba5359-4016-a1e5-7626-b1ae76895940", "Vyse" },
-        { "df1cb487-4902-002e-5c17-d28e83e78588", "WayJay" },
+        { "df1cb487-4902-002e-5c17-d28e83e78588", "Waylay" },
         { "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" }
     };
     
