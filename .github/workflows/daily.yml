@@ -14,6 +14,11 @@ jobs:
         dotnet-version: [ '8.*' ]
         
     steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensure full history is fetched for tags
+
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
@@ -24,6 +29,6 @@ jobs:
 
     - name: Build the project
       run: dotnet build RadiantConnect.csproj --configuration Release --framework net8.0
-      
+            
     - name: Test RadiantConnect.Tests
       run: dotnet test RadiantConnect.Tests/RadiantConnect.Tests.csproj --no-restore --verbosity normal
