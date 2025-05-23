@@ -11,7 +11,7 @@ jobs:
     
     strategy:
       matrix:
-        dotnet-version: [ '8.*' ]
+        dotnet-version: [ '9.*' ]
         
     steps:
     - name: Checkout
@@ -22,13 +22,13 @@ jobs:
     - name: Set up .NET SDK
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '8.*'
+        dotnet-version: '9.*'
       
     - name: Restore dependencies
       run: dotnet restore RadiantConnect.sln
 
     - name: Build the project
-      run: dotnet build RadiantConnect.sln --configuration Release --framework net8.0
+      run: dotnet build RadiantConnect.sln --configuration Release --framework net9.0
             
     - name: Test RadiantConnect.Tests
       run: dotnet test RadiantConnect.Tests/RadiantConnect.Tests.csproj --no-restore --verbosity normal
