@@ -1,86 +1,144 @@
 # XMPP MITM Setup Guide
 
-!!! Danger 
-	The socket does not have any datatypes built in, it returns the xmpp data that valorant intended you must parse by yourself!
-!!! Danger 
-	This setup uses MITM (Man In The Middle) all riot services will need to be closed before running, if your software closes before riot your chat services will be offline until you restart your Riot Clients
+---
 
-## Step 1: Initialize RadiantConnect 
+# XMPP MITM Setup Guide (Updated)
 
-Initialize the XMPP Instance, it's **required** to run the KillRiot method before continuing
+!!! Danger
+	The socket does **not** provide any automatic parsing — it only returns raw XMPP data as intended by Valorant. You **must** handle parsing yourself.
+!!! Danger
+	This setup uses **MITM (Man-In-The-Middle)** techniques. **Close all Riot services before running**.
+  	If your software shuts down **before Riot**, chat services will remain offline until you restart all Riot clients.
+
+---
+
+## Overview
+
+This guide explains how to set up `ValXMPP` for intercepting and interacting with Valorant’s XMPP chat system.
+We now support **additional event hooks** and clearer separation between:
+
+* **Proxy events** → Raw network-level in/out traffic.
+* **Chat server events** → Raw XMPP client/server messages.
+
+---
+
+## Step 1: Kill Riot Processes
+
+Before initializing anything, you **must** stop all Riot processes.
+
+```csharp
+ValXMPP.KillRiot();
+Thread.Sleep(2000); // Ensure Riot has fully closed.
+```
+
+---
+
+## Step 2: Initialize ValXMPP
+
+Create and prepare the XMPP handler instance.
+
+```csharp
+ValXMPP xmpp = new();
+```
+
+---
+
+## Step 3: Establish Connection
+
+Start the underlying socket and connect to Riot services.
+
+```csharp
+xmpp.InitializeConnection();
+```
+
+---
+
+## Step 4: Subscribe to Events
+
+Here’s the **breakdown** of the available events:
+
+---
+
+### 🔶 **Network Proxy Events (Raw traffic)**
+
+These capture **low-level traffic** going through the proxy — useful for debugging, doesn't offer much information for clients, but is still offered.
+
+```csharp
+xmpp.OnInboundMessage += (message) => 
+    Debug.WriteLine($"[Proxy] InboundMessage: {message}");
+
+xmpp.OnOutboundMessage += (message) => 
+    Debug.WriteLine($"[Proxy] OutboundMessage: {message}");
+```
+
+---
+
+### 🔶 **Chat Server Events (Parsed XMPP messages)**
+
+These fire when the actual **chat/xmpp server** processes data:
+
+```csharp
+xmpp.OnClientMessage += (message) => 
+    Debug.WriteLine($"[Chat] Client Message: {message}");
+
+xmpp.OnServerMessage += (message) => 
+    Debug.WriteLine($"[Chat] Server Message: {message}");
+```
+
+---
+
+### 🔶 **Presence Update Events**
+
+Presence updates come in **two forms**:
+
+```csharp
+// PlayerPresence — general player state
+xmpp.OnPlayerPresenceUpdated += (presence) => 
+    Debug.WriteLine($"Player Presence Updated: {JsonSerializer.Serialize(presence)}");
+
+// ValorantPresence — Valorant-specific presence details
+xmpp.OnValorantPresenceUpdated += (presence) => 
+    Debug.WriteLine($"Valorant Presence Updated: {JsonSerializer.Serialize(presence)}");
+```
+
+---
+
+## Final Example
+
+Putting it all together:
 
 ```csharp
 ValXMPP.KillRiot();
 
 Thread.Sleep(2000);
 
-ValXMPP chatServer = new ValXMPP();
+ValXMPP xmpp = new();
+
+xmpp.OnClientMessage += (message) => 
+    Debug.WriteLine($"[Chat] Client Message: {message}");
+
+xmpp.OnServerMessage += (message) => 
+    Debug.WriteLine($"[Chat] Server Message: {message}");
+
+xmpp.OnInboundMessage += (message) => 
+    Debug.WriteLine($"[Proxy] InboundMessage: {message}");
+
+xmpp.OnOutboundMessage += (message) => 
+    Debug.WriteLine($"[Proxy] OutboundMessage: {message}");
+
+xmpp.OnPlayerPresenceUpdated += (presence) => 
+    Debug.WriteLine($"Player Presence Updated: {JsonSerializer.Serialize(presence)}");
+
+xmpp.OnValorantPresenceUpdated += (presence) => 
+    Debug.WriteLine($"Valorant Presence Updated: {JsonSerializer.Serialize(presence)}");
+
+xmpp.InitializeConnection();
 ```
 
-## Step 2: Initialize the socket connection
+---
 
-This will begin the actual socket connection and will start a Riot instance.
+### Notes
 
-```csharp
-
-chatServer.InitializeConnection();
-```
-
-## Step 3: Subscribe to the message events
-
-This is where you'll receive the messages from server and client
-
-```csharp
-chatServer.OnOutboundMessage += (data)=>{
-	Debug.WriteLine($"SERVER MESSAGE: {data}");
-};
-chatServer.OnInboundMessage += (data)=>{
-	Debug.WriteLine($"CLIENT MESSAGE: {data}");
-};
-```
-
-## Step 3.1: Subscribe to new socket connections **Required for sending messages**
-```csharp
-chatServer.OnSocketCreated += (socketHandle) => {
-	socketHandle.SendXmlMessageAsync(/*XML String*/);
-};
-```
-
-## Step 3.2: Subscribe to valorant presence update event
-
-```csharp
-chatServer.OnValorantPresenceUpdated += (valorantPresence) => {
-	// valorantPresence returns ValorantPresence data type
-};
-```
-
-## Step 4: Profit
-
-In the end it should look something like this example
-
-```csharp
-ValXMPP.KillRiot();
-
-Thread.Sleep(2000);
-
-ValXMPP chatServer = new();
-
-chatServer.InitializeConnection();
-
-chatServer.OnOutboundMessage += (data)=>{
-	Debug.WriteLine($"SERVER MESSAGE: {data}");
-};
-
-chatServer.OnInboundMessage += (data)=>{
-	Debug.WriteLine($"SERVER MESSAGE: {data}");
-};
-
-chatServer.OnSocketCreated += (socketHandle) => {
-	socketHandle.SendXmlMessageAsync("</presence>");
-};
-
-chatServer.OnValorantPresenceUpdated += (valorantPresence) =>
-{
-	Debug.WriteLine(valorantPresence.PartyId);
-};
-```
+✅ **OnClientMessage / OnServerMessage** → Use these for handling raw chat and XMPP connections.
+✅ **OnInboundMessage / OnOutboundMessage** → Use these for observing **raw** proxy traffic, including non-chat data.
+✅ **Presence Events** → Provide structured objects for player and game status updates.

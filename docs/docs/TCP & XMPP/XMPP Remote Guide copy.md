@@ -19,7 +19,6 @@ This will begin the actual socket connection using provided RSOAuth.
 RemoteXMPP xmpp = new();
 xmpp.OnMessage += data => Console.WriteLine($"[Message] {data}");
 xmpp.OnXMPPProgress += status => Console.WriteLine($"[XMPP] XMPPStatus.{status}");
-xmpp.OnXMPPProgress += status => Debug.WriteLine($"[XMPP] XMPPStatus.{status}");
 
 await xmpp.InitiateRemoteXMPP(rsoAuthData);
 ```

@@ -19,7 +19,7 @@ namespace RadiantConnect.XMPP
 {
     public partial class ValXMPP
     {
-        public string? StreamUrl { get; set; }
+        internal string? StreamUrl { get; set; }
 
         public delegate void InternalMessage(string data);
         public delegate void PresenceUpdated(ValorantPresence presence);
@@ -33,10 +33,10 @@ namespace RadiantConnect.XMPP
         public event InternalMessage? OnOutboundMessage;
         public event InternalMessage? OnInboundMessage;
 
-        public delegate void SocketHandled(XMPPSocketHandle handle);
-        public event SocketHandled? OnSocketCreated;
+        internal delegate void SocketHandled(XMPPSocketHandle handle);
+        internal event SocketHandled? OnSocketCreated;
 
-        public XMPPSocketHandle Handle { get; private set; } = null!;
+        internal XMPPSocketHandle Handle { get; private set; } = null!;
 
         public static void KillRiot()
         {
