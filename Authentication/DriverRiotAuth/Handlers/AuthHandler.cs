@@ -10,7 +10,7 @@ using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-    internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies) : IDisposable
+    internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies, bool headless) : IDisposable
     {
         public Authentication.DriverStatus DriverStatus
         {
@@ -44,7 +44,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
 
             DriverStatus = Authentication.DriverStatus.Creating_Driver;
-            (WebDriver, string? socketUrl) = await DriverHandler.StartDriver(browserExecutable, DriverPort);
+            (WebDriver, string? socketUrl) = await DriverHandler.StartDriver(browserExecutable, DriverPort, headless);
 
             if (WebDriver == null)
                 throw new RadiantConnectException("Failed to start browser driver");

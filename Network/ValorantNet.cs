@@ -1,7 +1,5 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Net.Http.Headers;
-using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
@@ -10,6 +8,7 @@ using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Network
 {
+    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ValorantNet
     {
         public delegate void ValorantNetLog(string message);
@@ -21,15 +20,16 @@ namespace RadiantConnect.Network
 
         public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
 
-        internal static Dictionary<HttpMethod, System.Net.Http.HttpMethod> InternalToHttpMethod = new()
+        private static System.Net.Http.HttpMethod MapHttpMethod(HttpMethod method) => method switch
         {
-            { HttpMethod.Get, System.Net.Http.HttpMethod.Get },
-            { HttpMethod.Post, System.Net.Http.HttpMethod.Post },
-            { HttpMethod.Put, System.Net.Http.HttpMethod.Put },
-            { HttpMethod.Delete, System.Net.Http.HttpMethod.Delete },
-            { HttpMethod.Patch, System.Net.Http.HttpMethod.Patch },
-            { HttpMethod.Options, System.Net.Http.HttpMethod.Options },
-            { HttpMethod.Head, System.Net.Http.HttpMethod.Head },
+            HttpMethod.Get => System.Net.Http.HttpMethod.Get,
+            HttpMethod.Post => System.Net.Http.HttpMethod.Post,
+            HttpMethod.Put => System.Net.Http.HttpMethod.Put,
+            HttpMethod.Delete => System.Net.Http.HttpMethod.Delete,
+            HttpMethod.Patch => System.Net.Http.HttpMethod.Patch,
+            HttpMethod.Options => System.Net.Http.HttpMethod.Options,
+            HttpMethod.Head => System.Net.Http.HttpMethod.Head,
+            _ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
         };
 
         public enum HttpMethod
@@ -59,8 +59,7 @@ namespace RadiantConnect.Network
             AuthCodes = rsoAuth;
             Client.Timeout = TimeSpan.FromSeconds(value: 10);
 
-            using HttpClient client = AuthUtil.BuildClient().Item1;
-            ValorantVersionApiRoot apiData = client.GetFromJsonAsync<ValorantVersionApiRoot>(requestUri: "https://valorant-api.com/v1/version").Result!;
+            ValorantVersionApiRoot apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!;
 
             ValorantService.Version valorantClient = new (
                 RiotClientVersion: apiData.Data.RiotClientVersion.Replace("-shipping", ""), 
@@ -79,9 +78,6 @@ namespace RadiantConnect.Network
 
             ResetDefaultHeaders();
         }
-
-        [Obsolete("Please use AuthenticateWithSSID, method is no longer maintained,", true)]
-        public ValorantNet([SuppressMessage("ReSharper", "UnusedParameter.Local")] string _) => throw new NotSupportedException("Please use RSOAuth, method is no longer maintained,");
 
         public ValorantNet(ValorantService? valorantClient = null)
         {
@@ -113,22 +109,22 @@ namespace RadiantConnect.Network
 
             int authPort = int.Parse(fileValues[2]);
             string oAuth = fileValues[3];
-
             return new UserAuth(authPort, oAuth);
         }
 
         internal async Task<(string, string)> GetAuthorizationToken()
         {
+            OnLog?.Invoke("[ValorantNet Log] Getting local AuthorizationTokens");
             if (AuthCodes is not null) return (AuthCodes.AccessToken, AuthCodes.Entitlement)!;
 
             UserAuth? auth = GetAuth();
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
             HttpResponseMessage response = await Client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
-
-            if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {response.Content.ReadAsStringAsync().Result}");
+            
+            if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
 
             Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
-
+            OnLog?.Invoke($"[ValorantNet GetAuthorizationToken Log] AccessToken: {entitlement?.AccessToken}\n[ValorantNet GetAuthorizationToken Log] EntitlementToken: {entitlement?.Token}");
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
        
@@ -151,6 +147,7 @@ namespace RadiantConnect.Network
 
         internal async Task SetBasicAuth()
         {
+            OnLog?.Invoke("[ValorantNet Log] Settings Basic Auth");
             if (AuthCodes is not null)
                 throw new RadiantConnectException("Cannot use local endpoints with AuthCodes");
 
@@ -163,8 +160,7 @@ namespace RadiantConnect.Network
 
             Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
         }
-
-
+        
         internal void SetCustomHeaders(Dictionary<string, string> headers)
         {
             Client.DefaultRequestHeaders.Clear();
@@ -173,114 +169,135 @@ namespace RadiantConnect.Network
                 Client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
         }
 
-        public async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, bool outputDebugData = false, Dictionary<string, string>? customHeaders = null)
+        public async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, Dictionary<string, string>? customHeaders = null)
         {
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
 
-            if (baseUrl[^1] == '/' && endPoint[0] == '/') { endPoint = endPoint[1..]; } // Make sure the slash isn't duplicated
-            if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
-            
-            while (InternalValorantMethods.IsValorantProcessRunning() || AuthCodes is not null)
+            if (!string.IsNullOrEmpty(endPoint))
             {
-                if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
-                else if (customHeaders is not null) SetCustomHeaders(customHeaders);
-                else await ResetAuth();
-
-                HttpRequestMessage httpRequest = new();
-                httpRequest.Method = InternalToHttpMethod[httpMethod];
-                httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
-                httpRequest.Content = content;
-
-                HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
-
-                string responseContent = await responseMessage.Content.ReadAsStringAsync();
-
-                if (customHeaders is not null)
-                    ResetDefaultHeaders();
-
-                Debug.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-
-                if (outputDebugData)
-                    Console.WriteLine($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-
-                OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-
-                if (!responseMessage.IsSuccessStatusCode)
-                    throw new RadiantConnectNetworkStatusException($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-
-                httpRequest.Dispose();
-                responseMessage.Dispose();
-
-                return responseContent;
+                if (baseUrl[^1] == '/' && endPoint[0] == '/') { endPoint = endPoint[1..]; } // Make sure the slash isn't duplicated
+                if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
             }
 
-            return string.Empty;
+            // I no longer need the loop, as the client will now handle edge-cases.
+            if (!InternalValorantMethods.IsValorantProcessRunning() && AuthCodes is null) return string.Empty;
+
+            if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
+            else if (customHeaders is not null) SetCustomHeaders(customHeaders);
+            else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth();
+
+            using HttpRequestMessage httpRequest = new();
+            httpRequest.Method = MapHttpMethod(httpMethod);
+            httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
+            httpRequest.Content = content;
+
+            using HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+
+            string responseContent = await responseMessage.Content.ReadAsStringAsync();
+
+            if (customHeaders is not null)
+                ResetDefaultHeaders();
+
+            OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+
+            if (!responseMessage.IsSuccessStatusCode)
+                throw new RadiantConnectNetworkStatusException($"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+                
+            return responseContent;
+
         }
 
-        public async Task GetAsync(string baseUrl, string endPoint) => await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
-        public async Task<T?> GetAsync<T>(string baseUrl, string endPoint)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
+        public async Task<T?> GetAsync<T>(string baseUrl, string endPoint) 
+            => await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint);
 
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
+        public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null) 
+            => await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, httpContent);
 
-        public async Task PostAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) => await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
-        public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
+        public async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
+            => await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, httpContent);
+        
+        public async Task<T?> DeleteAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
+            => await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, httpContent);
 
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
+        public async Task<T?> PatchAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
+            => await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, httpContent);
 
-        public async Task PutAsync(string baseUrl, string endPoint, HttpContent httpContent) => await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
-        public async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
+        public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint) 
+            => await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint);
 
-            if (endPoint == "name-service/v2/players") // I forget why this is here, but I'm too scared to remove it
-            {
-                jsonData = jsonData?.Trim();
-                jsonData = jsonData?[1..^1];
-            }
-
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
-
-        public async Task DeleteAsync(string baseUrl, string endPoint) => await CreateRequest(HttpMethod.Delete, baseUrl, endPoint);
-        public async Task<T?> DeleteAsync<T>(string baseUrl, string endPoint)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Delete, baseUrl, endPoint);
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
-
-        public async Task PatchAsync(string baseUrl, string endPoint, HttpContent httpContent) => await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent);
-        public async Task<T?> PatchAsync<T>(string baseUrl, string endPoint, HttpContent httpContent)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent);
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
-
-        public async Task OptionsAsync(string baseUrl, string endPoint) => await CreateRequest(HttpMethod.Options, baseUrl, endPoint);
-        public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Options, baseUrl, endPoint);
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
-
-        public async Task HeadAsync(string baseUrl, string endPoint) => await CreateRequest(HttpMethod.Head, baseUrl, endPoint);
         public async Task<T?> HeadAsync<T>(string baseUrl, string endPoint)
+            => await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint);
+
+        public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent)
+            => await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, httpContent);
+
+        public async Task GetAsync(string baseUrl, string endPoint)
+            => await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
+
+        public async Task PostAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
+            => await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
+
+        public async Task PutAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
+            => await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
+
+        public async Task DeleteAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
+            => await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, httpContent);
+
+        public async Task PatchAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
+            => await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent);
+
+        public async Task OptionsAsync(string baseUrl, string endPoint)
+            => await CreateRequest(HttpMethod.Options, baseUrl, endPoint);
+
+        public async Task HeadAsync(string baseUrl, string endPoint) 
+            => await CreateRequest(HttpMethod.Head, baseUrl, endPoint);
+
+        public async Task OptionsAsync(string baseUrl, string endPoint, HttpContent? httpContent)
+            => await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent);
+        
+        private async Task<T?> SendAndConvertAsync<T>(HttpMethod method, string baseUrl, string endPoint, HttpContent? httpContent = null) 
+            => ConvertResponse<T>(await CreateRequest(method, baseUrl, endPoint, httpContent));
+
+        private static T? ConvertResponse<T>(string? jsonData)
         {
-            string? jsonData = await CreateRequest(HttpMethod.Head, baseUrl, endPoint);
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
+            if (string.IsNullOrEmpty(jsonData) || string.Equals(jsonData.Trim(), "null", StringComparison.OrdinalIgnoreCase))
+                return default;
+
+            Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+
+            if (targetType == typeof(string))
+                return (T)(object)jsonData;
+
+            if (targetType == typeof(int) && int.TryParse(jsonData, out int intValue))
+                return (T)Convert.ChangeType(intValue, targetType);
+
+            if (targetType == typeof(long) && long.TryParse(jsonData, out long longValue))
+                return (T)Convert.ChangeType(longValue, targetType);
+
+            if (targetType == typeof(bool) && bool.TryParse(jsonData, out bool boolValue))
+                return (T)Convert.ChangeType(boolValue, targetType);
+
+            if (targetType == typeof(double) && double.TryParse(jsonData, out double doubleValue))
+                return (T)Convert.ChangeType(doubleValue, targetType);
+
+            if (targetType == typeof(decimal) && decimal.TryParse(jsonData, out decimal decimalValue))
+                return (T)Convert.ChangeType(decimalValue, targetType);
+
+            if (targetType == typeof(float) && float.TryParse(jsonData, out float floatValue))
+                return (T)Convert.ChangeType(floatValue, targetType);
+
+            if (targetType == typeof(DateTime) && DateTime.TryParse(jsonData, out DateTime dateValue))
+                return (T)Convert.ChangeType(dateValue, targetType);
+
+            if (targetType == typeof(Guid) && Guid.TryParse(jsonData, out Guid guidValue))
+                return (T)Convert.ChangeType(guidValue, targetType);
+
+            if (targetType.IsEnum && Enum.TryParse(targetType, jsonData, out object? enumValue))
+                return (T)enumValue;
+
+            return JsonSerializer.Deserialize<T>(jsonData);
         }
 
-        public async Task OptionsAsync(string baseUrl, string endPoint, HttpContent? httpContent) => await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent);
-        public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent)
-        {
-            string? jsonData = await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent);
-            return string.IsNullOrEmpty(jsonData) ? default : JsonSerializer.Deserialize<T>(jsonData);
-        }
 
         #region  Records
         public record UserAuth(int AuthorizationPort, string OAuth);
@@ -310,5 +327,9 @@ namespace RadiantConnect.Network
         );
 
         #endregion
+
+        // Put this at the bottom, we don't need to see it everytime.
+        [Obsolete("Please use AuthenticateWithSSID, method is no longer maintained,", true)]
+        public ValorantNet([SuppressMessage("ReSharper", "UnusedParameter.Local")] string _) => throw new NotSupportedException("Please use RSOAuth, method is no longer maintained,");
     }
 }

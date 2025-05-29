@@ -120,11 +120,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal static async Task<string?> GetInitialSocket(int port)
         {
-            using HttpClient httpClient = new();
-
             while (true)
             {
-                string pageData = await httpClient.GetStringAsync($"http://localhost:{port}/json");
+                string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json");
+                if (string.IsNullOrEmpty(pageData)) return null;
                 if (pageData.IndexOf("\"title\": \"Google\"", StringComparison.OrdinalIgnoreCase) == -1) continue;
                 int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
                 if (urlStartIndex == -1) continue;
@@ -137,13 +136,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal static async Task<string?> WaitForPage(string title, int port, ClientWebSocket? socket, int maxRetries = 250, bool needsReturn = false)
         {
-            using HttpClient httpClient = new();
             int retries = 0;
             string foundSocket = "";
             do
             {
                 retries++;
-                List<EdgeDev>? debugResponse = await httpClient.GetFromJsonAsync<List<EdgeDev>>($"http://localhost:{port}/json");
+                List<EdgeDev>? debugResponse = await InternalHttp.GetAsync<List<EdgeDev>>($"http://localhost:{port}", "/json");
 
                 switch (debugResponse)
                 {
@@ -168,7 +166,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             return foundSocket;
         }
         
-        internal static async Task<(Process?, string?)> StartDriver(string browserExecutable, int port)
+        internal static async Task<(Process?, string?)> StartDriver(string browserExecutable, int port, bool headless)
         {
             Debug.WriteLine($"{DateTime.Now} Starting driver");
             ProcessStartInfo processInfo = new()
@@ -180,7 +178,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             Process? driverProcess = Process.Start(processInfo);
             
-            Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
+            if (headless)
+                Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
             if (driverProcess is null) throw new RadiantConnectException("Failed to start the driver process.");
 

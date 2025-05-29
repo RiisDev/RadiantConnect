@@ -28,7 +28,7 @@ namespace RadiantConnect.EventHandler.Events
 
         private async Task<T?> GetPartyData<T>(PartyDataReturn dataReturn, string endPoint) where T : class?
         {
-            string? data = await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Get, initiator.ExternalSystem.ClientData.GlzUrl, endPoint);
+            string? data = await initiator.ExternalSystem.Net.GetAsync<string>(initiator.ExternalSystem.ClientData.GlzUrl, endPoint);
 
             return data is null ? null : dataReturn switch
             {

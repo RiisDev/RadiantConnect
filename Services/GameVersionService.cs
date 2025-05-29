@@ -1,7 +1,10 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Net.Http.Json;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Json;
+using RadiantConnect.Network;
 using RadiantConnect.Utilities;
+using static System.Text.RegularExpressions.Regex;
 using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services
@@ -13,38 +16,101 @@ namespace RadiantConnect.Services
         public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
         private static int GetBuildNumberFromLog() => int.Parse(LogService.GetLogText().ExtractValue(@"Build version: (\d+)", 1));
+        private const string VersionPattern = @"^release-\d\d.\d\d-shipping-\d{1,2}-\d{6,8}$";
+
+        internal static ValorantNet.ValorantVersionApi GetVersionFromApi()
+        {
+            ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!; 
+            if (versionApiRoot?.Data == null)
+                throw new RadiantConnectException("Failed to get fallback version from API.");
+            return versionApiRoot.Data;
+        }
 
         public static VersionData GetClientVersion(string filePath)
+        {
+            try
+            {
+                VersionData versionData = ParseVersionFromFile(filePath);
+                ValidateVersionData(versionData);
+                return versionData;
+            }
+            catch
+            {
+                ValorantNet.ValorantVersionApi fallback = GetVersionFromApi();
+                VersionData versionData = BuildVersionDataFromApi(fallback);
+                ValidateVersionData(versionData);
+                return versionData;
+            }
+        }
+
+        private static VersionData ParseVersionFromFile(string filePath)
         {
             using FileStream fileStream = new(filePath, FileMode.Open, FileAccess.Read);
             using BinaryReader reader = new(fileStream, Encoding.Unicode);
 
             byte[] pattern = "+\0+\0A\0r\0e\0s\0-\0C\0o\0r\0e\0+\0"u8.ToArray();
             byte[] data = reader.ReadBytes((int)reader.BaseStream.Length);
-            
+
             int pos = data.AsSpan().IndexOf(pattern);
-            string?[] block = Encoding.Unicode.GetString(data, pos, 256).Split(Separator, StringSplitOptions.RemoveEmptyEntries);
+            if (pos == -1)
+                throw new RadiantConnectException("Pattern not found in file.");
 
-            string? branch = block[0];
-            string? buildVersion = block[2];
-            string? buildNumber = block[3];
+            string[] block = Encoding.Unicode.GetString(data, pos, 256).Split(Separator, StringSplitOptions.RemoveEmptyEntries);
+            if (block.Length < 4)
+                throw new RadiantConnectException("Unexpected file block structure.");
 
-            if (!int.TryParse(buildNumber, out int parsedBuild) && 
-                !int.TryParse((GetProductVersionString(filePath) ?? "ABC"), out parsedBuild))
+            string branch = ExtractBranch(block[0]);
+            string baseMajorVersion = block[2];
+            string? buildNumber = block[3].Split('.').LastOrDefault();
+
+            if (!int.TryParse(buildNumber, out int parsedBuildVersion))
             {
-                parsedBuild = GetBuildNumberFromLog();
+                parsedBuildVersion = int.TryParse(GetProductVersionString(filePath), out int fallbackBuild)
+                    ? fallbackBuild
+                    : GetBuildNumberFromLog();
             }
 
-            int versionNumber = int.Parse(buildVersion?.Split('.').Last() ?? "3");
+            if (!int.TryParse(baseMajorVersion, out int baseMajorVersionParsed))
+                throw new RadiantConnectException($"Invalid major version: {baseMajorVersion}");
 
-            return new VersionData(branch!, buildVersion!, versionNumber, $"{branch}-shipping-{parsedBuild}-{versionNumber}");
+            string builtData = $"{branch}-shipping-{baseMajorVersionParsed}-{parsedBuildVersion}";
+            return new VersionData(branch, parsedBuildVersion.ToString(), baseMajorVersionParsed, builtData);
+        }
+
+        private static VersionData BuildVersionDataFromApi(ValorantNet.ValorantVersionApi versionApi)
+        {
+            if (versionApi.Branch == null || versionApi.BuildVersion == null)
+                throw new RadiantConnectException("Fallback API provided null values.");
+
+            string buildNumber = versionApi.Version.Split('.').LastOrDefault()
+                ?? throw new RadiantConnectException("Fallback API version format invalid.");
+
+            if (!int.TryParse(buildNumber, out _))
+                throw new RadiantConnectException($"Invalid fallback build number: {buildNumber}");
+
+            string builtData = $"{versionApi.Branch}-shipping-{versionApi.BuildVersion}-{buildNumber}";
+
+            return new VersionData(versionApi.Branch, buildNumber, int.Parse(versionApi.BuildVersion), builtData);
+        }
+
+        private static void ValidateVersionData(VersionData versionData)
+        {
+            if (!IsMatch(versionData.BuiltData, VersionPattern))
+                throw new RadiantConnectException($"Invalid version format: {versionData.BuiltData}");
+        }
+
+        private static string ExtractBranch(string rawBranch)
+        {
+            return rawBranch.Contains('+') ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
         }
 
         internal static string GetOsVersion()
         {
             try
             {
+#pragma warning disable CA1416 // Registry only supported on Windows
                 return $"{Environment.OSVersion.Version}.{GetValue($@"{LocalMachine}\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "UBR", "256")}.64bit";
+#pragma warning restore CA1416
             }
             catch { return "10.0.19043.1.256"; }
         }
@@ -95,6 +161,7 @@ namespace RadiantConnect.Services
 
             return fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);
         }
+
 
         [DllImport("version.dll", SetLastError = true, CharSet = CharSet.Auto)]
         internal static extern uint GetFileVersionInfoSize(string lptstrFilename, out uint lpdwHandle);

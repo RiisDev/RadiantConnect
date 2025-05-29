@@ -63,7 +63,7 @@ public class LocalEndpoints(Initiator initiator)
 
     public async Task SendFriendRequestAsync(string gameName, string tagLine)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post,$"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
+        await initiator.ExternalSystem.Net.PostAsync($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
         {
             { "game_name", gameName },
             { "game_tag", tagLine }
@@ -72,7 +72,7 @@ public class LocalEndpoints(Initiator initiator)
 
     public async Task RemoveFriendRequestAsync(string userId)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, $"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
+        await initiator.ExternalSystem.Net.DeleteAsync($"https://127.0.0.1:{ValorantNet.GetAuthPort()}", "/chat/v4/friendrequests", JsonContent.Create(new Dictionary<string, string>
         {
             { "puuid", userId },
         }));

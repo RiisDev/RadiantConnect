@@ -120,7 +120,8 @@ namespace RadiantConnect.Authentication
                 driverSettings.ProcessName,
                 driverSettings.BrowserExecutable,
                 driverSettings.KillBrowser,
-                driverSettings.CacheCookies
+                driverSettings.CacheCookies,
+                driverSettings.UseHeadless
             );
 
             authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();

@@ -19,21 +19,33 @@ namespace RadiantConnect.Services
         internal static string GetLogText()
         {
             string logPath = GetLogPath();
-            try
+            string tempPath = $"{logPath}.tmp";
+            int attempt = 0;
+
+            while (attempt < 15)
             {
-                File.Copy(logPath, $"{logPath}.tmp", true);
-                using StreamReader reader = File.OpenText($"{logPath}.tmp");
-                return reader.ReadToEnd();
+                try
+                {
+                    File.Copy(logPath, tempPath, true);
+                    using StreamReader reader = File.OpenText(tempPath);
+                    return reader.ReadToEnd();
+                }
+                catch (IOException ex)
+                {
+                    attempt++;
+                    if (attempt >= 16)
+                        throw new Exception($"Failed to read log file after 15 attempts.", ex);
+                }
+                finally
+                {
+                    try { File.Delete(tempPath); }
+                    catch { /**/ }
+                }
             }
-            catch
-            {
-                return GetLogText();
-            }
-            finally
-            {
-                File.Delete($"{logPath}.tmp");
-            }
+
+            throw new Exception("Unexpected failure while reading log file.");
         }
+
 
         public static ClientData GetClientData()
         {

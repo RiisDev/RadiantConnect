@@ -112,7 +112,7 @@ public class PartyEndpoints(Initiator initiator)
 
     public async Task KickFromPartyAsync(string userId)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Delete, Url, $"parties/v1/players/{userId}");
+        await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}");
     }
 
     // TO DO WORK ON REQUEST PARTY AND DECLINE PARTY

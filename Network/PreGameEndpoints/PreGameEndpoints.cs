@@ -94,6 +94,6 @@ public class PreGameEndpoints(Initiator initiator)
 
     public async Task QuitGameAsync(string matchId)
     {
-        await initiator.ExternalSystem.Net.CreateRequest(ValorantNet.HttpMethod.Post, Url, $"/pregame/v1/matches/{matchId}/quit");
+        await initiator.ExternalSystem.Net.PostAsync(Url, $"/pregame/v1/matches/{matchId}/quit");
     }
 }

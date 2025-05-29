@@ -7,7 +7,7 @@ using RadiantConnect.Utilities;
 
 namespace RadiantConnect.SocketServices.InternalTcp
 {
-    public class ValSocket(ValorantNet.UserAuth authentication, Initiator init)
+    public class ValSocket
     {
         public void ShutdownConnection() => ShutdownSocket.Cancel();
         public delegate void SocketFired(string value);
@@ -15,19 +15,29 @@ namespace RadiantConnect.SocketServices.InternalTcp
         public event SocketFired? OnNewMessage;
 
         internal CancellationTokenSource ShutdownSocket = new();
+        internal ValorantNet.UserAuth? Authentication;
+        internal Initiator Init;
+
+        public ValSocket(Initiator init)
+        {
+            Authentication = ValorantNet.GetAuth();
+
+            if (Authentication is null)
+                throw new RadiantConnectException("Failed to grab current auth, is valorant running?");
+
+            Init = init;
+        }
 
         internal async Task<IReadOnlyList<string>> GetEvents()
         {
-            JsonElement? response = await init.Endpoints.LocalEndpoints.GetHelpAsync();
+            JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync();
             if (response is null) return Array.Empty<string>();
 
             JsonDocument jsonDocument = JsonDocument.Parse(response.ToString()!);
             JsonElement root = jsonDocument.RootElement;
 
             if (root.TryGetProperty("events", out JsonElement eventsElement) && eventsElement.ValueKind == JsonValueKind.Object)
-            {
                 return eventsElement.EnumerateObject().Select(eventProperty => eventProperty.Name).ToList();
-            }
 
             return Array.Empty<string>();
         }
@@ -62,17 +72,17 @@ namespace RadiantConnect.SocketServices.InternalTcp
             {
                 try
                 {
-                    while (!await InternalValorantMethods.IsReady(init.Endpoints.LocalEndpoints))
+                    while (!await InternalValorantMethods.IsReady(Init.Endpoints.LocalEndpoints))
                     {
                         Debug.WriteLine("Waiting for ClientReady...");
                         await Task.Delay(500);
                     }
 
-                    Uri uri = new($"wss://riot:{authentication.OAuth}@127.0.0.1:{authentication.AuthorizationPort}");
+                    Uri uri = new($"wss://riot:{Authentication?.OAuth}@127.0.0.1:{Authentication?.AuthorizationPort}");
 
                     ClientWebSocket clientWebSocket = new();
                     clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
-                    clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{authentication.OAuth}".ToBase64()}");
+                    clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
                     await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
                     foreach (string eventName in await GetEvents())

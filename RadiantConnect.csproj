@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.5.8</Version>
+    <Version>9.6.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,11 +16,15 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>* QR Bug fixes since last update
-* Fixed All ValorantTables (Except Servers)
-* GameVersionService has be publicalized
+    <PackageReleaseNotes>* ValorantNet ReWrite 
+   - This should fix a bunch of edge cases using custom requests, as well as internal
 
-- ValorantTables should be more up to date frequently, unit tests will compare to ValorantAPI to make sure they're up-to-date!</PackageReleaseNotes>
+* Improved reliability of GameVersionService
+   - For non-devs this should fix a ton of issues where it returns the wrong versioning, as well as fallsback to Valorant-API.com
+* Improved usage for ValorantSocket
+   - Not sure why I made it so horribly to begin with, you now only need to provide the Initiator
+
+</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
