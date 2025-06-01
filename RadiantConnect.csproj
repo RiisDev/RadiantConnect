@@ -18,7 +18,8 @@
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>* ValorantNet ReWrite 
    - This should fix a bunch of edge cases using custom requests, as well as internal
-
+   - This includes Optimizations, and a bunch of fixes
+   - Nothing should break from this, but as always report issues (I did testing)
 * Improved reliability of GameVersionService
    - For non-devs this should fix a ton of issues where it returns the wrong versioning, as well as fallsback to Valorant-API.com
 * Improved usage for ValorantSocket
@@ -90,6 +91,10 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="HenrikApi\" />
   </ItemGroup>
 
 </Project>

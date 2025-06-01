@@ -1,5 +1,5 @@
 ﻿using static Microsoft.Win32.Registry;
-
+#pragma warning disable CA1416
 namespace RadiantConnect.Services
 {
     public static class RiotPathService

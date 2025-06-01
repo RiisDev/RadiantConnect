@@ -12,6 +12,14 @@ namespace RadiantConnect.SocketServices.XMPP
             Away,
         }
 
+        public enum ChatRoom
+        {
+            Party,
+            InGame,
+            PreGame,
+            PrivateMessage
+        }
+
         public delegate void XMPPReceived(string xmlData);
 
         public event XMPPReceived? OnXMPPReceived;
@@ -46,8 +54,13 @@ namespace RadiantConnect.SocketServices.XMPP
 
         #endregion
         #region Base Methods
+
+        private string _lastData = "";
         private void HandleXMPPData(string data)
         {
+            if (string.Equals(_lastData, data, StringComparison.OrdinalIgnoreCase)) return;
+            _lastData = data;
+
             OnXMPPReceived?.Invoke(data);
             ValXMPP.HandlePlayerPresence(data, presence => OnPlayerPresenceUpdated?.Invoke(presence));
             ValXMPP.HandlePresenceObject(data, valorantPresence => OnPresenceUpdated?.Invoke(valorantPresence));
@@ -105,75 +118,87 @@ namespace RadiantConnect.SocketServices.XMPP
                                """);
         }
 
-        internal void SendUserStatus(Status status)
-        {
-            // Todo
-
-            /*
-             *{
-                 "isValid": true,
-                 "sessionLoopState": "MENUS",
-                 "partyOwnerSessionLoopState": "MENUS",
-                 "customGameName": "",
-                 "customGameTeam": "",
-                 "partyOwnerMatchMap": "",
-                 "partyOwnerMatchCurrentTeam": "",
-                 "partyOwnerMatchScoreAllyTeam": 0,
-                 "partyOwnerMatchScoreEnemyTeam": 0,
-                 "partyOwnerProvisioningFlow": "Invalid",
-                 "provisioningFlow": "Invalid",
-                 "matchMap": "",
-                 "partyId": "f395adc8-3ba9-47a0-b0de-7633ecd94920",
-                 "isPartyOwner": true,
-                 "partyState": "DEFAULT",
-                 "partyAccessibility": "CLOSED",
-                 "maxPartySize": 5,
-                 "queueId": "unrated",
-                 "partyLFM": false,
-                 "partyClientVersion": "release-09.10-shipping-16-2953141",
-                 "partySize": 1,
-                 "tournamentId": "",
-                 "rosterId": "",
-                 "partyVersion": 1733155231459,
-                 "queueEntryTime": "0001.01.01-00.00.00",
-                 "playerCardId": "2ee6d025-4aac-3a67-0f6e-dba827acc75f",
-                 "playerTitleId": "171e2f90-41e0-48d0-bbf5-28a531c7eafb",
-                 "preferredLevelBorderId": "",
-                 "accountLevel": 336,
-                 "competitiveTier": 0,
-                 "leaderboardPosition": 0,
-                 "isIdle": true, // This changes
-                 "tempValueX": "",
-                 "tempValueY": "",
-                 "tempValueZ": false,
-                 "tempValueW": false,
-                 "tempValueV": 1
-               }
-               
-
-             *<presence id="presence_12">
-                 <show>chat</show> <---- this is aither away or chat
-                 <status/>
-                 <games>
-                   <keystone>
-                     <st>chat</st> <---- this is aither away or chat
-                     <s.t>1733155224221</s.t>
-                     <m/>
-                     <s.p>keystone</s.p>
-                     <pty/>
-                   </keystone>
-                   <valorant>
-                     <s.r>PC</s.r>
-                     <st>chat</st> <---- this is aither away or chat
-                     <p>ew0KCSJpc1ZhbGlkIjogdHJ1ZSwNCgkic2Vzc2lvbkxvb3BTdGF0ZSI6ICJNRU5VUyIsDQoJInBhcnR5T3duZXJTZXNzaW9uTG9vcFN0YXRlIjogIk1FTlVTIiwNCgkiY3VzdG9tR2FtZU5hbWUiOiAiIiwNCgkiY3VzdG9tR2FtZVRlYW0iOiAiIiwNCgkicGFydHlPd25lck1hdGNoTWFwIjogIiIsDQoJInBhcnR5T3duZXJNYXRjaEN1cnJlbnRUZWFtIjogIiIsDQoJInBhcnR5T3duZXJNYXRjaFNjb3JlQWxseVRlYW0iOiAwLA0KCSJwYXJ0eU93bmVyTWF0Y2hTY29yZUVuZW15VGVhbSI6IDAsDQoJInBhcnR5T3duZXJQcm92aXNpb25pbmdGbG93IjogIkludmFsaWQiLA0KCSJwcm92aXNpb25pbmdGbG93IjogIkludmFsaWQiLA0KCSJtYXRjaE1hcCI6ICIiLA0KCSJwYXJ0eUlkIjogImYzOTVhZGM4LTNiYTktNDdhMC1iMGRlLTc2MzNlY2Q5NDkyMCIsDQoJImlzUGFydHlPd25lciI6IHRydWUsDQoJInBhcnR5U3RhdGUiOiAiREVGQVVMVCIsDQoJInBhcnR5QWNjZXNzaWJpbGl0eSI6ICJDTE9TRUQiLA0KCSJtYXhQYXJ0eVNpemUiOiA1LA0KCSJxdWV1ZUlkIjogInVucmF0ZWQiLA0KCSJwYXJ0eUxGTSI6IGZhbHNlLA0KCSJwYXJ0eUNsaWVudFZlcnNpb24iOiAicmVsZWFzZS0wOS4xMC1zaGlwcGluZy0xNi0yOTUzMTQxIiwNCgkicGFydHlTaXplIjogMSwNCgkidG91cm5hbWVudElkIjogIiIsDQoJInJvc3RlcklkIjogIiIsDQoJInBhcnR5VmVyc2lvbiI6IDE3MzMxNTUyMzE0NTksDQoJInF1ZXVlRW50cnlUaW1lIjogIjAwMDEuMDEuMDEtMDAuMDAuMDAiLA0KCSJwbGF5ZXJDYXJkSWQiOiAiMmVlNmQwMjUtNGFhYy0zYTY3LTBmNmUtZGJhODI3YWNjNzVmIiwNCgkicGxheWVyVGl0bGVJZCI6ICIxNzFlMmY5MC00MWUwLTQ4ZDAtYmJmNS0yOGE1MzFjN2VhZmIiLA0KCSJwcmVmZXJyZWRMZXZlbEJvcmRlcklkIjogIiIsDQoJImFjY291bnRMZXZlbCI6IDMzNiwNCgkiY29tcGV0aXRpdmVUaWVyIjogMCwNCgkibGVhZGVyYm9hcmRQb3NpdGlvbiI6IDAsDQoJImlzSWRsZSI6IGZhbHNlLA0KCSJ0ZW1wVmFsdWVYIjogIiIsDQoJInRlbXBWYWx1ZVkiOiAiIiwNCgkidGVtcFZhbHVlWiI6IGZhbHNlLA0KCSJ0ZW1wVmFsdWVXIjogZmFsc2UsDQoJInRlbXBWYWx1ZVYiOiAxDQp9</p>
-                     <s.p>valorant</s.p>
-                     <s.t>1733155716852</s.t>
-                     <pty/>
-                   </valorant>
-                 </games>
-               </presence>
-               
-             */
-        }
+        public record ChatMessage(string Timestamp, string Sender, string Recipient, string Text, string Type);
     }
 }
+/*
+  <!-- Party Chat -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='fb27e146-a21c-4e55-a2b0-e49de2909e8d@ares-parties.na1.pvp.net/ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc'
+   	stamp='2025-05-29 12: 50: 00.801' id='1748523002478: 1' type='groupchat'>
+   	<x xmlns='http: //jabber.org/protocol/muc#user'>
+   		<item jid='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' />
+   	</x>
+   
+   	<body>eased</body>
+   </message>
+   
+   <!-- Private Message -->
+   <message from='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' type='chat' xmlns='jabber:client'>
+   	<sent xmlns='urn:xmpp:carbons:2'>
+   		<forwarded xmlns='urn:xmpp:forward:0'>
+   			<message to='49507637-f4e9-5246-bda7-b92d40425c0f@la1.pvp.net' stamp='2025-05-29 12:53:10.655'
+   				id='1748523192452:2' type='chat'>
+   
+   				<body>test</body>
+   			</message>
+   		</forwarded>
+   	</sent>
+   </message>
+   
+   <!-- Pregame -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='2d9c6a66-10aa-47a6-87dc-ed538f8579e1-2@ares-pregame.na1.pvp.net/ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc'
+   	stamp='2025-05-29 12:54:49.082' id='1748523290734:3' type='groupchat'>
+   	<x xmlns='http://jabber.org/protocol/muc#user'>
+   		<item jid='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' />
+   	</x>
+   
+   	<body>e</body>
+   </message>
+   
+   <!-- Team Chat Red -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='2d9c6a66-10aa-47a6-87dc-ed538f8579e1-red@ares-coregame.na1.pvp.net/ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc'
+   	stamp='2025-05-29 12:56:22.708' id='1748523384516:4' type='groupchat'>
+   	<x xmlns='http://jabber.org/protocol/muc#user'>
+   		<item jid='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' />
+   	</x>
+   
+   	<body>yer</body>
+   </message>
+   
+   <!-- Team Chat Blue -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='2d9c6a66-10aa-47a6-87dc-ed538f8579e1-blu@ares-coregame.na1.pvp.net/ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc'
+   	stamp='2025-05-29 12:56:22.708' id='1748523384516:4' type='groupchat'>
+   	<x xmlns='http://jabber.org/protocol/muc#user'>
+   		<item jid='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' />
+   	</x>
+   
+   	<body>yer</body>
+   </message>
+   
+   <!-- ALl Chat  -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='2d9c6a66-10aa-47a6-87dc-ed538f8579e1-all@ares-coregame.na1.pvp.net/ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc'
+   	stamp='2025-05-29 12:56:36.341' id='1748523398075:5' type='groupchat'>
+   	<x xmlns='http://jabber.org/protocol/muc#user'>
+   		<item jid='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net' />
+   	</x>
+   
+   	<body>hola</body>
+   </message>
+   
+   <!--  All Enemy -->
+   <message to='ed47b7fa-f5aa-5d68-8c50-3cfa8aa2b9fc@la1.pvp.net/RC-292159530'
+   	from='2d9c6a66-10aa-47a6-87dc-ed538f8579e1-all@ares-coregame.na1.pvp.net/2a217e2b-ae1e-5065-899d-da391e019408'
+   	stamp='2025-05-29 12:59:33.149' id='1748523572981:3' type='groupchat'>
+   	<x xmlns='http://jabber.org/protocol/muc#user'>
+   		<item jid='2a217e2b-ae1e-5065-899d-da391e019408@br1.pvp.net' />
+   	</x>
+   
+   	<body>no</body>
+   </message>
+*/

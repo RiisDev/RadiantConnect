@@ -19,6 +19,18 @@ namespace RadiantConnect.XMPP
 {
     public partial class ValXMPP
     {
+        public event Action? OnReady;
+
+        public bool Ready
+        {
+            get;
+            private set
+            {
+                OnReady?.Invoke();
+                field = value;
+            }
+        } = false;
+
         internal string? StreamUrl { get; set; }
 
         public delegate void InternalMessage(string data);
@@ -182,7 +194,7 @@ namespace RadiantConnect.XMPP
                         HandleValorantPresence(data);
                     };
                     handler.Initiate();
-
+                    Ready = true;
                 }
                 catch (IOException ex)
                 {
