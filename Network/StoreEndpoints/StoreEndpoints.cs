@@ -36,7 +36,7 @@ public class StoreEndpoints(Initiator initiator)
 
     public async Task<BalancesMain?> FetchBalancesAsync(string userId)
     {
-        return await initiator.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v2/storefront/{userId}");
+        return await initiator.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v1/wallet/{userId}");
     }
 
     public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ItemType type, string userId)

@@ -32,6 +32,26 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Random hookRandomizer = new((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds());
             List<Dictionary<string, object>> eventList = [];
 
+            // Clear old riot cookies before proceeding.
+            AddCommand("Network.setCookies", new Dictionary<string, object>
+            {
+                {
+                    "cookies", new object[]
+                    {
+                        BuildCookie("clid", "", "auth.riotgames.com"),
+                        BuildCookie("ssid", "", "auth.riotgames.com"),
+                        BuildCookie("tdid", "", "auth.riotgames.com"),
+                        BuildCookie("csid", "", "auth.riotgames.com"),
+                        BuildCookie("sub", "", "auth.riotgames.com"),
+                        BuildCookie("authenticator.sid", "", "authenticate.riotgames.com"),
+                        BuildCookie("_dd_s", "", "authenticate.riotgames.com"),
+                        BuildCookie("__Secure-id_token", "", ".playvalorant.com"),
+                        BuildCookie("__Secure-id_hint", "", ".playvalorant.com"),
+                        BuildCookie("__Secure-refresh_token", "", "xsso.riotgames.com"),
+                        BuildCookie("__cflb", "", "xsso.riotgames.com"),
+                    }
+                }
+            });
             AddCommand("Page.enable");
             AddCommand("Runtime.enable");
             AddCommand("Network.enable");
@@ -77,6 +97,17 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverHandler.OnRuntimeChanged -= Changed;
 
             return;
+
+            Dictionary<string, object> BuildCookie(string name, string value, string domain) => new()
+            {
+                { "name", name },
+                { "value", value },
+                { "domain", domain },
+                { "path", "/" },
+                { "secure", true },
+                { "httpOnly", true },
+                { "expires", DateTimeOffset.UtcNow.ToUnixTimeSeconds() - 3600 }
+            };
 
             void Changed() => eventPassed++;
 
