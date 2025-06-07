@@ -77,19 +77,19 @@
 	</ItemGroup>
 
     <!-- These aren't quite done, but still need to publish bugfix. -->
-	<ItemGroup>
-		<Compile Remove="HenrikApi\**" />
-		<None Remove="HenrikApi\**" />
-		<Content Remove="HenrikApi\**" />
-		<EmbeddedResource Remove="HenrikApi\**" />
+<ItemGroup>
+	<Compile Remove="HenrikApi\**" />
+	<None Remove="HenrikApi\**" />
+	<Content Remove="HenrikApi\**" />
+	<EmbeddedResource Remove="HenrikApi\**" />
 
-		<Compile Remove="ValorantApi\**" />
-		<None Remove="ValorantApi\**" />
-		<Content Remove="ValorantApi\**" />
-		<EmbeddedResource Remove="ValorantApi\**" />
-	</ItemGroup>
+	<Compile Remove="ValorantApi\**" />
+	<None Remove="ValorantApi\**" />
+	<Content Remove="ValorantApi\**" />
+	<EmbeddedResource Remove="ValorantApi\**" />
+</ItemGroup>
 
-  <ItemGroup>
+<ItemGroup>
     <None Include="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
