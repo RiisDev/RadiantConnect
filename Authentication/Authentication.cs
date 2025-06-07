@@ -28,6 +28,8 @@ namespace RadiantConnect.Authentication
             Driver_Created,
             Begin_SignIn,
             Logging_Into_Valorant,
+            Captcha_Found,
+            Captcha_Solved,
             Checking_RSO_Multi_Factor,
             Grabbing_Required_Tokens,
             Multi_Factor_Requested,

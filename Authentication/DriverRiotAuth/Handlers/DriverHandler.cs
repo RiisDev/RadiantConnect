@@ -5,8 +5,10 @@ using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.Utilities;
 using static RadiantConnect.Authentication.DriverRiotAuth.Events;
+using Match = System.Text.RegularExpressions.Match;
 
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
@@ -24,6 +26,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal static event RadiantConsoleDetected? OnMfaDetected;
         internal static event RadiantConsoleDetected? OnAccessTokenFound;
+        internal static event RadiantConsoleDetected? OnCaptchaFound;
+        internal static event RadiantConsoleDetected? OnCaptchaRemoved;
 
         internal static readonly Regex FrameNavigatedRegex = new("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
         internal static readonly Regex NavigatedWithinDocument = new("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
@@ -70,9 +74,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                     OnAccessTokenFound?.Invoke(AuthUtil.ParseAccessToken(message));
                     break;
                 case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAFOUND"):
+                    OnCaptchaFound?.Invoke();
                     Win32.CaptchaFound = true;
                     break;
                 case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAREMOVED"):
+                    OnCaptchaRemoved?.Invoke();
                     Win32.CaptchaFound = false;
                     break;
             }

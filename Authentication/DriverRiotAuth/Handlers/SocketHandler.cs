@@ -128,81 +128,85 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             {
                 return ("""
                         (function () {
-                            'use strict';
-                            let signInDetected = false;
-                            let mfaDetected = false;
-                            let accessToken = false;
+                        	'use strict';
+                        	let signInDetected = false;
+                        	let mfaDetected = false;
+                        	let accessToken = false;
+                        	let captchaFound = false;
                         
-                            function set(obj, callback) {
-                                callback(obj);
-                                for (let [k, v] of Object.entries(obj)) {
-                                    if (k.includes('__reactEventHandlers') && v.onChange) {
-                                        v.onChange({
-                                            target: obj
-                                        });
-                                    }
-                                }
-                            }
+                        	// This should be cross localization from my testing
+                        	function signInPageDetected() {
+                        		return document.getElementById('rememberme') !== null && document.getElementsByName('username').length > 0 && document.getElementsByName('password').length > 0;
+                        	}
                         
-                            function doPageChecks() {
+                        	// Instead of reading page title, check if 6 'single slot' numeric boxes exist
+                        	function mfaPageDetected() {
+                        		return document.querySelectorAll(`input[minlength='1'][maxlength='1'][inputmode='numeric'][value='']`).length === 6;
+                        	}
                         
-                                if (document.title.includes('Sign in')) {
-                                    if (document.getElementsByName('username').length > 0 && !signInDetected) {
-                                        set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
-                                        set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
-                                        setTimeout(() => {
-                                            document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-                                        }, 1500)
-                                        signInDetected = true;
-                                    }
-                                }
+                        	function set(obj, callback) {
+                        		callback(obj);
+                        		for (let [k, v] of Object.entries(obj)) {
+                        			if (k.includes('__reactEventHandlers') && v.onChange) {
+                        				v.onChange({
+                        					target: obj
+                        				});
+                        			}
+                        		}
+                        	}
                         
-                                if (document.title.includes('Verification Required')) {
-                                    if (document.getElementsByTagName('h5')[0].innerText == 'Verification Required' && !mfaDetected) {
-                                        console.log('[RADIANTCONNECT] MFA Detected');
-                                        mfaDetected = true;
-                                    }
-                                }
+                        	function doPageChecks() {
                         
-                                if (document.title.includes('Success')) {
-                                    console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
-                                }
+                        		if (signInPageDetected() && !signInDetected) {
+                        			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
+                        			set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
+                        			setTimeout(() => {
+                        				document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
+                        			}, 1500)
+                        			signInDetected = true;
+                        		}
                         
-                                if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
-                                    console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
-                                    console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
-                                    accessToken = true;
-                                }
+                        		if (mfaPageDetected() && !mfaDetected) {
+                        			console.log('[RADIANTCONNECT] MFA Detected');
+                        			mfaDetected = true;
+                        		}
                         
-                            }
+                        		if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
+                        			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
+                        			accessToken = true;
+                        		}
+                        	}
                         
-                            window.addEventListener('load', doPageChecks);
+                        	window.addEventListener('load', doPageChecks);
                         
-                            let interval = setInterval(() => {
-                                if (document.querySelector('title')) {
-                                    new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
-                                        childList: true
-                                    });
-                                    clearInterval(interval);
-                                }
-                            }, 5);
+                        	let interval = setInterval(() => {
+                        		if (document.querySelector('title')) {
+                        			new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
+                        				childList: true
+                        			});
+                        			clearInterval(interval);
+                        		}
+                        	}, 5);
                         
-                            let capInt = setInterval(() => {
-                                if (document.title.includes('Sign in'))
-                                {
-                                    document.querySelectorAll('iframe[src*="hcaptcha"]').forEach((iframe) => {
-                                        let displayer = iframe.parentNode?.parentNode;
-                                        if (!displayer) return;
-                                
-                                        let computedStyle = window.getComputedStyle(displayer);
-                                        let zIndex = computedStyle["z-index"];
-                                        if (zIndex > 0) {
-                                            console.log("[RADIANTCONNECT] CAPTCHAFOUND");
-                                            clearInterval(capInt);
-                                        }
-                                    });
-                                }
-                            }, 150);
+                        	let capInt = setInterval(() => {
+                        		if (signInPageDetected()) {
+                        			document.querySelectorAll('iframe[src*="hcaptcha"]').forEach((iframe) => {
+                        				let displayer = iframe.parentNode?.parentNode;
+                        				if (!displayer) return;
+                        
+                        				let computedStyle = window.getComputedStyle(displayer);
+                        				let zIndex = computedStyle["z-index"];
+                        				if (zIndex > 0 && !captchaFound) {
+                        					console.log("[RADIANTCONNECT] CAPTCHAFOUND");
+                        					captchaFound = true;
+                        				}
+                        				else if (zIndex <= 0 && captchaFound){
+                        					console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
+                        					clearInterval(capInt);
+                        				}
+                        			});
+                        		}
+                        	}, 150);
                         
                         })();
                         """).Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);

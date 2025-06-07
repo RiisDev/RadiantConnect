@@ -89,6 +89,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             string accessTokenFound = string.Empty;
             DriverStatus = Authentication.DriverStatus.Logging_Into_Valorant;
 
+            DriverHandler.OnCaptchaFound += (_) => DriverStatus = Authentication.DriverStatus.Captcha_Found;
+            DriverHandler.OnCaptchaRemoved += (_) => DriverStatus = Authentication.DriverStatus.Captcha_Solved;
+
             DriverHandler.OnMfaDetected += async (_) =>
             {
                 DriverStatus = Authentication.DriverStatus.Checking_RSO_Multi_Factor;
