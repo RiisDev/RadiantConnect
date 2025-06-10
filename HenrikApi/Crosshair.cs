@@ -1,12 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 namespace RadiantConnect.HenrikApi
 {
-    internal class Crosshair
+    public class Crosshair(HenrikClient henrikClient)
     {
+        public async Task<string?> GenerateCrosshairAsync(string id) => await henrikClient.GetAsync<string?>($"/valorant/v1/crosshair/generate?id={id}");
     }
-}
+}  

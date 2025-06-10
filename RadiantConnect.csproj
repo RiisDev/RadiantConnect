@@ -66,26 +66,26 @@
 
   </ItemGroup>
 
-	<ItemGroup> <!--We don't need the tests in the build file-->
-
+	<!--We don't need the tests in the build file-->
+	<ItemGroup>
 		<Compile Remove="RadiantConnect.Tests\**" />
 		<None Remove="RadiantConnect.Tests\**" />
 		<Content Remove="RadiantConnect.Tests\**" />
 		<EmbeddedResource Remove="RadiantConnect.Tests\**" />
 	</ItemGroup>
 
-    <!-- These aren't quite done, but still need to publish bugfix. -->
-<ItemGroup>
-	<Compile Remove="HenrikApi\**" />
-	<None Remove="HenrikApi\**" />
-	<Content Remove="HenrikApi\**" />
-	<EmbeddedResource Remove="HenrikApi\**" />
+	<!--We don't need to contain the henrik api in project -->
+	<ItemGroup>
+	  <None Remove="HenrikApi\4.2.0.json" />
+	</ItemGroup>
 
-	<Compile Remove="ValorantApi\**" />
-	<None Remove="ValorantApi\**" />
-	<Content Remove="ValorantApi\**" />
-	<EmbeddedResource Remove="ValorantApi\**" />
-</ItemGroup>
+	<!-- These aren't quite done, but still need to publish bugfix. -->
+	<ItemGroup>
+		<Compile Remove="HenrikApi\**" />
+		<None Remove="HenrikApi\**" />
+		<Content Remove="HenrikApi\**" />
+		<EmbeddedResource Remove="HenrikApi\**" />
+	</ItemGroup>
 
 <ItemGroup>
     <None Include="icon.png">
@@ -96,10 +96,6 @@
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
     </None>
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="HenrikApi\" />
   </ItemGroup>
 
 </Project>

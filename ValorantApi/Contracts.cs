@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace RadiantConnect.ValorantApi
 {
@@ -14,7 +8,7 @@ namespace RadiantConnect.ValorantApi
 
         public static async Task<ContractData?> GetContractAsync(string contractUuid) => await ValorantApiClient.GetAsync<ContractData>("https://valorant-api.com/v1", $"/contracts/{contractUuid}");
 
-        public static async Task<ContractData?> GetContractByUuid(string contractUuid) => await GetContractAsync(contractUuid);
+        public static async Task<ContractData?> GetContractByUuidAsync(string contractUuid) => await GetContractAsync(contractUuid);
 
         public record Chapter(
             [property: JsonPropertyName("isEpilogue")] bool? IsEpilogue,
@@ -30,7 +24,7 @@ namespace RadiantConnect.ValorantApi
             [property: JsonPropertyName("premiumVPCost")] int? PremiumVPCost
         );
 
-        public record Data(
+        public record ContractDatum(
             [property: JsonPropertyName("uuid")] string Uuid,
             [property: JsonPropertyName("displayName")] string DisplayName,
             [property: JsonPropertyName("displayIcon")] string DisplayIcon,
@@ -67,12 +61,12 @@ namespace RadiantConnect.ValorantApi
 
         public record ContractsData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] IReadOnlyList<Data> Data
+            [property: JsonPropertyName("data")] IReadOnlyList<ContractDatum> Data
         );
 
         public record ContractData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] Data Data
+            [property: JsonPropertyName("data")] ContractDatum Data
         );
 
     }

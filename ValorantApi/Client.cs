@@ -48,6 +48,8 @@ namespace RadiantConnect.ValorantApi
             
             // We don't want the slash duplicated
             if (baseUrl[^1] == '/' && endpoint[0] == '/') { endpoint = endpoint[1..]; }
+
+            // If I forgot to add a slash, add it here.
             if (baseUrl[^1] != '/' && endpoint[0] != '/') baseUrl += "/";
 
             return $"{baseUrl}{endpoint}{queryString}";
@@ -70,6 +72,7 @@ namespace RadiantConnect.ValorantApi
 
                 string responseContent = await response.Content.ReadAsStringAsync();
 
+#if DEBUG
                 string logContent = $"[NetLog] Uri: {queryUrl}";
                 logContent += $"\n[NetLog] Method: {method}";
                 logContent += $"\n[NetLog] Status Code: {response.StatusCode}";
@@ -78,6 +81,7 @@ namespace RadiantConnect.ValorantApi
                 logContent += $"\n[NetLog] Response: {responseContent}";
 
                 Debug.WriteLine(logContent);
+#endif
 
                 return responseContent;
             }
@@ -89,6 +93,7 @@ namespace RadiantConnect.ValorantApi
             finally
             {
                 Client.DefaultRequestHeaders.Clear();
+                Client.DefaultRequestHeaders.Add("User-Agent", "RadiantConnect RadiantConnect/1.0");
             }
         }
 

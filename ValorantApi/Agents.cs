@@ -4,13 +4,13 @@ namespace RadiantConnect.ValorantApi
 {
     public static class Agents
     {
-        public static async Task<AgentsData?> GetAgents() => await ValorantApiClient.GetAsync<AgentsData?>("https://valorant-api.com/v1", "/agents");
+        public static async Task<AgentsData?> GetAgentsAsync() => await ValorantApiClient.GetAsync<AgentsData?>("https://valorant-api.com/v1", "/agents");
 
-        public static async Task<Agent?> GetAgent(string uuid) => await ValorantApiClient.GetAsync<Agent?>("https://valorant-api.com/v1", $"/agents/{uuid}");
+        public static async Task<Agent?> GetAgentAsync(string uuid) => await ValorantApiClient.GetAsync<Agent?>("https://valorant-api.com/v1", $"/agents/{uuid}");
 
-        public static async Task<Agent?> GetAgentByUuid(string uuid) => await GetAgent(uuid);
+        public static async Task<Agent?> GetAgentByUuidAsync(string uuid) => await GetAgentAsync(uuid);
 
-        public static async Task<AgentData?> GetAgentByName(string name) => (await GetAgents())?.Data?.FirstOrDefault(agent => agent.DisplayName.Equals(name, StringComparison.OrdinalIgnoreCase));
+        public static async Task<AgentData?> GetAgentByNameAsync(string name) => (await GetAgentsAsync())?.Data?.FirstOrDefault(agent => agent.DisplayName.Equals(name, StringComparison.OrdinalIgnoreCase));
 
         public record Ability(
             [property: JsonPropertyName("slot")] string Slot,

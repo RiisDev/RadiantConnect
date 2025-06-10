@@ -1,21 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.Json.Serialization;
-using System.Threading.Tasks;
 
 namespace RadiantConnect.ValorantApi
 {
     public static class ContentTiers
     {
-        public static async Task<ContentTiersData?> GetContentTiers() => await ValorantApiClient.GetAsync<ContentTiersData>("https://valorant-api.com/v1", "contenttiers");
+        public static async Task<ContentTiersData?> GetContentTiersAsync() => await ValorantApiClient.GetAsync<ContentTiersData>("https://valorant-api.com/v1", "contenttiers");
 
-        public static async Task<ContentTierData?> GetContentTier(string uuid) => await ValorantApiClient.GetAsync<ContentTierData>("https://valorant-api.com/v1", $"contenttiers/{uuid}");
+        public static async Task<ContentTierData?> GetContentTierAsync(string uuid) => await ValorantApiClient.GetAsync<ContentTierData>("https://valorant-api.com/v1", $"contenttiers/{uuid}");
 
-        public static async Task<ContentTierData?> GetContentTierByUuid(string uuid) => await GetContentTier(uuid);
+        public static async Task<ContentTierData?> GetContentTierByUuidAsync(string uuid) => await GetContentTierAsync(uuid);
 
-        public record Data(
+        public record ContentDatum(
             [property: JsonPropertyName("uuid")] string Uuid,
             [property: JsonPropertyName("displayName")] string DisplayName,
             [property: JsonPropertyName("devName")] string DevName,
@@ -29,12 +24,12 @@ namespace RadiantConnect.ValorantApi
 
         public record ContentTiersData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] IReadOnlyList<Data> Data
+            [property: JsonPropertyName("data")] IReadOnlyList<ContentDatum> Data
         );
 
         public record ContentTierData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] Data Data
+            [property: JsonPropertyName("data")] ContentDatum Data
         );
 
     }

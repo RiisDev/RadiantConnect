@@ -4,17 +4,17 @@ namespace RadiantConnect.ValorantApi
 {
     public static class Buddies
     {
-        public static async Task<BuddiesData?> GetBuddies() => await ValorantApiClient.GetAsync<BuddiesData?>("https://valorant-api.com/v1", "/buddies");
+        public static async Task<BuddiesData?> GetBuddiesAsync() => await ValorantApiClient.GetAsync<BuddiesData?>("https://valorant-api.com/v1", "/buddies");
 
-        public static async Task<BuddyLevel?> GetBuddyLevels() => await ValorantApiClient.GetAsync<BuddyLevel?>("https://valorant-api.com/v1", "/buddies/levels");
+        public static async Task<BuddyLevel?> GetBuddyLevelsAsync() => await ValorantApiClient.GetAsync<BuddyLevel?>("https://valorant-api.com/v1", "/buddies/levels");
 
-        public static async Task<BuddyData?> GetBuddy(string uuid) => await ValorantApiClient.GetAsync<BuddyData?>("https://valorant-api.com/v1", $"/buddies/{uuid}");
+        public static async Task<BuddyData?> GetBuddyAsync(string uuid) => await ValorantApiClient.GetAsync<BuddyData?>("https://valorant-api.com/v1", $"/buddies/{uuid}");
         
-        public static async Task<BuddyData?> GetBuddyByUuid(string uuid) => await GetBuddy(uuid);
+        public static async Task<BuddyData?> GetBuddyByUuidAsync(string uuid) => await GetBuddyAsync(uuid);
 
-        public static async Task<BuddyLevelsData?> GetBuddyLevelByLevelUuid(string uuid) => await ValorantApiClient.GetAsync<BuddyLevelsData?>("https://valorant-api.com/v1", $"/buddies/levels/{uuid}");
+        public static async Task<BuddyLevelsData?> GetBuddyLevelByLevelUuidAsync(string uuid) => await ValorantApiClient.GetAsync<BuddyLevelsData?>("https://valorant-api.com/v1", $"/buddies/levels/{uuid}");
 
-        public record Data(
+        public record BuddyDatum(
             [property: JsonPropertyName("uuid")] string Uuid,
             [property: JsonPropertyName("displayName")] string DisplayName,
             [property: JsonPropertyName("isHiddenIfNotOwned")] bool? IsHiddenIfNotOwned,
@@ -35,12 +35,12 @@ namespace RadiantConnect.ValorantApi
 
         public record BuddiesData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] IReadOnlyList<Data> Data
+            [property: JsonPropertyName("data")] IReadOnlyList<BuddyDatum> Data
         );
 
         public record BuddyData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] Data Data
+            [property: JsonPropertyName("data")] BuddyDatum Data
         );
 
         public record BuddyLevelsData(

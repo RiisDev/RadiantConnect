@@ -1,0 +1,8408 @@
+{
+	"openapi": "3.0.0",
+	"info": {
+		"version": "4.2.0",
+		"title": "",
+		"description": ""
+	},
+	"servers": [
+		{
+			"description": "Stable",
+			"url": "https://api.henrikdev.xyz"
+		},
+		{
+			"description": "Beta",
+			"url": "https://beta.api.henrikdev.xyz"
+		}
+	],
+	"security": [
+		{
+			"ApiKeyAuth": []
+		}
+	],
+	"components": {
+		"responses": {
+			"4XX": {
+				"description": "Invalid arguments, planned downtime or not found data",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 400
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"400": {
+				"description": "Request error by the client (missing query for example)",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 400
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"403": {
+				"description": "Forbidden to connect to the Riot API (mainly maintenance reasons on riot side like patches) or to the HenrikDev API itself because of bot prevention for example",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 403
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"404": {
+				"description": "The entity was not found (player/match/general data)",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 404
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"408": {
+				"description": "Timeout while fetching riot data",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 408
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"410": {
+				"description": "Endpoint is deprecated",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 410
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"429": {
+				"description": "Rate limit reached (can be global API limit which affects all users or just you, when the \"x-ratelimit-remaining\" header is 0 then it's a personal limit)",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 429
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"5XX": {
+				"description": "Internal Error of any kind, for more info check the details string",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 500
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"500": {
+				"description": "Internal Error (error is logged, will be reviewed asap)",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 500
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"501": {
+				"description": "API Version not implemented, check the requested endpoint url",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 501
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"503": {
+				"description": "Riot API seems to be down, API unable to connect",
+				"content": {
+					"application/json": {
+						"schema": {
+							"type": "object",
+							"properties": {
+								"status": {
+									"type": "integer",
+									"example": 503
+								},
+								"errors": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"message": {
+												"type": "string"
+											},
+											"code": {
+												"type": "integer"
+											},
+											"details": {
+												"type": "string"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"schemas": {
+			"regions": {
+				"type": "string",
+				"enum": [
+					"eu",
+					"na",
+					"ap",
+					"kr"
+				]
+			},
+			"affinities": {
+				"type": "string",
+				"enum": [
+					"eu",
+					"na",
+					"latam",
+					"br",
+					"ap",
+					"kr"
+				]
+			},
+			"premier_conferences": {
+				"type": "string",
+				"enum": [
+					"EU_CENTRAL_EAST",
+					"EU_WEST",
+					"EU_MIDDLE_EAST",
+					"EU_TURKEY",
+					"NA_US_EAST",
+					"NA_US_WEST",
+					"LATAM_NORTH",
+					"LATAM_SOUTH",
+					"BR_BRAZIL",
+					"KR_KOREA",
+					"AP_ASIA",
+					"AP_JAPAN",
+					"AP_OCEANIA",
+					"AP_SOUTH_ASIA"
+				]
+			},
+			"premier_seasons_event_types": {
+				"type": "string",
+				"enum": [
+					"LEAGUE",
+					"TOURNAMENT"
+				]
+			},
+			"premier_seasons_event_map_selection_types": {
+				"type": "string",
+				"enum": [
+					"RANDOM",
+					"PICKBAN"
+				]
+			},
+			"maps": {
+				"type": "string",
+				"enum": [
+					"Ascent",
+					"Split",
+					"Fracture",
+					"Bind",
+					"Breeze",
+					"District",
+					"Kasbah",
+					"Piazza",
+					"Lotus",
+					"Pearl",
+					"Icebox",
+					"Haven"
+				]
+			},
+			"modes": {
+				"type": "string",
+				"enum": [
+					"Competitive",
+					"Custom Game",
+					"Deathmatch",
+					"Escalation",
+					"Team Deathmatch",
+					"New Map",
+					"Replication",
+					"Snowball Fight",
+					"Spike Rush",
+					"Swiftplay",
+					"Unrated"
+				]
+			},
+			"modes_api": {
+				"type": "string",
+				"enum": [
+					"competitive",
+					"custom",
+					"deathmatch",
+					"escalation",
+					"teamdeathmatch",
+					"newmap",
+					"replication",
+					"snowballfight",
+					"spikerush",
+					"swiftplay",
+					"unrated"
+				]
+			},
+			"mode_ids": {
+				"type": "string",
+				"enum": [
+					"competitive",
+					"custom",
+					"deathmatch",
+					"ggteam",
+					"hurm",
+					"newmap",
+					"onefa",
+					"snowball",
+					"spikerush",
+					"swiftplay",
+					"unrated"
+				]
+			},
+			"tiers": {
+				"type": "string",
+				"enum": [
+					"Unrated",
+					"Unknown 1",
+					"Unknown 2",
+					"Iron 1",
+					"Iron 2",
+					"Iron 3",
+					"Bronze 1",
+					"Bronze 2",
+					"Bronze 3",
+					"Silver 1",
+					"Silver 2",
+					"Silver 3",
+					"Gold 1",
+					"Gold 2",
+					"Gold 3",
+					"Platinum 1",
+					"Platinum 2",
+					"Platinum 3",
+					"Diamond 1",
+					"Diamond 2",
+					"Diamond 3",
+					"Ascendant 1",
+					"Ascendant 2",
+					"Ascendant 3",
+					"Immortal 1",
+					"Immortal 2",
+					"Immortal 3",
+					"Radiant"
+				]
+			},
+			"tiers_old": {
+				"type": "string",
+				"enum": [
+					"Unrated",
+					"Unknown 1",
+					"Unknown 2",
+					"Iron 1",
+					"Iron 2",
+					"Iron 3",
+					"Bronze 1",
+					"Bronze 2",
+					"Bronze 3",
+					"Silver 1",
+					"Silver 2",
+					"Silver 3",
+					"Gold 1",
+					"Gold 2",
+					"Gold 3",
+					"Platinum 1",
+					"Platinum 2",
+					"Platinum 3",
+					"Diamond 1",
+					"Diamond 2",
+					"Diamond 3",
+					"Immortal 1",
+					"Immortal 2",
+					"Immortal 3",
+					"Radiant"
+				]
+			},
+			"platforms": {
+				"type": "string",
+				"enum": [
+					"pc",
+					"console"
+				]
+			},
+			"seasons": {
+				"type": "string",
+				"enum": [
+					"e1a1",
+					"e1a2",
+					"e1a3",
+					"e2a1",
+					"e2a2",
+					"e2a3",
+					"e3a1",
+					"e3a2",
+					"e3a3",
+					"e4a1",
+					"e4a2",
+					"e4a3",
+					"e5a1",
+					"e5a2",
+					"e5a3",
+					"e6a1",
+					"e6a2",
+					"e6a3",
+					"e7a1",
+					"e7a2",
+					"e7a3",
+					"e8a1",
+					"e8a2",
+					"e8a3",
+					"e9a1",
+					"e9a2",
+					"e9a3",
+					"e10a1",
+					"e10a2",
+					"e10a3",
+					"e11a1",
+					"e11a2",
+					"e11a3",
+					"e12a1",
+					"e12a2",
+					"e12a3",
+					"e13a1",
+					"e13a2",
+					"e13a3",
+					"e14a1",
+					"e14a2",
+					"e14a3",
+					"e15a1",
+					"e15a2",
+					"e15a3"
+				]
+			},
+			"ranking_schemas": {
+				"type": "string",
+				"enum": [
+					"ascendant",
+					"base"
+				]
+			},
+			"season_id_short_combo": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"short": {
+						"$ref": "#/components/schemas/seasons"
+					}
+				}
+			},
+			"weapon_types": {
+				"nullable": true,
+				"type": "string",
+				"enum": [
+					"weapon",
+					"ability",
+					"fall",
+					"bomb"
+				]
+			},
+			"by_season": {
+				"type": "object",
+				"properties": {
+					"error": {
+						"type": "boolean",
+						"example": false,
+						"nullable": true
+					},
+					"wins": {
+						"type": "integer",
+						"example": 12
+					},
+					"number_of_games": {
+						"type": "integer",
+						"example": 24
+					},
+					"final_rank": {
+						"type": "integer",
+						"example": 12
+					},
+					"final_rank_patched": {
+						"type": "string",
+						"example": "Gold 1"
+					},
+					"act_rank_wins": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"patched_tier": {
+									"type": "string",
+									"example": "Gold 1"
+								},
+								"tier": {
+									"type": "integer",
+									"example": 12
+								}
+							}
+						}
+					},
+					"old": {
+						"type": "boolean",
+						"example": true
+					}
+				}
+			},
+			"player": {
+				"type": "object",
+				"properties": {
+					"puuid": {
+						"type": "string",
+						"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+					},
+					"name": {
+						"type": "string",
+						"example": "Henrik3"
+					},
+					"tag": {
+						"type": "string",
+						"example": "EUW3"
+					},
+					"team": {
+						"type": "string",
+						"example": "Red"
+					},
+					"level": {
+						"type": "integer",
+						"example": 104
+					},
+					"character": {
+						"type": "string",
+						"example": "Sova"
+					},
+					"currenttier": {
+						"type": "integer",
+						"example": 12
+					},
+					"currenttier_patched": {
+						"type": "string",
+						"example": "Gold 1"
+					},
+					"player_card": {
+						"type": "string",
+						"example": "8edf22c5-4489-ab41-769a-07adb4c454d6"
+					},
+					"player_title": {
+						"type": "string",
+						"example": "e3ca05a4-4e44-9afe-3791-7d96ca8f71fa"
+					},
+					"party_id": {
+						"type": "string",
+						"example": "b7590bd4-e2c9-4dd3-8cbf-05f04158375e"
+					},
+					"session_playtime": {
+						"type": "object",
+						"properties": {
+							"minutes": {
+								"type": "integer",
+								"example": 26
+							},
+							"seconds": {
+								"type": "integer",
+								"example": 1560
+							},
+							"milliseconds": {
+								"type": "integer",
+								"example": 1560000
+							}
+						}
+					},
+					"assets": {
+						"type": "object",
+						"properties": {
+							"card": {
+								"type": "object",
+								"properties": {
+									"small": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/playercards/8edf22c5-4489-ab41-769a-07adb4c454d6/smallart.png"
+									},
+									"large": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/playercards/8edf22c5-4489-ab41-769a-07adb4c454d6/largeart.png"
+									},
+									"wide": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/playercards/8edf22c5-4489-ab41-769a-07adb4c454d6/wideart.png"
+									}
+								}
+							},
+							"agent": {
+								"type": "object",
+								"properties": {
+									"small": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/displayicon.png"
+									},
+									"full": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/fullportrait.png"
+									},
+									"bust": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/bustportrait.png"
+									},
+									"killfeed": {
+										"type": "string",
+										"example": "https://media.valorant-api.com/agents/320b2a48-4d9b-a075-30f1-1f93a9b638fa/killfeedportrait.png"
+									}
+								}
+							}
+						}
+					},
+					"behaviour": {
+						"type": "object",
+						"properties": {
+							"afk_rounds": {
+								"type": "integer",
+								"example": 0
+							},
+							"friendly_fire": {
+								"type": "object",
+								"properties": {
+									"incoming": {
+										"type": "integer",
+										"example": 0
+									},
+									"outgoing": {
+										"type": "integer",
+										"example": 0
+									}
+								}
+							},
+							"rounds_in_spawn": {
+								"type": "integer",
+								"example": 0
+							}
+						}
+					},
+					"platform": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"example": "PC"
+							},
+							"os": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "Windows"
+									},
+									"version": {
+										"type": "string",
+										"example": "10.0.22000.1.768.64bit"
+									}
+								}
+							}
+						}
+					},
+					"ability_casts": {
+						"type": "object",
+						"properties": {
+							"c_cast": {
+								"type": "integer",
+								"nullable": true,
+								"example": 16
+							},
+							"q_cast": {
+								"type": "integer",
+								"example": 5,
+								"nullable": true
+							},
+							"e_cast": {
+								"type": "integer",
+								"example": 26,
+								"nullable": true
+							},
+							"x_cast": {
+								"type": "integer",
+								"example": 0,
+								"nullable": true
+							}
+						}
+					},
+					"stats": {
+						"type": "object",
+						"properties": {
+							"score": {
+								"type": "integer",
+								"example": 4869
+							},
+							"kills": {
+								"type": "integer",
+								"example": 18
+							},
+							"deaths": {
+								"type": "integer",
+								"example": 18
+							},
+							"assists": {
+								"type": "integer",
+								"example": 5
+							},
+							"bodyshots": {
+								"type": "integer",
+								"example": 48
+							},
+							"headshots": {
+								"type": "integer",
+								"example": 9
+							},
+							"legshots": {
+								"type": "integer",
+								"example": 5
+							}
+						}
+					},
+					"economy": {
+						"type": "object",
+						"properties": {
+							"spent": {
+								"type": "object",
+								"properties": {
+									"overall": {
+										"type": "integer",
+										"example": 59750
+									},
+									"average": {
+										"type": "integer",
+										"example": 2598
+									}
+								}
+							},
+							"loadout_value": {
+								"type": "object",
+								"properties": {
+									"overall": {
+										"type": "integer",
+										"example": 71700
+									},
+									"average": {
+										"type": "integer",
+										"example": 3117
+									}
+								}
+							}
+						}
+					},
+					"damage_made": {
+						"type": "integer",
+						"example": 3067
+					},
+					"damage_received": {
+						"type": "integer",
+						"example": 3115
+					}
+				}
+			},
+			"observer": {
+				"type": "object",
+				"properties": {
+					"puuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"name": {
+						"type": "string"
+					},
+					"tag": {
+						"type": "string"
+					},
+					"platform": {
+						"type": "object",
+						"properties": {
+							"type": {
+								"type": "string",
+								"example": "PC"
+							},
+							"os": {
+								"type": "object",
+								"properties": {
+									"name": {
+										"type": "string",
+										"example": "Windows"
+									},
+									"version": {
+										"type": "string",
+										"example": "10.0.22000.1.768.64bit"
+									}
+								}
+							}
+						}
+					},
+					"session_playtime": {
+						"type": "object",
+						"properties": {
+							"minutes": {
+								"type": "integer",
+								"example": 26
+							},
+							"seconds": {
+								"type": "integer",
+								"example": 1560
+							},
+							"milliseconds": {
+								"type": "integer",
+								"example": 1560000
+							}
+						}
+					},
+					"team": {
+						"type": "string"
+					},
+					"level": {
+						"type": "number"
+					},
+					"player_card": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"player_title": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"party_id": {
+						"type": "string",
+						"format": "uuid"
+					}
+				}
+			},
+			"coach": {
+				"type": "object",
+				"properties": {
+					"puuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"team": {
+						"type": "string"
+					}
+				}
+			},
+			"team": {
+				"type": "object",
+				"properties": {
+					"has_won": {
+						"type": "boolean",
+						"nullable": true,
+						"example": true
+					},
+					"rounds_won": {
+						"type": "integer",
+						"nullable": true,
+						"example": 13
+					},
+					"rounds_lost": {
+						"type": "integer",
+						"nullable": true,
+						"example": 10
+					},
+					"roaster": {
+						"type": "object",
+						"properties": {
+							"members": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"name": {
+								"type": "string"
+							},
+							"tag": {
+								"type": "string"
+							},
+							"customization": {
+								"type": "object",
+								"properties": {
+									"icon": {
+										"type": "string"
+									},
+									"image": {
+										"type": "string"
+									},
+									"primary": {
+										"type": "string"
+									},
+									"secondary": {
+										"type": "string"
+									},
+									"tertiary": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"nullable": true
+					}
+				}
+			},
+			"match_kill": {
+				"type": "object",
+				"properties": {
+					"kill_time_in_round": {
+						"type": "integer",
+						"example": 43163
+					},
+					"kill_time_in_match": {
+						"type": "integer",
+						"example": 890501
+					},
+					"killer_puuid": {
+						"type": "string",
+						"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+					},
+					"killer_display_name": {
+						"type": "string",
+						"example": "Henrik3#EUW3"
+					},
+					"killer_team": {
+						"type": "string",
+						"example": "Red"
+					},
+					"victim_puuid": {
+						"type": "string",
+						"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+					},
+					"victim_display_name": {
+						"type": "string",
+						"example": "Henrik3#EUW3"
+					},
+					"victim_team": {
+						"type": "string",
+						"example": "Red"
+					},
+					"victim_death_location": {
+						"type": "object",
+						"properties": {
+							"x": {
+								"type": "integer",
+								"example": 7266
+							},
+							"y": {
+								"type": "integer",
+								"example": -5096
+							}
+						}
+					},
+					"damage_weapon_id": {
+						"type": "string",
+						"example": "9C82E19D-4575-0200-1A81-3EACF00CF872"
+					},
+					"damage_weapon_name": {
+						"type": "string",
+						"example": "Vandal"
+					},
+					"damage_weapon_assets": {
+						"type": "object",
+						"properties": {
+							"display_icon": {
+								"type": "string",
+								"example": "https://media.valorant-api.com/weapons/9c82e19d-4575-0200-1a81-3eacf00cf872/displayicon.png"
+							},
+							"killfeed_icon": {
+								"type": "string",
+								"example": "https://media.valorant-api.com/weapons/9c82e19d-4575-0200-1a81-3eacf00cf872/killstreamicon.png"
+							}
+						}
+					},
+					"secondary_fire_mode": {
+						"type": "boolean",
+						"example": false
+					},
+					"player_locations_on_kill": {
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "object",
+							"properties": {
+								"player_puuid": {
+									"type": "string",
+									"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+								},
+								"player_display_name": {
+									"type": "string",
+									"example": "Henrik3#EUW3"
+								},
+								"player_team": {
+									"type": "string",
+									"example": "Red"
+								},
+								"location": {
+									"type": "object",
+									"properties": {
+										"x": {
+											"type": "integer",
+											"example": 5177
+										},
+										"y": {
+											"type": "integer",
+											"example": -8908
+										}
+									}
+								},
+								"view_radians": {
+									"type": "number",
+									"format": "double",
+									"example": 0.5277854
+								}
+							}
+						}
+					},
+					"assistants": {
+						"type": "array",
+						"default": [],
+						"items": {
+							"type": "object",
+							"properties": {
+								"assistant_puuid": {
+									"type": "string",
+									"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+								},
+								"assistant_display_name": {
+									"type": "string",
+									"example": "Henrik3#EUW3"
+								},
+								"assistant_team": {
+									"type": "string",
+									"example": "Red"
+								}
+							}
+						}
+					}
+				}
+			},
+			"match": {
+				"type": "object",
+				"properties": {
+					"metadata": {
+						"type": "object",
+						"properties": {
+							"map": {
+								"$ref": "#/components/schemas/maps"
+							},
+							"game_version": {
+								"type": "string",
+								"example": "release-03.12-shipping-16-649370"
+							},
+							"game_length": {
+								"type": "integer",
+								"example": 2356581
+							},
+							"game_start": {
+								"type": "integer",
+								"example": 1641934366
+							},
+							"game_start_patched": {
+								"type": "string",
+								"example": "Tuesday, January 11, 2022 9:52 PM"
+							},
+							"rounds_played": {
+								"type": "integer",
+								"example": 23
+							},
+							"mode": {
+								"$ref": "#/components/schemas/modes"
+							},
+							"mode_id": {
+								"$ref": "#/components/schemas/mode_ids"
+							},
+							"queue": {
+								"type": "string",
+								"example": "Standard"
+							},
+							"season_id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"platform": {
+								"type": "string",
+								"example": "PC"
+							},
+							"matchid": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"premier_info": {
+								"type": "object",
+								"properties": {
+									"tournament_id": {
+										"type": "string",
+										"nullable": true
+									},
+									"matchup_id": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							},
+							"region": {
+								"$ref": "#/components/schemas/regions"
+							},
+							"cluster": {
+								"type": "string",
+								"example": "London"
+							}
+						}
+					},
+					"players": {
+						"type": "object",
+						"properties": {
+							"all_players": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/player"
+								}
+							},
+							"red": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/player"
+								}
+							},
+							"blue": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/player"
+								}
+							}
+						}
+					},
+					"observers": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/observer"
+						}
+					},
+					"coaches": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/coach"
+						}
+					},
+					"teams": {
+						"type": "object",
+						"properties": {
+							"red": {
+								"$ref": "#/components/schemas/team"
+							},
+							"blue": {
+								"$ref": "#/components/schemas/team"
+							}
+						}
+					},
+					"rounds": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"winning_team": {
+									"type": "string",
+									"example": "Red"
+								},
+								"end_type": {
+									"type": "string",
+									"example": "Eliminated"
+								},
+								"bomb_planted": {
+									"type": "boolean",
+									"nullable": true,
+									"example": true
+								},
+								"bomb_defused": {
+									"type": "boolean",
+									"nullable": true,
+									"example": false
+								},
+								"plant_events": {
+									"nullable": true,
+									"type": "object",
+									"properties": {
+										"plant_location": {
+											"type": "object",
+											"nullable": true,
+											"properties": {
+												"x": {
+													"type": "integer",
+													"example": -1325
+												},
+												"y": {
+													"type": "integer",
+													"example": -1325
+												}
+											}
+										},
+										"planted_by": {
+											"type": "object",
+											"nullable": true,
+											"properties": {
+												"puuid": {
+													"type": "string",
+													"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+												},
+												"display_name": {
+													"type": "string",
+													"example": "Henrik3#EUW3"
+												},
+												"team": {
+													"type": "string",
+													"example": "Red"
+												}
+											}
+										},
+										"plant_site": {
+											"type": "string",
+											"nullable": true,
+											"example": "A"
+										},
+										"plant_time_in_round": {
+											"type": "integer",
+											"nullable": true,
+											"example": 26345
+										},
+										"player_locations_on_plant": {
+											"type": "array",
+											"nullable": true,
+											"items": {
+												"type": "object",
+												"properties": {
+													"player_puuid": {
+														"type": "string",
+														"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+													},
+													"player_display_name": {
+														"type": "string",
+														"example": "Henrik3#EUW3"
+													},
+													"player_team": {
+														"type": "string",
+														"example": "Red"
+													},
+													"location": {
+														"type": "object",
+														"properties": {
+															"x": {
+																"type": "integer",
+																"example": 5177
+															},
+															"y": {
+																"type": "integer",
+																"example": -8908
+															}
+														}
+													},
+													"view_radians": {
+														"type": "number",
+														"format": "double",
+														"example": 0.5277854
+													}
+												}
+											}
+										}
+									}
+								},
+								"defuse_events": {
+									"nullable": true,
+									"type": "object",
+									"properties": {
+										"defuse_location": {
+											"type": "object",
+											"nullable": true,
+											"properties": {
+												"x": {
+													"type": "integer",
+													"example": -1325
+												},
+												"y": {
+													"type": "integer",
+													"example": -1325
+												}
+											}
+										},
+										"defused_by": {
+											"type": "object",
+											"nullable": true,
+											"properties": {
+												"puuid": {
+													"type": "string",
+													"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+												},
+												"display_name": {
+													"type": "string",
+													"example": "Henrik3#EUW3"
+												},
+												"team": {
+													"type": "string",
+													"example": "Red"
+												}
+											}
+										},
+										"defuse_time_in_round": {
+											"type": "integer",
+											"nullable": true,
+											"example": 26345
+										},
+										"player_locations_on_defuse": {
+											"type": "array",
+											"nullable": true,
+											"items": {
+												"type": "object",
+												"properties": {
+													"player_puuid": {
+														"type": "string",
+														"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+													},
+													"player_display_name": {
+														"type": "string",
+														"example": "Henrik3#EUW3"
+													},
+													"player_team": {
+														"type": "string",
+														"example": "Red"
+													},
+													"location": {
+														"type": "object",
+														"properties": {
+															"x": {
+																"type": "integer",
+																"example": 5177
+															},
+															"y": {
+																"type": "integer",
+																"example": -8908
+															}
+														}
+													},
+													"view_radians": {
+														"type": "number",
+														"format": "double",
+														"example": 0.5277854
+													}
+												}
+											}
+										}
+									}
+								},
+								"player_stats": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"ability_casts": {
+												"type": "object",
+												"properties": {
+													"c_casts": {
+														"type": "integer",
+														"nullable": true,
+														"example": 2
+													},
+													"q_casts": {
+														"type": "integer",
+														"nullable": true,
+														"example": 5
+													},
+													"e_casts": {
+														"type": "integer",
+														"nullable": true,
+														"example": 20
+													},
+													"x_casts": {
+														"type": "integer",
+														"nullable": true,
+														"example": 1
+													}
+												}
+											},
+											"player_puuid": {
+												"type": "string",
+												"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+											},
+											"player_display_name": {
+												"type": "string",
+												"example": "Henrik3#EUW3"
+											},
+											"player_team": {
+												"type": "string",
+												"example": "Red"
+											},
+											"damage_events": {
+												"type": "array",
+												"default": [],
+												"items": {
+													"type": "object",
+													"properties": {
+														"receiver_puuid": {
+															"type": "string",
+															"example": "54942ced-1967-5f66-8a16-1e0dae875641"
+														},
+														"receiver_display_name": {
+															"type": "string",
+															"example": "Henrik3#EUW3"
+														},
+														"receiver_team": {
+															"type": "string",
+															"example": "Red"
+														},
+														"bodyshots": {
+															"type": "integer",
+															"example": 3
+														},
+														"damage": {
+															"type": "integer",
+															"example": 156
+														},
+														"headshots": {
+															"type": "integer",
+															"example": 1
+														},
+														"legshots": {
+															"type": "integer",
+															"example": 0
+														}
+													}
+												}
+											},
+											"damage": {
+												"type": "integer",
+												"example": 282
+											},
+											"bodyshots": {
+												"type": "integer",
+												"example": 7
+											},
+											"headshots": {
+												"type": "integer",
+												"example": 1
+											},
+											"legshots": {
+												"type": "integer",
+												"example": 1
+											},
+											"kill_events": {
+												"type": "array",
+												"default": [],
+												"items": {
+													"$ref": "#/components/schemas/match_kill"
+												}
+											},
+											"kills": {
+												"type": "integer",
+												"example": 2
+											},
+											"score": {
+												"type": "integer",
+												"example": 430
+											},
+											"economy": {
+												"type": "object",
+												"properties": {
+													"loadout_value": {
+														"type": "integer",
+														"example": 3900
+													},
+													"weapon": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "string",
+																"example": "462080D1-4035-2937-7C09-27AA2A5C27A7"
+															},
+															"name": {
+																"type": "string",
+																"example": "Spectre"
+															},
+															"assets": {
+																"type": "object",
+																"properties": {
+																	"display_icon": {
+																		"type": "string",
+																		"example": "https://media.valorant-api.com/weapons/462080d1-4035-2937-7c09-27aa2a5c27a7/displayicon.png"
+																	},
+																	"killfeed_icon": {
+																		"type": "string",
+																		"example": "https://media.valorant-api.com/weapons/462080d1-4035-2937-7c09-27aa2a5c27a7/killstreamicon.png"
+																	}
+																}
+															}
+														}
+													},
+													"armor": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "string",
+																"example": "822BCAB2-40A2-324E-C137-E09195AD7692"
+															},
+															"name": {
+																"type": "string",
+																"example": "Heavy Shields"
+															},
+															"assets": {
+																"type": "object",
+																"properties": {
+																	"display_icon": {
+																		"type": "string",
+																		"example": "https://media.valorant-api.com/gear/822bcab2-40a2-324e-c137-e09195ad7692/displayicon.png"
+																	}
+																}
+															}
+														}
+													},
+													"remaining": {
+														"type": "integer",
+														"example": 5300
+													},
+													"spent": {
+														"type": "integer",
+														"example": 1550
+													}
+												}
+											},
+											"was_afk": {
+												"type": "boolean",
+												"example": false
+											},
+											"was_penalized": {
+												"type": "boolean",
+												"example": false
+											},
+											"stayed_in_spawn": {
+												"type": "boolean",
+												"example": false
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"kills": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/match_kill"
+						}
+					}
+				}
+			},
+			"content": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"name": {
+							"type": "string"
+						},
+						"localizedNames": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"ar-AE": {
+										"type": "string"
+									},
+									"de-DE": {
+										"type": "string"
+									},
+									"en-GB": {
+										"type": "string"
+									},
+									"en-US": {
+										"type": "string"
+									},
+									"es-ES": {
+										"type": "string"
+									},
+									"es-MX": {
+										"type": "string"
+									},
+									"fr-FR": {
+										"type": "string"
+									},
+									"id-ID": {
+										"type": "string"
+									},
+									"it-IT": {
+										"type": "string"
+									},
+									"ja-JP": {
+										"type": "string"
+									},
+									"ko-KR": {
+										"type": "string"
+									},
+									"pl-PL": {
+										"type": "string"
+									},
+									"pt-BR": {
+										"type": "string"
+									},
+									"ru-RU": {
+										"type": "string"
+									},
+									"th-TH": {
+										"type": "string"
+									},
+									"tr-TR": {
+										"type": "string"
+									},
+									"vi-VN": {
+										"type": "string"
+									},
+									"zn-CN": {
+										"type": "string"
+									},
+									"zn-TW": {
+										"type": "string"
+									}
+								}
+							}
+						},
+						"id": {
+							"type": "string"
+						},
+						"assetName": {
+							"type": "string"
+						},
+						"assetPath": {
+							"type": "string"
+						}
+					}
+				}
+			},
+			"leaderboard": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"PlayerCardID": {
+							"type": "string",
+							"example": "8edf22c5-4489-ab41-769a-07adb4c454d6"
+						},
+						"TitleID": {
+							"type": "string",
+							"example": "82de085a-4c2b-da95-a139-048e4ce83dae"
+						},
+						"IsBanned": {
+							"type": "boolean",
+							"example": false
+						},
+						"IsAnonymized": {
+							"type": "boolean",
+							"example": false
+						},
+						"puuid": {
+							"type": "string",
+							"example": "c3b5b276-a43d-53f2-a897-038bc60b6682"
+						},
+						"gameName": {
+							"type": "string",
+							"example": "Liquid ScreaM"
+						},
+						"tagLine": {
+							"type": "string",
+							"example": "1TAP"
+						},
+						"leaderboardRank": {
+							"type": "integer",
+							"example": 1
+						},
+						"rankedRating": {
+							"type": "integer",
+							"example": 1222
+						},
+						"numberOfWins": {
+							"type": "integer",
+							"example": 67
+						},
+						"competitiveTier": {
+							"type": "integer",
+							"example": 24
+						}
+					}
+				}
+			},
+			"status": {
+				"type": "array",
+				"items": {
+					"type": "object",
+					"properties": {
+						"created_at": {
+							"type": "string",
+							"example": "2022-01-12T22:11:07.530569+00:00"
+						},
+						"archive_at": {
+							"type": "string",
+							"example": "2022-01-13T10:00:00.000000+00:00",
+							"nullable": true
+						},
+						"updates": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"created_at": {
+										"type": "string",
+										"example": "2022-01-12T22:11:07.645499+00:00"
+									},
+									"updated_at": {
+										"nullable": true,
+										"type": "string",
+										"example": "2022-01-12T23:00:00.000000+00:00"
+									},
+									"publish": {
+										"type": "boolean",
+										"example": true
+									},
+									"id": {
+										"type": "integer",
+										"example": 6658
+									},
+									"translations": {
+										"type": "array",
+										"items": {
+											"type": "object",
+											"properties": {
+												"content": {
+													"type": "string",
+													"example": "The platform is currently unavailable while we perform emergency maintenance."
+												},
+												"locale": {
+													"type": "string",
+													"example": "en_US"
+												}
+											}
+										}
+									},
+									"publish_locations": {
+										"type": "array",
+										"items": {
+											"type": "string",
+											"example": "riotclient"
+										}
+									},
+									"author": {
+										"type": "string",
+										"example": "Riot Games"
+									}
+								}
+							}
+						},
+						"platforms": {
+							"type": "array",
+							"items": {
+								"type": "string",
+								"example": "windows"
+							}
+						},
+						"updated_at": {
+							"type": "string",
+							"example": "2022-01-12T23:00:00.000000+00:00",
+							"nullable": true
+						},
+						"id": {
+							"type": "integer",
+							"example": 4175
+						},
+						"titles": {
+							"type": "array",
+							"items": {
+								"type": "object",
+								"properties": {
+									"content": {
+										"type": "string",
+										"example": "Emergency Maintenance In Progress"
+									},
+									"locale": {
+										"type": "string",
+										"example": "en_US"
+									}
+								}
+							}
+						},
+						"maintenance_status": {
+							"type": "string",
+							"example": "in_progress"
+						},
+						"incident_severity": {
+							"type": "string",
+							"nullable": true,
+							"example": "warning"
+						}
+					}
+				}
+			},
+			"v1mmr": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"example": 200
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"currenttier": {
+								"type": "integer",
+								"example": 12,
+								"nullable": true
+							},
+							"currenttier_patched": {
+								"type": "string",
+								"example": "Gold 1",
+								"nullable": true
+							},
+							"images": {
+								"type": "object",
+								"properties": {
+									"small": {
+										"type": "string",
+										"nullable": true
+									},
+									"large": {
+										"type": "string",
+										"nullable": true
+									},
+									"triangle_down": {
+										"type": "string",
+										"nullable": true
+									},
+									"triangle_up": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							},
+							"ranking_in_tier": {
+								"type": "integer",
+								"example": 20,
+								"nullable": true
+							},
+							"mmr_change_to_last_game": {
+								"type": "integer",
+								"example": -16,
+								"nullable": true
+							},
+							"elo": {
+								"type": "integer",
+								"example": 920,
+								"nullable": true
+							},
+							"name": {
+								"type": "string",
+								"example": "Henrik3",
+								"nullable": true
+							},
+							"tag": {
+								"type": "string",
+								"example": "EUW3",
+								"nullable": true
+							},
+							"old": {
+								"type": "boolean",
+								"example": true
+							}
+						}
+					}
+				}
+			},
+			"v2mmr": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"example": 200
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"example": "Henrik3",
+								"nullable": true
+							},
+							"tag": {
+								"type": "string",
+								"example": "EUW3",
+								"nullable": true
+							},
+							"current_data": {
+								"type": "object",
+								"properties": {
+									"currenttier": {
+										"type": "integer",
+										"example": 12,
+										"nullable": true
+									},
+									"currenttier_patched": {
+										"type": "string",
+										"example": "Gold 1",
+										"nullable": true
+									},
+									"images": {
+										"type": "object",
+										"properties": {
+											"small": {
+												"type": "string",
+												"nullable": true
+											},
+											"large": {
+												"type": "string",
+												"nullable": true
+											},
+											"triangle_down": {
+												"type": "string",
+												"nullable": true
+											},
+											"triangle_up": {
+												"type": "string",
+												"nullable": true
+											}
+										}
+									},
+									"ranking_in_tier": {
+										"type": "integer",
+										"example": 20,
+										"nullable": true
+									},
+									"mmr_change_to_last_game": {
+										"type": "integer",
+										"example": -16,
+										"nullable": true
+									},
+									"elo": {
+										"type": "integer",
+										"example": 920,
+										"nullable": true
+									},
+									"old": {
+										"type": "boolean",
+										"example": true
+									}
+								}
+							},
+							"highest_rank": {
+								"type": "object",
+								"properties": {
+									"old": {
+										"type": "boolean",
+										"example": false
+									},
+									"tier": {
+										"type": "integer",
+										"example": 19,
+										"nullable": true
+									},
+									"patched_tier": {
+										"type": "string",
+										"example": "Diamond 2",
+										"nullable": true
+									},
+									"season": {
+										"type": "string",
+										"nullable": true,
+										"example": "e5a3"
+									}
+								}
+							},
+							"by_season": {
+								"type": "object",
+								"properties": {
+									"e6a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e6a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e6a1": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e5a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e5a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e5a1": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e4a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e4a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e4a1": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e3a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e3a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e3a1": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e2a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e2a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e2a1": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e1a3": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e1a2": {
+										"$ref": "#/components/schemas/by_season"
+									},
+									"e1a1": {
+										"$ref": "#/components/schemas/by_season"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1mmrh": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"example": 200
+					},
+					"name": {
+						"type": "string",
+						"example": "Henrik3"
+					},
+					"tag": {
+						"type": "string",
+						"example": "EUW3"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"currenttier": {
+									"type": "integer",
+									"example": 12
+								},
+								"currenttier_patched": {
+									"type": "string",
+									"example": "Gold 1"
+								},
+								"images": {
+									"type": "object",
+									"properties": {
+										"small": {
+											"type": "string"
+										},
+										"large": {
+											"type": "string"
+										},
+										"triangle_down": {
+											"type": "string"
+										},
+										"triangle_up": {
+											"type": "string"
+										}
+									}
+								},
+								"match_id": {
+									"type": "string",
+									"example": "e5a3301c-c8e5-43bc-be94-a5c0d5275fd4"
+								},
+								"map": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string",
+											"example": "Icebox"
+										},
+										"id": {
+											"type": "string",
+											"example": "e2ad5c54-4114-a870-9641-8ea21279579a"
+										}
+									}
+								},
+								"season_id": {
+									"type": "string",
+									"example": "34093c29-4306-43de-452f-3f944bde22be"
+								},
+								"ranking_in_tier": {
+									"type": "integer",
+									"example": 20
+								},
+								"mmr_change_to_last_game": {
+									"type": "integer",
+									"example": -16
+								},
+								"elo": {
+									"type": "integer",
+									"example": 920
+								},
+								"date": {
+									"type": "string",
+									"example": "Tuesday, January 11, 2022 9:52 PM"
+								},
+								"date_raw": {
+									"type": "integer",
+									"example": 1641934366
+								}
+							}
+						}
+					}
+				}
+			},
+			"v3matches": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "string",
+						"example": 200
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/match"
+						}
+					}
+				}
+			},
+			"v1leaderboard": {
+				"$ref": "#/components/schemas/leaderboard"
+			},
+			"v2leaderboard": {
+				"type": "object",
+				"properties": {
+					"last_update": {
+						"type": "integer",
+						"example": 1641219805
+					},
+					"next_update": {
+						"type": "integer",
+						"example": 1641222865
+					},
+					"total_players": {
+						"type": "integer",
+						"example": 37463
+					},
+					"radiant_threshold": {
+						"type": "integer",
+						"example": 550
+					},
+					"immortal_3_threshold": {
+						"type": "integer",
+						"example": 200
+					},
+					"immortal_2_threshold": {
+						"type": "integer",
+						"example": 100
+					},
+					"immortal_1_threshold": {
+						"type": "integer",
+						"example": 0
+					},
+					"players": {
+						"$ref": "#/components/schemas/leaderboard"
+					}
+				}
+			},
+			"v3_leaderboard": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"updated_at": {
+								"format": "date-time",
+								"type": "string"
+							},
+							"thresholds": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"tier": {
+											"type": "integer"
+										},
+										"start_index": {
+											"type": "integer"
+										},
+										"threshold": {
+											"type": "integer"
+										}
+									}
+								}
+							},
+							"players": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"card": {
+											"type": "string"
+										},
+										"title": {
+											"type": "string"
+										},
+										"is_banned": {
+											"type": "boolean"
+										},
+										"is_anonymized": {
+											"type": "boolean"
+										},
+										"puuid": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string"
+										},
+										"tag": {
+											"type": "string"
+										},
+										"leaderboard_rank": {
+											"type": "integer"
+										},
+										"tier": {
+											"type": "integer"
+										},
+										"rr": {
+											"type": "integer"
+										},
+										"wins": {
+											"type": "integer"
+										},
+										"updated_at": {
+											"type": "string",
+											"format": "date-time"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"bundle_raw": {
+				"type": "object",
+				"properties": {
+					"ID": {
+						"type": "string"
+					},
+					"DataAssetID": {
+						"type": "string"
+					},
+					"CurrencyID": {
+						"type": "string"
+					},
+					"Items": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"Item": {
+									"type": "object",
+									"properties": {
+										"ItemTypeID": {
+											"type": "string"
+										},
+										"ItemID": {
+											"type": "string"
+										},
+										"Amount": {
+											"type": "string"
+										}
+									}
+								},
+								"BasePrice": {
+									"type": "integer"
+								},
+								"CurrencyID": {
+									"type": "string"
+								},
+								"DiscountPercent": {
+									"type": "number"
+								},
+								"DiscountedPrice": {
+									"type": "integer"
+								},
+								"IsPromoItem": {
+									"type": "boolean"
+								}
+							}
+						}
+					},
+					"DurationRemainingInSeconds": {
+						"type": "integer"
+					},
+					"Wholesaleonly": {
+						"type": "boolean"
+					}
+				}
+			},
+			"bundle_parsed": {
+				"type": "object",
+				"properties": {
+					"bundle_uuid": {
+						"type": "string"
+					},
+					"seconds_remaining": {
+						"type": "integer"
+					},
+					"bundle_price": {
+						"type": "number"
+					},
+					"whole_sale_only": {
+						"type": "boolean"
+					},
+					"expires_at": {
+						"type": "string"
+					},
+					"items": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"uuid": {
+									"type": "string"
+								},
+								"name": {
+									"type": "string"
+								},
+								"image": {
+									"type": "string"
+								},
+								"type": {
+									"type": "string"
+								},
+								"amount": {
+									"type": "integer"
+								},
+								"discount_percent": {
+									"type": "number"
+								},
+								"base_price": {
+									"type": "integer"
+								},
+								"discounted_price": {
+									"type": "integer"
+								},
+								"promo_item": {
+									"type": "boolean"
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1storefeatured": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"FeaturedBundle": {
+								"type": "object",
+								"properties": {
+									"Bundle": {
+										"$ref": "#/components/schemas/bundle_raw"
+									},
+									"Bundles": {
+										"type": "array",
+										"items": {
+											"$ref": "#/components/schemas/bundle_raw"
+										}
+									},
+									"BundleRemainingDurationInSeconds": {
+										"type": "integer"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v2storefeatured": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/bundle_parsed"
+						}
+					}
+				}
+			},
+			"v2storeoffer": {
+				"type": "object",
+				"properties": {
+					"offer_id": {
+						"type": "string",
+						"example": "a3dba920-44ee-d7c5-5227-99a80aee3bd9"
+					},
+					"cost": {
+						"type": "integer",
+						"example": 2175
+					},
+					"name": {
+						"type": "string",
+						"example": "Araxys Vandal"
+					},
+					"icon": {
+						"type": "string",
+						"nullable": true,
+						"example": "https://media.valorant-api.com/weaponskinlevels/a3dba920-44ee-d7c5-5227-99a80aee3bd9/displayicon.png"
+					},
+					"type": {
+						"type": "string",
+						"enum": [
+							"skin_level",
+							"skin_chroma",
+							"buddy",
+							"spray",
+							"player_card",
+							"player_title"
+						]
+					},
+					"skin_id": {
+						"type": "string",
+						"example": "4c926aa9-4f26-bc80-c486-9b888333373f"
+					},
+					"content_tier": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"example": "Deluxe Edition"
+							},
+							"dev_name": {
+								"type": "string",
+								"example": "Exclusive"
+							},
+							"icon": {
+								"type": "string",
+								"example": "https://media.valorant-api.com/contenttiers/e046854e-406c-37f4-6607-19a9ba8426fc/displayicon.png"
+							}
+						}
+					}
+				}
+			},
+			"v2storeoffers": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"offers": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/v2storeoffer"
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1esportscheduleitem": {
+				"type": "object",
+				"properties": {
+					"date": {
+						"type": "string",
+						"example": "2023-01-17T20:00:00Z"
+					},
+					"state": {
+						"type": "string",
+						"example": "completed"
+					},
+					"type": {
+						"type": "string",
+						"example": "match"
+					},
+					"vod": {
+						"type": "string",
+						"example": "https://youtu.be/PrQ-LBZ4W-E",
+						"nullable": true
+					},
+					"league": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"example": "Challengers DACH"
+							},
+							"identifier": {
+								"type": "string",
+								"example": "vrl_dach"
+							},
+							"icon": {
+								"type": "string",
+								"example": "https://static.lolesports.com/leagues/1672932144616_DACH_ICON_400_400.png"
+							},
+							"region": {
+								"type": "string",
+								"example": "EMEA"
+							}
+						}
+					},
+					"tournament": {
+						"type": "object",
+						"properties": {
+							"name": {
+								"type": "string",
+								"example": "challengers_emea_leagues_split_1"
+							},
+							"season": {
+								"type": "string",
+								"example": "2023"
+							}
+						}
+					},
+					"match": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"example": "109625073196211557",
+								"nullable": true
+							},
+							"game_type": {
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"enum": [
+											"playAll",
+											"bestOf"
+										],
+										"nullable": true
+									},
+									"count": {
+										"type": "integer",
+										"example": 2,
+										"nullable": true
+									}
+								}
+							},
+							"teams": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"name": {
+											"type": "string",
+											"example": "Angry Titans"
+										},
+										"code": {
+											"type": "string",
+											"example": "AT"
+										},
+										"icon": {
+											"type": "string",
+											"example": "https://static.lolesports.com/teams/1644488801867_AT_red_icon2x.png"
+										},
+										"has_won": {
+											"type": "boolean",
+											"example": false
+										},
+										"game_wins": {
+											"type": "integer",
+											"example": 0
+										},
+										"record": {
+											"type": "object",
+											"properties": {
+												"wins": {
+													"type": "integer",
+													"example": 0
+												},
+												"losses": {
+													"type": "integer",
+													"example": 1
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1esportschedule": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v1esportscheduleitem"
+						}
+					}
+				}
+			},
+			"v1_stored_matches_item": {
+				"type": "object",
+				"properties": {
+					"meta": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string"
+							},
+							"map": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							},
+							"version": {
+								"type": "string"
+							},
+							"mode": {
+								"type": "string"
+							},
+							"started_at": {
+								"type": "string"
+							},
+							"season": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"short": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							},
+							"region": {
+								"type": "string",
+								"nullable": true
+							},
+							"cluster": {
+								"type": "string",
+								"nullable": true
+							}
+						}
+					},
+					"stats": {
+						"type": "object",
+						"properties": {
+							"puuid": {
+								"type": "string"
+							},
+							"team": {
+								"type": "string"
+							},
+							"level": {
+								"type": "number"
+							},
+							"character": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string"
+									},
+									"name": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							},
+							"tier": {
+								"type": "number"
+							},
+							"score": {
+								"type": "number"
+							},
+							"kills": {
+								"type": "number"
+							},
+							"deaths": {
+								"type": "number"
+							},
+							"assists": {
+								"type": "number"
+							},
+							"shots": {
+								"type": "object",
+								"properties": {
+									"head": {
+										"type": "number"
+									},
+									"body": {
+										"type": "number"
+									},
+									"leg": {
+										"type": "number"
+									}
+								}
+							},
+							"damage": {
+								"type": "object",
+								"properties": {
+									"dealt": {
+										"type": "number"
+									},
+									"received": {
+										"type": "number"
+									}
+								}
+							}
+						}
+					},
+					"teams": {
+						"type": "object",
+						"properties": {
+							"red": {
+								"type": "number",
+								"nullable": true
+							},
+							"blue": {
+								"type": "number",
+								"nullable": true
+							}
+						}
+					}
+				}
+			},
+			"v1_stored_matches": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"tag": {
+						"type": "string"
+					},
+					"results": {
+						"type": "object",
+						"properties": {
+							"total": {
+								"type": "number"
+							},
+							"returned": {
+								"type": "number"
+							},
+							"before": {
+								"type": "number"
+							},
+							"after": {
+								"type": "number"
+							}
+						}
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v1_stored_matches_item"
+						}
+					}
+				}
+			},
+			"v1_premier_team": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"name": {
+								"type": "string"
+							},
+							"tag": {
+								"type": "string"
+							},
+							"enrolled": {
+								"type": "boolean"
+							},
+							"stats": {
+								"type": "object",
+								"properties": {
+									"wins": {
+										"type": "number"
+									},
+									"matches": {
+										"type": "number"
+									},
+									"losses": {
+										"type": "number"
+									}
+								}
+							},
+							"placement": {
+								"type": "object",
+								"properties": {
+									"points": {
+										"type": "number"
+									},
+									"conference": {
+										"type": "string"
+									},
+									"division": {
+										"type": "number",
+										"minimum": 1,
+										"maximum": 20
+									},
+									"place": {
+										"type": "number"
+									}
+								}
+							},
+							"customization": {
+								"type": "object",
+								"properties": {
+									"icon": {
+										"type": "string"
+									},
+									"image": {
+										"type": "string"
+									},
+									"primary": {
+										"type": "string"
+									},
+									"secondary": {
+										"type": "string"
+									},
+									"tertiary": {
+										"type": "string"
+									}
+								}
+							},
+							"member": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"puuid": {
+											"type": "string"
+										},
+										"name": {
+											"type": "string",
+											"nullable": true
+										},
+										"tag": {
+											"type": "string",
+											"nullable": true
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1_premier_team_history": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"league_matches": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"format": "uuid"
+										},
+										"points_before": {
+											"type": "number"
+										},
+										"points_after": {
+											"type": "number"
+										},
+										"started_at": {
+											"type": "string",
+											"format": "date-time"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1_partial_premier_team": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"name": {
+						"type": "string"
+					},
+					"tag": {
+						"type": "string"
+					},
+					"conference": {
+						"$ref": "#/components/schemas/premier_conferences"
+					},
+					"division": {
+						"type": "number",
+						"minimum": 1,
+						"maximum": 20
+					},
+					"affinity": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"region": {
+						"$ref": "#/components/schemas/regions"
+					},
+					"losses": {
+						"type": "number"
+					},
+					"wins": {
+						"type": "number"
+					},
+					"score": {
+						"type": "number"
+					},
+					"ranking": {
+						"type": "number"
+					},
+					"customization": {
+						"type": "object",
+						"properties": {
+							"icon": {
+								"type": "string"
+							},
+							"image": {
+								"type": "string"
+							},
+							"primary": {
+								"type": "string"
+							},
+							"secondary": {
+								"type": "string"
+							},
+							"tertiary": {
+								"type": "string"
+							}
+						}
+					}
+				}
+			},
+			"v1_premier_search": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v1_partial_premier_team"
+						}
+					}
+				}
+			},
+			"v1_premier_leaderboard": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v1_partial_premier_team"
+						}
+					}
+				}
+			},
+			"v1_premier_conference": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"affinity": {
+									"$ref": "#/components/schemas/affinities"
+								},
+								"pods": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"pod": {
+												"type": "string"
+											},
+											"name": {
+												"type": "string"
+											}
+										}
+									}
+								},
+								"region": {
+									"$ref": "#/components/schemas/regions"
+								},
+								"timezone": {
+									"type": "string"
+								},
+								"name": {
+									"$ref": "#/components/schemas/premier_conferences"
+								},
+								"icon": {
+									"type": "string"
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1_premier_season": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"championship_event_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"championship_points_required": {
+									"type": "number"
+								},
+								"starts_at": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"ends_at": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"enrollment_starts_at": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"enrollment_ends_at": {
+									"type": "string",
+									"format": "date-time"
+								},
+								"events": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "string",
+												"format": "uuid"
+											},
+											"type": {
+												"$ref": "#/components/schemas/premier_seasons_event_types"
+											},
+											"starts_at": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"ends_at": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"conference_schedules": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"conference": {
+															"$ref": "#/components/schemas/premier_conferences"
+														},
+														"starts_at": {
+															"type": "string",
+															"format": "date-time"
+														},
+														"ends_at": {
+															"type": "string",
+															"format": "date-time"
+														}
+													}
+												}
+											},
+											"map_selection": {
+												"type": "object",
+												"properties": {
+													"type": {
+														"$ref": "#/components/schemas/premier_seasons_event_map_selection_types"
+													},
+													"maps": {
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"name": {
+																	"$ref": "#/components/schemas/maps"
+																},
+																"id": {
+																	"type": "string",
+																	"format": "uuid"
+																}
+															}
+														}
+													}
+												}
+											},
+											"points_required_to_participate": {
+												"type": "number"
+											}
+										}
+									}
+								},
+								"scheduled_events": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"event_id": {
+												"type": "string",
+												"format": "uuid"
+											},
+											"conference": {
+												"$ref": "#/components/schemas/premier_conferences"
+											},
+											"starts_at": {
+												"type": "string",
+												"format": "date-time"
+											},
+											"ends_at": {
+												"type": "string",
+												"format": "date-time"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1_queue_status": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "number"
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"mode": {
+									"$ref": "#/components/schemas/modes"
+								},
+								"mode_id": {
+									"$ref": "#/components/schemas/mode_ids"
+								},
+								"enabled": {
+									"type": "boolean"
+								},
+								"team_size": {
+									"type": "number"
+								},
+								"number_of_teams": {
+									"type": "number"
+								},
+								"party_size": {
+									"type": "object",
+									"properties": {
+										"max": {
+											"type": "number"
+										},
+										"min": {
+											"type": "number"
+										},
+										"invalid": {
+											"type": "array",
+											"items": {
+												"type": "number"
+											}
+										},
+										"full_party_bypass": {
+											"type": "boolean"
+										}
+									}
+								},
+								"high_skill": {
+									"type": "object",
+									"properties": {
+										"max_party_size": {
+											"type": "number"
+										},
+										"min_tier": {
+											"type": "number"
+										},
+										"max_tier": {
+											"type": "number"
+										}
+									}
+								},
+								"ranked": {
+									"type": "boolean"
+								},
+								"tournament": {
+									"type": "boolean"
+								},
+								"skill_disparity": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"tier": {
+												"type": "number"
+											},
+											"name": {
+												"$ref": "#/components/schemas/tiers"
+											},
+											"max_tier": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "number"
+													},
+													"name": {
+														"$ref": "#/components/schemas/tiers"
+													}
+												}
+											}
+										}
+									}
+								},
+								"required_account_level": {
+									"type": "number"
+								},
+								"game_rules": {
+									"type": "object",
+									"properties": {
+										"overtime_win_by_two": {
+											"type": "boolean"
+										},
+										"allow_lenient_surrender": {
+											"type": "boolean"
+										},
+										"allow_drop_out": {
+											"type": "boolean"
+										},
+										"assign_random_agents": {
+											"type": "boolean"
+										},
+										"skip_pregame": {
+											"type": "boolean"
+										},
+										"allow_overtime_draw_vote": {
+											"type": "boolean"
+										},
+										"overtime_win_by_two_capped": {
+											"type": "boolean"
+										},
+										"premier_mode": {
+											"type": "boolean"
+										}
+									}
+								},
+								"platforms": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/platforms"
+									}
+								},
+								"maps": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"map": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "string",
+														"format": "uuid"
+													},
+													"name": {
+														"$ref": "#/components/schemas/maps"
+													}
+												}
+											},
+											"enabled": {
+												"type": "boolean"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v1_stored_mmr_history_item": {
+				"type": "object",
+				"properties": {
+					"match_id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"tier": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "number"
+							},
+							"name": {
+								"$ref": "#/components/schemas/tiers"
+							}
+						}
+					},
+					"map": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"name": {
+								"$ref": "#/components/schemas/maps"
+							}
+						}
+					},
+					"season": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"short": {
+								"$ref": "#/components/schemas/seasons"
+							}
+						}
+					},
+					"ranking_in_tier": {
+						"type": "number"
+					},
+					"last_mmr_change": {
+						"type": "number"
+					},
+					"elo": {
+						"type": "number"
+					},
+					"date": {
+						"type": "string",
+						"format": "date-time"
+					}
+				}
+			},
+			"v1_stored_mmr_history": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"name": {
+						"type": "string"
+					},
+					"tag": {
+						"type": "string"
+					},
+					"results": {
+						"type": "object",
+						"properties": {
+							"total": {
+								"type": "number"
+							},
+							"returned": {
+								"type": "number"
+							},
+							"before": {
+								"type": "number"
+							},
+							"after": {
+								"type": "number"
+							}
+						}
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v1_stored_mmr_history_item"
+						}
+					}
+				}
+			},
+			"v1_account": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"puuid": {
+								"type": "string"
+							},
+							"region": {
+								"type": "string"
+							},
+							"account_level": {
+								"type": "integer"
+							},
+							"name": {
+								"type": "string",
+								"nullable": true
+							},
+							"tag": {
+								"type": "string",
+								"nullable": true
+							},
+							"card": {
+								"type": "object",
+								"properties": {
+									"small": {
+										"type": "string"
+									},
+									"large": {
+										"type": "string"
+									},
+									"wide": {
+										"type": "string"
+									},
+									"id": {
+										"type": "string"
+									}
+								}
+							},
+							"last_update": {
+								"type": "string"
+							},
+							"last_update_raw": {
+								"type": "integer"
+							}
+						}
+					}
+				}
+			},
+			"v2_account": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"puuid": {
+								"type": "string"
+							},
+							"region": {
+								"type": "string"
+							},
+							"account_level": {
+								"type": "integer"
+							},
+							"name": {
+								"type": "string",
+								"nullable": true
+							},
+							"tag": {
+								"type": "string",
+								"nullable": true
+							},
+							"card": {
+								"type": "string"
+							},
+							"title": {
+								"type": "string"
+							},
+							"platforms": {
+								"type": "array",
+								"items": {
+									"type": "string"
+								}
+							},
+							"updated_at": {
+								"type": "string",
+								"format": "date-time"
+							}
+						}
+					}
+				}
+			},
+			"v3_mmr": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer",
+						"format": "int32",
+						"example": 200
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"account": {
+								"type": "object",
+								"properties": {
+									"puuid": {
+										"type": "string",
+										"format": "uuid"
+									},
+									"name": {
+										"type": "string",
+										"example": "Henrik3"
+									},
+									"tag": {
+										"type": "string",
+										"example": "VALO"
+									}
+								}
+							},
+							"peak": {
+								"nullable": true,
+								"type": "object",
+								"properties": {
+									"season": {
+										"$ref": "#/components/schemas/season_id_short_combo"
+									},
+									"ranking_schema": {
+										"$ref": "#/components/schemas/ranking_schemas"
+									},
+									"rr": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"tier": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "integer",
+												"format": "int32",
+												"minimum": 0,
+												"maximum": 27
+											},
+											"name": {
+												"$ref": "#/components/schemas/tiers"
+											}
+										}
+									}
+								}
+							},
+							"current": {
+								"type": "object",
+								"properties": {
+									"tier": {
+										"type": "object",
+										"properties": {
+											"id": {
+												"type": "integer",
+												"format": "int32",
+												"minimum": 0,
+												"maximum": 27
+											},
+											"name": {
+												"$ref": "#/components/schemas/tiers"
+											}
+										}
+									},
+									"rr": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"last_change": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"elo": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"games_needed_for_rating": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"rank_protection_shields": {
+										"type": "integer",
+										"format": "int32"
+									},
+									"leaderboard_placement": {
+										"nullable": true,
+										"type": "object",
+										"properties": {
+											"rank": {
+												"type": "integer",
+												"format": "int32"
+											},
+											"updated_at": {
+												"type": "string",
+												"format": "date-time"
+											}
+										}
+									}
+								}
+							},
+							"seasonal": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"season": {
+											"$ref": "#/components/schemas/season_id_short_combo"
+										},
+										"wins": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"games": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"end_tier": {
+											"type": "object",
+											"properties": {
+												"id": {
+													"type": "integer",
+													"format": "int32",
+													"minimum": 0,
+													"maximum": 27
+												},
+												"name": {
+													"$ref": "#/components/schemas/tiers"
+												}
+											}
+										},
+										"end_rr": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"ranking_schema": {
+											"$ref": "#/components/schemas/ranking_schemas"
+										},
+										"leaderboard_placement": {
+											"nullable": true,
+											"type": "object",
+											"properties": {
+												"rank": {
+													"type": "integer",
+													"format": "int32"
+												},
+												"updated_at": {
+													"type": "string",
+													"format": "date-time"
+												}
+											}
+										},
+										"act_wins": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"id": {
+														"type": "integer",
+														"format": "int32",
+														"minimum": 0,
+														"maximum": 27
+													},
+													"name": {
+														"$ref": "#/components/schemas/tiers"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v4_match": {
+				"type": "object",
+				"properties": {
+					"metadata": {
+						"type": "object",
+						"properties": {
+							"match_id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"map": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string",
+										"format": "uuid"
+									},
+									"name": {
+										"type": "string",
+										"example": "Ascent"
+									}
+								}
+							},
+							"game_version": {
+								"type": "string",
+								"example": "release-08.11-shipping-51-2606987"
+							},
+							"game_length_in_ms": {
+								"type": "integer",
+								"format": "int64"
+							},
+							"started_at": {
+								"type": "string",
+								"format": "date-time"
+							},
+							"is_completed": {
+								"type": "boolean"
+							},
+							"queue": {
+								"type": "object",
+								"properties": {
+									"id": {
+										"type": "string",
+										"example": "competitive"
+									},
+									"name": {
+										"nullable": true,
+										"type": "string",
+										"example": "Competitive"
+									},
+									"mode_type": {
+										"nullable": true,
+										"type": "string",
+										"example": "Standard"
+									}
+								}
+							},
+							"season": {
+								"$ref": "#/components/schemas/season_id_short_combo"
+							},
+							"platform": {
+								"$ref": "#/components/schemas/platforms"
+							},
+							"premier": {
+								"nullable": true,
+								"type": "object"
+							},
+							"party_rr_penaltys": {
+								"type": "array",
+								"items": {
+									"type": "object",
+									"properties": {
+										"party_id": {
+											"type": "string",
+											"format": "uuid"
+										},
+										"penalty": {
+											"type": "integer",
+											"format": "f32"
+										}
+									}
+								}
+							},
+							"region": {
+								"$ref": "#/components/schemas/affinities"
+							},
+							"cluster": {
+								"type": "string",
+								"nullable": true,
+								"example": "Frankfurt 1"
+							}
+						}
+					},
+					"players": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"puuid": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"name": {
+									"type": "string",
+									"example": "Henrik3"
+								},
+								"tag": {
+									"type": "string",
+									"example": "VALO"
+								},
+								"team_id": {
+									"type": "string",
+									"example": "Red"
+								},
+								"platform": {
+									"type": "string",
+									"example": "xbox"
+								},
+								"party_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"agent": {
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"format": "uuid"
+										},
+										"name": {
+											"nullable": true,
+											"type": "string",
+											"example": "Sova"
+										}
+									}
+								},
+								"stats": {
+									"type": "object",
+									"properties": {
+										"score": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"kills": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"deaths": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"assists": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"headshots": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"legshots": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"bodyshots": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"damage": {
+											"type": "object",
+											"properties": {
+												"dealt": {
+													"type": "integer",
+													"format": "int32"
+												},
+												"received": {
+													"type": "integer",
+													"format": "int32"
+												}
+											}
+										}
+									}
+								},
+								"ability_casts": {
+									"$ref": "#/components/schemas/v4_match_abilities"
+								},
+								"tier": {
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"name": {
+											"nullable": true,
+											"type": "string",
+											"example": "Diamond 1"
+										}
+									}
+								},
+								"card_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"title_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"prefered_level_border": {
+									"nullable": true,
+									"type": "string",
+									"format": "uuid"
+								},
+								"account_level": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"session_playtime_in_ms": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"behavior": {
+									"type": "object",
+									"properties": {
+										"afk_rounds": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"friendly_fire": {
+											"type": "object",
+											"properties": {
+												"incoming": {
+													"type": "integer",
+													"format": "int32"
+												},
+												"outgoing": {
+													"type": "integer",
+													"format": "int32"
+												}
+											}
+										},
+										"rounds_in_spawn": {
+											"type": "integer",
+											"format": "int32"
+										}
+									}
+								},
+								"economy": {
+									"type": "object",
+									"properties": {
+										"spent": {
+											"type": "object",
+											"properties": {
+												"overall": {
+													"type": "integer",
+													"format": "f32"
+												},
+												"average": {
+													"type": "integer",
+													"format": "f32"
+												}
+											}
+										},
+										"loadout_value": {
+											"type": "object",
+											"properties": {
+												"overall": {
+													"type": "integer",
+													"format": "f32"
+												},
+												"average": {
+													"type": "integer",
+													"format": "f32"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"observers": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"puuid": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"name": {
+									"type": "string",
+									"example": "HunterNation"
+								},
+								"tag": {
+									"type": "string",
+									"example": "OBSV"
+								},
+								"account_level": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"session_playtime_in_ms": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"card_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"title_id": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"party_id": {
+									"type": "string",
+									"format": "uuid"
+								}
+							}
+						}
+					},
+					"coaches": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"puuid": {
+									"type": "string",
+									"format": "uuid"
+								},
+								"team_id": {
+									"type": "string",
+									"example": "Red"
+								}
+							}
+						}
+					},
+					"teams": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"team_id": {
+									"type": "string",
+									"example": "Red"
+								},
+								"rounds": {
+									"type": "object",
+									"properties": {
+										"won": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"lost": {
+											"type": "integer",
+											"format": "int32"
+										}
+									}
+								},
+								"won": {
+									"type": "boolean"
+								},
+								"premier_roster": {
+									"nullable": true,
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string",
+											"format": "uuid"
+										},
+										"name": {
+											"type": "string",
+											"example": "VALO DE"
+										},
+										"tag": {
+											"type": "string",
+											"example": "VALO"
+										},
+										"members": {
+											"type": "array",
+											"items": {
+												"type": "string",
+												"format": "uuid"
+											}
+										},
+										"customization": {
+											"type": "object",
+											"properties": {
+												"icon": {
+													"type": "string",
+													"format": "url"
+												},
+												"image": {
+													"type": "string",
+													"format": "uuid"
+												},
+												"primary_color": {
+													"type": "string",
+													"example": "#000000"
+												},
+												"secondary_color": {
+													"type": "string",
+													"example": "#252525"
+												},
+												"tertiary_color": {
+													"type": "string",
+													"example": "#ffffff"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"rounds": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"id": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"result": {
+									"type": "string",
+									"example": "Detonate"
+								},
+								"ceremony": {
+									"type": "string",
+									"example": "CeremonyCloser"
+								},
+								"winning_team": {
+									"type": "string",
+									"example": "Red"
+								},
+								"plant": {
+									"nullable": true,
+									"type": "object",
+									"properties": {
+										"round_time_in_ms": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"site": {
+											"type": "string",
+											"example": "B"
+										},
+										"location": {
+											"$ref": "#/components/schemas/v4_match_location"
+										},
+										"player": {
+											"$ref": "#/components/schemas/v4_match_round_player"
+										},
+										"player_locations": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/v4_match_rounds_player_location"
+											}
+										}
+									}
+								},
+								"defuse": {
+									"nullable": true,
+									"type": "object",
+									"properties": {
+										"round_time_in_ms": {
+											"type": "integer",
+											"format": "int32"
+										},
+										"location": {
+											"$ref": "#/components/schemas/v4_match_location"
+										},
+										"player": {
+											"$ref": "#/components/schemas/v4_match_round_player"
+										},
+										"player_locations": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/v4_match_rounds_player_location"
+											}
+										}
+									}
+								},
+								"stats": {
+									"type": "array",
+									"items": {
+										"type": "object",
+										"properties": {
+											"ability_casts": {
+												"$ref": "#/components/schemas/v4_match_abilities"
+											},
+											"player": {
+												"$ref": "#/components/schemas/v4_match_round_player"
+											},
+											"damage_events": {
+												"type": "array",
+												"items": {
+													"type": "object",
+													"properties": {
+														"puuid": {
+															"type": "string",
+															"format": "uuid"
+														},
+														"name": {
+															"type": "string",
+															"example": "Henrik3"
+														},
+														"tag": {
+															"type": "string",
+															"example": "VALO"
+														},
+														"team": {
+															"type": "string",
+															"example": "Red"
+														},
+														"bodyshots": {
+															"type": "integer",
+															"format": "int32"
+														},
+														"headshots": {
+															"type": "integer",
+															"format": "int32"
+														},
+														"legshots": {
+															"type": "integer",
+															"format": "int32"
+														},
+														"damage": {
+															"type": "integer",
+															"format": "int32"
+														}
+													}
+												}
+											},
+											"stats": {
+												"type": "object",
+												"properties": {
+													"bodyshots": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"headshots": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"legshots": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"damage": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"kills": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"assists": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"score": {
+														"type": "integer",
+														"format": "int32"
+													}
+												}
+											},
+											"economy": {
+												"type": "object",
+												"properties": {
+													"loadout_value": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"remaining": {
+														"type": "integer",
+														"format": "int32"
+													},
+													"weapon": {
+														"type": "object",
+														"properties": {
+															"id": {
+																"nullable": true,
+																"type": "string"
+															},
+															"name": {
+																"nullable": true,
+																"type": "string",
+																"example": "Vandal"
+															},
+															"type": {
+																"$ref": "#/components/schemas/weapon_types"
+															}
+														}
+													},
+													"armor": {
+														"nullable": true,
+														"type": "object",
+														"properties": {
+															"id": {
+																"type": "string",
+																"format": "uuid"
+															},
+															"name": {
+																"type": "string",
+																"example": "Heavy Armor"
+															}
+														}
+													}
+												}
+											},
+											"was_afk": {
+												"type": "boolean"
+											},
+											"received_penalty": {
+												"type": "boolean"
+											},
+											"stayed_in_spawn": {
+												"type": "boolean"
+											}
+										}
+									}
+								}
+							}
+						}
+					},
+					"kills": {
+						"type": "array",
+						"items": {
+							"type": "object",
+							"properties": {
+								"round": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"time_in_round_in_ms": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"time_in_match_in_ms": {
+									"type": "integer",
+									"format": "int32"
+								},
+								"killer": {
+									"$ref": "#/components/schemas/v4_match_round_player"
+								},
+								"victim": {
+									"$ref": "#/components/schemas/v4_match_round_player"
+								},
+								"assistants": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/v4_match_round_player"
+									}
+								},
+								"location": {
+									"$ref": "#/components/schemas/v4_match_location"
+								},
+								"weapon": {
+									"type": "object",
+									"properties": {
+										"id": {
+											"type": "string"
+										},
+										"name": {
+											"nullable": true,
+											"type": "string",
+											"example": "Vandal"
+										},
+										"type": {
+											"$ref": "#/components/schemas/weapon_types"
+										}
+									}
+								},
+								"secondary_fire_mode": {
+									"type": "boolean"
+								},
+								"player_locations": {
+									"type": "array",
+									"items": {
+										"$ref": "#/components/schemas/v4_match_rounds_player_location"
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"v4_match_rounds_player_location": {
+				"type": "object",
+				"properties": {
+					"puuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"name": {
+						"type": "string",
+						"example": "Henrik3"
+					},
+					"tag": {
+						"type": "string",
+						"example": "VALO"
+					},
+					"team": {
+						"type": "string",
+						"example": "Red"
+					},
+					"view_radians": {
+						"type": "integer",
+						"format": "f32"
+					},
+					"location": {
+						"$ref": "#/components/schemas/v4_match_location"
+					}
+				}
+			},
+			"v4_match_round_player": {
+				"type": "object",
+				"properties": {
+					"puuid": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"name": {
+						"type": "string",
+						"example": "Henrik3"
+					},
+					"tag": {
+						"type": "string",
+						"example": "VALO"
+					},
+					"team": {
+						"type": "string",
+						"example": "Red"
+					}
+				}
+			},
+			"v4_match_location": {
+				"nullable": true,
+				"type": "object",
+				"properties": {
+					"x": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"y": {
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"v4_match_abilities": {
+				"type": "object",
+				"properties": {
+					"grenade": {
+						"nullable": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					"ability_1": {
+						"nullable": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					"ability_2": {
+						"nullable": true,
+						"type": "integer",
+						"format": "int32"
+					},
+					"ultimate": {
+						"nullable": true,
+						"type": "integer",
+						"format": "int32"
+					}
+				}
+			},
+			"v2_stored_mmr_history": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"results": {
+						"type": "object",
+						"properties": {
+							"total": {
+								"type": "number"
+							},
+							"returned": {
+								"type": "number"
+							},
+							"before": {
+								"type": "number"
+							},
+							"after": {
+								"type": "number"
+							}
+						}
+					},
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/v2_stored_mmr_history_item"
+						}
+					}
+				}
+			},
+			"v2_stored_mmr_history_item": {
+				"type": "object",
+				"properties": {
+					"match_id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"tier": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "number"
+							},
+							"name": {
+								"$ref": "#/components/schemas/tiers"
+							}
+						}
+					},
+					"map": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"name": {
+								"$ref": "#/components/schemas/maps"
+							}
+						}
+					},
+					"season": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"short": {
+								"$ref": "#/components/schemas/seasons"
+							}
+						}
+					},
+					"rr": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"last_change": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"elo": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"refunded_rr": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"was_derank_protected": {
+						"type": "boolean"
+					},
+					"date": {
+						"type": "string",
+						"format": "date-time"
+					}
+				}
+			},
+			"v2_mmr_history": {
+				"type": "object",
+				"properties": {
+					"status": {
+						"type": "integer"
+					},
+					"data": {
+						"type": "object",
+						"properties": {
+							"account": {
+								"type": "object",
+								"properties": {
+									"puuid": {
+										"type": "string",
+										"format": "uuid"
+									},
+									"name": {
+										"type": "string",
+										"example": "Henrik3"
+									},
+									"tag": {
+										"type": "string",
+										"example": "VALO"
+									}
+								}
+							},
+							"history": {
+								"type": "array",
+								"items": {
+									"$ref": "#/components/schemas/v2_mmr_history_item"
+								}
+							}
+						}
+					}
+				}
+			},
+			"v2_mmr_history_item": {
+				"type": "object",
+				"properties": {
+					"match_id": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"tier": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "number"
+							},
+							"name": {
+								"$ref": "#/components/schemas/tiers"
+							}
+						}
+					},
+					"map": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"name": {
+								"$ref": "#/components/schemas/maps"
+							}
+						}
+					},
+					"season": {
+						"type": "object",
+						"properties": {
+							"id": {
+								"type": "string",
+								"format": "uuid"
+							},
+							"short": {
+								"$ref": "#/components/schemas/seasons"
+							}
+						}
+					},
+					"rr": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"last_change": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"elo": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"refunded_rr": {
+						"type": "integer",
+						"format": "int32"
+					},
+					"was_derank_protected": {
+						"type": "boolean"
+					},
+					"date": {
+						"type": "string",
+						"format": "date-time"
+					}
+				}
+			}
+		},
+		"securitySchemes": {
+			"ApiKeyAuth": {
+				"type": "apiKey",
+				"in": "header",
+				"name": "Authorization"
+			}
+		}
+	},
+	"paths": {
+		"/valorant/v1/account/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "force",
+					"schema": {
+						"type": "boolean"
+					},
+					"description": "Force data update"
+				}
+			],
+			"get": {
+				"description": "Get account details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_account"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/account/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "force",
+					"schema": {
+						"type": "boolean"
+					},
+					"description": "Force data update"
+				}
+			],
+			"get": {
+				"description": "Get account details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2_account"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/by-puuid/account/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "puuid",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "force",
+					"schema": {
+						"type": "boolean"
+					},
+					"description": "Force data update"
+				}
+			],
+			"get": {
+				"description": "Get account details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_account"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/by-puuid/account/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "puuid",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "force",
+					"schema": {
+						"type": "boolean"
+					},
+					"description": "Force data update"
+				}
+			],
+			"get": {
+				"description": "Get account details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_account"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v3/by-puuid/matches/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"description": "Available for v3 matches",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "Available for v3 matches (how many matches should be returned)",
+					"schema": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 10
+					}
+				}
+			],
+			"get": {
+				"description": "Get Match History",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Array of Match data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v3matches"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v4/by-puuid/matches/{region}/{platform}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "puuid",
+					"schema": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "platform",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"description": "Filter by map",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "How many matches should be returned",
+					"schema": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 10
+					}
+				},
+				{
+					"in": "query",
+					"name": "start",
+					"description": "Pagination starting point",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get Match History",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Array of matches",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/v4_match"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/by-puuid/mmr/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get MMR Details",
+				"deprecated": true,
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/by-puuid/mmr/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "season",
+					"schema": {
+						"$ref": "#/components/schemas/seasons"
+					},
+					"description": "Available for v2 MMR"
+				}
+			],
+			"get": {
+				"description": "Get MMR Details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v3/by-puuid/mmr/{region}/{platform}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"description": "Platform (console/pc)",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get MMR details, leaderboard placement and more",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v3_mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/by-puuid/mmr-history/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get mmr history",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "mmr history",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1mmrh"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/by-puuid/mmr-history/{region}/{platform}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"description": "Platform",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get MMR History v2",
+				"responses": {
+					"4XX": {
+						"$ref": "#/components/responses/4XX"
+					},
+					"5XX": {
+						"$ref": "#/components/responses/5XX"
+					},
+					"200": {
+						"description": "MMR History Data v2",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/by-puuid/stored-matches/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of returned matches",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored matches on the server for this user",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_stored_matches"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/by-puuid/stored-mmr-history/{region}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of mmr changes",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored mmr history entries from the server",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR History Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_stored_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/by-puuid/stored-mmr-history/{region}/{platform}/{puuid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				},
+				{
+					"in": "path",
+					"name": "puuid",
+					"description": "PUUID of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of mmr changes",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored mmr history entries from the server",
+				"responses": {
+					"4XX": {
+						"$ref": "#/components/responses/4XX"
+					},
+					"5XX": {
+						"$ref": "#/components/responses/5XX"
+					},
+					"200": {
+						"description": "MMR History Data v2",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2_stored_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/content": {
+			"parameters": [
+				{
+					"in": "query",
+					"name": "locale",
+					"schema": {
+						"type": "string",
+						"enum": [
+							"ar-AE",
+							"de-DE",
+							"en-GB",
+							"en-US",
+							"es-ES",
+							"es-MX",
+							"fr-FR",
+							"id-ID",
+							"it-IT",
+							"ja-JP",
+							"ko-KR",
+							"pl-PL",
+							"pt-BR",
+							"ru-RU",
+							"th-TH",
+							"tr-TR",
+							"vi-VN",
+							"zn-CN",
+							"zn-TW"
+						]
+					}
+				}
+			],
+			"get": {
+				"description": "Get content",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"500": {
+						"$ref": "#/components/responses/500"
+					},
+					"200": {
+						"description": "Content",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"version": {
+											"type": "string"
+										},
+										"characters": {
+											"$ref": "#/components/schemas/content"
+										},
+										"maps": {
+											"$ref": "#/components/schemas/content"
+										},
+										"chromas": {
+											"$ref": "#/components/schemas/content"
+										},
+										"skins": {
+											"$ref": "#/components/schemas/content"
+										},
+										"skinLevels": {
+											"$ref": "#/components/schemas/content"
+										},
+										"equips": {
+											"$ref": "#/components/schemas/content"
+										},
+										"gameModes": {
+											"$ref": "#/components/schemas/content"
+										},
+										"sprays": {
+											"$ref": "#/components/schemas/content"
+										},
+										"sprayLevels": {
+											"$ref": "#/components/schemas/content"
+										},
+										"charms": {
+											"$ref": "#/components/schemas/content"
+										},
+										"charmLevels": {
+											"$ref": "#/components/schemas/content"
+										},
+										"playerCards": {
+											"$ref": "#/components/schemas/content"
+										},
+										"playerTitles": {
+											"$ref": "#/components/schemas/content"
+										},
+										"acts": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"name": {
+														"type": "string"
+													},
+													"localizedNames": {
+														"type": "array",
+														"items": {
+															"type": "object",
+															"properties": {
+																"ar-AE": {
+																	"type": "string"
+																},
+																"de-DE": {
+																	"type": "string"
+																},
+																"en-GB": {
+																	"type": "string"
+																},
+																"en-US": {
+																	"type": "string"
+																},
+																"es-ES": {
+																	"type": "string"
+																},
+																"es-MX": {
+																	"type": "string"
+																},
+																"fr-FR": {
+																	"type": "string"
+																},
+																"id-ID": {
+																	"type": "string"
+																},
+																"it-IT": {
+																	"type": "string"
+																},
+																"ja-JP": {
+																	"type": "string"
+																},
+																"ko-KR": {
+																	"type": "string"
+																},
+																"pl-PL": {
+																	"type": "string"
+																},
+																"pt-BR": {
+																	"type": "string"
+																},
+																"ru-RU": {
+																	"type": "string"
+																},
+																"th-TH": {
+																	"type": "string"
+																},
+																"tr-TR": {
+																	"type": "string"
+																},
+																"vi-VN": {
+																	"type": "string"
+																},
+																"zn-CN": {
+																	"type": "string"
+																},
+																"zn-TW": {
+																	"type": "string"
+																}
+															}
+														}
+													},
+													"id": {
+														"type": "string"
+													},
+													"isActive": {
+														"type": "boolean"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/crosshair/generate": {
+			"parameters": [
+				{
+					"in": "query",
+					"name": "id",
+					"description": "ID of the crosshair",
+					"schema": {
+						"type": "string"
+					}
+				}
+			],
+			"get": {
+				"description": "Outputs a 1024x1024 pixel image of the requested crosshair",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Image of the crosshair",
+						"content": {
+							"image/png": {
+								"schema": {
+									"type": "string",
+									"format": "binary"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/esports/schedule": {
+			"parameters": [
+				{
+					"in": "query",
+					"name": "region",
+					"description": "region of the game (multiple possible)",
+					"schema": {
+						"type": "string",
+						"enum": [
+							"international",
+							"north america",
+							"emea",
+							"brazil",
+							"japan",
+							"korea",
+							"latin_america",
+							"latin_america_south",
+							"latin_america_north",
+							"southeast_asia",
+							"vietnam",
+							"oceania"
+						]
+					}
+				},
+				{
+					"in": "query",
+					"name": "league",
+					"description": "league of the game (multiple possible, these also can be highly dynamic if riot announces new tournaments/leagues)",
+					"schema": {
+						"type": "string",
+						"enum": [
+							"vct_americas",
+							"challengers_na",
+							"game_changers_na",
+							"vct_emea",
+							"vct_pacific",
+							"challengers_br",
+							"challengers_jpn",
+							"challengers_kr",
+							"challengers_latam",
+							"challengers_latam_n",
+							"challengers_latam_s",
+							"challengers_apac",
+							"challengers_sea_id",
+							"challengers_sea_ph",
+							"challengers_sea_sg_and_my",
+							"challengers_sea_th",
+							"challengers_sea_hk_and_tw",
+							"challengers_sea_vn",
+							"valorant_oceania_tour",
+							"challengers_south_asia",
+							"game_changers_sea",
+							"game_changers_series_brazil",
+							"game_changers_east_asia",
+							"game_changers_emea",
+							"game_changers_jpn",
+							"game_changers_kr",
+							"game_changers_latam",
+							"game_changers_championship",
+							"masters",
+							"last_chance_qualifier_apac",
+							"last_chance_qualifier_east_asia",
+							"last_chance_qualifier_emea",
+							"last_chance_qualifier_na",
+							"last_chance_qualifier_br_and_latam",
+							"vct_lock_in",
+							"champions",
+							"vrl_spain",
+							"vrl_northern_europe",
+							"vrl_dach",
+							"vrl_france",
+							"vrl_east",
+							"vrl_turkey",
+							"vrl_cis",
+							"mena_resilence",
+							"challengers_italy",
+							"challengers_portugal"
+						]
+					}
+				}
+			],
+			"get": {
+				"description": "Returns esports schedule data",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "esports schedule data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1esportschedule"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/leaderboard/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "query",
+					"name": "puuid",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "name",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "tag",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "season",
+					"description": "Returns the leaderboard for a specific season",
+					"schema": {
+						"$ref": "#/components/schemas/seasons"
+					}
+				}
+			],
+			"get": {
+				"description": "Get Leaderboard",
+				"deprecated": true,
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"500": {
+						"$ref": "#/components/responses/500"
+					},
+					"200": {
+						"description": "Leaderboard Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/leaderboard/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "query",
+					"name": "puuid",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "name",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "tag",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "season",
+					"description": "Returns the leaderboard for a specific season",
+					"schema": {
+						"$ref": "#/components/schemas/seasons"
+					}
+				}
+			],
+			"get": {
+				"description": "Get Leaderboard",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"500": {
+						"$ref": "#/components/responses/500"
+					},
+					"200": {
+						"description": "Leaderboard Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v3/leaderboard/{region}/{platform}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				},
+				{
+					"in": "query",
+					"name": "puuid",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "name",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "tag",
+					"description": "Note that you can only filter by puuid or name and tag, both at the same time is logically not possible",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "season_short",
+					"description": "Returns the leaderboard for a specific season by short season (cannot be used in combination mit season_id)",
+					"schema": {
+						"$ref": "#/components/schemas/seasons"
+					}
+				},
+				{
+					"in": "query",
+					"name": "season_id",
+					"description": "Returns the leaderboard for a specific season by it's real id (cannot be used in combination mit season_short)",
+					"schema": {
+						"type": "string",
+						"example": "4539cac3-47ae-90e5-3d01-b3812ca3274e"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "Number of players returned",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "start_index",
+					"description": "Pagination starting point",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get Leaderboard (latest version)",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"500": {
+						"$ref": "#/components/responses/500"
+					},
+					"200": {
+						"description": "Includes leaderboard data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v3_leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v3/matches/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"description": "Filter by map",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "How many matches should be returned",
+					"schema": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 10
+					}
+				}
+			],
+			"get": {
+				"description": "Get Match History",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Array of Match data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/match"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v4/matches/{region}/{platform}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "platform",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"description": "Filter by map",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "How many matches should be returned",
+					"schema": {
+						"type": "integer",
+						"minimum": 1,
+						"maximum": 10
+					}
+				},
+				{
+					"in": "query",
+					"name": "start",
+					"description": "Pagination starting point",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get Match History",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Array of matches",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"$ref": "#/components/schemas/v4_match"
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/match/{matchid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "matchid",
+					"schema": {
+						"type": "string",
+						"format": "uuid",
+						"example": "696848f3-f16f-45bf-af13-e2192f81a600"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get Match Deatils",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Match data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"$ref": "#/components/schemas/match"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v4/match/{region}/{matchid}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "matchid",
+					"schema": {
+						"type": "string",
+						"format": "uuid",
+						"example": "696848f3-f16f-45bf-af13-e2192f81a600"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get Match Deatils",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Match data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"$ref": "#/components/schemas/v4_match"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/mmr-history/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				}
+			],
+			"get": {
+				"description": "Get MMR History",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR History Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1mmrh"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/mmr-history/{region}/{platform}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				},
+				{
+					"in": "path",
+					"required": true,
+					"name": "platform",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				}
+			],
+			"get": {
+				"description": "Get MMR History v2",
+				"responses": {
+					"4XX": {
+						"$ref": "#/components/responses/4XX"
+					},
+					"5XX": {
+						"$ref": "#/components/responses/5XX"
+					},
+					"200": {
+						"description": "MMR History Data v2",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/mmr/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get mmr details",
+				"deprecated": true,
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/mmr/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "season",
+					"schema": {
+						"$ref": "#/components/schemas/seasons"
+					},
+					"description": "Available for v2 mmr only"
+				}
+			],
+			"get": {
+				"description": "Get mmr details",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v3/mmr/{region}/{platform}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "name",
+					"description": "Name of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"description": "Tag of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"description": "Platform (console/pc)",
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get MMR details, leaderboard placement and more",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR response",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v3_mmr"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/{team_name}/{team_tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "team_name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "team_tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get details about a premier team",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_team"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/{team_name}/{team_tag}/history": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "team_name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "team_tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get match history of a premier team",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Premier Team History Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_team_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/{team_id}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "team_id",
+					"schema": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get details about a premier team",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_team"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/{team_id}/history": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "team_id",
+					"schema": {
+						"type": "string",
+						"format": "uuid"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get match history of a premier team",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Premier Team History Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_team_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/search": {
+			"parameters": [
+				{
+					"in": "query",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					}
+				},
+				{
+					"in": "query",
+					"name": "division",
+					"schema": {
+						"type": "number",
+						"minimum": 1,
+						"maximum": 20
+					}
+				},
+				{
+					"in": "query",
+					"name": "conference",
+					"schema": {
+						"$ref": "#/components/schemas/premier_conferences"
+					}
+				}
+			],
+			"get": {
+				"description": "Search for current active premier teams",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Partial Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_search"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/conferences": {
+			"get": {
+				"description": "Get a list of all premier conferences",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Conference Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_conference"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/seasons/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get a list of all premier seasons",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Permier Seasons Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_season"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/leaderboard/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get a combined leaderboard in the affinity, sorted by div and ranking",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Partial Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/leaderboard/{region}/{conference}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "conference",
+					"schema": {
+						"$ref": "#/components/schemas/premier_conferences"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get a combined leaderboard in the conference, sorted by div and ranking",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Partial Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/premier/leaderboard/{region}/{conference}/{division}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "conference",
+					"schema": {
+						"$ref": "#/components/schemas/premier_conferences"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "division",
+					"schema": {
+						"type": "number",
+						"minimum": 1,
+						"maximum": 20
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get a combined leaderboard in the conference, sorted by ranking in that div",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Partial Premier Team Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_premier_leaderboard"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/queue-status/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				}
+			],
+			"get": {
+				"description": "Get a list of all available queues and their metadata",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Queue metadata",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_queue_status"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/raw": {
+			"post": {
+				"description": "Get unchanged response from the valorant api",
+				"requestBody": {
+					"description": "Post body to receive data",
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {
+								"type": "object",
+								"properties": {
+									"type": {
+										"type": "string",
+										"description": "Can also be an array",
+										"example": "matchdetails"
+									},
+									"value": {
+										"type": "string",
+										"example": "696848f3-f16f-45bf-af13-e2192f81a600"
+									},
+									"region": {
+										"type": "string",
+										"example": "eu"
+									},
+									"queries": {
+										"type": "string",
+										"nullable": true
+									}
+								}
+							}
+						}
+					}
+				},
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "https://github.com/techchrism/valorant-api-docs/"
+					}
+				}
+			}
+		},
+		"/valorant/v1/status/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				}
+			],
+			"get": {
+				"description": "Server status",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Server status details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"region": {
+											"type": "string",
+											"example": "eu"
+										},
+										"data": {
+											"type": "object",
+											"properties": {
+												"maintenances": {
+													"$ref": "#/components/schemas/status"
+												},
+												"incidents": {
+													"$ref": "#/components/schemas/status"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/stored-matches/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "mode",
+					"schema": {
+						"$ref": "#/components/schemas/modes_api"
+					}
+				},
+				{
+					"in": "query",
+					"name": "map",
+					"schema": {
+						"$ref": "#/components/schemas/maps"
+					}
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of returned matches",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored matches on the server for this user",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Account details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_stored_matches"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/stored-mmr-history/{region}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "name",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of returned mmr changes",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored mmr history entries from the server",
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"410": {
+						"$ref": "#/components/responses/410"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"501": {
+						"$ref": "#/components/responses/501"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR History Data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1_stored_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/stored-mmr-history/{region}/{platform}/{name}/{tag}": {
+			"parameters": [
+				{
+					"in": "path",
+					"name": "region",
+					"description": "Choose from ap, br, eu, kr, latam, na (br and latam will be internally converted to na)",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "platform",
+					"required": true,
+					"schema": {
+						"$ref": "#/components/schemas/platforms"
+					}
+				},
+				{
+					"in": "path",
+					"name": "name",
+					"description": "Name of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "path",
+					"name": "tag",
+					"description": "Tag of the user",
+					"schema": {
+						"type": "string"
+					},
+					"required": true
+				},
+				{
+					"in": "query",
+					"name": "page",
+					"description": "The page used in pagination (if this is used, the size query parameter also have to exist)",
+					"schema": {
+						"type": "integer"
+					}
+				},
+				{
+					"in": "query",
+					"name": "size",
+					"description": "The amount of mmr changes",
+					"schema": {
+						"type": "integer"
+					}
+				}
+			],
+			"get": {
+				"description": "Get all stored mmr history entries from the server",
+				"responses": {
+					"4XX": {
+						"$ref": "#/components/responses/4XX"
+					},
+					"5XX": {
+						"$ref": "#/components/responses/5XX"
+					},
+					"200": {
+						"description": "MMR History Data v2",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2_stored_mmr_history"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/store-featured": {
+			"get": {
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v1storefeatured"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v2/store-featured": {
+			"get": {
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "MMR Details",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/v2storefeatured"
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/version/{region}": {
+			"parameters": [
+				{
+					"in": "path",
+					"required": true,
+					"name": "region",
+					"schema": {
+						"$ref": "#/components/schemas/affinities"
+					}
+				}
+			],
+			"get": {
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Versioning for the VALORANT API",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"type": "object",
+											"properties": {
+												"version": {
+													"type": "string",
+													"example": "04.00.00.655657"
+												},
+												"clientVersion": {
+													"type": "string",
+													"example": "release-04.00-shipping-20-655657"
+												},
+												"branch": {
+													"type": "string",
+													"example": "release-04.00"
+												},
+												"region": {
+													"type": "string",
+													"example": "EU"
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/valorant/v1/website/{countrycode}": {
+			"parameters": [
+				{
+					"in": "path",
+					"required": true,
+					"name": "countrycode",
+					"schema": {
+						"type": "string",
+						"enum": [
+							"en-us",
+							"en-gb",
+							"de-de",
+							"es-es",
+							"es-mx",
+							"fr-fr",
+							"it-it",
+							"ja-jp",
+							"ko-kr",
+							"pt-br",
+							"ru-ru",
+							"tr-tr",
+							"vi-vn"
+						]
+					}
+				}
+			],
+			"get": {
+				"responses": {
+					"400": {
+						"$ref": "#/components/responses/400"
+					},
+					"403": {
+						"$ref": "#/components/responses/403"
+					},
+					"404": {
+						"$ref": "#/components/responses/404"
+					},
+					"408": {
+						"$ref": "#/components/responses/408"
+					},
+					"429": {
+						"$ref": "#/components/responses/429"
+					},
+					"503": {
+						"$ref": "#/components/responses/503"
+					},
+					"200": {
+						"description": "Website data",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"status": {
+											"type": "integer",
+											"example": 200
+										},
+										"data": {
+											"type": "array",
+											"items": {
+												"type": "object",
+												"properties": {
+													"banner_url": {
+														"type": "string",
+														"example": "https://images.contentstack.io/v3/assets/bltb6530b271fddd0b1/blta99717d4afdf4126/61ddd1a0997c0e224de0a718/01132022-VANILLE-BTS_Article-banner.jpg"
+													},
+													"category": {
+														"type": "string",
+														"example": "community"
+													},
+													"date": {
+														"type": "string",
+														"example": "2022-01-13T11:00:00.000Z"
+													},
+													"external_link": {
+														"type": "string",
+														"example": "https://www.youtube.com/watch?v=YRFwQy-dZ4o",
+														"nullable": true
+													},
+													"title": {
+														"type": "string",
+														"example": "Die Stimme von Neon // VALORANT"
+													},
+													"url": {
+														"type": "string",
+														"example": "https://playvalorant.com/de-de/news/community/meet-the-voice-of-neon-valorant/"
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

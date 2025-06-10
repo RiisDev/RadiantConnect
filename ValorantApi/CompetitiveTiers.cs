@@ -4,15 +4,15 @@ namespace RadiantConnect.ValorantApi
 {
     public static class CompetitiveTiers
     {
-        public static async Task<CompetitiveTiersData?> GetCompetitiveTiers() => await ValorantApiClient.GetAsync<CompetitiveTiersData>("https://valorant-api.com/v1", "competitivetiers");
+        public static async Task<CompetitiveTiersData?> GetCompetitiveTiersAsync() => await ValorantApiClient.GetAsync<CompetitiveTiersData>("https://valorant-api.com/v1", "competitivetiers");
 
-        public static async Task<CompetitiveTierData?> GetCompetitiveTier(string uuid) => await ValorantApiClient.GetAsync<CompetitiveTierData>("https://valorant-api.com/v1", $"competitivetiers/{uuid}");
+        public static async Task<CompetitiveTierData?> GetCompetitiveTierAsync(string uuid) => await ValorantApiClient.GetAsync<CompetitiveTierData>("https://valorant-api.com/v1", $"competitivetiers/{uuid}");
 
-        public static async Task<CompetitiveTierData?> GetCompetitiveTierByUuid(string uuid) => await GetCompetitiveTier(uuid);
+        public static async Task<CompetitiveTierData?> GetCompetitiveTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid);
 
-        public static async Task<CompetitiveTierData?> GetTierByUuid(string uuid) => await GetCompetitiveTier(uuid);
+        public static async Task<CompetitiveTierData?> GetTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid);
 
-        public record Data(
+        public record CompetitiveDatum(
             [property: JsonPropertyName("uuid")] string Uuid,
             [property: JsonPropertyName("assetObjectName")] string AssetObjectName,
             [property: JsonPropertyName("tiers")] IReadOnlyList<TierData> Tiers,
@@ -21,12 +21,12 @@ namespace RadiantConnect.ValorantApi
 
         public record CompetitiveTiersData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] IReadOnlyList<Data> Data
+            [property: JsonPropertyName("data")] IReadOnlyList<CompetitiveDatum> Data
         );
 
         public record CompetitiveTierData(
             [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] IReadOnlyList<Data> Data
+            [property: JsonPropertyName("data")] IReadOnlyList<CompetitiveDatum> Data
         );
 
         public record TierData(
