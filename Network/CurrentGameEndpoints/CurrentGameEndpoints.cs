@@ -31,6 +31,6 @@ public class CurrentGameEndpoints(Initiator initiator)
 
     public async Task QuitCurrentGameAsync(string userId, string matchId)
     {
-        await initiator.ExternalSystem.Net.GetAsync(Url, $"/core-game/v1/players/{userId}/disassociate/{matchId}");
+        await initiator.ExternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{userId}/disassociate/{matchId}");
     }
 }

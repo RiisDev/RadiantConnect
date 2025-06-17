@@ -34,5 +34,23 @@ public record ValorantPresence(
     [property: JsonPropertyName("accountLevel")] int? AccountLevel,
     [property: JsonPropertyName("competitiveTier")] int? CompetitiveTier,
     [property: JsonPropertyName("leaderboardPosition")] int? LeaderboardPosition,
-    [property: JsonPropertyName("isIdle")] bool? IsIdle
+    [property: JsonPropertyName("isIdle")] bool? IsIdle,
+    [property: JsonPropertyName("tempValueX")] string TempValueX,
+    [property: JsonPropertyName("tempValueY")] string TempValueY,
+    [property: JsonPropertyName("tempValueZ")] bool? TempValueZ,
+    [property: JsonPropertyName("tempValueW")] bool? TempValueW,
+    [property: JsonPropertyName("tempValueV")] int? TempValueV,
+    [property: JsonPropertyName("premierPresenceData")] PremierPresenceData PremierPresenceData
+);
+
+public record PremierPresenceData(
+    [property: JsonPropertyName("rosterId")] string RosterId,
+    [property: JsonPropertyName("rosterName")] string RosterName,
+    [property: JsonPropertyName("rosterTag")] string RosterTag,
+    [property: JsonPropertyName("division")] int? Division,
+    [property: JsonPropertyName("score")] int? Score,
+    [property: JsonPropertyName("tempValueA")] int? TempValueA,
+    [property: JsonPropertyName("tempValueB")] bool? TempValueB,
+    [property: JsonPropertyName("tempValueC")] bool? TempValueC,
+    [property: JsonPropertyName("tempValueD")] bool? TempValueD
 );
