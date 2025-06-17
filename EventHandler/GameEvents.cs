@@ -29,138 +29,121 @@ namespace RadiantConnect.EventHandler
         [SuppressMessage("ReSharper", "StringLiteralTypo")]
         internal void ParseLogText(string logText)
         {
-            string[] fileLines = logText.Split('\n');
+            List<(string Keyword, Action<string, long> Handler)> handlers =
+            [
+                ("Party_ChangeQueue",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Party_ChangeQueue", line, index)),
+                ("Party_EnterMatchmakingQueue",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Party_EnterMatchmakingQueue", line, index)),
+                ("Party_LeaveMatchmakingQueue",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Party_LeaveMatchmakingQueue", line, index)),
+                ("Party_MakePartyIntoCustomGame",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Party_MakePartyIntoCustomGame", line, index)),
+                ("LogTravelManager: Beginning travel to /Game/Maps/Menu/MainMenuV2",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Travel_To_Menu", line, index)),
+                ("LogPlatformSessionManager: Loopstate changed from MENUS to PREGAME",
+                    (line, index) => HandleEvent(Queue.HandleQueueEvent, "Match_Found", line, index)),
 
-            for (long lineIndex = fileLines.Length - 1; lineIndex > LastLineRead; lineIndex--)
-            {
-                string line = fileLines[lineIndex];
+                ("Pregame_GetPlayer",
+                    (line, index) => HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetPlayer", line, index)),
+                ("Pregame_GetMatch",
+                    (line, index) => HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetMatch", line, index)),
+                ("Pregame_LockCharacter",
+                    (line, index) => HandleEvent(PreGame.HandlePreGameEvents, "Pregame_LockCharacter", line, index)),
+                ("Pregame_SelectCharacter",
+                    (line, index) => HandleEvent(PreGame.HandlePreGameEvents, "Pregame_SelectCharacter", line, index)),
 
-                if (line.Contains("Log file closed")) break;
-
-                if (LastLineRead == lineIndex) break;
-                
-                switch (line)
+                ("LogMapLoadModel: Update: [Map Name: ", (line, index) =>
                 {
-                    case var _ when line.Contains("Party_ChangeQueue"):
-                        HandleEvent(Queue.HandleQueueEvent, "Party_ChangeQueue", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_EnterMatchmakingQueue"):
-                        HandleEvent(Queue.HandleQueueEvent, "Party_EnterMatchmakingQueue", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_LeaveMatchmakingQueue"):
-                        HandleEvent(Queue.HandleQueueEvent, "Party_LeaveMatchmakingQueue", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_MakePartyIntoCustomGame"):
-                        HandleEvent(Queue.HandleQueueEvent, "Party_MakePartyIntoCustomGame", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogTravelManager: Beginning travel to /Game/Maps/Menu/MainMenuV2"):
-                        HandleEvent(Queue.HandleQueueEvent, "Travel_To_Menu", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogPlatformSessionManager: Loopstate changed from MENUS to PREGAME"):
-                        HandleEvent(Queue.HandleQueueEvent, "Match_Found", line, lineIndex);
-                        break;
+                    if (line.Contains(
+                            "| Changed: FALSE] [Local World: TRUE | Changed: FALSE] [Match Setup: TRUE | Changed: TRUE] [Map Ready: FALSE | Changed: FALSE] [Map Complete: FALSE | Changed: FALSE]"))
+                        HandleEvent(Match.HandleMatchEvent, "Map_Loaded", line, index);
+                }),
 
-                    case var _ when line.Contains("Pregame_GetPlayer"):
-                        HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetPlayer", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Pregame_GetMatch"):
-                        HandleEvent(PreGame.HandlePreGameEvents, "Pregame_GetMatch", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Pregame_LockCharacter"):
-                        HandleEvent(PreGame.HandlePreGameEvents, "Pregame_LockCharacter", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Pregame_SelectCharacter"):
-                        HandleEvent(PreGame.HandlePreGameEvents, "Pregame_SelectCharacter", line, lineIndex);
-                        break;
+                ("Match Ended: Completion State:", (line, index) =>
+                {
+                    Round.ResetRound();
+                    HandleEvent(Match.HandleMatchEvent, "Match_Ended", line, index);
+                }),
 
-                    case var _ when line.Contains("LogMapLoadModel: Update: [Map Name: ") && line.Contains("| Changed: FALSE] [Local World: TRUE | Changed: FALSE] [Match Setup: TRUE | Changed: TRUE] [Map Ready: FALSE | Changed: FALSE] [Map Complete: FALSE | Changed: FALSE]"):
-                        HandleEvent(Match.HandleMatchEvent, "Map_Loaded", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Match Ended: Completion State:"):
-                        Round.ResetRound();
-                        HandleEvent(Match.HandleMatchEvent, "Match_Ended", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogPlatformSessionManager: Loopstate changed from PREGAME to INGAME"):
-                        Round.ResetRound();
-                        HandleEvent(Match.HandleMatchEvent, "Match_Started", line, lineIndex);
-                        break;
-                    
-                    case var _ when line.Contains("AShooterGameState::OnRoundEnded"):
-                        HandleEvent(Round.HandleRoundEvent, "Round_Ended", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Gameplay started at local time"):
-                        HandleEvent(Round.HandleRoundEvent, "Round_Started", line, lineIndex);
-                        break;
+                ("LogPlatformSessionManager: Loopstate changed from PREGAME to INGAME", (line, index) =>
+                {
+                    Round.ResetRound();
+                    HandleEvent(Match.HandleMatchEvent, "Match_Started", line, index);
+                }),
 
-                    case var _ when line.Contains("LogVoteControllerComponent: Setting vote input bindings enabled to 1"):
-                        HandleEvent(Vote.HandleVoteEvent, "Vote_Called", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogVoteControllerComponent: Making vote request for option "):
-                        HandleEvent(Vote.HandleVoteEvent, "Vote_Invoked", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote SurrenderVote_C"):
-                        HandleEvent(Vote.HandleVoteEvent, "Surrender_Called", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote TimeoutVote_C"):
-                        HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogVoteControllerComponent: Requesting new vote RemakeVoteNew_C"):
-                        HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, lineIndex);
-                        break;
 
-                    case var _ when line.Contains("LogMenuStackManager: Opening preRound"):
-                        HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Closing preRound"):
-                        HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Closed", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogNet: Warning: UNetDriver::ProcessRemoteFunction: No owning connection for actor"):
-                        HandleEvent(InGame.HandleInGameEvent, "Util_Placed", line, lineIndex);
-                        break;
+                ("AShooterGameState::OnRoundEnded",
+                    (line, index) => HandleEvent(Round.HandleRoundEvent, "Round_Ended", line, index)),
+                ("Gameplay started at local time",
+                    (line, index) => HandleEvent(Round.HandleRoundEvent, "Round_Started", line, index)),
 
-                    case var _ when line.Contains("Session_Heartbeat"):
-                        HandleEvent(Misc.HandleInGameEvent, "Session_Heartbeat", line, lineIndex);
-                        break;
+                ("LogVoteControllerComponent: Setting vote input bindings enabled to 1",
+                    (line, index) => HandleEvent(Vote.HandleVoteEvent, "Vote_Called", line, index)),
+                ("LogVoteControllerComponent: Making vote request for option ",
+                    (line, index) => HandleEvent(Vote.HandleVoteEvent, "Vote_Invoked", line, index)),
+                ("LogVoteControllerComponent: Requesting new vote SurrenderVote_C",
+                    (line, index) => HandleEvent(Vote.HandleVoteEvent, "Surrender_Called", line, index)),
+                ("LogVoteControllerComponent: Requesting new vote TimeoutVote_C",
+                    (line, index) => HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, index)),
+                ("LogVoteControllerComponent: Requesting new vote RemakeVoteNew_C",
+                    (line, index) => HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, index)),
 
-                    case var _ when line.Contains("LogRMSService: Received RMS update. URI: /riot-messaging-service/v1/messages/ares-parties/parties/v1/parties/"):
-                        HandleEvent(Party.HandleMatchEvent, "Party_Updated", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_DeclineRequest"):
-                        HandleEvent(Party.HandleMatchEvent, "Party_DeclineRequest", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_InviteToParty"):
-                        HandleEvent(Party.HandleMatchEvent, "Party_InviteToParty", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("Party_SetPreferredGamePods"):
-                        HandleEvent(Party.HandleMatchEvent, "Party_SetPreferredGamePods", line, lineIndex);
-                        break;
+                ("LogMenuStackManager: Opening preRound",
+                    (line, index) => HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Opened", line, index)),
+                ("LogMenuStackManager: Closing preRound",
+                    (line, index) => HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Closed", line, index)),
+                ("LogNet: Warning: UNetDriver::ProcessRemoteFunction: No owning connection for actor",
+                    (line, index) => HandleEvent(InGame.HandleInGameEvent, "Util_Placed", line, index)),
 
-                    case var _ when line.Contains("LogMenuStackManager: Opening BattlepassScreenV2_PC_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "BattlePassScreenV2_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening CharactersScreenV2_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "CharactersScreenV2_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening MatchHistoryScreenWidgetV3_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "MatchHistoryScreenWidgetV3_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening PlayScreenV5_PC_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "PlayScreenV5_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening Esports_MainScreen_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "Esports_MainScreen_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening CollectionsScreen_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "CollectionsScreen_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening TabbedStoreScreen_PC_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "TabbedStoreScreen_Opened", line, lineIndex);
-                        break;
-                    case var _ when line.Contains("LogMenuStackManager: Opening TournamentsScreen_C"):
-                        HandleEvent(Menu.HandleMenuEvent, "TournamentsScreen_Opened", line, lineIndex);
-                        break;
+                ("Session_Heartbeat",
+                    (line, index) => HandleEvent(Misc.HandleInGameEvent, "Session_Heartbeat", line, index)),
+
+                ("LogRMSService: Received RMS update. URI: /riot-messaging-service/v1/messages/ares-parties/parties/v1/parties/",
+                    (line, index) => HandleEvent(Party.HandleMatchEvent, "Party_Updated", line, index)),
+                ("Party_DeclineRequest",
+                    (line, index) => HandleEvent(Party.HandleMatchEvent, "Party_DeclineRequest", line, index)),
+                ("Party_InviteToParty",
+                    (line, index) => HandleEvent(Party.HandleMatchEvent, "Party_InviteToParty", line, index)),
+                ("Party_SetPreferredGamePods",
+                    (line, index) => HandleEvent(Party.HandleMatchEvent, "Party_SetPreferredGamePods", line, index)),
+
+                ("LogMenuStackManager: Opening BattlepassScreenV2_PC_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "BattlePassScreenV2_Opened", line, index)),
+                ("LogMenuStackManager: Opening CharactersScreenV2_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "CharactersScreenV2_Opened", line, index)),
+                ("LogMenuStackManager: Opening MatchHistoryScreenWidgetV3_C",
+                    (line, index) =>
+                        HandleEvent(Menu.HandleMenuEvent, "MatchHistoryScreenWidgetV3_Opened", line, index)),
+                ("LogMenuStackManager: Opening PlayScreenV5_PC_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "PlayScreenV5_Opened", line, index)),
+                ("LogMenuStackManager: Opening Esports_MainScreen_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "Esports_MainScreen_Opened", line, index)),
+                ("LogMenuStackManager: Opening CollectionsScreen_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "CollectionsScreen_Opened", line, index)),
+                ("LogMenuStackManager: Opening TabbedStoreScreen_PC_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "TabbedStoreScreen_Opened", line, index)),
+                ("LogMenuStackManager: Opening TournamentsScreen_C",
+                    (line, index) => HandleEvent(Menu.HandleMenuEvent, "TournamentsScreen_Opened", line, index))
+
+            ];
+
+            string[] fileLines = logText.Split('\n');
+            for (long i = fileLines.Length - 1; i > LastLineRead; i--)
+            {
+                string line = fileLines[i].Trim();
+
+                if (line.Contains("Log file closed"))
+                    break;
+
+                foreach ((string keyword, Action<string, long> handler) in handlers)
+                {
+                    if (!line.Contains(keyword)) continue;
+
+                    handler(line, i);
                 }
             }
         }
+
     }
 }

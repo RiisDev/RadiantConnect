@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.6.2</Version>
+    <Version>9.6.3</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,14 +16,18 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>* Added Captcha_Found &amp;&amp; Captcha_Solved to DriverStatus
-* Hopefully fixed all Localization issues via DriverAuth</PackageReleaseNotes>
+    <PackageReleaseNotes>* Fixed `GetRiotIdByPuuidAsync` as well as internal `FetchNameServiceReturn`
+* Finished forgotten 'GetSession' endpoint, it should now work.
+
+Breaking Change:
+All Endpoint Enums have been moved to ValorantTables for maintainability</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
     <RepositoryType>git</RepositoryType>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <ErrorReport>none</ErrorReport>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -97,5 +101,9 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
+
+<ItemGroup>
+  <Folder Include="Network\CurrentGameEndpoints\DataTypes\NewFolder\" />
+</ItemGroup>
 
 </Project>

@@ -17,7 +17,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
         internal CancellationTokenSource ShutdownSocket = new();
         internal ValorantNet.UserAuth? Authentication;
         internal Initiator Init;
-
+#if DEBUG
+        public TcpEvents Events;
+#endif
         public ValSocket(Initiator init)
         {
             Authentication = ValorantNet.GetAuth();
@@ -26,6 +28,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
                 throw new RadiantConnectException("Failed to grab current auth, is valorant running?");
 
             Init = init;
+#if DEBUG
+            Events = new TcpEvents(this);
+#endif
         }
 
         internal async Task<IReadOnlyList<string>> GetEvents()

@@ -260,42 +260,50 @@ namespace RadiantConnect.Network
 
         private static T? ConvertResponse<T>(string? jsonData)
         {
-            if (string.IsNullOrEmpty(jsonData) || string.Equals(jsonData.Trim(), "null", StringComparison.OrdinalIgnoreCase))
-                return default;
+            try
+            {
+                if (string.IsNullOrEmpty(jsonData) ||
+                    string.Equals(jsonData.Trim(), "null", StringComparison.OrdinalIgnoreCase))
+                    return default;
 
-            Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+                Type targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
 
-            if (targetType == typeof(string))
-                return (T)(object)jsonData;
+                if (targetType == typeof(string))
+                    return (T)(object)jsonData;
 
-            if (targetType == typeof(int) && int.TryParse(jsonData, out int intValue))
-                return (T)Convert.ChangeType(intValue, targetType);
+                if (targetType == typeof(int) && int.TryParse(jsonData, out int intValue))
+                    return (T)Convert.ChangeType(intValue, targetType);
 
-            if (targetType == typeof(long) && long.TryParse(jsonData, out long longValue))
-                return (T)Convert.ChangeType(longValue, targetType);
+                if (targetType == typeof(long) && long.TryParse(jsonData, out long longValue))
+                    return (T)Convert.ChangeType(longValue, targetType);
 
-            if (targetType == typeof(bool) && bool.TryParse(jsonData, out bool boolValue))
-                return (T)Convert.ChangeType(boolValue, targetType);
+                if (targetType == typeof(bool) && bool.TryParse(jsonData, out bool boolValue))
+                    return (T)Convert.ChangeType(boolValue, targetType);
 
-            if (targetType == typeof(double) && double.TryParse(jsonData, out double doubleValue))
-                return (T)Convert.ChangeType(doubleValue, targetType);
+                if (targetType == typeof(double) && double.TryParse(jsonData, out double doubleValue))
+                    return (T)Convert.ChangeType(doubleValue, targetType);
 
-            if (targetType == typeof(decimal) && decimal.TryParse(jsonData, out decimal decimalValue))
-                return (T)Convert.ChangeType(decimalValue, targetType);
+                if (targetType == typeof(decimal) && decimal.TryParse(jsonData, out decimal decimalValue))
+                    return (T)Convert.ChangeType(decimalValue, targetType);
 
-            if (targetType == typeof(float) && float.TryParse(jsonData, out float floatValue))
-                return (T)Convert.ChangeType(floatValue, targetType);
+                if (targetType == typeof(float) && float.TryParse(jsonData, out float floatValue))
+                    return (T)Convert.ChangeType(floatValue, targetType);
 
-            if (targetType == typeof(DateTime) && DateTime.TryParse(jsonData, out DateTime dateValue))
-                return (T)Convert.ChangeType(dateValue, targetType);
+                if (targetType == typeof(DateTime) && DateTime.TryParse(jsonData, out DateTime dateValue))
+                    return (T)Convert.ChangeType(dateValue, targetType);
 
-            if (targetType == typeof(Guid) && Guid.TryParse(jsonData, out Guid guidValue))
-                return (T)Convert.ChangeType(guidValue, targetType);
+                if (targetType == typeof(Guid) && Guid.TryParse(jsonData, out Guid guidValue))
+                    return (T)Convert.ChangeType(guidValue, targetType);
 
-            if (targetType.IsEnum && Enum.TryParse(targetType, jsonData, out object? enumValue))
-                return (T)enumValue;
+                if (targetType.IsEnum && Enum.TryParse(targetType, jsonData, out object? enumValue))
+                    return (T)enumValue;
 
-            return JsonSerializer.Deserialize<T>(jsonData);
+                return JsonSerializer.Deserialize<T>(jsonData);
+            }
+            catch
+            {
+                throw new RadiantConnectException($"Failed to parse datatype: {typeof(T)}, given data: {jsonData}");
+            }
         }
 
 

@@ -1,5 +1,6 @@
 ﻿using System.Collections.Specialized;
 using System.Net.Http.Json;
+using RadiantConnect.Methods;
 using RadiantConnect.Network.PartyEndpoints.DataTypes;
 namespace RadiantConnect.Network.PartyEndpoints;
 
@@ -8,23 +9,6 @@ namespace RadiantConnect.Network.PartyEndpoints;
 public class PartyEndpoints(Initiator initiator)
 {
     internal string Url = initiator.ExternalSystem.ClientData.GlzUrl;
-
-    public enum QueueId
-    {
-        unrated,
-        competitive,
-        swiftplay,
-        spikerush,
-        deathmatch,
-        ggteam,
-        hurm
-    }
-
-    public enum PartyState
-    {
-        OPEN,
-        CLOSED
-    }
 
     public async Task<PartyPlayer?> FetchPartyPlayerAsync(string userId)
     {
@@ -72,7 +56,7 @@ public class PartyEndpoints(Initiator initiator)
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{userId}/refreshPings");
     }
 
-    public async Task<Party?> ChangeQueueAsync(string partyId, QueueId queueId)
+    public async Task<Party?> ChangeQueueAsync(string partyId, ValorantTables.QueueId queueId)
     {
         JsonContent jsonContent = JsonContent.Create(new { queueID = queueId.ToString() });
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue",  jsonContent);
@@ -93,7 +77,7 @@ public class PartyEndpoints(Initiator initiator)
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/leave");
     }
 
-    public async Task<Party?> SetPartyOpenStatusAsync(string partyId, PartyState state)
+    public async Task<Party?> SetPartyOpenStatusAsync(string partyId, ValorantTables.PartyState state)
     {
         JsonContent jsonContent = JsonContent.Create(new NameValueCollection() { { "accessibility", state.ToString() } });
         return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility",  jsonContent);

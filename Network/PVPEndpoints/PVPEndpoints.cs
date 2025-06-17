@@ -72,6 +72,8 @@ public class PVPEndpoints(Initiator initiator)
 
     public async Task<NameService?> FetchNameServiceReturn(string userId)
     {
-        return await initiator.ExternalSystem.Net.PutAsync<NameService>(Url, "name-service/v2/players", new StringContent($"[\"{userId}\"]"));
+        List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", new StringContent($"[\"{userId}\"]")); ;
+        if (namesData == null || namesData.Count == 0) { return null; }
+        return namesData[0];
     } 
 }
