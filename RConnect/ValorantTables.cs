@@ -359,6 +359,8 @@ public static class ValorantTables
         { "e2ad5c54-4114-a870-9641-8ea21279579a", "Icebox" },
         { "ee613ee9-28b7-4beb-9666-08db13bb2244", "The Range" },
         { "fd267378-4d1d-484f-ff52-77821ed10dc2", "Pearl" },
+        { "1c18ab1f-420d-0d8b-71d0-77ad3c439115", "Corrode" },
+        { "Rook", "Corrode" },
         { "Ascent", "Ascent" },
         { "Bonsai", "Split" },
         { "Canyon", "Fracture" },
