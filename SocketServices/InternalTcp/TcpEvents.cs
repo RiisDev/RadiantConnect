@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -13,7 +14,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
         private void TcpMessage(string value)
         {
-            throw new NotImplementedException();
+            Debug.WriteLine(value);
         }
     }
 

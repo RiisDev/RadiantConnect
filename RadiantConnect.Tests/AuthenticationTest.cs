@@ -9,13 +9,7 @@ namespace RadiantConnect.Tests
     {
         /* These tests are to be only ran on a machine that has the Valorant client installed. */
 
-        public static bool MachineEligible(bool valorantRequired = true)
-        {
-            string valorantPath = RiotPathService.GetValorantPath();
-
-            return (File.Exists(valorantPath) && valorantRequired) 
-                || Environment.UserName == "irisd"; // I want to be able to run these tests on my machine always.
-        }
+        public static bool MachineEligible(bool valorantRequired = true) => Client.MachineReady(valorantRequired);
 
         [Fact]
         public async Task TestQr()

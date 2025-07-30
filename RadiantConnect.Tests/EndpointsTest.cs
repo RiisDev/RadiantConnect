@@ -9,6 +9,8 @@ namespace RadiantConnect.Tests
 {
     public class EndpointsTest
     {
+        public static bool MachineEligible(bool valorantRequired = true) => Client.MachineReady(valorantRequired);
+
         private readonly Lock _lock = new();
         private Task<Initiator>? _initTask;
         private Task<Initiator> GetInitiatorAsync()
@@ -27,13 +29,6 @@ namespace RadiantConnect.Tests
             return new Initiator(rso);
         }
 
-        public static bool MachineEligible(bool valorantRequired = true)
-        {
-            string valorantPath = RiotPathService.GetValorantPath();
-
-            return (File.Exists(valorantPath) && valorantRequired)
-                   || Environment.UserName == "irisd"; // I want to be able to run these tests on my machine always.
-        }
 
         [Fact]
         public async Task TestPvpEndpoints()

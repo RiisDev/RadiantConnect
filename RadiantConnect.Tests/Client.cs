@@ -1,9 +1,19 @@
 ﻿using System.Text.Json;
+using RadiantConnect.Services;
 
 namespace RadiantConnect.Tests
 {
     internal class Client
     {
+        public static bool MachineReady(bool valorantRequired = true)
+        {
+            return false;
+            string valorantPath = RiotPathService.GetValorantPath();
+
+            return (File.Exists(valorantPath) && valorantRequired)
+                   || Environment.UserName == "Riis"; // I want to be able to run these tests on my machine always.
+        }
+
         private static readonly Lazy<HttpClient> LazyClient = new(() =>
         {
             HttpClient client = new()
