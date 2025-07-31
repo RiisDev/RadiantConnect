@@ -1,5 +1,4 @@
-﻿using System.Data;
-using RadiantConnect.EventHandler;
+﻿using RadiantConnect.EventHandler;
 using RadiantConnect.Services;
 using RadiantConnect.Network;
 using RadiantConnect.Network.ChatEndpoints;
@@ -46,48 +45,52 @@ namespace RadiantConnect
         [property: JsonPropertyName("affinities")] GeoAffinities Affinities
     );
 
-    public class Initiator
+    public class Initiator : IDisposable
     {
-        internal static bool ClientIsReady() =>
+        internal static bool IsDisposed { get; private set; }
+
+        private static bool ClientIsReady() =>
             InternalValorantMethods.IsValorantProcessRunning() &&
-            Directory.Exists(Path.GetDirectoryName(LogService.GetLogPath())) &&
+            Directory.Exists(Path.GetDirectoryName(LogService.LogPath)) &&
             File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
                 "Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
-            File.Exists(LogService.GetLogPath()) &&
-            !LogService.GetLogText().Split('\n').Last().Contains("Log file closed");
+            File.Exists(LogService.LogPath) &&
+            !LogService.ReadTextFile(LogService.LogPath).Split('\n').Last().Contains("Log file closed");
 
-        internal static string IsVpnDetected() => string.Join('|', Process.GetProcesses().Where(process => process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase)));
+        private static string IsVpnDetected() => string.Join('|',
+            Process.GetProcesses().Where(process =>
+                process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase)));
 
         public InternalSystem ExternalSystem { get; private set; } = null!;
         public Endpoints Endpoints { get; private set; } = null!;
         public GameEvents GameEvents { get; internal set; } = null!;
         public LogService.ClientData Client { get; private set; } = null!;
 
-        internal async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
+        private async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
         {
             if (net == null) throw new RadiantConnectException("Failed to build net data");
-            
+
             GeoRoot? data = await net.PutAsync<GeoRoot>(
                 "https://riot-geo.pas.si.riotgames.com",
-                "/pas/v1/product/valorant", 
+                "/pas/v1/product/valorant",
                 new StringContent($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}")
             );
-            
+
             Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
 
-            JsonWebToken token = new (data?.Token);
+            JsonWebToken token = new(data?.Token);
             string userId = token.GetPayloadValue<string>("sub");
 
             return new LogService.ClientData(
                 Shard: shard,
                 UserId: userId,
-                PdUrl: $"https://pd.{shard}.a.pvp.net", 
-                GlzUrl: $"https://glz-{data?.Affinities.Live}-1.{shard}.a.pvp.net", 
+                PdUrl: $"https://pd.{shard}.a.pvp.net",
+                GlzUrl: $"https://glz-{data?.Affinities.Live}-1.{shard}.a.pvp.net",
                 SharedUrl: $"https://shared.{shard}.a.pvp.net"
             );
         }
 
-        internal void Initialize(ValorantNet net, RSOAuth rsoAuth)
+        private void Initialize(ValorantNet net, RSOAuth rsoAuth)
         {
             Client = BuildClientData(net, rsoAuth).Result;
 
@@ -97,7 +100,7 @@ namespace RadiantConnect
                 null!,
                 Client
             );
-            
+
             Endpoints = new Endpoints(
                 new ChatEndpoints(this),
                 new ContractEndpoints(this),
@@ -109,11 +112,7 @@ namespace RadiantConnect
                 new StoreEndpoints(this)
             );
         }
-
-
-        [Obsolete("Method is no longer supported, move to RSOAuth", true)]
-        public Initiator(RadiantConnectRSO _) => throw new RowNotInTableException("Method is no longer supported, move to RSOAuth");
-
+        
         public Initiator(RSOAuth rsoAuth)
         {
             ValorantNet net = new(rsoAuth);
@@ -142,7 +141,8 @@ namespace RadiantConnect
             string vpnDetected = IsVpnDetected();
 
             if (!string.IsNullOrEmpty(vpnDetected) && !ignoreVpn)
-                throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+                throw new RadiantConnectException(
+                    $"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
 
             ExternalSystem = new InternalSystem(
                 client,
@@ -163,8 +163,10 @@ namespace RadiantConnect
                 new PVPEndpoints(this),
                 new StoreEndpoints(this)
             );
-            
+
             _ = LogService.InitiateEvents(this);
         }
+
+        public void Dispose() => IsDisposed = true;
     }
 }

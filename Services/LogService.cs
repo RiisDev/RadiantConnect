@@ -3,54 +3,47 @@ using RadiantConnect.EventHandler;
 using RadiantConnect.Utilities;
 using static System.Enum;
 using Path = System.IO.Path;
-//ReSharper disable InconsistentNaming
 
 namespace RadiantConnect.Services
 {
     public class LogService
     {
-        public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
+        internal static string ReadTextFile(string path)
         {
-            public enum ShardType { na, latam, br, eu, ap, kr, }
-        }
+            string tempFileName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-radiant-{Path.GetExtension(path)}");
+            const int maxAttempts = 5;
 
-        internal static string GetLogPath() => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
-
-        internal static string GetLogText()
-        {
-            string logPath = GetLogPath();
-            string tempPath = $"{logPath}.tmp";
-            int attempt = 0;
-
-            while (attempt < 15)
+            for (int attempt = 0; attempt < maxAttempts; attempt++)
             {
                 try
                 {
-                    File.Copy(logPath, tempPath, true);
-                    using StreamReader reader = File.OpenText(tempPath);
-                    return reader.ReadToEnd();
+                    File.Copy(path, tempFileName, true);
+                    return File.ReadAllText(tempFileName);
                 }
-                catch (IOException ex)
-                {
-                    attempt++;
-                    if (attempt >= 16)
-                        throw new Exception($"Failed to read log file after 15 attempts.", ex);
-                }
+                catch { Thread.Sleep(150); }
                 finally
                 {
-                    try { File.Delete(tempPath); }
+                    try { if (File.Exists(tempFileName)) File.Delete(tempFileName); }
                     catch { /**/ }
                 }
             }
 
-            throw new Exception("Unexpected failure while reading log file.");
+            return string.Empty;
         }
 
+        public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
+        {
+            [SuppressMessage("ReSharper", "UnusedMember.Global")]
+            // ReSharper disable InconsistentNaming
+            public enum ShardType { na, latam, br, eu, ap, kr, }
+        }
 
+        internal static string LogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
+        
         public static ClientData GetClientData()
         {
             Restart:
-            string currentLogText = GetLogText();
+            string currentLogText = ReadTextFile(LogPath);
             
             string userId = currentLogText.ExtractValue("Logged in user changed: (.+)", 1);
             string pdUrl = currentLogText.ExtractValue(@"https://pd\.[^\s]+\.net/", 0);
@@ -77,13 +70,13 @@ namespace RadiantConnect.Services
             long lastFileSize = 0;
             await Task.Run(async () =>
             {
-                for (; ; )
+                while (!Initiator.IsDisposed)
                 {
                     await Task.Delay(100);
-                    long currentFileSize = new FileInfo(GetLogPath()).Length;
+                    long currentFileSize = new FileInfo(LogPath).Length;
                     if (currentFileSize == lastFileSize) continue;
                     lastFileSize = currentFileSize;
-                    events?.ParseLogText(GetLogText());
+                    events?.ParseLogText(ReadTextFile(LogPath));
                 }
             });
         }

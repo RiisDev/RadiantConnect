@@ -7,7 +7,7 @@
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
     <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
-    <Version>9.6.5</Version>
+    <Version>9.7.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -16,7 +16,11 @@
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>+ Added new Map to tables</PackageReleaseNotes>
+    <PackageReleaseNotes>* Fixed GetBalances Method / Endpoint
+
+* Modified GameVersionService to be more reliable, and added more safeguards.
+
+* Modified the way I pull data from text/json files, please report any issues found.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>

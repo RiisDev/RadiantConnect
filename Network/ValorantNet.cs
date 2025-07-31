@@ -11,6 +11,10 @@ namespace RadiantConnect.Network
     [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ValorantNet
     {
+        internal static string LockFilePath =
+            Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local",
+                "Riot Games", "Riot Client", "Config", "lockfile");
+
         public delegate void ValorantNetLog(string message);
         public event ValorantNetLog? OnLog;
 
@@ -91,17 +95,9 @@ namespace RadiantConnect.Network
         
         internal static UserAuth? GetAuth()
         {
-            string lockFile = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "Riot Client", "Config", "lockfile");
-            string? fileText;
-            try
-            {
-                try{File.Copy(lockFile, $"{lockFile}.tmp", true);}catch{}
-                fileText = File.ReadAllText($"{lockFile}.tmp");
-            }
-            finally
-            {
-                try {File.Delete($"{lockFile}.tmp");}catch{}
-            }
+            string fileText = LogService.ReadTextFile(LockFilePath);
+
+            if (string.IsNullOrEmpty(fileText)) return null;
 
             string[] fileValues = fileText.Split(':');
 

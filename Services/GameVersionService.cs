@@ -15,7 +15,7 @@ namespace RadiantConnect.Services
 
         public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
-        private static int GetBuildNumberFromLog() => int.Parse(LogService.GetLogText().ExtractValue(@"Build version: (\d+)", 1));
+        private static int GetBuildNumberFromLog() => int.Parse(LogService.ReadTextFile(LogService.LogPath).ExtractValue(@"Build version: (\d+)", 1));
         private const string VersionPattern = @"^release-\d\d.\d\d-shipping-\d{1,2}-\d{6,8}$";
 
         internal static ValorantNet.ValorantVersionApi GetVersionFromApi()
@@ -154,18 +154,9 @@ namespace RadiantConnect.Services
         internal static string GetVanguardVersion()
         {
             string clientConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "VALORANT", "Config", "ClientConfiguration.json");
-            string? fileText;
-            try
-            {
-                File.Copy(clientConfigPath, $"{clientConfigPath}.tmp", true);
-                fileText = File.ReadAllText($"{clientConfigPath}.tmp");
-            }
-            finally
-            {
-                try{File.Delete($"{clientConfigPath}.tmp");}catch{}
-            }
+            string fileText = LogService.ReadTextFile(clientConfigPath);
 
-            return fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);
+            return string.IsNullOrEmpty(fileText) ? "-1" : fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);
         }
 
 

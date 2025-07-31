@@ -47,7 +47,7 @@ namespace RadiantConnect.Services
         {
             string userClientVersion = GameVersionService.GetVersionHeader();
             string userPlatform = GameVersionService.GetClientPlatform();
-            string fileText = LogService.GetLogText();
+            string fileText = LogService.ReadTextFile(LogService.LogPath);
 
             string branch = fileText.ExtractValue("Branch: (.+)", 1);
             string changelist = fileText.ExtractValue(@"Changelist: (\d+)", 1);

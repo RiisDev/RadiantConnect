@@ -27,11 +27,12 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
         internal event ValXMPP.InternalMessage? OnOutboundMessage;
         internal event ValXMPP.InternalMessage? OnInboundMessage;
 
-        internal HttpListener ProxyServer = new();
-        internal HttpClient Client { get; } = new();
 
-        internal readonly string ConfigUrl = "https://clientconfig.rpg.riotgames.com";
-        internal readonly string GeoPasUrl = "https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat";
+        private readonly HttpListener _proxyServer = new();
+        private HttpClient Client { get; } = new();
+
+        private const string ConfigUrl = "https://clientconfig.rpg.riotgames.com";
+        private const string GeoPasUrl = "https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat";
 
         internal int ConfigPort { get; }
         internal int ChatPort { get; }
@@ -43,12 +44,12 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
             ConfigPort = currentPort;
             currentTcpListener.Stop();
 
-            ProxyServer.Prefixes.Add($"http://127.0.0.1:{ConfigPort}/");
-            ProxyServer.Start();
-            ProxyServer.BeginGetContext(DoProxy, ProxyServer);
+            _proxyServer.Prefixes.Add($"http://127.0.0.1:{ConfigPort}/");
+            _proxyServer.Start();
+            _proxyServer.BeginGetContext(DoProxy, _proxyServer);
         }
 
-        internal async void DoProxy(IAsyncResult result)
+        private async void DoProxy(IAsyncResult result)
         {
             try
             {
@@ -145,7 +146,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
                 }
                 catch {/**/}
 
-                ProxyServer.BeginGetContext(DoProxy, ProxyServer);
+                _proxyServer.BeginGetContext(DoProxy, _proxyServer);
                 message.Dispose();
                 responseMessage.Dispose();
                 listenerResponse.Close();
