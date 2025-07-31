@@ -147,6 +147,7 @@ namespace RadiantConnect.Services
 
         internal static string GetVanguardVersion()
         {
+            return "1";
             string clientConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "VALORANT", "Config", "ClientConfiguration.json");
             string? fileText;
             try
@@ -156,7 +157,7 @@ namespace RadiantConnect.Services
             }
             finally
             {
-                File.Delete($"{clientConfigPath}.tmp");
+                try{File.Delete($"{clientConfigPath}.tmp");}catch{}
             }
 
             return fileText.ExtractValue("anticheat\\.vanguard\\.version\": \"(.*)\"", 1);

@@ -95,12 +95,12 @@ namespace RadiantConnect.Network
             string? fileText;
             try
             {
-                File.Copy(lockFile, $"{lockFile}.tmp", true);
+                try{File.Copy(lockFile, $"{lockFile}.tmp", true);}catch{}
                 fileText = File.ReadAllText($"{lockFile}.tmp");
             }
             finally
             {
-                File.Delete($"{lockFile}.tmp");
+                try {File.Delete($"{lockFile}.tmp");}catch{}
             }
 
             string[] fileValues = fileText.Split(':');

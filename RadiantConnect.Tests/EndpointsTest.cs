@@ -28,8 +28,7 @@ namespace RadiantConnect.Tests
                 throw new Exception("Failed to authenticate with RSO.");
             return new Initiator(rso);
         }
-
-
+        
         [Fact]
         public async Task TestPvpEndpoints()
         {

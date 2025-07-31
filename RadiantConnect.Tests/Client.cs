@@ -7,7 +7,6 @@ namespace RadiantConnect.Tests
     {
         public static bool MachineReady(bool valorantRequired = true)
         {
-            return false;
             string valorantPath = RiotPathService.GetValorantPath();
 
             return (File.Exists(valorantPath) && valorantRequired)
