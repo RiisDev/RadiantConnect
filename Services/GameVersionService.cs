@@ -59,9 +59,17 @@ namespace RadiantConnect.Services
             if (block.Length < 4)
                 throw new RadiantConnectException("Unexpected file block structure.");
 
-            string branch = ExtractBranch(block[0]);
-            string baseMajorVersion = block[2];
-            string? buildNumber = block[3].Split('.').LastOrDefault();
+            string branch = ExtractBranch(block.FirstOrDefault(x=> x.Contains("release")) ?? "");
+            if (string.IsNullOrEmpty(branch))
+                throw new RadiantConnectException("Branch not found in file.");
+
+            string? baseMajorVersion = block.FirstOrDefault(x=> x.Length == 2);
+            if (string.IsNullOrEmpty(baseMajorVersion))
+                throw new RadiantConnectException($"Invalid base major version: {baseMajorVersion}");
+
+            string? buildNumber = block.FirstOrDefault(x => x.StartsWith(branch.Replace("release-","")))?.Split('.').LastOrDefault()?.Trim();
+
+            GetProductVersionString(filePath);
 
             if (!int.TryParse(buildNumber, out int parsedBuildVersion))
             {
@@ -147,7 +155,6 @@ namespace RadiantConnect.Services
 
         internal static string GetVanguardVersion()
         {
-            return "1";
             string clientConfigPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Riot Games", "VALORANT", "Config", "ClientConfiguration.json");
             string? fileText;
             try
