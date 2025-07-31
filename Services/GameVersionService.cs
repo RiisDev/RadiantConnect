@@ -68,9 +68,7 @@ namespace RadiantConnect.Services
                 throw new RadiantConnectException($"Invalid base major version: {baseMajorVersion}");
 
             string? buildNumber = block.FirstOrDefault(x => x.StartsWith(branch.Replace("release-","")))?.Split('.').LastOrDefault()?.Trim();
-
-            GetProductVersionString(filePath);
-
+            
             if (!int.TryParse(buildNumber, out int parsedBuildVersion))
             {
                 parsedBuildVersion = int.TryParse(GetProductVersionString(filePath), out int fallbackBuild)
