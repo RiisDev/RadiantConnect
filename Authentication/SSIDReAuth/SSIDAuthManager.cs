@@ -1,5 +1,4 @@
 ﻿using System.Net;
-using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Utilities;
 using Cookie = System.Net.Cookie;

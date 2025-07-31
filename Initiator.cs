@@ -12,7 +12,6 @@ using RadiantConnect.Network.StoreEndpoints;
 using System.Diagnostics;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using System.Text.Json.Serialization;
-using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Utilities;
 
 namespace RadiantConnect
@@ -79,11 +78,10 @@ namespace RadiantConnect
             Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
 
             JsonWebToken token = new(data?.Token);
-            string userId = token.GetPayloadValue<string>("sub");
 
             return new LogService.ClientData(
                 Shard: shard,
-                UserId: userId,
+                UserId: token.Subject,
                 PdUrl: $"https://pd.{shard}.a.pvp.net",
                 GlzUrl: $"https://glz-{data?.Affinities.Live}-1.{shard}.a.pvp.net",
                 SharedUrl: $"https://shared.{shard}.a.pvp.net"

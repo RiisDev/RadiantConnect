@@ -4,7 +4,6 @@ using System.Text.Json.Serialization;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using static System.Text.RegularExpressions.Regex;
 using System.Net.WebSockets;
-using Microsoft.IdentityModel.JsonWebTokens;
 using RadiantConnect.Utilities;
 
 namespace RadiantConnect.SocketServices.RMS
@@ -65,7 +64,7 @@ namespace RadiantConnect.SocketServices.RMS
             };
 
             JsonWebToken jwt = new (authData.AccessToken);
-            string clientId = jwt.GetClaim("cid").Value;
+            string clientId = jwt.GetClaim("cid");
 
             if (clientId != "riot-client")
             {
