@@ -30,6 +30,12 @@ jobs:
     - name: Restore dependencies
       run: dotnet restore RadiantConnect.csproj
 
+    - name: Restore SNK file from secret
+      run: |
+        echo $env:SNK_KEY | certutil -decode - RadiantConnectKey.snk
+      env:
+        SNK_KEY: ${{ secrets.SNK_KEY }}
+
     - name: Build the project
       run: dotnet build RadiantConnect.csproj --configuration Release --framework net8.0
       
