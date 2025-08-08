@@ -121,93 +121,91 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 eventList.Add(dataToSend);
             }
 
-            string BuildScript()
-            {
-                return ("""
-                        (function () {
-                        	'use strict';
-                        	let signInDetected = false;
-                        	let mfaDetected = false;
-                        	let accessToken = false;
-                        	let captchaFound = false;
-                        
-                        	// This should be cross localization from my testing
-                        	function signInPageDetected() {
-                        		return document.getElementById('rememberme') !== null && document.getElementsByName('username').length > 0 && document.getElementsByName('password').length > 0;
-                        	}
-                        
-                        	// Instead of reading page title, check if 6 'single slot' numeric boxes exist
-                        	function mfaPageDetected() {
-                        		return document.querySelectorAll(`input[minlength='1'][maxlength='1'][inputmode='numeric'][value='']`).length === 6;
-                        	}
-                        
-                        	function set(obj, callback) {
-                        		callback(obj);
-                        		for (let [k, v] of Object.entries(obj)) {
-                        			if (k.includes('__reactEventHandlers') && v.onChange) {
-                        				v.onChange({
-                        					target: obj
-                        				});
-                        			}
-                        		}
-                        	}
-                        
-                        	function doPageChecks() {
-                        
-                        		if (signInPageDetected() && !signInDetected) {
-                        			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
-                        			set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
-                        			setTimeout(() => {
-                        				document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
-                        			}, 1500)
-                        			signInDetected = true;
-                        		}
-                        
-                        		if (mfaPageDetected() && !mfaDetected) {
-                        			console.log('[RADIANTCONNECT] MFA Detected');
-                        			mfaDetected = true;
-                        		}
-                        
-                        		if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
-                        			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
-                        			accessToken = true;
-                        		}
-                        	}
-                        
-                        	window.addEventListener('load', doPageChecks);
-                        
-                        	let interval = setInterval(() => {
-                        		if (document.querySelector('title')) {
-                        			new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
-                        				childList: true
-                        			});
-                        			clearInterval(interval);
-                        		}
-                        	}, 5);
-                        
-                        	let capInt = setInterval(() => {
-                        		if (signInPageDetected()) {
-                        			document.querySelectorAll('iframe[src*="hcaptcha"]').forEach((iframe) => {
-                        				let displayer = iframe.parentNode?.parentNode;
-                        				if (!displayer) return;
-                        
-                        				let computedStyle = window.getComputedStyle(displayer);
-                        				let zIndex = computedStyle["z-index"];
-                        				if (zIndex > 0 && !captchaFound) {
-                        					console.log("[RADIANTCONNECT] CAPTCHAFOUND");
-                        					captchaFound = true;
-                        				}
-                        				else if (zIndex <= 0 && captchaFound){
-                        					console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
-                        					clearInterval(capInt);
-                        				}
-                        			});
-                        		}
-                        	}, 150);
-                        
-                        })();
-                        """).Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
-            }
+            string BuildScript() =>
+	            ("""
+	             (function () {
+	             	'use strict';
+	             	let signInDetected = false;
+	             	let mfaDetected = false;
+	             	let accessToken = false;
+	             	let captchaFound = false;
+	             
+	             	// This should be cross localization from my testing
+	             	function signInPageDetected() {
+	             		return document.getElementById('rememberme') !== null && document.getElementsByName('username').length > 0 && document.getElementsByName('password').length > 0;
+	             	}
+	             
+	             	// Instead of reading page title, check if 6 'single slot' numeric boxes exist
+	             	function mfaPageDetected() {
+	             		return document.querySelectorAll(`input[minlength='1'][maxlength='1'][inputmode='numeric'][value='']`).length === 6;
+	             	}
+	             
+	             	function set(obj, callback) {
+	             		callback(obj);
+	             		for (let [k, v] of Object.entries(obj)) {
+	             			if (k.includes('__reactEventHandlers') && v.onChange) {
+	             				v.onChange({
+	             					target: obj
+	             				});
+	             			}
+	             		}
+	             	}
+	             
+	             	function doPageChecks() {
+	             
+	             		if (signInPageDetected() && !signInDetected) {
+	             			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
+	             			set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
+	             			setTimeout(() => {
+	             				document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
+	             			}, 1500)
+	             			signInDetected = true;
+	             		}
+	             
+	             		if (mfaPageDetected() && !mfaDetected) {
+	             			console.log('[RADIANTCONNECT] MFA Detected');
+	             			mfaDetected = true;
+	             		}
+	             
+	             		if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
+	             			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
+	             			accessToken = true;
+	             		}
+	             	}
+	             
+	             	window.addEventListener('load', doPageChecks);
+	             
+	             	let interval = setInterval(() => {
+	             		if (document.querySelector('title')) {
+	             			new MutationObserver(mutations => mutations.forEach(m => m.type === 'childList' && doPageChecks())).observe(document.querySelector('title'), {
+	             				childList: true
+	             			});
+	             			clearInterval(interval);
+	             		}
+	             	}, 5);
+	             
+	             	let capInt = setInterval(() => {
+	             		if (signInPageDetected()) {
+	             			document.querySelectorAll('iframe[src*="hcaptcha"]').forEach((iframe) => {
+	             				let displayer = iframe.parentNode?.parentNode;
+	             				if (!displayer) return;
+	             
+	             				let computedStyle = window.getComputedStyle(displayer);
+	             				let zIndex = computedStyle["z-index"];
+	             				if (zIndex > 0 && !captchaFound) {
+	             					console.log("[RADIANTCONNECT] CAPTCHAFOUND");
+	             					captchaFound = true;
+	             				}
+	             				else if (zIndex <= 0 && captchaFound){
+	             					console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
+	             					clearInterval(capInt);
+	             				}
+	             			});
+	             		}
+	             	}, 150);
+
+	             })();
+	             """).Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
         }
 
         internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)
@@ -223,12 +221,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
 
             if (waitForPage)
-                await DriverHandler.WaitForPage(pageTitle, port, socket, 999999);
+                await DriverHandler.WaitForPage(pageTitle, port, 999999);
         }
 
         internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, ClientWebSocket socket, bool output = false, bool skipCheck = false)
         {
-            if (pageTitle != "") await DriverHandler.WaitForPage(pageTitle, port, socket);
+            if (pageTitle != "") await DriverHandler.WaitForPage(pageTitle, port);
 
             int id = (int)dataToSend["id"];
             TaskCompletionSource<string> tcs = new();
@@ -239,9 +237,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             string response = await tcs.Task;
 
             if (output) Debug.WriteLine(response);
-            if (!response.Contains(expectedOutput) && !skipCheck) throw new Exception("Expected output not found");
 
-            return response;
+            return !response.Contains(expectedOutput) && !skipCheck
+	            ? throw new Exception("Expected output not found")
+	            : response;
         }
 
         #endregion

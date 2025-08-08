@@ -1,5 +1,7 @@
 ﻿// ReSharper disable CheckNamespace
 
+#pragma warning disable IDE0130
+
 namespace RadiantConnect
 {
     public class RadiantConnectException(string message) : Exception(message);

@@ -47,9 +47,9 @@ namespace RadiantConnect.Utilities
 
         public Claim[] GetClaims()
         {
-            var claims = new List<Claim>();
+            List<Claim> claims = [];
             AddClaimsFromElement(_payloadElement, claims, "");
-            return claims.ToArray();
+            return [..claims];
         }
 
         private void AddClaimsFromElement(JsonElement element, List<Claim> claims, string prefix)
@@ -80,32 +80,26 @@ namespace RadiantConnect.Utilities
             }
         }
 
-        public string GetClaim(string claimType)
-        {
-            if (TryGetPayloadElement(claimType, out JsonElement element))
-            {
-                return element.ValueKind switch
-                {
-                    JsonValueKind.String => element.GetString() ?? string.Empty,
-                    JsonValueKind.Number => element.ToString(),
-                    JsonValueKind.True or JsonValueKind.False => element.GetBoolean().ToString(),
-                    _ => element.GetRawText()
-                };
-            }
+        public string GetClaim(string claimType) =>
+	        TryGetPayloadElement(claimType, out JsonElement element)
+		        ? element.ValueKind switch
+		        {
+			        JsonValueKind.String => element.GetString() ?? string.Empty,
+			        JsonValueKind.Number => element.ToString(),
+			        JsonValueKind.True or JsonValueKind.False => element.GetBoolean().ToString(),
+			        _ => element.GetRawText()
+		        }
+		        : string.Empty;
 
-            return string.Empty;
-        }
-
-        public T? GetHeaderValue<T>(string key)
-        {
-            return _headerElement.ValueKind == JsonValueKind.Object &&
-                   _headerElement.TryGetProperty(key, out JsonElement element)
-                ? JsonSerializer.Deserialize<T>(element.GetRawText())
-                : default;
-        }
+        public T? GetHeaderValue<T>(string key) =>
+	        _headerElement.ValueKind == JsonValueKind.Object &&
+	        _headerElement.TryGetProperty(key, out JsonElement element)
+		        ? JsonSerializer.Deserialize<T>(element.GetRawText())
+		        : default;
 
         public T? GetPayloadValue<T>(string keyPath) => TryGetPayloadElement(keyPath, out JsonElement element) ? JsonSerializer.Deserialize<T>(element.GetRawText()) : default;
 
+        [SuppressMessage("ReSharper", "RemoveRedundantBraces")]
         private bool TryGetPayloadElement(string keyPath, out JsonElement element)
         {
             element = _payloadElement;

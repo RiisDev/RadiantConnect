@@ -3,22 +3,23 @@ using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services
 {
-    public class GameVersionService
+    public partial class GameVersionService
     {
         internal static readonly char[] Separator = ['\0'];
 
         public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
         private static int GetBuildNumberFromLog() => int.Parse(LogService.ReadTextFile(LogService.LogPath).ExtractValue(@"Build version: (\d+)", 1));
-        private const string VersionPattern = @"^release-\d\d.\d\d-shipping-\d{1,2}-\d{6,8}$";
+       
+        [GeneratedRegex(@"^release-\d\d.\d\d-shipping-\d{1,2}-\d{6,8}$")]
+        internal static partial Regex VersionPattern();
 
-        internal static ValorantNet.ValorantVersionApi GetVersionFromApi()
-        {
-            ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!; 
-            if (versionApiRoot?.Data == null)
-                throw new RadiantConnectException("Failed to get fallback version from API.");
-            return versionApiRoot.Data;
-        }
+		internal static ValorantNet.ValorantVersionApi GetVersionFromApi()
+		{
+			ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!;
+			
+			return versionApiRoot.Data ?? throw new RadiantConnectException("Failed to get fallback version from API.");
+		}
 
         public static VersionData GetClientVersion(string filePath)
         {
@@ -64,11 +65,9 @@ namespace RadiantConnect.Services
             string? buildNumber = block.FirstOrDefault(x => x.StartsWith(branch.Replace("release-","")))?.Split('.').LastOrDefault()?.Trim();
             
             if (!int.TryParse(buildNumber, out int parsedBuildVersion))
-            {
-                parsedBuildVersion = int.TryParse(GetProductVersionString(filePath), out int fallbackBuild)
-                    ? fallbackBuild
-                    : GetBuildNumberFromLog();
-            }
+	            parsedBuildVersion = int.TryParse(GetProductVersionString(filePath), out int fallbackBuild)
+		            ? fallbackBuild
+		            : GetBuildNumberFromLog();
 
             if (!int.TryParse(baseMajorVersion, out int baseMajorVersionParsed))
                 throw new RadiantConnectException($"Invalid major version: {baseMajorVersion}");
@@ -95,14 +94,11 @@ namespace RadiantConnect.Services
 
         private static void ValidateVersionData(VersionData versionData)
         {
-            if (!IsMatch(versionData.BuiltData, VersionPattern))
+            if (!VersionPattern().IsMatch(versionData.BuiltData))
                 throw new RadiantConnectException($"Invalid version format: {versionData.BuiltData}");
         }
 
-        private static string ExtractBranch(string rawBranch)
-        {
-            return rawBranch.Contains('+') ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
-        }
+        private static string ExtractBranch(string rawBranch) => rawBranch.Contains('+') ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
 
         internal static string GetOsVersion()
         {
@@ -180,9 +176,9 @@ namespace RadiantConnect.Services
 
             string subBlock = $@"\StringFileInfo\{langId:X4}{codePage:X4}\ProductVersion";
 
-            if (VerQueryValue(buffer, subBlock, out IntPtr ptr, out uint len) && len > 0) return Marshal.PtrToStringAuto(ptr);
-
-            return null;
+            return VerQueryValue(buffer, subBlock, out IntPtr ptr, out uint len) && len > 0
+	            ? Marshal.PtrToStringAuto(ptr)
+	            : null;
         }
 
     }

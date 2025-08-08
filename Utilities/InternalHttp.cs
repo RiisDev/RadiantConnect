@@ -1,4 +1,7 @@
-﻿namespace RadiantConnect.Utilities
+﻿#pragma warning disable IDE0305
+#pragma warning disable IDE0046
+
+namespace RadiantConnect.Utilities
 {
     internal static class InternalHttp
     {
@@ -31,7 +34,7 @@
             if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
 
             // We don't want the slash duplicated
-            if (baseUrl[^1] == '/' && endpoint[0] == '/') { endpoint = endpoint[1..]; }
+            if (baseUrl[^1] == '/' && endpoint[0] == '/') endpoint = endpoint[1..];
             if (baseUrl[^1] != '/' && endpoint[0] != '/') baseUrl += "/";
 
             return $"{baseUrl}{endpoint}";
@@ -45,10 +48,8 @@
                 using HttpRequestMessage request = new(method, queryUrl);
                 request.Content = content;
                 
-                foreach (KeyValuePair<string, string> header in RequestHeaders.Where(header => !string.IsNullOrEmpty(header.Value)))
-                {
-                    request.Headers.TryAddWithoutValidation(header.Key, header.Value);
-                }
+                foreach (KeyValuePair<string, string> header in RequestHeaders.Where(header => !string.IsNullOrEmpty(header.Value))) 
+	                request.Headers.TryAddWithoutValidation(header.Key, header.Value);
 
                 using HttpResponseMessage response = await InternalClient
                     .SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);

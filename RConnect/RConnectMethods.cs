@@ -112,7 +112,8 @@ namespace RadiantConnect.RConnect
             return parsedId;
         }
 
-        public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
+		#pragma warning disable IDE0046
+		public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
         {
             PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
             

@@ -112,15 +112,12 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
             client.DefaultRequestHeaders.Clear();
 
-            if (responseBody == null ||
-                string.IsNullOrEmpty(responseBody.Cluster) ||
-                string.IsNullOrEmpty(responseBody.Suuid) ||
-                string.IsNullOrEmpty(responseBody.Timestamp))
-            {
-                throw new RadiantConnectAuthException("Failed to find required fields");
-            }
-
-            return (responseBody.Cluster, responseBody.Suuid, responseBody.Timestamp);
+            return responseBody == null ||
+                   string.IsNullOrEmpty(responseBody.Cluster) ||
+                   string.IsNullOrEmpty(responseBody.Suuid) ||
+                   string.IsNullOrEmpty(responseBody.Timestamp)
+	            ? throw new RadiantConnectAuthException("Failed to find required fields")
+	            : (responseBody.Cluster, responseBody.Suuid, responseBody.Timestamp);
         }
 
         internal async Task<BuiltData> Build(Authentication.CountryCode countryCode)

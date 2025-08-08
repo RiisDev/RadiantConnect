@@ -1,4 +1,6 @@
-﻿namespace RadiantConnect.ValorantApi
+﻿#pragma warning disable IDE0046 // if statement
+
+namespace RadiantConnect.ValorantApi
 {
     [SuppressMessage("ReSharper", "MethodOverloadWithOptionalParameter")]
     internal static class ValorantApiClient

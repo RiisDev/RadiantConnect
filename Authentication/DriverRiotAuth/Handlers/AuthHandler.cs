@@ -96,7 +96,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
 
             DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
-            return await GetRsoCookiesFromDriver(accessTokenFound);
+            return await GetRsoCookiesFromDriver();
         }
 
         internal async Task HandleMfaAsync()
@@ -124,7 +124,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverStatus = Authentication.DriverStatus.MultiFactorCompleted;
         }
 
-        internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver(string accessToken)
+        internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver()
         {
             CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
 
@@ -141,10 +141,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             string tdid = cookieDict.GetValueOrDefault("tdid", "");
             string csid = cookieDict.GetValueOrDefault("csid", "");
 
-            if (string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid) || string.IsNullOrEmpty(tdid) || string.IsNullOrEmpty(csid))
-                throw new RadiantConnectAuthException("Failed to gather required cookies");
-
-            return (ssid, clid, tdid, csid);
+            return string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid) || string.IsNullOrEmpty(tdid) ||
+                   string.IsNullOrEmpty(csid)
+	            ? throw new RadiantConnectAuthException("Failed to gather required cookies")
+	            : (ssid, clid, tdid, csid);
         }
         
         public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket!);

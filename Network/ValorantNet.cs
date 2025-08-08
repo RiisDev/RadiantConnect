@@ -2,9 +2,10 @@
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Services;
 
+#pragma warning disable IDE0046
+
 namespace RadiantConnect.Network
 {
-    [SuppressMessage("ReSharper", "UnusedMember.Global")]
     public class ValorantNet
     {
         internal static string LockFilePath =
@@ -18,7 +19,7 @@ namespace RadiantConnect.Network
 
         internal HttpClient Client = AuthUtil.BuildClient().Item1;
 
-        public static int? GetAuthPort(){return GetAuth()?.AuthorizationPort;}
+        public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
         private static System.Net.Http.HttpMethod MapHttpMethod(HttpMethod method) => method switch
         {
@@ -167,7 +168,7 @@ namespace RadiantConnect.Network
 
             if (!string.IsNullOrEmpty(endPoint))
             {
-                if (baseUrl[^1] == '/' && endPoint[0] == '/') { endPoint = endPoint[1..]; } // Make sure the slash isn't duplicated
+                if (baseUrl[^1] == '/' && endPoint[0] == '/') endPoint = endPoint[1..]; // Make sure the slash isn't duplicated
                 if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
             }
 
@@ -192,11 +193,10 @@ namespace RadiantConnect.Network
 
             OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
 
-            if (!responseMessage.IsSuccessStatusCode)
-                throw new RadiantConnectNetworkStatusException($"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-                
-            return responseContent;
-
+            return !responseMessage.IsSuccessStatusCode
+	            ? throw new RadiantConnectNetworkStatusException(
+		            $"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}")
+	            : responseContent;
         }
 
         public async Task<T?> GetAsync<T>(string baseUrl, string endPoint) 

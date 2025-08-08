@@ -128,8 +128,7 @@ namespace RadiantConnect
             string vpnDetected = IsVpnDetected();
 
             if (!string.IsNullOrEmpty(vpnDetected) && !ignoreVpn)
-                throw new RadiantConnectException(
-                    $"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+                throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
 
             ExternalSystem = new InternalSystem(
                 client,

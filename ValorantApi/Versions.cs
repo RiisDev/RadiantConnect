@@ -2,7 +2,7 @@ namespace RadiantConnect.ValorantApi
 {
     public static class Versions
     {
-        public static async Task<VersionData?> GetVersionAsync(string uuid) => await ValorantApiClient.GetAsync<VersionData?>("https://valorant-api.com/v1", "version");
+        public static async Task<VersionData?> GetVersionAsync() => await ValorantApiClient.GetAsync<VersionData?>("https://valorant-api.com/v1", "version");
         
         public record VersionDatum(
             [property: JsonPropertyName("manifestId")] string ManifestId,

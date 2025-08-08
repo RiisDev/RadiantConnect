@@ -4,6 +4,8 @@ using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Authentication.CaptchaRiotAuth
 {
+	#pragma warning disable IDE0059
+	[SuppressMessage("ReSharper", "UnusedVariable")]
     internal class SuperMemory : IDisposable
     {
         internal class GetTaskResultJson { [JsonPropertyName("taskId")] public Guid? TaskId { get; init; } }
@@ -94,10 +96,7 @@ namespace RadiantConnect.Authentication.CaptchaRiotAuth
                 throw new InvalidOperationException("Failed to create task.");
 
             CheckCaptchaResponse? taskResultResponse = await GetTaskResult(taskResult);
-            if (taskResultResponse?.GeneratedPassUuid == null)
-                throw new InvalidOperationException("Failed to get task result.");
-
-            return taskResultResponse.GeneratedPassUuid;
+            return taskResultResponse?.GeneratedPassUuid ?? throw new InvalidOperationException("Failed to get task result.");
         }
 
         internal static string TokenUrlSafe(int byteLength)

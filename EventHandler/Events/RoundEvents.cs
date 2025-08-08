@@ -9,7 +9,7 @@
         public event RoundEvent? OnRoundStarted;
         public event RoundEvent? OnRoundEnded;
 
-        public void ResetRound() { _roundNumber = 0; }
+        public void ResetRound() => _roundNumber = 0;
 
         public void HandleRoundEvent(string invoker, string logData)
         {

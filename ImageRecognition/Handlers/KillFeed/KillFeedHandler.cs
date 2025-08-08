@@ -35,10 +35,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             { 5, 0 },
         };
 
-        public KillFeedHandler()
-        {
-            KillFeedCancellationToken = KillFeedCancellationSource.Token;
-        }
+        public KillFeedHandler() => KillFeedCancellationToken = KillFeedCancellationSource.Token;
 
 
         public async Task StartKillDetection(KillFeedConfig config, ColorConfig? colorConfig = null)
@@ -47,7 +44,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 
             while (!KillFeedCancellationToken.IsCancellationRequested)
             {
-
                 const int killBoxOffset = 94;
                 Dictionary<Bitmap, KillFeedAction> killBoxes = [];
 
@@ -110,6 +106,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
             }
         }
 
-        public void StopKillDetection() { KillFeedCancellationSource.Cancel(); }
+        public void StopKillDetection() => KillFeedCancellationSource.Cancel();
     }
 }

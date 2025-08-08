@@ -32,15 +32,15 @@ namespace RadiantConnect.SocketServices.InternalTcp
         internal async Task<IReadOnlyList<string>> GetEvents()
         {
             JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync();
-            if (response is null) return Array.Empty<string>();
+            if (response is null) return [];
 
             JsonDocument jsonDocument = JsonDocument.Parse(response.ToString()!);
             JsonElement root = jsonDocument.RootElement;
 
-            if (root.TryGetProperty("events", out JsonElement eventsElement) && eventsElement.ValueKind == JsonValueKind.Object)
-                return eventsElement.EnumerateObject().Select(eventProperty => eventProperty.Name).ToList();
-
-            return Array.Empty<string>();
+            return root.TryGetProperty("events", out JsonElement eventsElement) &&
+                   eventsElement.ValueKind == JsonValueKind.Object
+	            ? eventsElement.EnumerateObject().Select(eventProperty => eventProperty.Name).ToList()
+	            : [];
         }
 
         internal async Task ReceiveMessageAsync(ClientWebSocket webSocket)
@@ -67,42 +67,38 @@ namespace RadiantConnect.SocketServices.InternalTcp
             }
         }
 
-        public void InitializeConnection()
-        {
-            Task.Run(async () =>
-            {
-                try
-                {
-                    while (!await InternalValorantMethods.IsReady(Init.Endpoints.LocalEndpoints))
-                    {
-                        Debug.WriteLine("Waiting for ClientReady...");
-                        await Task.Delay(500);
-                    }
+        public void InitializeConnection() =>
+	        Task.Run(async () =>
+	        {
+		        try
+		        {
+			        while (!await InternalValorantMethods.IsReady(Init.Endpoints.LocalEndpoints))
+			        {
+				        Debug.WriteLine("Waiting for ClientReady...");
+				        await Task.Delay(500);
+			        }
 
-                    Uri uri = new($"wss://riot:{Authentication?.OAuth}@127.0.0.1:{Authentication?.AuthorizationPort}");
+			        Uri uri = new($"wss://riot:{Authentication?.OAuth}@127.0.0.1:{Authentication?.AuthorizationPort}");
 
-                    ClientWebSocket clientWebSocket = new();
-                    clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
-                    clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
-                    await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
+			        ClientWebSocket clientWebSocket = new();
+			        clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
+			        clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
+			        await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
-                    foreach (string eventName in await GetEvents())
-                    {
-                        await clientWebSocket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]").ToArray()), WebSocketMessageType.Text, true, CancellationToken.None);
-                    }
+			        foreach (string eventName in await GetEvents()) 
+				        await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, CancellationToken.None);
 
-                    while (!ShutdownSocket.IsCancellationRequested)
-                    {
-                        await ReceiveMessageAsync(clientWebSocket);
-                    }
+			        while (!ShutdownSocket.IsCancellationRequested)
+			        {
+				        await ReceiveMessageAsync(clientWebSocket);
+			        }
 
-                    await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
-                    await clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+			        await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+			        await clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
 
-                    clientWebSocket.Dispose();
-                }
-                catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
-            });
-        }
+			        clientWebSocket.Dispose();
+		        }
+		        catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
+	        });
     }
 }

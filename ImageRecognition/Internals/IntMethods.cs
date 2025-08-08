@@ -1,4 +1,5 @@
-﻿namespace RadiantConnect.ImageRecognition.Internals
+﻿#pragma warning disable IDE0046
+namespace RadiantConnect.ImageRecognition.Internals
 {
     internal static class IntMethods
     {

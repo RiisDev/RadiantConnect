@@ -1,83 +1,129 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net8.0-windows;net8.0;net9.0-windows;net9.0</TargetFrameworks>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-    <Nullable>enable</Nullable>
-    <GenerateDocumentationFile>False</GenerateDocumentationFile>
-    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>Radiant Connect Valorant API (UnOfficial)</Title>
-    <Version>9.7.0</Version>
-    <Authors>IrisDev</Authors>
-    <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
-    <Copyright>https://github.com/RiisDev</Copyright>
-    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers
-      &amp; image recognition, XMPP Integration, Riot Login, TCP Integration</Description>
-    <PackageIcon>icon.png</PackageIcon>
-    <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
-    <LangVersion>preview</LangVersion>
-    <PackageReleaseNotes>* Fixed GetBalances Method / Endpoint
+	<PropertyGroup>
+		<TargetFrameworks>net8.0-windows;net8.0;net9.0-windows;net9.0</TargetFrameworks>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+		<Nullable>enable</Nullable>
+		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
+		<Version>9.7.0</Version>
+		<Authors>IrisDev</Authors>
+		<PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
+		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
+		<Copyright>Copyright © 2025 (IrisDev/RiisDev). All rights reserved.</Copyright>
+		<Description>
+			Valorant .Net API, Internal Riot API Usage, With automatic game event handlers
+			&amp; image recognition, XMPP Integration, Riot Login, TCP Integration
+		</Description>
+		<PackageIcon>icon.png</PackageIcon>
+		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
+		<LangVersion>preview</LangVersion>
+		<PackageReleaseNotes>
+			* Fixed GetBalances Method / Endpoint
 
-      * Modified GameVersionService to be more reliable, and added more safeguards.
+			* Modified GameVersionService to be more reliable, and added more safeguards.
 
-      * Modified the way I pull data from text/json files, please report any issues found.</PackageReleaseNotes>
-    <NeutralLanguage>en</NeutralLanguage>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageReadmeFile>README.md</PackageReadmeFile>
-    <RepositoryType>git</RepositoryType>
-    <AssemblyVersion>1.0.0.0</AssemblyVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <ErrorReport>none</ErrorReport>
-    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
-    <IncludeSymbols>true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-  </PropertyGroup>
+			* Modified the way I pull data from text/json files, please report any issues found.
+		</PackageReleaseNotes>
+		<NeutralLanguage>en</NeutralLanguage>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageReadmeFile>README.md</PackageReadmeFile>
+		<RepositoryType>git</RepositoryType>
+		<AssemblyVersion>1.0.0.0</AssemblyVersion>
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<ErrorReport>none</ErrorReport>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+		<IncludeSymbols>true</IncludeSymbols>
+		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
+		<SignAssembly>True</SignAssembly>
+		<AssemblyOriginatorKeyFile>RadiantConnectKey.snk</AssemblyOriginatorKeyFile>
+		<DelaySign>False</DelaySign>
+		<PackageId>RadiantConnect</PackageId>
+		<Product>RadiantConnect</Product>
+		<Company>IrisDev</Company>
+		<AnalysisLevel>none</AnalysisLevel>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
-    <DebugType>embedded</DebugType>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+		<DebugType>embedded</DebugType>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Compile Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-    <None Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
-    <Content Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-    <EmbeddedResource Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
-    <PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <!-- Remove ImageRecognition folder from Content for non-Windows platforms -->
-    <Content Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net8.0-windows|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-    <!-- Remove ImageRecognition folder from EmbeddedResources for non-Windows platforms -->
-    <EmbeddedResource Remove="ImageRecognition\**"
-      Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net8.0-windows|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-    <!-- Remove ImageRecognition folder from any other type if included, such as None -->
-    <None Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0-windows|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-    <Compile Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0-windows|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Include="icon.png">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-    <None Include="README.md">
-      <Pack>True</Pack>
-      <PackagePath>\</PackagePath>
-    </None>
-  </ItemGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Debug|net9.0|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net9.0|AnyCPU'">
+	  <WarningLevel>9999</WarningLevel>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<Compile Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+		<None Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
+		<Content Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+		<EmbeddedResource Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net9.0-windows' ">
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
+	</ItemGroup>
+
+	<ItemGroup Condition="'$(TargetFramework)' != 'net8.0-windows' AND '$(TargetFramework)' != 'net9.0-windows' ">
+		<Content Remove="ImageRecognition\**" />
+		<EmbeddedResource Remove="ImageRecognition\**" />
+		<None Remove="ImageRecognition\**" />
+		<Compile Remove="ImageRecognition\**" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Remove=".gitattributes" />
+	  <None Remove=".gitignore" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<None Include="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
+		<None Include="icon.png">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+		<None Include="README.md">
+			<Pack>True</Pack>
+			<PackagePath>\</PackagePath>
+		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EditorConfigFiles Remove="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
+	</ItemGroup>
 
 	<!-- Force GitHub Action -->
 </Project>

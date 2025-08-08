@@ -65,12 +65,12 @@ namespace RadiantConnect.XMPP
         }
 
         internal static X509Certificate2 GenerateCertificate()
-        {
+		{
             ECDsa ecdsaValue = ECDsa.Create(ECCurve.NamedCurves.nistP256);
-            CertificateRequest certRequest = new("CN=RadiantConnect", ecdsaValue, HashAlgorithmName.SHA256);
+	        CertificateRequest certRequest = new("CN=RadiantConnect", ecdsaValue, HashAlgorithmName.SHA256);
             certRequest.CertificateExtensions.Add(new X509KeyUsageExtension(X509KeyUsageFlags.DigitalSignature, true));
             X509Certificate2 generatedCert = certRequest.CreateSelfSigned(DateTimeOffset.Now.AddDays(-1), DateTimeOffset.Now.AddYears(10));
-            return new X509Certificate2(generatedCert.Export(X509ContentType.Pfx));
+			return new X509Certificate2(generatedCert.Export(X509ContentType.Pfx));
         }
 
         internal static ValorantPresence? HandlePresenceObject(string data, Action<ValorantPresence>? presenceAction = null)
@@ -154,7 +154,8 @@ namespace RadiantConnect.XMPP
             catch{/**/}
         }
         
-        internal async Task HandleClients(TcpListener server, string chatHost, int chatPort)
+        [SuppressMessage("ReSharper", "RemoveRedundantBraces")] // Analyzer wants to remove braces for 'while' statement
+		internal async Task HandleClients(TcpListener server, string chatHost, int chatPort)
         {
             X509Certificate2 proxyCertificate = new(GenerateCertificate());
 

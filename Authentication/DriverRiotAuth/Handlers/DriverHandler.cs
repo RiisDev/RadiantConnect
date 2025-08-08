@@ -7,11 +7,11 @@ using Match = System.Text.RegularExpressions.Match;
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-    internal class DriverHandler
+    internal partial class DriverHandler
     {
         internal static event RuntimeChanged? OnRuntimeChanged;
 
-        internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = new();
+        internal static readonly Dictionary<int, TaskCompletionSource<string>> PendingRequests = [];
 
         internal static event FrameChangedEvent? OnFrameNavigation;
         internal static event FrameChangedEvent? OnFrameLoaded;
@@ -22,15 +22,21 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal static event RadiantConsoleDetected? OnCaptchaFound;
         internal static event RadiantConsoleDetected? OnCaptchaRemoved;
 
-        internal static readonly Regex FrameNavigatedRegex = new("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
-        internal static readonly Regex NavigatedWithinDocument = new("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"", RegexOptions.Compiled);
-        internal static readonly Regex FrameStoppedLoadingRegex = new("\"frameId\":\"([^\"]+)\"", RegexOptions.Compiled);
+        [GeneratedRegex("\"id\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"")]
+        internal static partial Regex FrameNavigatedRegex();
+
+        [GeneratedRegex("\"frameId\":\"([^\"]+)\".*?\"url\":\"([^\"]+)\"")]
+        internal static partial Regex NavigatedWithinDocument();
+
+        [GeneratedRegex("\"frameId\":\"([^\"]+)\"")]
+        internal static partial Regex FrameStoppedLoadingRegex();
 
         internal static void DoDriverCheck(string browserProcess, string browserExecutable, bool killBrowser)
         {
-            List<Process> browserProcesses = Process.GetProcessesByName(browserProcess).ToList();
+	        List<Process> browserProcesses = [];
+	        browserProcesses.AddRange(Process.GetProcessesByName(browserProcess));
 
-            if (browserProcesses.Any() && !killBrowser)
+	        if (browserProcesses.Any() && !killBrowser)
                 throw new RadiantConnectException($"{browserProcesses.First().ProcessName} is currently running, it must be closed or Initialize must be started with 'true'");
             if (browserProcesses.Any() && killBrowser)
                 browserProcesses.ToList().ForEach(x => x.Kill());
@@ -45,17 +51,17 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             switch (message)
             {
                 case var _ when message.Contains("Page.frameNavigated"):
-                    match = FrameNavigatedRegex.Match(message);
+                    match = FrameNavigatedRegex().Match(message);
                     if (match.Success)
                         OnFrameNavigation?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
                     break;
                 case var _ when message.Contains("Page.frameStoppedLoading"):
-                    match = FrameStoppedLoadingRegex.Match(message);
+                    match = FrameStoppedLoadingRegex().Match(message);
                     if (match.Success)
                         OnFrameLoaded?.Invoke(null, match.Groups[1].Value);
                     break;
                 case var _ when message.Contains("navigatedWithinDocument"):
-                    match = NavigatedWithinDocument.Match(message);
+                    match = NavigatedWithinDocument().Match(message);
                     if (match.Success)
                         OnDocumentNavigate?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
                     break;
@@ -128,12 +134,12 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 if (urlStartIndex == -1) continue;
                 int urlValueStart = pageData.IndexOf("ws://", urlStartIndex, StringComparison.OrdinalIgnoreCase);
                 int urlValueEnd = pageData.IndexOf("\"", urlValueStart, StringComparison.OrdinalIgnoreCase);
-
-                return pageData.Substring(urlValueStart, urlValueEnd - urlValueStart);
+				
+                return pageData[urlValueStart..urlValueEnd];
             }
         }
 
-        internal static async Task<string?> WaitForPage(string title, int port, ClientWebSocket? socket, int maxRetries = 250, bool needsReturn = false)
+        internal static async Task<string?> WaitForPage(string title, int port, int maxRetries = 250, bool needsReturn = false)
         {
             int retries = 0;
             string foundSocket = "";

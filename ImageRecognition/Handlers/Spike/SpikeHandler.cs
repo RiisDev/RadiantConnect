@@ -15,10 +15,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.Spike
         internal int FalseCounter;
         internal bool SpikeActive;
 
-        public SpikeHandler()
-        {
-            SpikeCancellationToken = SpikeCancellationSource.Token;
-        }
+        public SpikeHandler() => SpikeCancellationToken = SpikeCancellationSource.Token;
 
         public async Task StartSpikeDetection(ColorConfig? colorConfig = null)
         {
@@ -55,6 +52,6 @@ namespace RadiantConnect.ImageRecognition.Handlers.Spike
             }
         }
 
-        public void StopSpikeDetection() { SpikeCancellationSource.Cancel(); }
+        public void StopSpikeDetection() => SpikeCancellationSource.Cancel();
     }
 }

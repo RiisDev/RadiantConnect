@@ -18,6 +18,9 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
         internal Process DisplayImage(string path)
         {
+	        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+		        throw new PlatformNotSupportedException("Unsupported OS");
+
             if (!File.Exists(path)) throw new FileNotFoundException("QR code image not found", path);
 
             if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
@@ -30,14 +33,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 return Process.Start(startInfo)!;
             }
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            {
-                if (string.IsNullOrEmpty(Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? Environment.GetEnvironmentVariable("DESKTOP_SESSION")))
-                    throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.");
-                return Process.Start("xdg-open", path);
-            }
-
-            throw new PlatformNotSupportedException("Unsupported OS");
+            return string.IsNullOrEmpty(Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ??
+                                        Environment.GetEnvironmentVariable("DESKTOP_SESSION"))
+	            ? throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.")
+	            : Process.Start("xdg-open", path);
         }
 
         internal async Task<RSOAuth?> Authenticate()
@@ -67,7 +66,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 TokenManager manager = new(form, qrData, httpClient, returnUrl, container);
                 TaskCompletionSource<RSOAuth?> tcs = new();
 
-                manager.OnTokensFinished += authData => tcs.SetResult(authData);
+                manager.OnTokensFinished += tcs.SetResult;
                 manager.InitiateTimer(tempName);
 
                 return await tcs.Task;

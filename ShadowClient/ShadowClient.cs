@@ -13,7 +13,7 @@ namespace RadiantConnect.ShadowClient
     );
 
 
-    internal class ShadowClient(RSOAuth rsoAuth)
+    internal partial class ShadowClient(RSOAuth rsoAuth)
     {
         private bool _built;
         private RemoteXMPP _remoteXmpp = null!;
@@ -48,12 +48,22 @@ namespace RadiantConnect.ShadowClient
             _remoteXmpp.OnMessage += data => Console.WriteLine($"XMPP: {data}");
         }
 
-        internal async Task InitiateConnections()
+        [GeneratedRegex("(.*)@")] 
+        private static partial Regex XmppBindParsed();
+
+        [GeneratedRegex("\\/(.*)")]
+        private static partial Regex XmppRcConnect();
+
+        [GeneratedRegex("@(.*)\\/")]
+        private static partial Regex XmppUrl();
+
+		#pragma warning disable IDE0059
+		internal async Task InitiateConnections()
         {
             if (!_built) throw new RadiantConnectShadowClientException("Client has not been built");
-            string xmppBindParsed = Match(_xmppBind, "(.*)@", RegexOptions.Compiled).Value[..^1];
-            string xmppRcConnect = Match(_xmppBind, "\\/(.*)", RegexOptions.Compiled).Value[1..];
-            string xmppUrl = Match(_xmppBind, "@(.*)\\/", RegexOptions.Compiled).Value[1..^1];
+            string xmppBindParsed = XmppBindParsed().Match(_xmppBind).Value[..^1];
+            string xmppRcConnect = XmppRcConnect().Match(_xmppBind).Value[1..];
+            string xmppUrl = XmppUrl().Match(_xmppBind).Value[1..^1];
 
             await _controller.SendMessage("""
                                           <iq id="_xmpp_session1" type="set">
@@ -102,19 +112,19 @@ namespace RadiantConnect.ShadowClient
             await _controller.SendPresenceEvent();
         }
 
-        internal string GetLoginKeystone()
+        [GeneratedRegex("voice_chat\\.voice_recording_upload_uri\":\"(https:\\/\\/.+?\\.pp\\.sgp\\.pvp\\.net)")]
+        internal static partial Regex VoiceRecordingUrl();
+
+		internal string GetLoginKeystone()
         {
             string playerConfig = JsonSerializer.Serialize(rsoAuth.ClientConfig);
             
-            Regex getKeystoneRegex = new ("voice_chat\\.voice_recording_upload_uri\":\"(https:\\/\\/.+?\\.pp\\.sgp\\.pvp\\.net)", RegexOptions.Compiled);
-            Match found = getKeystoneRegex.Match(playerConfig);
+			Match found = VoiceRecordingUrl().Match(playerConfig);
 
-            if (!found.Success)
-            {
-                throw new RadiantConnectShadowClientException("Failed to find login keystone");
-            }
 
-            return found.Groups[1].Value;
+			return !found.Success
+				? throw new RadiantConnectShadowClientException("Failed to find login keystone")
+				: found.Groups[1].Value;
         }
 
         internal GameTagLine GetNameTagLine()

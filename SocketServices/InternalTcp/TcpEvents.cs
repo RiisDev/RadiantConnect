@@ -5,10 +5,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
     {
         public TcpEvents(ValSocket socket) => socket.OnNewMessage += TcpMessage;
 
-        private void TcpMessage(string value)
-        {
-            Debug.WriteLine(value);
-        }
+        private void TcpMessage(string value) => Debug.WriteLine(value);
     }
 
 }
