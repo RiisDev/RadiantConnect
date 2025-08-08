@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using RadiantConnect.Network.PVPEndpoints.DataTypes;
+﻿using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.Services;
 
 // ReSharper disable All

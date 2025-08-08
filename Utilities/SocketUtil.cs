@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Security;
-using System.Text;
+﻿using System.Net.Security;
 
 namespace RadiantConnect.Utilities
 {

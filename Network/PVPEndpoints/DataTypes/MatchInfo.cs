@@ -1,4 +1,4 @@
-﻿using System.Text.Json.Serialization;
+﻿
 // ReSharper disable All
 
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes;

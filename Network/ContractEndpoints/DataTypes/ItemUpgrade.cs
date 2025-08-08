@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Network.ContractEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.ContractEndpoints.DataTypes;
 
 // ReSharper disable All
 public record Cost(

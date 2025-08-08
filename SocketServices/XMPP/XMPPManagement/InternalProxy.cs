@@ -1,12 +1,8 @@
 ﻿// Major credit to: https://github.com/molenzwiebel/Deceive/blob/master/Deceive/ConfigProxy.cs
 // It's pretty much ConfigProxy.cs but rewritten to my "standards" 
 
-using System.Net;
-using System.Text;
 using System.Text.Json.Nodes;
-using System.Text.Json;
 using System.Net.Sockets;
-using RadiantConnect.Utilities;
 using RadiantConnect.XMPP;
 
 

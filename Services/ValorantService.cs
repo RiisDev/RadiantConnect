@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using RadiantConnect.Utilities;
-
-namespace RadiantConnect.Services
+﻿namespace RadiantConnect.Services
 {
     public class ValorantService
     {

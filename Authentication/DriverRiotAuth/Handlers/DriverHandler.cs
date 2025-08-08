@@ -1,12 +1,5 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Json;
-using System.Net.WebSockets;
-using System.Text;
-using System.Text.Json;
-using System.Text.RegularExpressions;
+﻿using System.Net.WebSockets;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Network.PVPEndpoints.DataTypes;
-using RadiantConnect.Utilities;
 using static RadiantConnect.Authentication.DriverRiotAuth.Events;
 using Match = System.Text.RegularExpressions.Match;
 

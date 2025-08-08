@@ -6,6 +6,7 @@ namespace RadiantConnect.Services
     {
         public static string GetValorantPath()
         {
+#if WINDOWS
             string? installLocation;
             try
             {
@@ -18,10 +19,14 @@ namespace RadiantConnect.Services
                 installLocation = @"C:\Riot Games\VALORANT\live\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
             }
             return installLocation;
+#else
+            return string.Empty; // Non-Windows platforms are not supported
+#endif
         }
 
         public static string GetRiotClientPath()
         {
+#if WINDOWS
             string installLocation = string.Empty;
             try
             {
@@ -36,6 +41,9 @@ namespace RadiantConnect.Services
                 installLocation = @"C:\Riot Games\Riot Client\RiotClientServices.exe";
             }
             return installLocation;
+#else             
+            return string.Empty; // Non-Windows platforms are not supported
+#endif
         }
     }
 }

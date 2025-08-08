@@ -1,9 +1,6 @@
-﻿using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
+﻿using System.Net.Http.Headers;
 using System.Net.Sockets;
 using System.Security.Cryptography;
-using System.Text;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Utilities

@@ -1,7 +1,5 @@
 ﻿// ReSharper disable All
 
-using System.Text.Json.Serialization;
-
 namespace RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
 
 public record CurrentGamePlayer(

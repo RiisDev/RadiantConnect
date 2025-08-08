@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using RadiantConnect.Network.ChatEndpoints.DataTypes;
+﻿using RadiantConnect.Network.ChatEndpoints.DataTypes;
 
 namespace RadiantConnect.Network.ChatEndpoints;
 

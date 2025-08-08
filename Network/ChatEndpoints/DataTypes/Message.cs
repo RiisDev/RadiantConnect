@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.ChatEndpoints.DataTypes;
-// ReSharper disable All
+﻿namespace RadiantConnect.Network.ChatEndpoints.DataTypes;
 
 public record Message(
     [property: JsonPropertyName("body")] string Body,

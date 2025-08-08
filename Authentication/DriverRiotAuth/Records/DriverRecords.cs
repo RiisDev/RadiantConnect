@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Authentication.DriverRiotAuth.Records;
+﻿namespace RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 
 public record Cookie(

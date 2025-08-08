@@ -1,10 +1,6 @@
 ﻿using System.Drawing;
 using RadiantConnect.ImageRecognition.Internals;
 
-// ReSharper disable MethodSupportsCancellation
-#pragma warning disable CA1416
-
-// ReSharper disable 
 namespace RadiantConnect.ImageRecognition.Handlers.Spike
 {
     public class SpikeHandler
@@ -55,7 +51,7 @@ namespace RadiantConnect.ImageRecognition.Handlers.Spike
 
                 spikeBox.Dispose();
 
-                await Task.Delay(10);
+                await Task.Delay(10, SpikeCancellationToken);
             }
         }
 

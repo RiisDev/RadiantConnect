@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
 public record ClientPlatformInfo(
     [property: JsonPropertyName("platformType")] string PlatformType,
     [property: JsonPropertyName("platformOS")] string PlatformOS,

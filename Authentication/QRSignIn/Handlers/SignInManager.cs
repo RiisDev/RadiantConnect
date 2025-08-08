@@ -1,10 +1,6 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Runtime.InteropServices;
-using System.Web;
+﻿using System.Web;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
-using RadiantConnect.Utilities;
 
 /*
  *

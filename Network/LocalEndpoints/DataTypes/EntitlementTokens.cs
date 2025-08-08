@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
 public record EntitlementTokens(
     [property: JsonPropertyName("accessToken")] string AccessToken,
     [property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,

@@ -1,9 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Net;
-using System.Text.Json;
-
-namespace RadiantConnect.ValorantApi
+﻿namespace RadiantConnect.ValorantApi
 {
     [SuppressMessage("ReSharper", "MethodOverloadWithOptionalParameter")]
     internal static class ValorantApiClient

@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.PVPEndpoints.DataTypes;
 
 public record Penalty(
     [property: JsonPropertyName("Subject")] string Subject,

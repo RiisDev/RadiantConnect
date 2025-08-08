@@ -1,13 +1,8 @@
 ﻿using RadiantConnect.Services;
-using System.Diagnostics;
-using System.Net;
 using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 using System.Security.Cryptography.X509Certificates;
-using System.Text.Json;
-using System.Text.RegularExpressions;
-using RadiantConnect.Utilities;
 using RadiantConnect.SocketServices.XMPP.DataTypes;
 using RadiantConnect.SocketServices.XMPP.XMPPManagement;
 #pragma warning disable SYSLIB0057

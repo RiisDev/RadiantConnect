@@ -1,10 +1,6 @@
-﻿
-// ReSharper disable IdentifierTypo
-// ReSharper disable InconsistentNaming
-// ReSharper disable StringLiteralTypo
+﻿namespace RadiantConnect.Authentication.DriverRiotAuth.Records;
 
-namespace RadiantConnect.Authentication.DriverRiotAuth.Records;
-
+// ReSharper disable twice StringLiteralTypo
 public record DriverSettings(
     string ProcessName = "msedge",
     string BrowserExecutable = @"C:\Program Files (x86)\Microsoft\Edge\Application\msedge.exe",
@@ -13,15 +9,12 @@ public record DriverSettings(
     bool UseHeadless = true
 );
 
-[Obsolete("Record is no longer used, and will throw an error.", true)]
-public record RadiantConnectRSO(string SSID); // Supposedly all you need for authorization?
-
 public record RSOAuth(
     string? Subject,
-    string? SSID,
-    string? TDID,
-    string? CSID,
-    string? CLID,
+    string? Ssid,
+    string? Tdid,
+    string? Csid,
+    string? Clid,
     string? AccessToken,
     string? PasToken,
     string? Entitlement,

@@ -1,9 +1,5 @@
 ﻿using System.Net.Http.Headers;
-using System.Net;
 using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json.Serialization;
-using System.Text.Json;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Authentication.CaptchaRiotAuth

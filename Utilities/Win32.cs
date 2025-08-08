@@ -1,7 +1,4 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
-#pragma warning disable SYSLIB1054
+﻿#pragma warning disable SYSLIB1054
 
 namespace RadiantConnect.Utilities
 {

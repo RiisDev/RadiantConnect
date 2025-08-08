@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.ChatEndpoints.DataTypes;
-// ReSharper disable All
+﻿namespace RadiantConnect.Network.ChatEndpoints.DataTypes;
 
 public record Participant(
     [property: JsonPropertyName("activePlatform")] object ActivePlatform,

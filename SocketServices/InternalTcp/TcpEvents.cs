@@ -1,11 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-#if DEBUG
+﻿#if DEBUG
 namespace RadiantConnect.SocketServices.InternalTcp
 {
     public class TcpEvents

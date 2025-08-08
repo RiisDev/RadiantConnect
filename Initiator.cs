@@ -9,10 +9,7 @@ using RadiantConnect.Network.PartyEndpoints;
 using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
-using System.Diagnostics;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using System.Text.Json.Serialization;
-using RadiantConnect.Utilities;
 
 namespace RadiantConnect
 {
@@ -47,15 +44,7 @@ namespace RadiantConnect
     public class Initiator : IDisposable
     {
         internal static bool IsDisposed { get; private set; }
-
-        private static bool ClientIsReady() =>
-            InternalValorantMethods.IsValorantProcessRunning() &&
-            Directory.Exists(Path.GetDirectoryName(LogService.LogPath)) &&
-            File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
-                "Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
-            File.Exists(LogService.LogPath) &&
-            !LogService.ReadTextFile(LogService.LogPath).Split('\n').Last().Contains("Log file closed");
-
+        
         private static string IsVpnDetected() => string.Join('|',
             Process.GetProcesses().Where(process =>
                 process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase)));

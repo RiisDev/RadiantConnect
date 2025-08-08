@@ -1,6 +1,4 @@
 ﻿using RadiantConnect.XMPP;
-using System.Diagnostics.CodeAnalysis;
-using RadiantConnect.Utilities;
 
 namespace RadiantConnect.SocketServices.XMPP
 {

@@ -1,10 +1,5 @@
-﻿using System.Text;
-using System.Text.Json;
-using System.Text.Json.Serialization;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using static System.Text.RegularExpressions.Regex;
+﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using System.Net.WebSockets;
-using RadiantConnect.Utilities;
 
 namespace RadiantConnect.SocketServices.RMS
 {

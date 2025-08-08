@@ -1,11 +1,6 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Net.Http.Headers;
-using System.Net.Http.Json;
-using System.Text.Json;
+﻿using System.Net.Http.Headers;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Modules;
-using RadiantConnect.Utilities;
 using Timer = System.Timers.Timer;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers

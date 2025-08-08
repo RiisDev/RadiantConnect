@@ -1,14 +1,10 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Text.RegularExpressions;
-
-namespace RadiantConnect.Utilities;
+﻿namespace RadiantConnect.Utilities;
 
 public static class StringExtensions
 {
     internal static string ExtractValue(this string haystack, [StringSyntax(StringSyntaxAttribute.Regex)] string pattern, int groupId)
     {
-        Match match = Regex.Match(haystack, pattern);
+        Match match = Match(haystack, pattern);
         return match is not { Success: true } ? "" : match.Groups[groupId].Value.Replace("\r", "").Replace("\n", "");
     }
 

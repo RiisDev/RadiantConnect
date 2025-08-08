@@ -1,12 +1,5 @@
-﻿using System.Diagnostics;
-using System.Net.WebSockets;
-using System.Text.Json;
+﻿using System.Net.WebSockets;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Utilities;
-
-// ReSharper disable AccessToDisposedClosure <--- It's handled in DriverHandler
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
@@ -40,10 +33,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal async Task<(string, string, string, string)> Authenticate(string username, string password)
         {
-            DriverStatus = Authentication.DriverStatus.Checking_Existing_Processes;
+            DriverStatus = Authentication.DriverStatus.CheckingExistingProcesses;
             DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
 
-            DriverStatus = Authentication.DriverStatus.Creating_Driver;
+            DriverStatus = Authentication.DriverStatus.CreatingDriver;
             (WebDriver, string? socketUrl) = await DriverHandler.StartDriver(browserExecutable, DriverPort, headless);
 
             if (WebDriver == null)
@@ -55,15 +48,15 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
             SocketHandler = new SocketHandler(Socket, this, DriverPort);
 
-            Task.Run(() => DriverHandler.ListenAsync(Socket));
+            _ = Task.Run(() => DriverHandler.ListenAsync(Socket));
 
             await SocketHandler.InitiateRuntimeHandles(Socket, username, password);
 
-            DriverStatus = Authentication.DriverStatus.Driver_Created;
+            DriverStatus = Authentication.DriverStatus.DriverCreated;
 
             try
             {
-                DriverStatus = Authentication.DriverStatus.Begin_SignIn;
+                DriverStatus = Authentication.DriverStatus.BeginSignIn;
                 return await PerformSignInAsync();
             }
             catch (Exception e)
@@ -87,14 +80,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
         internal async Task<(string, string, string, string)> PerformSignInAsync()
         {
             string accessTokenFound = string.Empty;
-            DriverStatus = Authentication.DriverStatus.Logging_Into_Valorant;
+            DriverStatus = Authentication.DriverStatus.LoggingIntoValorant;
 
-            DriverHandler.OnCaptchaFound += (_) => DriverStatus = Authentication.DriverStatus.Captcha_Found;
-            DriverHandler.OnCaptchaRemoved += (_) => DriverStatus = Authentication.DriverStatus.Captcha_Solved;
+            DriverHandler.OnCaptchaFound += (_) => DriverStatus = Authentication.DriverStatus.CaptchaFound;
+            DriverHandler.OnCaptchaRemoved += (_) => DriverStatus = Authentication.DriverStatus.CaptchaSolved;
 
             DriverHandler.OnMfaDetected += async (_) =>
             {
-                DriverStatus = Authentication.DriverStatus.Checking_RSO_Multi_Factor;
+                DriverStatus = Authentication.DriverStatus.CheckingRSOMultiFactor;
                 await HandleMfaAsync();
             };
 
@@ -102,13 +95,13 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
 
-            DriverStatus = Authentication.DriverStatus.Grabbing_Required_Tokens;
+            DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
             return await GetRsoCookiesFromDriver(accessTokenFound);
         }
 
         internal async Task HandleMfaAsync()
         {
-            DriverStatus = Authentication.DriverStatus.Multi_Factor_Requested;
+            DriverStatus = Authentication.DriverStatus.MultiFactorRequested;
             OnMultiFactorRequested?.Invoke();
 
             while (string.IsNullOrEmpty(MultiFactorCode)) await Task.Delay(500); // Wait for MFA code to be set
@@ -128,7 +121,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             await SocketHandler.ExecuteOnPageWithResponse("Verification Required", DriverPort, mfaDataInput, "", Socket!);
 
-            DriverStatus = Authentication.DriverStatus.Multi_Factor_Completed;
+            DriverStatus = Authentication.DriverStatus.MultiFactorCompleted;
         }
 
         internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver(string accessToken)

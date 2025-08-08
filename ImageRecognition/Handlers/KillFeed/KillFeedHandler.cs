@@ -1,9 +1,5 @@
-﻿
-using System.Drawing;
+﻿using System.Drawing;
 using RadiantConnect.ImageRecognition.Internals;
-
-// ReSharper disable MethodSupportsCancellation
-#pragma warning disable CA1416
 
 namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
 {
@@ -107,10 +103,10 @@ namespace RadiantConnect.ImageRecognition.Handlers.KillFeed
                             OnAssist?.Invoke();
 
                         killBox.Dispose();
-                    });
+                    }, KillFeedCancellationToken);
                 }
 
-                await Task.Delay(1);
+                await Task.Delay(1, KillFeedCancellationToken);
             }
         }
 

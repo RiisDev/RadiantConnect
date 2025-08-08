@@ -1,5 +1,4 @@
 ﻿using System.Collections.Specialized;
-using System.Net.Http.Json;
 using RadiantConnect.Methods;
 using RadiantConnect.Network.PartyEndpoints.DataTypes;
 namespace RadiantConnect.Network.PartyEndpoints;

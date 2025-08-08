@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
 // ReSharper disable All
 public record LocalChatSession(
     [property: JsonPropertyName("federated")] bool? Federated,

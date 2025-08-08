@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.LocalEndpoints.DataTypes;
 public record AliasInfo(
     [property: JsonPropertyName("active")] bool? Active,
     [property: JsonPropertyName("created_datetime")] long? CreatedDatetime,

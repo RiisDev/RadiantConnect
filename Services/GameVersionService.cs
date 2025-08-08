@@ -1,10 +1,4 @@
-﻿using System.Net.Http.Json;
-using System.Runtime.InteropServices;
-using System.Text;
-using System.Text.Json;
-using RadiantConnect.Network;
-using RadiantConnect.Utilities;
-using static System.Text.RegularExpressions.Regex;
+﻿using RadiantConnect.Network;
 using static Microsoft.Win32.Registry;
 
 namespace RadiantConnect.Services

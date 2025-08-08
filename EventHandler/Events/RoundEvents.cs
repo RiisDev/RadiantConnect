@@ -1,13 +1,9 @@
-﻿using RadiantConnect.Utilities;
-
-// ReSharper disable RedundantDefaultMemberInitializer
-
-namespace RadiantConnect.EventHandler.Events
+﻿namespace RadiantConnect.EventHandler.Events
 {
     public class RoundEvents
     {
-        private bool _roundEnded = false;
-        private int _roundNumber = 0;
+        private bool _roundEnded;
+        private int _roundNumber;
         public delegate void RoundEvent(int roundNumber);
 
         public event RoundEvent? OnRoundStarted;

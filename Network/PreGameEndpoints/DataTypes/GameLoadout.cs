@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Network.PreGameEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.PreGameEndpoints.DataTypes;
 
 // ReSharper disable All
 

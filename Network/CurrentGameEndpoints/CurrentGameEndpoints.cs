@@ -1,6 +1,4 @@
-﻿// ReSharper disable All
-
-using RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
+﻿using RadiantConnect.Network.CurrentGameEndpoints.DataTypes;
 using RadiantConnect.Network.PreGameEndpoints.DataTypes;
 
 namespace RadiantConnect.Network.CurrentGameEndpoints;

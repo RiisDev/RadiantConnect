@@ -1,6 +1,4 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using RadiantConnect.EventHandler;
-using RadiantConnect.Utilities;
+﻿using RadiantConnect.EventHandler;
 using static System.Enum;
 using Path = System.IO.Path;
 
@@ -33,9 +31,7 @@ namespace RadiantConnect.Services
 
         public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
         {
-            [SuppressMessage("ReSharper", "UnusedMember.Global")]
-            // ReSharper disable InconsistentNaming
-            public enum ShardType { na, latam, br, eu, ap, kr, }
+            public enum ShardType { Na, Latam, Br, Eu, Ap, Kr, }
         }
 
         internal static string LogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
@@ -50,8 +46,8 @@ namespace RadiantConnect.Services
             string glzUrl = currentLogText.ExtractValue(@"https://glz[^\s]+\.net/", 0);
             string regionData = currentLogText.ExtractValue(@"https://pd\.([^\.]+)\.a\.pvp\.net/", 1);
             if (!TryParse(regionData, out ClientData.ShardType region))
-                region = ClientData.ShardType.na;
-            string sharedUrl = $"https://shared.{regionData}.a.pvp.net/";
+                region = ClientData.ShardType.Na;
+            string sharedUrl = $"https://shared.{regionData.ToLowerInvariant()}.a.pvp.net/";
 
             if (string.IsNullOrEmpty(userId)) goto Restart;
             if (string.IsNullOrEmpty(pdUrl)) goto Restart;

@@ -1,7 +1,5 @@
 ﻿using RadiantConnect.Authentication.QRSignIn.Modules;
 using System.Collections.Specialized;
-using System.Diagnostics;
-using System.Net.Http.Json;
 using System.Web;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
@@ -15,20 +13,20 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
         internal static readonly Dictionary<Authentication.CountryCode, string> CountryRegion = new()
         {
-            { Authentication.CountryCode.NA, "en-US" },
-            { Authentication.CountryCode.KR, "ko-KR" },
-            { Authentication.CountryCode.JP, "ja-JP" },
-            { Authentication.CountryCode.CN, "zh-CN" },
-            { Authentication.CountryCode.TW, "zh-TW" },
-            { Authentication.CountryCode.EUW, "es-ES" },
-            { Authentication.CountryCode.RU, "ru-RU" },
-            { Authentication.CountryCode.TH, "th-TH" },
-            { Authentication.CountryCode.VN, "vi-VN" },
-            { Authentication.CountryCode.ID, "id-ID" },
-            { Authentication.CountryCode.MY, "ms-MY" },
-            { Authentication.CountryCode.EUN, "pl-PL" },
-            { Authentication.CountryCode.TR, "tr-TR" },
-            { Authentication.CountryCode.BR, "pt-BR" },
+            { Authentication.CountryCode.Na, "en-US" },
+            { Authentication.CountryCode.Kr, "ko-KR" },
+            { Authentication.CountryCode.Jp, "ja-JP" },
+            { Authentication.CountryCode.Cn, "zh-CN" },
+            { Authentication.CountryCode.Tw, "zh-TW" },
+            { Authentication.CountryCode.Euw, "es-ES" },
+            { Authentication.CountryCode.Ru, "ru-RU" },
+            { Authentication.CountryCode.Th, "th-TH" },
+            { Authentication.CountryCode.Vn, "vi-VN" },
+            { Authentication.CountryCode.Id, "id-ID" },
+            { Authentication.CountryCode.My, "ms-MY" },
+            { Authentication.CountryCode.Eun, "pl-PL" },
+            { Authentication.CountryCode.Tr, "tr-TR" },
+            { Authentication.CountryCode.Br, "pt-BR" },
         };
 
         private void SetHeaders(string host, string traceparent, string useragent)

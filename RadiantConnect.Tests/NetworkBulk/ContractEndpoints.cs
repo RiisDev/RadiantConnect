@@ -25,7 +25,7 @@ namespace RadiantConnect.Tests.NetworkBulk
 
             Assert.NotNull(contract);
             Assert.NotEmpty(contract.Contracts);
-            Assert.NotEmpty(contract.Contracts[0].ContractDefinitionID);
+            Assert.NotEmpty(contract.Contracts[0].ContractDefinitionId);
         }
     }
 }

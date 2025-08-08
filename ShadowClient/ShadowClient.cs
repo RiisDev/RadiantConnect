@@ -1,12 +1,7 @@
-﻿using System.Text.Json;
-using System.Text.Json.Serialization;
-using System.Text.RegularExpressions;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
+﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Network;
 using RadiantConnect.Services;
 using RadiantConnect.SocketServices.XMPP;
-using RadiantConnect.Utilities;
-using static System.Text.RegularExpressions.Regex;
 
 // ReSharper disable All <-- for now we'll ignore everything since this is unused temporarily
 

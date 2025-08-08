@@ -1,6 +1,4 @@
-﻿using System.Text.Json.Serialization;
-
-namespace RadiantConnect.Authentication.QRSignIn.Modules;
+﻿namespace RadiantConnect.Authentication.QRSignIn.Modules;
 
 public record Auth(
     [property: JsonPropertyName("auth_method")] string AuthMethod

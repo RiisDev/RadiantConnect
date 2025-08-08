@@ -1,6 +1,5 @@
-﻿using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
-using System.Text;
+﻿
+
 // ReSharper disable CheckNamespace
 
 namespace RadiantConnect.SocketServices.XMPP.XMPPManagement

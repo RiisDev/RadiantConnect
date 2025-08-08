@@ -1,9 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Security;
+﻿using System.Net.Security;
 using System.Net.Sockets;
-using System.Text;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Utilities;
 using IOException = System.IO.IOException;
 
 #pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously

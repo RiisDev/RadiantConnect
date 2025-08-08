@@ -1,5 +1,4 @@
 ﻿using RadiantConnect.Methods;
-using RadiantConnect.Utilities;
 
 namespace RadiantConnect.EventHandler.Events
 {

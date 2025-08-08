@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.StoreEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.StoreEndpoints.DataTypes;
 // ReSharper disable All
 
 public record BalancesInternal(

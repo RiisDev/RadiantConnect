@@ -3,7 +3,6 @@ using RadiantConnect.Methods;
 using RadiantConnect.Network;
 using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.RConnect.DataTypes;
-using RadiantConnect.Utilities;
 using Player = RadiantConnect.RConnect.DataTypes.Player;
 using Stats = RadiantConnect.RConnect.DataTypes.Stats;
 
@@ -29,7 +28,7 @@ namespace RadiantConnect.RConnect
                     {
                         if (!(earliestKillTime > kill.RoundTime)) continue;
 
-                        earliestKillTime = kill.RoundTime!.Value;
+                        earliestKillTime = kill.RoundTime.Value;
                         topPuuid = playerStat.Subject;
                     }
                 }
@@ -112,9 +111,6 @@ namespace RadiantConnect.RConnect
 
             return parsedId;
         }
-
-        [Obsolete("Method no longer works, is not maintained.", true)]
-        public static string GetPeakValorantRankAsync(this Initiator initiator, string puuid) => ValorantTables.TierToRank[0];
 
         public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
         {

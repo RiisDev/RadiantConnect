@@ -1,5 +1,4 @@
-﻿using System.Text.Json.Serialization;
-namespace RadiantConnect.Network.PreGameEndpoints.DataTypes;
+﻿namespace RadiantConnect.Network.PreGameEndpoints.DataTypes;
 
 public record PreGamePlayer(
     [property: JsonPropertyName("Subject")] string? Subject,

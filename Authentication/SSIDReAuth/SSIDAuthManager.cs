@@ -1,6 +1,4 @@
-﻿using System.Net;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
-using RadiantConnect.Utilities;
+﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using Cookie = System.Net.Cookie;
 
 namespace RadiantConnect.Authentication.SSIDReAuth

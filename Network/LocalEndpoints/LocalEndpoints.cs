@@ -1,5 +1,4 @@
-﻿using System.Net.Http.Json;
-using RadiantConnect.Network.LocalEndpoints.DataTypes;
+﻿using RadiantConnect.Network.LocalEndpoints.DataTypes;
 // ReSharper disable StringLiteralTypo
 
 namespace RadiantConnect.Network.LocalEndpoints;

@@ -3,24 +3,26 @@
   <PropertyGroup>
     <TargetFrameworks>net8.0-windows;net8.0;net9.0-windows;net9.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <Nullable>enable</Nullable>
     <GenerateDocumentationFile>False</GenerateDocumentationFile>
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
-    <Title>Radiant Connect Valorant API (UnOfficialt)</Title>
+    <Title>Radiant Connect Valorant API (UnOfficial)</Title>
     <Version>9.7.0</Version>
     <Authors>IrisDev</Authors>
     <PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
     <RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
     <Copyright>https://github.com/RiisDev</Copyright>
-    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers &amp; image recognition, XMPP Integration, Riot Login, TCP Integration</Description>
+    <Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers
+      &amp; image recognition, XMPP Integration, Riot Login, TCP Integration</Description>
     <PackageIcon>icon.png</PackageIcon>
     <PackageTags>valorant;.net;api;valorant api; open source;xmpp;riot;riot api</PackageTags>
     <LangVersion>preview</LangVersion>
     <PackageReleaseNotes>* Fixed GetBalances Method / Endpoint
 
-* Modified GameVersionService to be more reliable, and added more safeguards.
+      * Modified GameVersionService to be more reliable, and added more safeguards.
 
-* Modified the way I pull data from text/json files, please report any issues found.</PackageReleaseNotes>
+      * Modified the way I pull data from text/json files, please report any issues found.</PackageReleaseNotes>
     <NeutralLanguage>en</NeutralLanguage>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageReadmeFile>README.md</PackageReadmeFile>
@@ -28,6 +30,9 @@
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <ErrorReport>none</ErrorReport>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -39,12 +44,10 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="docs\**" />
-    <Compile Remove="packages\**" />
-    <EmbeddedResource Remove="docs\**" />
-    <EmbeddedResource Remove="packages\**" />
-    <None Remove="docs\**" />
-    <None Remove="packages\**" />
+    <Compile Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+    <None Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
+    <Content Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+    <EmbeddedResource Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
   </ItemGroup>
 
   <ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows'">
@@ -56,38 +59,16 @@
     <Content Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
 
     <!-- Remove ImageRecognition folder from EmbeddedResources for non-Windows platforms -->
-    <EmbeddedResource Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+    <EmbeddedResource Remove="ImageRecognition\**"
+      Condition="'$(TargetFramework)' != 'net8.0-windows'" />
 
     <!-- Remove ImageRecognition folder from any other type if included, such as None -->
-    <None Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" /> 
-    
+    <None Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
+
     <Compile Remove="ImageRecognition\**" Condition="'$(TargetFramework)' != 'net8.0-windows'" />
-
-
   </ItemGroup>
 
-	<!--We don't need the tests in the build file-->
-	<ItemGroup>
-		<Compile Remove="RadiantConnect.Tests\**" />
-		<None Remove="RadiantConnect.Tests\**" />
-		<Content Remove="RadiantConnect.Tests\**" />
-		<EmbeddedResource Remove="RadiantConnect.Tests\**" />
-	</ItemGroup>
-
-	<!--We don't need to contain the henrik api in project -->
-	<ItemGroup>
-	  <None Remove="HenrikApi\4.2.0.json" />
-	</ItemGroup>
-
-	<!-- These aren't quite done, but still need to publish bugfix. -->
-	<ItemGroup>
-		<Compile Remove="HenrikApi\**" />
-		<None Remove="HenrikApi\**" />
-		<Content Remove="HenrikApi\**" />
-		<EmbeddedResource Remove="HenrikApi\**" />
-	</ItemGroup>
-
-<ItemGroup>
+  <ItemGroup>
     <None Include="icon.png">
       <Pack>True</Pack>
       <PackagePath>\</PackagePath>
@@ -97,9 +78,5 @@
       <PackagePath>\</PackagePath>
     </None>
   </ItemGroup>
-
-<ItemGroup>
-  <Folder Include="Network\CurrentGameEndpoints\DataTypes\NewFolder\" />
-</ItemGroup>
 
 </Project>

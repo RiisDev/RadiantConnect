@@ -1,10 +1,6 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+﻿using System.Net.Http.Headers;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Services;
-using RadiantConnect.Utilities;
 
 namespace RadiantConnect.Network
 {
@@ -331,9 +327,5 @@ namespace RadiantConnect.Network
         );
 
         #endregion
-
-        // Put this at the bottom, we don't need to see it everytime.
-        [Obsolete("Please use AuthenticateWithSSID, method is no longer maintained,", true)]
-        public ValorantNet([SuppressMessage("ReSharper", "UnusedParameter.Local")] string _) => throw new NotSupportedException("Please use RSOAuth, method is no longer maintained,");
     }
 }

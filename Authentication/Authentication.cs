@@ -1,57 +1,47 @@
-﻿using System.Diagnostics;
-using System.Net.Http.Headers;
-using System.Text.Json;
-using RadiantConnect.Authentication.CaptchaRiotAuth;
+﻿using RadiantConnect.Authentication.CaptchaRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Handlers;
 using RadiantConnect.Authentication.SSIDReAuth;
-using RadiantConnect.Network;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
-
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-
-// ReSharper disable StringLiteralTypo
-// ReSharper disable IdentifierTypo
-// ReSharper disable InconsistentNaming
 
 namespace RadiantConnect.Authentication
 {
     public class Authentication
     {
-        private readonly string[] UnSupportedBrowsers = ["chrome", "firefox"];
+        private readonly string[] _unSupportedBrowsers = ["chrome", "firefox"];
 
         public enum DriverStatus {
-            Checking_Existing_Processes,
-            Creating_Driver,
-            Driver_Created,
-            Begin_SignIn,
-            Logging_Into_Valorant,
-            Captcha_Found,
-            Captcha_Solved,
-            Checking_RSO_Multi_Factor,
-            Grabbing_Required_Tokens,
-            Multi_Factor_Requested,
-            Multi_Factor_Completed,
+            CheckingExistingProcesses,
+            CreatingDriver,
+            DriverCreated,
+            BeginSignIn,
+            LoggingIntoValorant,
+            CaptchaFound,
+            CaptchaSolved,
+            CheckingRSOMultiFactor,
+            GrabbingRequiredTokens,
+            MultiFactorRequested,
+            MultiFactorCompleted,
         }
 
         public enum CountryCode
         {
-            NA,
-            KR,
-            JP,
-            CN,
-            TW,
-            EUW,
-            RU,
-            TR,
-            TH,
-            VN,
-            ID,
-            MY,
-            EUN,
-            BR,
+            Na,
+            Kr,
+            Jp,
+            Cn,
+            Tw,
+            Euw,
+            Ru,
+            Tr,
+            Th,
+            Vn,
+            Id,
+            My,
+            Eun,
+            Br,
         }
 
         [Flags]
@@ -69,11 +59,11 @@ namespace RadiantConnect.Authentication
 
         public string? MultiFactorCode
         {
-            get => authHandler.MultiFactorCode;
-            set => authHandler.MultiFactorCode = value;
+            get => AuthHandler.MultiFactorCode;
+            set => AuthHandler.MultiFactorCode = value;
         }
 
-        internal AuthHandler authHandler = null!;
+        internal AuthHandler AuthHandler = null!;
 
         internal async Task<RSOAuth?> AuthenticateWithCaptcha(string username, string password, CaptchaService service, string captchaAuthorization)
         {
@@ -94,7 +84,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSSID(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
+        public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -115,10 +105,10 @@ namespace RadiantConnect.Authentication
 
             driverSettings ??= new DriverSettings();
 
-            if (UnSupportedBrowsers.Contains(driverSettings.ProcessName))
+            if (_unSupportedBrowsers.Contains(driverSettings.ProcessName))
                 throw new RadiantConnectAuthException("Unsupported browser");
 
-            authHandler = new AuthHandler(
+            AuthHandler = new AuthHandler(
                 driverSettings.ProcessName,
                 driverSettings.BrowserExecutable,
                 driverSettings.KillBrowser,
@@ -126,10 +116,10 @@ namespace RadiantConnect.Authentication
                 driverSettings.UseHeadless
             );
 
-            authHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
-            authHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
+            AuthHandler.OnMultiFactorRequested += () => OnMultiFactorRequested?.Invoke();
+            AuthHandler.OnDriverUpdate += status => OnDriverUpdate?.Invoke(status);
 
-            Task<(string, string, string, string)> authTask = authHandler.Authenticate(username, password);
+            Task<(string, string, string, string)> authTask = AuthHandler.Authenticate(username, password);
 #if DEBUG
             Task delayTask = Task.Delay(TimeSpan.FromDays(1));
 #else
@@ -141,12 +131,12 @@ namespace RadiantConnect.Authentication
                 (string ssid, string clid, string tdid, string csid) = await authTask;
                 Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
-                authHandler.Dispose();
+                AuthHandler.Dispose();
 
                 return await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
             }
 
-            authHandler.Dispose();
+            AuthHandler.Dispose();
 
             Debug.WriteLine($"{DateTime.Now} LOGIN TIMEOUT");
             throw new TimeoutException("Authentication timed out after 45 seconds.");
@@ -163,10 +153,5 @@ namespace RadiantConnect.Authentication
             IEnumerable<Cookie>? cookiesData = await GetCachedCookies();
             return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
         }
-
-        [Obsolete("Method is no longer used, please use 'AuthenticateWithSSID', will throw an error.", true)]
-        public async Task<string?> PerformDriverCacheRequest(ValorantNet.HttpMethod httpMethod, string baseUrl, string endPoint, IEnumerable<Cookie> cookies, string userAgent = "", Dictionary<string, string>? extraHeaders = null, AuthenticationHeaderValue? authentication = null, HttpContent? content = null) 
-            => throw new NotSupportedException("Method is no longer used, please use 'AuthenticateWithSSID'");
-
     }
 }

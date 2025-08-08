@@ -1,6 +1,4 @@
-﻿using RadiantConnect.Utilities;
-
-namespace RadiantConnect.EventHandler.Events
+﻿namespace RadiantConnect.EventHandler.Events
 {
     public class InGameEvents
     {

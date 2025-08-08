@@ -1,9 +1,4 @@
-﻿using System.Text.Json;
-using RadiantConnect.Network;
-using RadiantConnect.Network.PartyEndpoints.DataTypes;
-using RadiantConnect.Utilities;
-
-// ReSharper disable StringLiteralTypo
+﻿using RadiantConnect.Network.PartyEndpoints.DataTypes;
 
 namespace RadiantConnect.EventHandler.Events
 {

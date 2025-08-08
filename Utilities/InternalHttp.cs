@@ -1,8 +1,4 @@
-﻿using System.Diagnostics;
-using System.Net;
-using System.Text.Json;
-
-namespace RadiantConnect.Utilities
+﻿namespace RadiantConnect.Utilities
 {
     internal static class InternalHttp
     {
