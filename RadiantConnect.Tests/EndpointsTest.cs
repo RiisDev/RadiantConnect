@@ -23,7 +23,7 @@ namespace RadiantConnect.Tests
         private static async Task<Initiator> InitAsync()
         {
             Authentication.Authentication auth = new();
-            RSOAuth? rso = await auth.AuthenticateWithQr(Authentication.Authentication.CountryCode.NA);
+            RSOAuth? rso = await auth.AuthenticateWithQr(Authentication.Authentication.CountryCode.Na);
             if (rso is null)
                 throw new Exception("Failed to authenticate with RSO.");
             return new Initiator(rso);

@@ -18,7 +18,7 @@ namespace RadiantConnect.Tests
 
             Authentication.Authentication auth = new();
             
-            RSOAuth? rso = await auth.AuthenticateWithQr(Authentication.Authentication.CountryCode.NA);
+            RSOAuth? rso = await auth.AuthenticateWithQr(Authentication.Authentication.CountryCode.Na);
 
             Assert.NotNull(rso);
 
@@ -26,14 +26,14 @@ namespace RadiantConnect.Tests
             [
                 rso.AccessToken,
                 rso.Entitlement,
-                rso.SSID,
+                rso.Ssid,
                 rso.Affinity,
                 rso.ChatAffinity,
                 rso.IdToken,
                 rso.PasToken,
                 rso.RmsToken,
-                rso.CLID,
-                rso.CSID
+                rso.Clid,
+                rso.Csid
             ];
 
             foreach (string? token in tokenProps)
@@ -77,14 +77,14 @@ namespace RadiantConnect.Tests
             [
                 rso.AccessToken,
                 rso.Entitlement,
-                rso.SSID,
+                rso.Ssid,
                 rso.Affinity,
                 rso.ChatAffinity,
                 rso.IdToken,
                 rso.PasToken,
                 rso.RmsToken,
-                rso.CLID,
-                rso.CSID
+                rso.Clid,
+                rso.Csid
             ];
 
             foreach (string? token in tokenProps)

@@ -112,7 +112,7 @@ namespace RadiantConnect
             DateTime startTime = DateTime.Now;
             TimeSpan timeout = TimeSpan.FromMinutes(1);
 
-            while (!ClientIsReady())
+            while (!InternalValorantMethods.ClientIsReady())
             {
                 if (DateTime.Now - startTime > timeout)
                     throw new TimeoutException("Client did not become ready within 1 minute.");

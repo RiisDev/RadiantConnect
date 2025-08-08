@@ -79,8 +79,8 @@ namespace RadiantConnect.Authentication
                     throw new NotImplementedException();
             }
 #else
-
-            throw new NotImplementedException();
+            await Task.Delay(0); // Placeholder for actual implementation, and to prevent build errors in release mode.
+            throw new RadiantConnectAuthException("Captcha authentication is not supported in this build. Please use the driver authentication method instead.");   
 #endif
         }
 
