@@ -125,5 +125,5 @@
 	  <EditorConfigFiles Remove="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
 	</ItemGroup>
 
-	<!-- Force GitHub Action v1-->
+	<!-- Force GitHub Action v2-->
 </Project>

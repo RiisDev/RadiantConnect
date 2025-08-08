@@ -32,7 +32,7 @@ jobs:
 
     - name: Restore SNK file from secret
       run: |
-        echo $env:SNK_KEY | certutil -decode - RadiantConnectKey.snk
+        echo $env:SNK_KEY > key.txt && certutil -decode key.txt RadiantConnectKey.snk
       env:
         SNK_KEY: ${{ secrets.SNK_KEY }}
 
