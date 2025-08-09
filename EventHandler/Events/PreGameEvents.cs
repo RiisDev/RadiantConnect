@@ -22,7 +22,7 @@ namespace RadiantConnect.EventHandler.Events
                     break;
                 case "Pregame_GetMatch":
                     string matchId = logData.ExtractValue(@"matches/([a-fA-F\d-]+)", 1);
-                    if (string.IsNullOrEmpty(matchId)) return;
+                    if (matchId.IsNullOrEmpty()) return;
                     if (matchId == _matchId) return;
                     _matchId = matchId;
                     OnPreGameMatchLoaded?.Invoke(matchId);

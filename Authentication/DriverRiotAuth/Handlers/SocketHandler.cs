@@ -254,7 +254,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             };
 
             string? cookieData = await ExecuteOnPageWithResponse(pageTitle, DriverPort, cookieResponse, "", Socket, false, true);
-            return JsonSerializer.Deserialize<CookieRoot>(cookieData!);
+			return cookieData.IsNullOrEmpty() ? null : JsonSerializer.Deserialize<CookieRoot>(cookieData);
         }
     }
 }

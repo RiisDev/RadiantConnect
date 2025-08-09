@@ -16,7 +16,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
     {
         internal event UrlBuilder? OnUrlBuilt;
 
-        internal Process DisplayImage(string path)
+        internal Process? DisplayImage(string path)
         {
 	        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 		        throw new PlatformNotSupportedException("Unsupported OS");
@@ -30,11 +30,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                     FileName = path,
                     UseShellExecute = true
                 };
-                return Process.Start(startInfo)!;
+                return Process.Start(startInfo);
             }
 
-            return string.IsNullOrEmpty(Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ??
-                                        Environment.GetEnvironmentVariable("DESKTOP_SESSION"))
+            return (Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? Environment.GetEnvironmentVariable("DESKTOP_SESSION")).IsNullOrEmpty()
 	            ? throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.")
 	            : Process.Start("xdg-open", path);
         }
@@ -51,10 +50,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             
             try
             {
-                if (returnUrl)
-                {
-                    OnUrlBuilt?.Invoke(qrData.LoginUrl);
-                }
+                if (returnUrl) OnUrlBuilt?.Invoke(qrData.LoginUrl);
                 else
                 {
                     string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);

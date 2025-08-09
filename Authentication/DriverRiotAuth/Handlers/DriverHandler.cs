@@ -98,8 +98,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             if (json == null || !json.TryGetValue("id", out object? value)) return;
 
-            int id = int.Parse(value.ToString()!);
-            if (!PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
+            int id = int.Parse(value.ToString() ?? "-1");
+			if (id == -1) return;
+			if (PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
+			if (tcs is null) return;
 
             tcs.SetResult(message);
             PendingRequests.Remove(id);
@@ -128,7 +130,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             while (true)
             {
                 string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json");
-                if (string.IsNullOrEmpty(pageData)) return null;
+                if (pageData.IsNullOrEmpty()) return null;
                 if (pageData.IndexOf("\"title\": \"Google\"", StringComparison.OrdinalIgnoreCase) == -1) continue;
                 int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
                 if (urlStartIndex == -1) continue;
@@ -184,7 +186,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             Process? driverProcess = Process.Start(processInfo);
             
             if (headless)
-                Task.Run(() => Win32.HideDriver(driverProcess!)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
+                Task.Run(() => Win32.HideDriver(driverProcess)); // Todo make sure this isn't just spammed, find a way to detect if it's hidden already
 
             if (driverProcess is null) throw new RadiantConnectException("Failed to start the driver process.");
 

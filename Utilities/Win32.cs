@@ -18,14 +18,14 @@ namespace RadiantConnect.Utilities
             set => Interlocked.Exchange(ref _captchaFound, value ? 1 : 0);
         }
 
-        internal static Task HideDriver(Process driver)
+        internal static Task HideDriver(Process? driver)
         {
+
 #if WINDOWS
-            while (!driver.HasExited)
-            {
-                ShowWindow(driver.MainWindowHandle, CaptchaFound ? 1 : 0);
-            }
-            return Task.CompletedTask;
+			if (driver == null || driver.HasExited) return Task.CompletedTask;
+			while (!driver.HasExited) ShowWindow(driver.MainWindowHandle, CaptchaFound ? 1 : 0);
+
+			return Task.CompletedTask;
 #else
             return Task.CompletedTask;
 #endif

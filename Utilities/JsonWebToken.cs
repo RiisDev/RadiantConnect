@@ -52,7 +52,7 @@ namespace RadiantConnect.Utilities
             return [..claims];
         }
 
-        private void AddClaimsFromElement(JsonElement element, List<Claim> claims, string prefix)
+        private static void AddClaimsFromElement(JsonElement element, List<Claim> claims, string prefix)
         {
             switch (element.ValueKind)
             {
@@ -132,8 +132,7 @@ namespace RadiantConnect.Utilities
 
             try
             {
-                byte[] bytes = Convert.FromBase64String(input);
-                return Encoding.UTF8.GetString(bytes);
+	            return input.FromBase64();
             }
             catch (FormatException ex)
             {

@@ -42,7 +42,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             if (WebDriver == null)
                 throw new RadiantConnectException("Failed to start browser driver");
 
-            if (string.IsNullOrEmpty(socketUrl)) throw new RadiantConnectAuthException("Failed to find socket");
+            if (socketUrl.IsNullOrEmpty()) throw new RadiantConnectAuthException("Failed to find socket");
 
             Socket = new ClientWebSocket();
             await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
@@ -93,7 +93,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             DriverHandler.OnAccessTokenFound += (data) => accessTokenFound = data!;
 
-            while (string.IsNullOrEmpty(accessTokenFound)) await Task.Delay(5);
+            while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5);
 
             DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
             return await GetRsoCookiesFromDriver();
@@ -104,7 +104,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             DriverStatus = Authentication.DriverStatus.MultiFactorRequested;
             OnMultiFactorRequested?.Invoke();
 
-            while (string.IsNullOrEmpty(MultiFactorCode)) await Task.Delay(500); // Wait for MFA code to be set
+            while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500); // Wait for MFA code to be set
 
             if (MultiFactorCode.Length != 6) throw new RadiantConnectAuthException("Invalid MFA code length");
 
@@ -141,8 +141,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             string tdid = cookieDict.GetValueOrDefault("tdid", "");
             string csid = cookieDict.GetValueOrDefault("csid", "");
 
-            return string.IsNullOrEmpty(ssid) || string.IsNullOrEmpty(clid) || string.IsNullOrEmpty(tdid) ||
-                   string.IsNullOrEmpty(csid)
+            return ssid.IsNullOrEmpty() || clid.IsNullOrEmpty() || tdid.IsNullOrEmpty() || csid.IsNullOrEmpty()
 	            ? throw new RadiantConnectAuthException("Failed to gather required cookies")
 	            : (ssid, clid, tdid, csid);
         }

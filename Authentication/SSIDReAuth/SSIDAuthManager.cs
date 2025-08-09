@@ -18,7 +18,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 
             string? validAuthUrl = response.RequestMessage?.RequestUri?.ToString();
 
-            if (string.IsNullOrEmpty(validAuthUrl))
+            if (validAuthUrl.IsNullOrEmpty())
                 throw new RadiantConnectAuthException("Failed to get Auth Url");
 
             if (!validAuthUrl.Contains("access_token"))

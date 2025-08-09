@@ -125,12 +125,15 @@ namespace RadiantConnect
             LogService.ClientData cData = LogService.GetClientData();
             ValorantNet net = new(client);
 
-            string vpnDetected = IsVpnDetected();
+            if (!ignoreVpn)
+            {
+	            string vpnDetected = IsVpnDetected();
 
-            if (!string.IsNullOrEmpty(vpnDetected) && !ignoreVpn)
-                throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+	            if (!vpnDetected.IsNullOrEmpty())
+		            throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+			}
 
-            ExternalSystem = new InternalSystem(
+			ExternalSystem = new InternalSystem(
                 client,
                 net,
                 logService,

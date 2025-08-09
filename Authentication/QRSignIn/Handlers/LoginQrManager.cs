@@ -113,9 +113,9 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             client.DefaultRequestHeaders.Clear();
 
             return responseBody == null ||
-                   string.IsNullOrEmpty(responseBody.Cluster) ||
-                   string.IsNullOrEmpty(responseBody.Suuid) ||
-                   string.IsNullOrEmpty(responseBody.Timestamp)
+                   responseBody.Cluster.IsNullOrEmpty() ||
+                   responseBody.Suuid.IsNullOrEmpty() ||
+                   responseBody.Timestamp.IsNullOrEmpty()
 	            ? throw new RadiantConnectAuthException("Failed to find required fields")
 	            : (responseBody.Cluster, responseBody.Suuid, responseBody.Timestamp);
         }

@@ -1,11 +1,11 @@
 ﻿namespace RadiantConnect.Utilities
 {
-	public static class StringExtensions
+	internal static class StringExtensions
 	{
 		internal static string ExtractValue(this string haystack, [StringSyntax(StringSyntaxAttribute.Regex)] string pattern, int groupId)
 		{
 			Match match = Match(haystack, pattern);
-			return match is not { Success: true } ? "" : match.Groups[groupId].Value.Replace("\r", "").Replace("\n", "");
+			return match is not { Success: true } ? "" : match.Groups[groupId].Value.Replace("\r", "").Replace("\n", "").Trim();
 		}
 
 		internal static string TryExtractSubstring(this string log, string startToken, char endToken, Func<int, bool> condition, string prefix = " ")
@@ -22,13 +22,12 @@
 				if (value.Contains('<')) value = value[..value.IndexOf('<')];
 				return Encoding.ASCII.GetString(Convert.FromBase64String(value));
 			}
-			catch
-			{
-				return "";
-			}
+			catch { return ""; }
 
 		}
 
 		internal static string ToBase64(this string value) => Convert.ToBase64String(Encoding.ASCII.GetBytes(value));
+
+		internal static bool IsNullOrEmpty([NotNullWhen(false)] this string? value) => string.IsNullOrWhiteSpace(value);
 	}
 }

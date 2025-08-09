@@ -139,6 +139,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             return (accessToken, idToken);
         }
 
+        [SuppressMessage("ReSharper", "RemoveRedundantBraces")]
         internal void InitiateTimer(string tempName)
         {
             Timer timer = new();
@@ -161,7 +162,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
             timer.Elapsed += async (_, _) =>
             {
                 string loginToken = await GetLoginToken();
-                if (string.IsNullOrEmpty(loginToken)) return;
+                if (loginToken.IsNullOrEmpty()) return;
 
                 timer.Stop();
                 timer.Dispose();
@@ -170,7 +171,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 form?.Dispose();
 
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
-                if (string.IsNullOrEmpty(accessToken)) return;
+                if (accessToken.IsNullOrEmpty()) return;
 
                 (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetTokens(accessToken);
 

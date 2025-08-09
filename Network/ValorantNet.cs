@@ -17,7 +17,7 @@ namespace RadiantConnect.Network
 
         public RSOAuth? AuthCodes { get; set; }
 
-        internal HttpClient Client = AuthUtil.BuildClient().Item1;
+        private readonly HttpClient _client = AuthUtil.BuildClient().Item1;
 
         public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
@@ -44,25 +44,28 @@ namespace RadiantConnect.Network
             Head
         }
 
-        internal string DefaultPlatform;
-        internal string DefaultUserAgent;
-        internal string DefaultClientVersion;
+        private readonly string _defaultPlatform;
+        private readonly string _defaultUserAgent;
+        private readonly string _defaultClientVersion;
 
-        internal void ResetDefaultHeaders()
+        private void ResetDefaultHeaders()
         {
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", DefaultPlatform);
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", DefaultUserAgent);
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", DefaultClientVersion);
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", _defaultPlatform);
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", _defaultUserAgent);
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", _defaultClientVersion);
         }
 
         public ValorantNet(RSOAuth rsoAuth)
         {
             AuthCodes = rsoAuth;
-            Client.Timeout = TimeSpan.FromSeconds(value: 10);
+            _client.Timeout = TimeSpan.FromSeconds(value: 10);
 
-            ValorantVersionApiRoot apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!;
+            ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result;
 
-            ValorantService.Version valorantClient = new (
+			if (apiData?.Data is null)
+				throw new RadiantConnectException("Failed to get Valorant version data from API");
+
+			ValorantService.Version valorantClient = new (
                 RiotClientVersion: apiData.Data.RiotClientVersion.Replace("-shipping", ""), 
                 Branch: "live", 
                 BuildVersion: apiData.Data.BuildVersion, 
@@ -73,28 +76,28 @@ namespace RadiantConnect.Network
                 UserPlatform: "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
             );
 
-            DefaultPlatform = valorantClient.UserPlatform;
-            DefaultUserAgent = $"ShooterGame/{valorantClient.BuildVersion} Windows/{valorantClient.UserClientVersion}";
-            DefaultClientVersion = valorantClient.RiotClientVersion;
+            _defaultPlatform = valorantClient.UserPlatform;
+            _defaultUserAgent = $"ShooterGame/{valorantClient.BuildVersion} Windows/{valorantClient.UserClientVersion}";
+            _defaultClientVersion = valorantClient.RiotClientVersion;
 
             ResetDefaultHeaders();
         }
 
         public ValorantNet(ValorantService? valorantClient = null)
         {
-            Client.Timeout = TimeSpan.FromSeconds(10);
-            DefaultPlatform = valorantClient?.ValorantClientVersion.UserPlatform ?? "";
-            DefaultUserAgent = $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}";
-            DefaultClientVersion = valorantClient?.ValorantClientVersion.RiotClientVersion ?? "";
+            _client.Timeout = TimeSpan.FromSeconds(10);
+            _defaultPlatform = valorantClient?.ValorantClientVersion.UserPlatform ?? "";
+            _defaultUserAgent = $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}";
+            _defaultClientVersion = valorantClient?.ValorantClientVersion.RiotClientVersion ?? "";
 
             ResetDefaultHeaders();
         }
-        
+		
         internal static UserAuth? GetAuth()
         {
             string fileText = LogService.ReadTextFile(LockFilePath);
 
-            if (string.IsNullOrEmpty(fileText)) return null;
+            if (fileText.IsNullOrEmpty()) return null;
 
             string[] fileValues = fileText.Split(':');
 
@@ -105,68 +108,74 @@ namespace RadiantConnect.Network
             return new UserAuth(authPort, oAuth);
         }
 
-        internal async Task<(string, string)> GetAuthorizationToken()
+        private async Task<(string, string)> GetAuthorizationToken()
         {
             OnLog?.Invoke("[ValorantNet Log] Getting local AuthorizationTokens");
-            if (AuthCodes is not null) return (AuthCodes.AccessToken, AuthCodes.Entitlement)!;
+            if (AuthCodes is not null)
+            {
+				if (string.IsNullOrEmpty(AuthCodes.AccessToken) || string.IsNullOrEmpty(AuthCodes.Entitlement)) 
+					throw new RadiantConnectException("AuthCodes are not valid, AccessToken or EntitlementToken is empty.");
+				
+				return (AuthCodes.AccessToken, AuthCodes.Entitlement);
+            }
 
             UserAuth? auth = GetAuth();
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
-            HttpResponseMessage response = await Client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
+            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
+            HttpResponseMessage response = await _client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
             
             if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
 
-            Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
+			Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
             OnLog?.Invoke($"[ValorantNet GetAuthorizationToken Log] AccessToken: {entitlement?.AccessToken}\n[ValorantNet GetAuthorizationToken Log] EntitlementToken: {entitlement?.Token}");
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
        
-        internal async Task ResetAuth()
+        private async Task ResetAuth()
         {
             try
             {
-                Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-                Client.DefaultRequestHeaders.Remove("Authorization");
+                _client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
+                _client.DefaultRequestHeaders.Remove("Authorization");
             }
             catch {/**/}
 
             (string, string) authTokens = await GetAuthorizationToken();
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return;
+            if (authTokens.Item1.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get Authorization Token");
+            if (authTokens.Item2.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get JWT Token");
 
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
-            Client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
+			_client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
+            _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
-        internal async Task SetBasicAuth()
+        private Task SetBasicAuth()
         {
             OnLog?.Invoke("[ValorantNet Log] Settings Basic Auth");
+
             if (AuthCodes is not null)
                 throw new RadiantConnectException("Cannot use local endpoints with AuthCodes");
 
-            Client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
-            Client.DefaultRequestHeaders.Remove("Authorization");
+            _client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
+            _client.DefaultRequestHeaders.Remove("Authorization");
 
-            (string, string) authTokens = await GetAuthorizationToken();
+            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
 
-            if (string.IsNullOrEmpty(authTokens.Item1)) return;
-
-            Client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
+            return Task.CompletedTask;
         }
-        
-        internal void SetCustomHeaders(Dictionary<string, string> headers)
+
+        private void SetCustomHeaders(Dictionary<string, string> headers)
         {
-            Client.DefaultRequestHeaders.Clear();
+            _client.DefaultRequestHeaders.Clear();
 
             foreach ((string key, string value) in headers)
-                Client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
+                _client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
         }
 
         public async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, Dictionary<string, string>? customHeaders = null)
         {
-            if (string.IsNullOrEmpty(baseUrl)) return string.Empty;
+            if (baseUrl.IsNullOrEmpty()) return string.Empty;
 
-            if (!string.IsNullOrEmpty(endPoint))
+            if (!endPoint.IsNullOrEmpty())
             {
                 if (baseUrl[^1] == '/' && endPoint[0] == '/') endPoint = endPoint[1..]; // Make sure the slash isn't duplicated
                 if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
@@ -175,7 +184,7 @@ namespace RadiantConnect.Network
             // I no longer need the loop, as the client will now handle edge-cases.
             if (!InternalValorantMethods.IsValorantProcessRunning() && AuthCodes is null) return string.Empty;
 
-            if (baseUrl.Contains("127.0.0.1") && Client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
+            if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
             else if (customHeaders is not null) SetCustomHeaders(customHeaders);
             else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth();
 
@@ -184,18 +193,18 @@ namespace RadiantConnect.Network
             httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
             httpRequest.Content = content;
 
-            using HttpResponseMessage responseMessage = await Client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+            using HttpResponseMessage responseMessage = await _client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
             string responseContent = await responseMessage.Content.ReadAsStringAsync();
 
             if (customHeaders is not null)
                 ResetDefaultHeaders();
 
-            OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+            OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
 
             return !responseMessage.IsSuccessStatusCode
 	            ? throw new RadiantConnectNetworkStatusException(
-		            $"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(Client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}")
+		            $"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}")
 	            : responseContent;
         }
 
@@ -254,7 +263,7 @@ namespace RadiantConnect.Network
         {
             try
             {
-                if (string.IsNullOrEmpty(jsonData) ||
+                if (jsonData.IsNullOrEmpty() ||
                     string.Equals(jsonData.Trim(), "null", StringComparison.OrdinalIgnoreCase))
                     return default;
 
