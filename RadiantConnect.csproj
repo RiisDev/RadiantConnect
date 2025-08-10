@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>9.7.0</Version>
+		<Version>10.0.0</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -21,11 +21,30 @@
 		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
 		<LangVersion>preview</LangVersion>
 		<PackageReleaseNotes>
-			* Fixed GetBalances Method / Endpoint
+			Breaking Changes
+			----------------
+			- Enum Updates:
+				- DriverStatus, CountryCode, and ShardType enums modified.
+			- Removed underscores from values.
+			- Applied proper casing (e.g., Na, Eu, etc.).
+			- Method Renames Casing Adjustments:
+				- AuthenticateWithSSID renamed to AuthenticateWithSsid.
+			- All instances of ssid, clid, csid, tlid are now properly cased (SSID → Ssid).
+			- Cancellation tokens added to:
+				- SpikeHandler, KillFeedHandler
+			- Removed obsolete methods (warnings present for ~5 versions):
+			- PerformDriverCacheRequest
+			- ValorantNet(string ssid)
+			- GetPeakValorantRankAsync (PRs welcome to re-add).
+			- Case changes to various record properties (names remain the same).
+			- GetValorantPath and GetRiotClientPath now return empty on non-Windows builds.
+			- ValorantNet now errors if Access Token or Entitlement Token cannot be built.
 
-			* Modified GameVersionService to be more reliable, and added more safeguards.
-
-			* Modified the way I pull data from text/json files, please report any issues found.
+			Method Expandability
+			--------------------
+			- StringExtensions is now internal (no longer visible externally).
+			- InternalValorantMethods.ClientIsReady (bool) is now public
+			(not sensitive, potentially useful for some users).
 		</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>

@@ -111,6 +111,7 @@ namespace RadiantConnect.Network
         private async Task<(string, string)> GetAuthorizationToken()
         {
             OnLog?.Invoke("[ValorantNet Log] Getting local AuthorizationTokens");
+
             if (AuthCodes is not null)
             {
 				if (string.IsNullOrEmpty(AuthCodes.AccessToken) || string.IsNullOrEmpty(AuthCodes.Entitlement)) 
