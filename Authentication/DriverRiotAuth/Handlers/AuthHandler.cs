@@ -45,8 +45,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             if (socketUrl.IsNullOrEmpty()) throw new RadiantConnectAuthException("Failed to find socket");
 
             Socket = new ClientWebSocket();
-            await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None);
-            SocketHandler = new SocketHandler(Socket, this, DriverPort);
+
+            try { await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None); }
+			catch (WebSocketException e) { throw new RadiantConnectAuthException($"Failed to connect to socket please try again. {e.Message}"); }
+
+			SocketHandler = new SocketHandler(Socket, this, DriverPort);
 
             _ = Task.Run(() => DriverHandler.ListenAsync(Socket));
 
@@ -96,6 +99,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5);
 
             DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
+
             return await GetRsoCookiesFromDriver();
         }
 
@@ -106,6 +110,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500); // Wait for MFA code to be set
 
+            MultiFactorCode = MultiFactorCode.Replace(" ", "");
+            MultiFactorCode = MultiFactorCode.Trim();
             if (MultiFactorCode.Length != 6) throw new RadiantConnectAuthException("Invalid MFA code length");
 
             Dictionary<string, object> mfaDataInput = new()
@@ -119,16 +125,19 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 }
             };
 
-            await SocketHandler.ExecuteOnPageWithResponse("Verification Required", DriverPort, mfaDataInput, "", Socket!);
+            await SocketHandler.ExecuteOnPageWithResponse(DriverPort, mfaDataInput);
 
             DriverStatus = Authentication.DriverStatus.MultiFactorCompleted;
         }
 
         internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver()
         {
-            CookieRoot? getCookies = await SocketHandler.GetCookiesAsync("");
+            CookieRoot? getCookies = await SocketHandler.GetCookiesAsync();
 
-            if (cacheCookies)
+            // Dispose early, we don't need the browser.
+            try { Dispose(); } catch {/**/}
+
+			if (cacheCookies)
             {
                 Directory.CreateDirectory($@"{Path.GetTempPath()}\RadiantConnect\");
                 await File.WriteAllTextAsync($@"{Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
@@ -145,7 +154,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 	            ? throw new RadiantConnectAuthException("Failed to gather required cookies")
 	            : (ssid, clid, tdid, csid);
         }
-        
-        public async Task Logout() => await SocketHandler.NavigateTo("https://auth.riotgames.com/logout", "/logout", DriverPort, Socket!);
+
+		[Obsolete("Logout is no longer function as cookies are cleared every run.", true)]
+        public Task Logout() => throw new NotImplementedException("Logout is no longer functional as cookies are cleared each run.");
     }
 }

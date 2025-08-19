@@ -10,7 +10,7 @@ namespace RadiantConnect.Authentication
 {
     public class Authentication
     {
-        private readonly string[] _unSupportedBrowsers = ["chrome", "firefox"];
+        private readonly string[] _unSupportedBrowsers = ["firefox", "brave", "opera"];
 
         public enum DriverStatus {
             CheckingExistingProcesses,

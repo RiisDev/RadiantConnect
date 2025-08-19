@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.0.1</Version>
+		<Version>10.0.2</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://irisapp.ca/RadiantConnect</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -22,31 +22,11 @@
 		<LangVersion>preview</LangVersion>
 		<PackageReleaseNotes>
 			* Fixed Storefront to support new storefront API.
+			* Fixed DriverAuth
 
-			Breaking Changes
-			----------------
-			- Enum Updates:
-			- DriverStatus, CountryCode, and ShardType enums modified.
-			- Removed underscores from values.
-			- Applied proper casing (e.g., Na, Eu, etc.).
-			- Method Renames Casing Adjustments:
-			- AuthenticateWithSSID renamed to AuthenticateWithSsid.
-			- All instances of ssid, clid, csid, tlid are now properly cased (SSID → Ssid).
-			- Cancellation tokens added to:
-			- SpikeHandler, KillFeedHandler
-			- Removed obsolete methods (warnings present for ~5 versions):
-			- PerformDriverCacheRequest
-			- ValorantNet(string ssid)
-			- GetPeakValorantRankAsync (PRs welcome to re-add).
-			- Case changes to various record properties (names remain the same).
-			- GetValorantPath and GetRiotClientPath now return empty on non-Windows builds.
-			- ValorantNet now errors if Access Token or Entitlement Token cannot be built.
+			+ AuthUtil.GetAuthTokensFromAccessToken(access_token) has been publicized, send access token and receives pas,entitle,clientconfig,userinfo,rms tuple.
 
-			Method Expandability
-			--------------------
-			- StringExtensions is now internal (no longer visible externally).
-			- InternalValorantMethods.ClientIsReady (bool) is now public
-			(not sensitive, potentially useful for some users).
+			- Removed chrome as blacklisted executable, note you will most likely hit captchas if used.
 		</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
