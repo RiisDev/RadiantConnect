@@ -152,6 +152,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 	             	}
 	             
 	             	function doPageChecks() {
+	             		let docHref = document.location.href;
 	             
 	             		if (signInPageDetected() && !signInDetected) {
 	             			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
@@ -167,7 +168,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 	             			mfaDetected = true;
 	             		}
 	             
-	             		if (document.location.href.includes('opt_in/#access_token=') && !accessToken) {
+	             		if (docHref.includes('access_token=') && !accessToken) {
 	             			console.log(`[RADIANTCONNECT] Access Token: ${document.location.href}`);
 	             			accessToken = true;
 	             		}
@@ -195,57 +196,34 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 	             				if (zIndex > 0 && !captchaFound) {
 	             					console.log("[RADIANTCONNECT] CAPTCHAFOUND");
 	             					captchaFound = true;
-	             				}
-	             				else if (zIndex <= 0 && captchaFound){
+	             				} else if (zIndex <= 0 && captchaFound) {
 	             					console.log("[RADIANTCONNECT] CAPTCHAREMOVED");
 	             					clearInterval(capInt);
 	             				}
 	             			});
 	             		}
 	             	}, 150);
-
+	             
 	             })();
 	             """).Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
         }
-
-        internal static async Task NavigateTo(string url, string pageTitle, int port, ClientWebSocket socket, bool waitForPage = true)
+		
+        internal static async Task<string?> ExecuteOnPageWithResponse(int port, Dictionary<string, object> dataToSend)
         {
-            Dictionary<string, object> dataToSend = new()
-            {
-                { "id",new Random((int)DateTimeOffset.UtcNow.ToUnixTimeSeconds()).Next() },
-                { "method", "Runtime.evaluate" },
-                { "params", new Dictionary<string, string> { {"expression", $"document.location.href = \"{url}\""} }
-                }
-            };
-
-            await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
-
-            if (waitForPage)
-                await DriverHandler.WaitForPage(pageTitle, port, 999999);
-        }
-
-        internal static async Task<string?> ExecuteOnPageWithResponse(string pageTitle, int port, Dictionary<string, object> dataToSend, string expectedOutput, ClientWebSocket socket, bool output = false, bool skipCheck = false)
-        {
-            if (pageTitle != "") await DriverHandler.WaitForPage(pageTitle, port);
-
             int id = (int)dataToSend["id"];
             TaskCompletionSource<string> tcs = new();
             DriverHandler.PendingRequests[id] = tcs;
-
-            await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
+			
+            await Socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
 
             string response = await tcs.Task;
 
-            if (output) Debug.WriteLine(response);
-
-            return !response.Contains(expectedOutput) && !skipCheck
-	            ? throw new Exception("Expected output not found")
-	            : response;
+            return response;
         }
 
         #endregion
         
-        internal async Task<CookieRoot?> GetCookiesAsync(string pageTitle)
+        internal async Task<CookieRoot?> GetCookiesAsync()
         {
             Dictionary<string, object> cookieResponse = new()
             {
@@ -253,7 +231,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
                 { "method", "Network.getAllCookies" }
             };
 
-            string? cookieData = await ExecuteOnPageWithResponse(pageTitle, DriverPort, cookieResponse, "", Socket, false, true);
+            string? cookieData = await ExecuteOnPageWithResponse(DriverPort, cookieResponse);
 			return cookieData.IsNullOrEmpty() ? null : JsonSerializer.Deserialize<CookieRoot>(cookieData);
         }
     }

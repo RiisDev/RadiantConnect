@@ -173,7 +173,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
                 (string accessToken, string idToken) = await GetAccessTokens(loginToken);
                 if (accessToken.IsNullOrEmpty()) return;
 
-                (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetTokens(accessToken);
+                (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetAuthTokensFromAccessToken(accessToken);
 
                 JsonWebToken jwt = new(pasToken);
                 string? affinity = jwt.GetPayloadValue<string>("affinity");

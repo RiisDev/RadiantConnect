@@ -1,5 +1,4 @@
 ﻿using System.Net.WebSockets;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using static RadiantConnect.Authentication.DriverRiotAuth.Events;
 using Match = System.Text.RegularExpressions.Match;
 
@@ -84,7 +83,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             return Task.CompletedTask;
         }
-
+		
         internal static async Task HandleMessage(string message)
         {
             await CheckForEvent(message);
@@ -100,8 +99,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
             int id = int.Parse(value.ToString() ?? "-1");
 			if (id == -1) return;
-			if (PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
-			if (tcs is null) return;
+			if (!PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
 
             tcs.SetResult(message);
             PendingRequests.Remove(id);
@@ -109,20 +107,27 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
         internal static async Task ListenAsync(ClientWebSocket? socket)
         {
-            byte[] buffer = new byte[8192];
+	        try
+	        {
+		        byte[] buffer = new byte[8192];
 
-            while (socket is not null && socket.State == WebSocketState.Open)
-            {
-                using MemoryStream memoryStream = new();
-                WebSocketReceiveResult result;
-                do
-                {
-                    result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
-                    memoryStream.Write(buffer, 0, result.Count);
-                } while (!result.EndOfMessage);
+		        while (socket is not null && socket.State == WebSocketState.Open)
+		        {
+			        using MemoryStream memoryStream = new();
+			        WebSocketReceiveResult result;
+			        do
+			        {
+				        result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+				        memoryStream.Write(buffer, 0, result.Count);
+			        } while (!result.EndOfMessage);
 
-                await HandleMessage(Encoding.UTF8.GetString(memoryStream.ToArray()));
-            }
+			        await HandleMessage(Encoding.UTF8.GetString(memoryStream.ToArray()));
+		        }
+	        }
+	        catch (WebSocketException)
+	        {
+				throw new RadiantConnectAuthException("WebSocket connection was closed unexpectedly. Please try again.");
+			}
         }
 
         internal static async Task<string?> GetInitialSocket(int port)
@@ -141,38 +146,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
             }
         }
 
-        internal static async Task<string?> WaitForPage(string title, int port, int maxRetries = 250, bool needsReturn = false)
-        {
-            int retries = 0;
-            string foundSocket = "";
-            do
-            {
-                retries++;
-                List<EdgeDev>? debugResponse = await InternalHttp.GetAsync<List<EdgeDev>>($"http://localhost:{port}", "/json");
-
-                switch (debugResponse)
-                {
-                    case null:
-                        continue;
-                    case var _ when debugResponse.Count == 0:
-                        continue;
-                    case var _ when title == "VALORANT_RSO" && debugResponse.Any(x => x.Title == "Sign in" || x.Title.Contains("/opt_in/#access_token=")):
-                        break;
-                    case var _ when title == "Verification Required" && debugResponse.Any(x => x.Title.Contains("/opt_in/#access_token=")):
-                        break;
-                    case var _ when !debugResponse.Any(x => x.Title.Contains(title)):
-                        continue;
-                }
-
-                if (needsReturn) foundSocket = debugResponse.First(x => x.Title.Contains(title)).WebSocketDebuggerUrl;
-
-                break;
-
-            } while (retries <= maxRetries);
-
-            return foundSocket;
-        }
-        
         internal static async Task<(Process?, string?)> StartDriver(string browserExecutable, int port, bool headless)
         {
             Debug.WriteLine($"{DateTime.Now} Starting driver");

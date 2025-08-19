@@ -29,7 +29,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 
             string accessToken = AuthUtil.ParseAccessToken(validAuthUrl);
             string idToken = AuthUtil.ParseIdToken(validAuthUrl);
-            (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetTokens(accessToken);
+            (string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetAuthTokensFromAccessToken(accessToken);
 
             JsonWebToken token = new (accessToken);
             string suuid = token.Subject;
