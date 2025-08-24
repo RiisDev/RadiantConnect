@@ -55,14 +55,18 @@ namespace RadiantConnect.Network.PartyEndpoints
 			return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/customgamesettings", jsonContent);
 		}
 
+		public async Task EnterCustomGameQueue(string partyId) => await initiator.ExternalSystem.Net.PostAsync(Url, $"parties/v1/parties/{partyId}/makecustomgame");
+		public async Task EnterCustomGame(string partyId) => await EnterCustomGameQueue(partyId);
+		public async Task SwitchToCustomGame(string partyId) => await EnterCustomGameQueue(partyId);
+
 		public async Task<Party?> InvitePlayerAsync(string partyId, string name, string tagLine) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
 
 		public async Task KickFromPartyAsync(string userId) => await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}");
 
 		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
-		public async Task<Party?> RequestPartyAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
+		internal async Task<Party?> RequestPartyAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
 
 		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
-		public async Task<Party?> DeclinePartyAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
+		internal async Task<Party?> DeclinePartyAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/request");
 	}
 }
