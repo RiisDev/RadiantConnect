@@ -84,7 +84,7 @@ namespace RadiantConnect.Authentication
 #endif
         }
 
-        public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "") => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
+        public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "", WebProxy? proxy = null) => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid, proxy);
 
         public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
         {
@@ -98,10 +98,8 @@ namespace RadiantConnect.Authentication
         
         public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null, bool acceptedTerms = false)
         {
-            if (!acceptedTerms)
-            {
-                throw new RadiantConnectAuthException("Due to recent changes in the library, you must target windows to hide the driver automatically\nOn other OS's I am unable to hide the driver.\nTo use this authentication method add the parameter `acceptedTerms: true`");
-            }
+            if (!acceptedTerms) 
+	            throw new RadiantConnectAuthException("Due to recent changes in the library, you must target windows to hide the driver automatically\nOn other OS's I am unable to hide the driver.\nTo use this authentication method add the parameter `acceptedTerms: true`");
 
             driverSettings ??= new DriverSettings();
 

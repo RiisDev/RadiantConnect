@@ -14,9 +14,9 @@ namespace RadiantConnect.Utilities
 				Dictionary<string, string> c = ParseUrlParameters(url);
 				if (key.IsNullOrEmpty()) return string.Empty;
 
-				if (c.TryGetValue(key, out string? value)) return value;
-
-				throw new RadiantConnectAuthException($"Failed to parse token {key} from query.");
+				return c.TryGetValue(key, out string? value)
+					? value
+					: throw new RadiantConnectAuthException($"Failed to parse token {key} from query.");
 			}
 
 			try

@@ -6,9 +6,9 @@ namespace RadiantConnect.ValorantApi
 
         public static async Task<LevelsData?> GetSprayLevelsAsync() => await ValorantApiClient.GetAsync<LevelsData?>("https://valorant-api.com/v1", "/sprays/levels");
 
-        public static async Task<SprayData?> GetBuddyAsync(string uuid) => await ValorantApiClient.GetAsync<SprayData?>("https://valorant-api.com/v1", $"/sprays/{uuid}");
+        public static async Task<SprayData?> GetSprayAsync(string uuid) => await ValorantApiClient.GetAsync<SprayData?>("https://valorant-api.com/v1", $"/sprays/{uuid}");
 
-        public static async Task<SprayData?> GetSprayByUuidAsync(string uuid) => await GetBuddyAsync(uuid);
+        public static async Task<SprayData?> GetSprayByUuidAsync(string uuid) => await GetSprayAsync(uuid);
 
         public static async Task<LevelData?> GetSprayLevelByLevelUuidAsync(string uuid) => await ValorantApiClient.GetAsync<LevelData?>("https://valorant-api.com/v1", $"/sprays/levels/{uuid}");
 
