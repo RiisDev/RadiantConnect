@@ -6,7 +6,7 @@ With the addition of MITM-based XMPP integration, users can authenticate and int
 
 For a complete and detailed guide on all features, check out the official documentation:
 
-[**RadiantConnect Documentation**](https://irisapp.ca/RadiantConnect/)
+[**RadiantConnect Documentation**](https://docs.radiantconnect.ca/csharp)
 
 ![C#](https://img.shields.io/badge/-.NET%208.0-blueviolet?style=for-the-badge&logo=windows&logoColor=white)
 [![Support Server](https://img.shields.io/discord/477201632204161025.svg?label=Discord&logo=Discord&colorB=7289da&style=for-the-badge)](https://discord.gg/yyuggrH)
@@ -16,14 +16,14 @@ For a complete and detailed guide on all features, check out the official docume
 ![Daily Table Test](https://img.shields.io/github/actions/workflow/status/RiisDev/RadiantConnect/daily.yml?style=for-the-badge&label=tables)
 
 ---
-## Features
 
+## Features
 
 ### **Basic API Usage**
 
 RadiantConnect provides several useful methods to interact with Valorant's player data. Learn more about how to use the following APIs:
 
-- **[PVP Methods](https://irisapp.ca/RadiantConnect/Method%20Usage/PVP%20Methods/)**
+- **[PVP Methods](https://docs.radiantconnect.ca/csharp/api/pvp.html)**
   - GetMatchHistory
   - GetUserRank
   - And much much more.
@@ -32,35 +32,35 @@ RadiantConnect provides several useful methods to interact with Valorant's playe
 
 RadiantConnect allows you to build your own API calls if RadiantConnect doesn't support it, using the built in ValorantNet library handles all authentication for you.
 
-- **[Custom API Call](https://irisapp.ca/RadiantConnect/ValorantNet/ValorantNet%20Usage/)**
+- **[Custom API Call](https://docs.radiantconnect.ca/csharp/services/valorantnet.html)**
 
 ### **Authentication Features**
 
 RadiantConnect supports a variety of authentication methods to simplify user logins. Find out how to implement the following authentication methods:
 
-- **[QR Code Authentication](https://irisapp.ca/RadiantConnect/Method%20Usage/Authentication%20Methods/#authenticatewithqr)**
-- **[Automated Web Driver Authentication](https://irisapp.ca/RadiantConnect/Method%20Usage/Authentication%20Methods/#authenticatewithdriver)**
-- **[SSID Authentication](https://irisapp.ca/RadiantConnect/Method%20Usage/Authentication%20Methods/#authenticatewithssid)**
+- **[QR Code Authentication](https://docs.radiantconnect.ca/csharp/authentication/index.html#2-authenticatewithqr)**
+- **[Automated Web Driver Authentication](https://docs.radiantconnect.ca/csharp/authentication/index.html#3-authenticatewithdriver)**
+- **[SSID Authentication](https://docs.radiantconnect.ca/csharp/authentication/index.html#1-authenticatewithssid)**
 
 ### **Valorant Socket Support**
 
 RadiantConnect supports various socket integrations for enhanced communication with the game. Learn more about the integration options:
 
-- **[XMPP Integration](https://irisapp.ca/RadiantConnect/TCP%20%26%20XMPP/XMPP%20Remote%20Guide%20copy/)**
-- **[XMPP MITM Integration](https://irisapp.ca/RadiantConnect/TCP%20%26%20XMPP/XMPP%20MITM%20Guide/)**
-- **[Local TCP Integration](https://irisapp.ca/RadiantConnect/TCP%20%26%20XMPP/TCP%20Guide/)**
+- **[XMPP Integration](hhttps://docs.radiantconnect.ca/csharp/sockets/xmpp.html)**
+- **[XMPP MITM Integration](https://docs.radiantconnect.ca/csharp/sockets/xmpp-mitm.html)**
+- **[Local TCP Integration](hhttps://docs.radiantconnect.ca/csharp/sockets/tcp.html)**
 
 ### **Client Events**
 
 RadiantConnect provides hooks for a variety of in-game events. Learn more about these events and how to use them:
 
-- **[In-Game Events](https://irisapp.ca/RadiantConnect/Client%20Events/In%20Game%20Events/)**
+- **[In-Game Events](https://docs.radiantconnect.ca/csharp/events/ingame.html)**
   - OnBuyMenuOpened
   - OnBuyMenuClosed
-- **[Match Events](https://irisapp.ca/RadiantConnect/Client%20Events/Match%20Events/)**
+- **[Match Events](https://docs.radiantconnect.ca/csharp/events/match.html)**
   - Match\_Started
   - OnMapLoaded
-- **[Menu Events](https://irisapp.ca/RadiantConnect/Client%20Events/Menu%20Events/)**
+- **[Menu Events](https://docs.radiantconnect.ca/csharp/events/menu.html)**
   - OnBattlePassView
   - OnAgentsView
   - OnCareerView
@@ -69,22 +69,22 @@ RadiantConnect provides hooks for a variety of in-game events. Learn more about 
   - OnCollectionView
   - OnStoreView
   - OnPremierView
-- **[Pre-Game Events](https://irisapp.ca/RadiantConnect/Client%20Events/Pre%20Game%20Events/)**
+- **[Pre-Game Events](hhttps://docs.radiantconnect.ca/csharp/events/pregame.html)**
   - OnPreGamePlayerLoaded
   - OnPreGameMatchLoaded
   - OnAgentLockedIn
   - OnAgentSelected
-- **[Queue Events](https://irisapp.ca/RadiantConnect/Client%20Events/Queue%20Events/)**
+- **[Queue Events](https://docs.radiantconnect.ca/csharp/events/queue.html)**
   - OnQueueChanged
   - OnEnteredQueue
   - OnLeftQueue
   - OnCustomGameLobbyCreated
   - OnTravelToMenu
   - OnMatchFound
-- **[Round Events](https://irisapp.ca/RadiantConnect/Client%20Events/Round%20Events/)**
+- **[Round Events](https://docs.radiantconnect.ca/csharp/events/round.html)**
   - OnRoundStarted
   - OnRoundEnded
-- **[Vote Events](https://irisapp.ca/RadiantConnect/Client%20Events/Vote%20Events/)**
+- **[Vote Events](hhttps://docs.radiantconnect.ca/csharp/events/vote.html)**
   - OnVoteDeclared
   - OnVoteInvoked
   - OnSurrenderCalled
@@ -102,10 +102,12 @@ If you have any questions, issues, or need assistance, feel free to join our Dis
 You can also check out our [FAQ](https://discord.gg/yyuggrH) or [Submit an Issue](https://github.com/IrisV3rm/RadiantConnect/issues).
 
 ---
+
 ## Credits
 
 ### Huge Credits molenzwiebel for his Deceive code, helping make MITM Connection
-* XMPP MITM Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
-* Get Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
-* Riot API Documentaiton: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)
-* And can not stress this enough, the nice people at [Valorant App Developer Discord](https://discord.gg/a9yzrw3KAm) for assisting all the time. 
+
+- XMPP MITM Integration: @molenzwiebel | [Decieve](https://github.com/molenzwiebel/Deceive)
+- Get Version From Executable: @floxay | [get_client_version.py](https://gist.github.com/floxay/a6bdacbd8db2298be602d330a43976da)
+- Riot API Documentaiton: @techchrism | [Valorant API Docs](https://valapidocs.techchrism.me/)
+- And can not stress this enough, the nice people at [Valorant App Developer Discord](https://discord.gg/a9yzrw3KAm) for assisting all the time.

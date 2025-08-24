@@ -1,4 +1,4 @@
-﻿namespace RadiantConnect.Network.ChatEndpoints.DataTypes
+namespace RadiantConnect.Network.ChatEndpoints.DataTypes
 {
 	public record Conversation(
 		[property: JsonPropertyName("cid")] string Cid,
@@ -22,4 +22,3 @@
 		[property: JsonPropertyName("hidden")] bool Hidden
 	);
 }
-

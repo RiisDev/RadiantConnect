@@ -37,7 +37,7 @@ namespace RadiantConnect.Network.PartyEndpoints
 			return await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue",  jsonContent);
 		}
 
-		public async Task<Party?> StartCustomGameeAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
+		public async Task<Party?> StartCustomGameAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
 
 		public async Task<Party?> EnterQueueAsync(string partyId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/join");
 
