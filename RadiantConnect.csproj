@@ -88,10 +88,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-		<None Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
-		<Content Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-		<EmbeddedResource Remove="docs\**;packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+		<Compile Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+		<None Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
+		<Content Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
+		<EmbeddedResource Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
 	</ItemGroup>
 
 	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net9.0-windows' ">
@@ -125,6 +125,4 @@
 	<ItemGroup>
 	  <EditorConfigFiles Remove="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
 	</ItemGroup>
-
-	<!-- Force GitHub Action v2-->
 </Project>
