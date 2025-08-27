@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.0.2</Version>
+		<Version>10.1.0</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -21,12 +21,8 @@
 		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
 		<LangVersion>preview</LangVersion>
 		<PackageReleaseNotes>
-			* Fixed Storefront to support new storefront API.
-			* Fixed DriverAuth
-
-			+ AuthUtil.GetAuthTokensFromAccessToken(access_token) has been publicized, send access token and receives pas,entitle,clientconfig,userinfo,rms tuple.
-
-			- Removed chrome as blacklisted executable, note you will most likely hit captchas if used.
+			+ New authentication method: `RiotClientAuth` refer to documentation for more info.
+			* `AuthenticateWithSsid` now accepts a System.Net.WebProxy parameter.
 		</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
