@@ -153,6 +153,6 @@ namespace RadiantConnect.Authentication
             return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
         }
 		
-        public async Task<RSOAuth?> RiotClientAuth(string? settingsFile = null) => await new RtcAuth().Run(settingsFile, this);
+        public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null) => await new RtcAuth().Run(settingsFile, this);
     }
 }
