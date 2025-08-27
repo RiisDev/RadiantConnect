@@ -3,6 +3,7 @@ using RadiantConnect.Authentication.DriverRiotAuth;
 using RadiantConnect.Authentication.DriverRiotAuth.Handlers;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Authentication.QRSignIn.Handlers;
+using RadiantConnect.Authentication.RiotClient;
 using RadiantConnect.Authentication.SSIDReAuth;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 
@@ -151,5 +152,7 @@ namespace RadiantConnect.Authentication
             IEnumerable<Cookie>? cookiesData = await GetCachedCookies();
             return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
         }
+		
+        public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null) => await new RtcAuth().Run(settingsFile, this);
     }
 }
