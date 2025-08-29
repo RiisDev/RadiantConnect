@@ -17,25 +17,35 @@ namespace RadiantConnect.Services
             {
                 installLocation = @"C:\Riot Games\VALORANT\live\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
             }
-            return installLocation;
+
+			if (!File.Exists(installLocation))
+				throw new FileNotFoundException("Failed to find Valorant executable");
+
+			return installLocation;
         }
 
-        public static string GetRiotClientPath()
+        public static string GetRiotClientPath(bool service = true)
         {
-            string installLocation = string.Empty;
+            string installLocation;
             try
             {
-                string? uninstallString = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game valorant.live",
-                    "UninstallString", "")?.ToString();
+                string? installString = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game Riot_Client",
+                    "InstallLocation", "")?.ToString();
 
-                if (uninstallString is not null)
-                    installLocation = uninstallString[1..(uninstallString.IndexOf(".exe", StringComparison.Ordinal) + 4)];
-            }
+                if (!Directory.Exists(installString))
+	                throw new DirectoryNotFoundException("Failed to find Riot Client install path");
+
+				installLocation = service ? Path.Combine(installString, "RiotClientServices.exe") : Path.Combine(installString, "Riot Client.exe");
+			}
             catch
             {
                 installLocation = @"C:\Riot Games\Riot Client\RiotClientServices.exe";
             }
-            return installLocation;
+			
+			if (!File.Exists(installLocation))
+				throw new FileNotFoundException($"Failed to find {(service ? "RiotClientServices" : "Riot Client")} executable");
+
+			return installLocation;
         }
     }
 }

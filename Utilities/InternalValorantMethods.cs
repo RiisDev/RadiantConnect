@@ -15,6 +15,7 @@ namespace RadiantConnect.Utilities
 
 		public static bool IsValorantProcessRunning() => Process.GetProcessesByName("VALORANT").Length > 0;
 
+		public static bool IsRiotClientRunning() => Process.GetProcessesByName("RiotClientServices").Length > 0 && Process.GetProcessesByName("Riot Client").Length > 0;
 		internal static async Task<bool> IsReady(LocalEndpoints localEndpoints)
 		{
 			try

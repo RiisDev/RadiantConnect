@@ -95,6 +95,7 @@ namespace RadiantConnect.RConnect
     public static class RConnectMethods
     {
         public static bool IsValorantRunning() => InternalValorantMethods.IsValorantProcessRunning();
+        public static bool IsRiotClientRunning() => InternalValorantMethods.IsRiotClientRunning();
 
         public static async Task<string?> GetRiotIdByPuuidAsync(this Initiator initiator, string puuid)
         {
