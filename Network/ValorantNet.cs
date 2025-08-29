@@ -108,7 +108,7 @@ namespace RadiantConnect.Network
             return new UserAuth(authPort, oAuth);
         }
 
-        private async Task<(string, string)> GetAuthorizationToken()
+        internal async Task<(string, string)> GetAuthorizationToken()
         {
             OnLog?.Invoke("[ValorantNet Log] Getting local AuthorizationTokens");
 
@@ -183,7 +183,7 @@ namespace RadiantConnect.Network
             }
 
             // I no longer need the loop, as the client will now handle edge-cases.
-            if (!InternalValorantMethods.IsValorantProcessRunning() && AuthCodes is null) return string.Empty;
+            if (!(InternalValorantMethods.IsValorantProcessRunning() || InternalValorantMethods.IsRiotClientRunning()) && AuthCodes is null) return string.Empty;
 
             if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
             else if (customHeaders is not null) SetCustomHeaders(customHeaders);

@@ -1,5 +1,5 @@
-﻿using RadiantConnect.EventHandler;
-using RadiantConnect.Services;
+﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.EventHandler;
 using RadiantConnect.Network;
 using RadiantConnect.Network.ChatEndpoints;
 using RadiantConnect.Network.ContractEndpoints;
@@ -9,7 +9,7 @@ using RadiantConnect.Network.PartyEndpoints;
 using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
+using RadiantConnect.Services;
 
 namespace RadiantConnect
 {
@@ -106,21 +106,21 @@ namespace RadiantConnect
             Initialize(net, rsoAuth);
         }
 
-        public Initiator(bool ignoreVpn = true)
+		public Initiator(bool ignoreVpn = true)
         {
 #if !DEBUG
-            DateTime startTime = DateTime.Now;
-            TimeSpan timeout = TimeSpan.FromMinutes(1);
+	        DateTime startTime = DateTime.Now;
+	        TimeSpan timeout = TimeSpan.FromMinutes(1);
 
-            while (!InternalValorantMethods.ClientIsReady())
-            {
-                if (DateTime.Now - startTime > timeout)
-                    throw new TimeoutException("Client did not become ready within 1 minute.");
+	        while (!InternalValorantMethods.ClientIsReady())
+	        {
+		        if (DateTime.Now - startTime > timeout)
+			        throw new TimeoutException("Client did not become ready within 1 minute.");
 
-                Task.Delay(2000);
-            }
+		        Task.Delay(2000);
+	        }
 #endif
-            ValorantService client = new();
+            ValorantService client = new ();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
             ValorantNet net = new(client);
@@ -153,8 +153,62 @@ namespace RadiantConnect
                 new StoreEndpoints(this)
             );
 
-            _ = LogService.InitiateEvents(this);
+			_ = LogService.InitiateEvents(this);
         }
+
+		// RiotClient is just used to differentiate the constructor
+		public Initiator(bool riotClient, LogService.ClientData.ShardType shard, bool ignoreVpn = true)
+		{
+			if (!InternalValorantMethods.IsRiotClientRunning())
+				throw new RadiantConnectException("Riot Client must be open and running.");
+
+			if (!riotClient)
+				throw new ArgumentException("This constructor is only to be used when using the Riot Client for authentication.");
+
+			if (RiotPathService.GetRiotClientPath(false).IsNullOrEmpty())
+				throw new RadiantConnectException("Failed to find Riot Client path.");
+
+			ValorantService client = new();
+			ValorantNet net = new(client);
+
+			(string accessToken, string _) = net.GetAuthorizationToken().Result;
+
+			LogService.ClientData cData = new(
+				Shard: shard,
+				UserId: new JsonWebToken(accessToken).Subject,
+				PdUrl: $"https://pd.{shard}.a.pvp.net",
+				GlzUrl: $"https://glz-{shard}-1.{shard}.a.pvp.net",
+				SharedUrl: $"https://shared.{shard}.a.pvp.net"
+			);
+			
+			if (!ignoreVpn)
+	        {
+		        string vpnDetected = IsVpnDetected();
+
+		        if (!vpnDetected.IsNullOrEmpty())
+			        throw new RadiantConnectException($"Can not run with VPN running, found processes: {vpnDetected}. \n\nTo bypass this check launch Initiator with (true)");
+	        }
+
+	        ExternalSystem = new InternalSystem(
+		        client,
+		        net,
+		        null!,
+		        cData
+	        );
+
+	        Client = cData;
+
+	        Endpoints = new Endpoints(
+		        new ChatEndpoints(this),
+		        new ContractEndpoints(this),
+		        new CurrentGameEndpoints(this),
+		        new LocalEndpoints(this),
+		        new PartyEndpoints(this),
+		        new PreGameEndpoints(this),
+		        new PVPEndpoints(this),
+		        new StoreEndpoints(this)
+	        );
+		}
 
         public void Dispose() => IsDisposed = true;
     }
