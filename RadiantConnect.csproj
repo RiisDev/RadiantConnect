@@ -106,7 +106,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
+		<None Include=".editorconfig" />
 		<None Include="icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -118,6 +118,10 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <EditorConfigFiles Remove="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
+	  <EditorConfigFiles Remove=".editorconfig" />
 	</ItemGroup>
+
+	<PropertyGroup>
+	  <PathMap>$(SolutionDir)=</PathMap>
+	</PropertyGroup>
 </Project>
