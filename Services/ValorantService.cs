@@ -24,8 +24,8 @@
             string userPlatform = GameVersionService.GetClientPlatform();
             string engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
             string branch = versionData.Branch;
-            string buildVersion = versionData.BuildVersion;
-            string changelist = versionData.VersionNumber.ToString();
+            string buildVersion = versionData.VersionNumber.ToString();
+			string changelist = versionData.BuildVersion;
             string clientVersion = versionData.BuiltData;
 
             return new Version(
