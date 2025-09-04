@@ -11,7 +11,11 @@ namespace RadiantConnect.Services
             {
                 installLocation = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game valorant.live",
                     "InstallLocation", "")?.ToString();
-                installLocation += @"\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
+
+                if (installLocation.IsNullOrEmpty())
+	                throw new AccessViolationException("Failed to access registry key for valorant.live");
+
+				installLocation += @"\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
             }
             catch
             {
@@ -29,8 +33,11 @@ namespace RadiantConnect.Services
             string installLocation;
             try
             {
-                string? installString = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game Riot_Client",
+                string? installString = GetValue($@"{CurrentUser}\Software\Microsoft\Windows\CurrentVersion\Uninstall\Riot Game Riot_Client.",
                     "InstallLocation", "")?.ToString();
+
+                if (installString.IsNullOrEmpty())
+	                throw new AccessViolationException("Failed to access registry key for Riot_Client");
 
                 if (!Directory.Exists(installString))
 	                throw new DirectoryNotFoundException("Failed to find Riot Client install path");

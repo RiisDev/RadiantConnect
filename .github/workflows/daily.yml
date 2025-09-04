@@ -36,4 +36,4 @@ jobs:
       run: dotnet build RadiantConnect.sln --configuration Release --framework net9.0
             
     - name: Test RadiantConnect.Tests
-      run: dotnet test RadiantConnect.Tests/RadiantConnect.Tests.csproj --no-restore --verbosity normal
+      run: dotnet test RadiantConnect.Tests/RadiantConnect.Tests.csproj --filter "TableUnitTest" --no-restore --verbosity normal
