@@ -42,7 +42,7 @@ namespace RadiantConnect.Services
                 if (!Directory.Exists(installString))
 	                throw new DirectoryNotFoundException("Failed to find Riot Client install path");
 
-				installLocation = service ? Path.Combine(installString, "RiotClientServices.exe") : Path.Combine(installString, "Riot Client.exe");
+				installLocation = service ? Path.Combine(installString, "RiotClientServices.exe") : Path.Combine(installString, "RiotClientElectron", "Riot Client.exe");
 			}
             catch
             {

@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.1.3</Version>
+		<Version>10.1.4</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
