@@ -13,9 +13,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
         internal CancellationTokenSource ShutdownSocket = new();
         internal ValorantNet.UserAuth? Authentication;
         internal Initiator Init;
-#if DEBUG
-        public TcpEvents Events;
-#endif
+
         public ValSocket(Initiator init)
         {
             Authentication = ValorantNet.GetAuth();
@@ -24,9 +22,10 @@ namespace RadiantConnect.SocketServices.InternalTcp
                 throw new RadiantConnectException("Failed to grab current auth, is valorant running?");
 
             Init = init;
-#if DEBUG
-            Events = new TcpEvents(this);
-#endif
+
+			// Disabled since it's either set in the initiator, or here, and is a hidden null.
+            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+            init.TcpEvents ??= new TcpEvents(this);
         }
 
         internal async Task<IReadOnlyList<string>> GetEvents()
@@ -55,16 +54,12 @@ namespace RadiantConnect.SocketServices.InternalTcp
                 result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
 
                 if (result.MessageType == WebSocketMessageType.Text)
-                {
-                    messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
-                }
+	                messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
 
             } while (!result.EndOfMessage);
 
-            if (messageBuilder.Length > 0)
-            {
-                OnNewMessage?.Invoke(messageBuilder.ToString());
-            }
+            if (messageBuilder.Length > 0) 
+	            OnNewMessage?.Invoke(messageBuilder.ToString());
         }
 
         public void InitializeConnection() =>
@@ -88,10 +83,8 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			        foreach (string eventName in await GetEvents()) 
 				        await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, CancellationToken.None);
 
-			        while (!ShutdownSocket.IsCancellationRequested)
-			        {
+			        while (!ShutdownSocket.IsCancellationRequested) 
 				        await ReceiveMessageAsync(clientWebSocket);
-			        }
 
 			        await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
 			        await clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);

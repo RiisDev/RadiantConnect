@@ -10,6 +10,7 @@ using RadiantConnect.Network.PreGameEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using RadiantConnect.Services;
+using RadiantConnect.SocketServices.InternalTcp;
 
 namespace RadiantConnect
 {
@@ -52,7 +53,11 @@ namespace RadiantConnect
         public InternalSystem ExternalSystem { get; private set; } = null!;
         public Endpoints Endpoints { get; private set; } = null!;
         public GameEvents GameEvents { get; internal set; } = null!;
-        public LogService.ClientData Client { get; private set; } = null!;
+
+#if DEBUG
+		public TcpEvents TcpEvents { get; internal set; } = null!;
+#endif
+		public LogService.ClientData Client { get; private set; } = null!;
 
         private async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
         {
@@ -108,7 +113,6 @@ namespace RadiantConnect
 
 		public Initiator(bool ignoreVpn = true)
         {
-#if !DEBUG
 	        DateTime startTime = DateTime.Now;
 	        TimeSpan timeout = TimeSpan.FromMinutes(1);
 
@@ -119,7 +123,7 @@ namespace RadiantConnect
 
 		        Task.Delay(2000);
 	        }
-#endif
+
             ValorantService client = new ();
             LogService logService = new();
             LogService.ClientData cData = LogService.GetClientData();
@@ -153,6 +157,9 @@ namespace RadiantConnect
                 new StoreEndpoints(this)
             );
 
+#if DEBUG
+			TcpEvents = new TcpEvents(new ValSocket(this), true);
+#endif
 			_ = LogService.InitiateEvents(this);
         }
 

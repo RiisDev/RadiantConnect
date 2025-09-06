@@ -14,17 +14,67 @@ namespace RadiantConnect.Authentication.RiotClient
 			"RiotGamesPrivateSettings.yaml"
 		);
 
-		internal async Task<RSOAuth?> Run(string? fileLocation = null, Authentication? auth = null)
+		internal async Task<RSOAuth?> Run(string? fileLocation = null, Authentication? auth = null, bool skipTdid = false, bool skipClid = false, bool skipCsid = false)
 		{
 			fileLocation ??= RiotClientSettings;
 
 			if (auth == null) throw new Exception("Authentication somehow null, report bug to github, this should never be seen.");
-			if (!File.Exists(fileLocation)) throw new FileNotFoundException("Riot Client persistent file not found.", fileLocation);
-			if (!fileLocation.EndsWith(".yaml")) throw new Exception($"Invalid file detected, expected .yaml got {Path.GetExtension(fileLocation)}");
 
-			string content = await File.ReadAllTextAsync(fileLocation);
+			Dictionary<string, string?> cookieValues = await GetCookiesFromYaml(fileLocation);
 
-			Dictionary<string, object> yamlData = ParseSimpleYaml(content);
+			cookieValues.TryGetValue("ssid", out string? ssid);
+
+			if (ssid.IsNullOrEmpty()) 
+				throw new RadiantConnectAuthException("Failed to grab ssid from client cookies.");
+			
+			// Has built in checking
+			if (!skipTdid && cookieValues["tdid"].IsNullOrEmpty())
+				cookieValues["tdid"] = await GetTdidFallback(fileLocation);
+
+			cookieValues.TryGetValue("clid", out string? clid);
+			cookieValues.TryGetValue("csid", out string? csid);
+			cookieValues.TryGetValue("tdid", out string? tdid);
+			cookieValues.TryGetValue("asid", out string? asid);
+
+			if (!skipClid && clid.IsNullOrEmpty())
+				throw new RadiantConnectAuthException("Failed to grab clid from client cookies.");
+			if (!skipCsid && csid.IsNullOrEmpty())
+				throw new RadiantConnectAuthException("Failed to grab csid from client cookies.");
+			if (!skipTdid && tdid.IsNullOrEmpty())
+				throw new RadiantConnectAuthException("Failed to grab tdid from client cookies.");
+			
+			return await auth.AuthenticateWithSsid(
+				ssid: ssid,
+				clid: clid,
+				csid: csid,
+				tdid: tdid,
+				asid: asid
+			);
+		}
+
+		private static async Task<string> GetTdidFallback(string fileLocation)
+		{
+			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
+
+			if (!yamlData.ContainsKey("rso-authenticator") || yamlData["rso-authenticator"] is not Dictionary<string, object> rsoAuthenticator)
+				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
+
+			if (!rsoAuthenticator.ContainsKey("tdid") || rsoAuthenticator["tdid"] is not Dictionary<string, object> tdidData)
+				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'tdid' section.");
+
+			tdidData.TryGetValue("value", out object? tdidValue);
+
+			string tdid = tdidValue as string ?? string.Empty;
+
+			if (tdid.IsNullOrEmpty())
+				throw new RadiantConnectAuthException("Failed to grab tdid from client cookies.");
+
+			return tdid;
+		}
+
+		private static async Task<Dictionary<string, string?>> GetCookiesFromYaml(string fileLocation)
+		{
+			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
 
 			if (!yamlData.ContainsKey("riot-login") || yamlData["riot-login"] is not Dictionary<string, object> riotLoginData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
@@ -41,19 +91,22 @@ namespace RadiantConnect.Authentication.RiotClient
 				if (kvp.Value is List<object> cookiesList)
 					allCookies.AddRange(cookiesList);
 
-			Dictionary<string, string?> cookieValues = GetCookieValues(allCookies, "ssid", "clid", "csid", "tdid");
-			
-			return await auth.AuthenticateWithSsid(
-				ssid: cookieValues["ssid"] ?? throw new RadiantConnectAuthException("Failed to grab ssid from client cookies."), 
-				clid: cookieValues["clid"] ?? throw new RadiantConnectAuthException("Failed to grab clid from client cookies."),
-				csid: cookieValues["csid"] ?? throw new RadiantConnectAuthException("Failed to grab csid from client cookies."),
-				tdid: cookieValues["tdid"] ?? throw new RadiantConnectAuthException("Failed to grab tdid from client cookies.")
-			);
+			return GetCookieValues(allCookies, "ssid", "clid", "csid", "tdid");
+		}
+		
+		private static async Task<Dictionary<string, object>> GetYamlData(string fileLocation)
+		{
+			if (!File.Exists(fileLocation)) throw new FileNotFoundException("Riot Client persistent file not found.", fileLocation);
+			if (!fileLocation.EndsWith(".yaml")) throw new Exception($"Invalid file detected, expected .yaml got {Path.GetExtension(fileLocation)}");
+
+			string fileData = await File.ReadAllTextAsync(fileLocation);
+
+			return ParseSimpleYaml(fileData);
 		}
 
 		private static Dictionary<string, object> ParseSimpleYaml(string yaml)
 		{
-			Dictionary<string, object> result = new();
+			Dictionary<string, object> result = [];
 			Stack<(int Indent, Dictionary<string, object> Dict)> stack = new();
 			stack.Push((0, result));
 
@@ -119,7 +172,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 		private static Dictionary<string, string?> GetCookieValues(List<object> cookies, params string[] keys)
 		{
-			Dictionary<string, string?> result = new();
+			Dictionary<string, string?> result = [];
 
 			foreach (string key in keys)
 				result[key] = null;
@@ -130,8 +183,9 @@ namespace RadiantConnect.Authentication.RiotClient
 				if (!cookie.TryGetValue("name", out object? nameObj) || nameObj is not string name) continue;
 				if (!Array.Exists(keys, k => k == name)) continue;
 
-				if (cookie.TryGetValue("value", out object? valueObj) && valueObj is string value) result[name] = value;
-				else result[name] = string.Empty;
+				result[name] = cookie.TryGetValue("value", out object? valueObj) && valueObj is string value
+					? value
+					: string.Empty;
 			}
 
 			return result;

@@ -5,7 +5,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 {
     internal class SsidAuthManager
     {
-	    internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "", WebProxy? proxy = null)
+	    internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null)
 	    {
 		    CookieContainer container = new();
 		    HttpClient client = new (new HttpClientHandler
@@ -18,12 +18,17 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 		    });
 
 			container.Add(new Cookie("ssid", ssid, "/", "auth.riotgames.com"));
-		    container.Add(new Cookie("clid", clid, "/", "auth.riotgames.com"));
-		    container.Add(new Cookie("csid", csid, "/", "auth.riotgames.com"));
-		    container.Add(new Cookie("tdid", tdid, "/", "auth.riotgames.com"));
 
-		    HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get,
-			    "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid"));
+			if (!clid.IsNullOrEmpty())
+				container.Add(new Cookie("clid", clid, "/", "auth.riotgames.com"));
+			if (!csid.IsNullOrEmpty())
+				container.Add(new Cookie("csid", csid, "/", "auth.riotgames.com"));
+			if (!asid.IsNullOrEmpty())
+				container.Add(new Cookie("tdid", tdid, "/", "auth.riotgames.com"));
+			if (!asid.IsNullOrEmpty())
+				container.Add(new Cookie("asid", tdid, "/", "auth.riotgames.com"));
+
+			HttpResponseMessage response = await client.SendAsync(new HttpRequestMessage(HttpMethod.Get, "https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid"));
 
 		    string? validAuthUrl = response.RequestMessage?.RequestUri?.ToString();
 
