@@ -23,12 +23,14 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
             Init = init;
 
+#if DEBUG
 			// Disabled since it's either set in the initiator, or here, and is a hidden null.
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            init.TcpEvents ??= new TcpEvents(this);
-        }
+			// ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+			init.TcpEvents ??= new TcpEvents(this);
+#endif
+		}
 
-        internal async Task<IReadOnlyList<string>> GetEvents()
+		internal async Task<IReadOnlyList<string>> GetEvents()
         {
             JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync();
             if (response is null) return [];
