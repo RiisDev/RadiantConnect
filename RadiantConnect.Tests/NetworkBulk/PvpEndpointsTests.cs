@@ -20,7 +20,7 @@ namespace RadiantConnect.Tests.NetworkBulk
         {
             if (!Client.MachineReady()) return;
 
-            AccountXP? accountXP = await Initiator.Endpoints.PvpEndpoints.FetchAccountXPAsync(Initiator.Client.UserId);
+            AccountXP? accountXP = await Initiator.Endpoints.PvpEndpoints.FetchAccountXPAsync();
             Assert.NotNull(accountXP);
             Assert.NotEmpty(accountXP.Subject);
         }
@@ -31,7 +31,7 @@ namespace RadiantConnect.Tests.NetworkBulk
             if (!Client.MachineReady()) return;
 
             PlayerLoadout? loadout =
-                await Initiator.Endpoints.PvpEndpoints.FetchPlayerLoadoutAsync(Initiator.Client.UserId);
+                await Initiator.Endpoints.PvpEndpoints.FetchPlayerLoadoutAsync();
             Assert.NotNull(loadout);
             Assert.NotEmpty(loadout.Guns);
         }

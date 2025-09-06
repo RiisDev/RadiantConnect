@@ -38,7 +38,7 @@ namespace RadiantConnect.Tests
             NotNull(initiator);
             NotNull(initiator.Endpoints.PvpEndpoints);
 
-            AccountXP? accountXp = await initiator.Endpoints.PvpEndpoints.FetchAccountXPAsync(initiator.Client.UserId);
+            AccountXP? accountXp = await initiator.Endpoints.PvpEndpoints.FetchAccountXPAsync();
 
             NotNull(accountXp);
             False(string.IsNullOrEmpty(accountXp.Subject));
@@ -52,7 +52,7 @@ namespace RadiantConnect.Tests
             NotNull(initiator);
             NotNull(initiator.Endpoints.StoreEndpoints);
 
-            BalancesMain? walletData = await initiator.Endpoints.StoreEndpoints.FetchBalancesAsync(initiator.Client.UserId);
+            BalancesMain? walletData = await initiator.Endpoints.StoreEndpoints.FetchBalancesAsync();
 
             NotNull(walletData);
             NotNull(walletData.Balances);
