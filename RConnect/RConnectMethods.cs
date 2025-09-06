@@ -216,7 +216,6 @@ namespace RadiantConnect.RConnect
             }
 
             return seasonId;
-            
         }
     }
 }

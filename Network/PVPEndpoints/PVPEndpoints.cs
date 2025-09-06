@@ -11,9 +11,9 @@ namespace RadiantConnect.Network.PVPEndpoints
 
 		public async Task<Content?> FetchContentAsync() => await initiator.ExternalSystem.Net.GetAsync<Content>(initiator.ExternalSystem.ClientData.SharedUrl, $"content-service/v3/content");
 
-		public async Task<AccountXP?> FetchAccountXPAsync(string userId) => await initiator.ExternalSystem.Net.GetAsync<AccountXP>(Url, $"account-xp/v1/players/{userId}");
+		public async Task<AccountXP?> FetchAccountXPAsync() => await initiator.ExternalSystem.Net.GetAsync<AccountXP>(Url, $"account-xp/v1/players/{initiator.Client.UserId}");
 
-		public async Task<PlayerLoadout?> FetchPlayerLoadoutAsync(string userId) => await initiator.ExternalSystem.Net.GetAsync<PlayerLoadout>(Url, $"personalization/v2/players/{userId}/playerloadout");
+		public async Task<PlayerLoadout?> FetchPlayerLoadoutAsync() => await initiator.ExternalSystem.Net.GetAsync<PlayerLoadout>(Url, $"personalization/v2/players/{initiator.Client.UserId}");
 
 		public async Task<PlayerMMR?> FetchPlayerMMRAsync(string userId) => await initiator.ExternalSystem.Net.GetAsync<PlayerMMR>(Url, $"mmr/v1/players/{userId}");
 
@@ -31,11 +31,11 @@ namespace RadiantConnect.Network.PVPEndpoints
 
 		public async Task<Penalty?> FetchClientConfigAsync(LogService.ClientData.ShardType shard) => await initiator.ExternalSystem.Net.GetAsync<Penalty>(Url, $"v1/config/{shard}");
 
-		public async Task<PlayerLoadout?> SetPlayerLoadoutAsync(string userId, SetPlayerLoadout newLoadout) => await initiator.ExternalSystem.Net.PutAsync<PlayerLoadout>(Url, $"personalization/v2/players/{userId}/playerloadout", JsonContent.Create(newLoadout));
+		public async Task<PlayerLoadout?> SetPlayerLoadoutAsync(SetPlayerLoadout newLoadout) => await initiator.ExternalSystem.Net.PutAsync<PlayerLoadout>(Url, $"personalization/v2/players/{initiator.Client.UserId}/playerloadout", JsonContent.Create(newLoadout));
 
-		public async Task<NameService?> FetchNameServiceReturn(string userId)
+		public async Task<NameService?> FetchNameServiceReturn(params string[] userIds)
 		{
-			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", new StringContent($"[\"{userId}\"]")); ;
+			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", new StringContent(JsonSerializer.Serialize(userIds)));
 			return namesData == null || namesData.Count == 0 ? null : namesData[0];
 		} 
 	}
