@@ -42,10 +42,32 @@ namespace RadiantConnect.Utilities
         public string Audience => GetPayloadValue<string>("aud") ?? throw new InvalidOperationException("Audience (aud) not found in JWT.");
 
         public DateTime? Expires => GetPayloadValue<long?>("exp") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
+        public DateTime? ExpiresAt => Expires;
         public DateTime? IssuedAt => GetPayloadValue<long?>("iat") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
         public DateTime? NotBefore => GetPayloadValue<long?>("nbf") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
 
-        public Claim[] GetClaims()
+		public bool IsExpired
+        {
+	        get
+	        {
+		        DateTime expiresAt = Expires.GetValueOrDefault();
+		        DateTime issuedAt = IssuedAt.GetValueOrDefault();
+		        DateTime now = DateTime.UtcNow.AddSeconds(-5);
+
+				if (expiresAt == default && issuedAt == default)
+					return true;
+
+				if (expiresAt == default && issuedAt <= now)
+					return true;
+
+				if (expiresAt != default && expiresAt <= now)
+					return true;
+
+				return false;
+			}
+        }
+
+		public Claim[] GetClaims()
         {
             List<Claim> claims = [];
             AddClaimsFromElement(_payloadElement, claims, "");
