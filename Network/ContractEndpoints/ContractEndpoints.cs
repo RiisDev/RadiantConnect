@@ -9,6 +9,6 @@ namespace RadiantConnect.Network.ContractEndpoints
 
 		public async Task<ItemUpgrade?> GetItemUpgradesAsync() => await initiator.ExternalSystem.Net.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades");
 
-		public async Task<Contract?> GetContractsAsync(string userId) => await initiator.ExternalSystem.Net.GetAsync<Contract?>(Url, $"/contracts/v1/contracts/{userId}");
+		public async Task<object?> GetContractsAsync() => await initiator.ExternalSystem.Net.GetAsync<object?>(Url, $"/contracts/v1/contracts/{initiator.Client.UserId}");
 	}
 }
