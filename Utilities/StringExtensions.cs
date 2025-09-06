@@ -17,16 +17,22 @@
 
 		internal static string FromBase64(this string value)
 		{
+			if (string.IsNullOrEmpty(value)) return string.Empty;
+
 			try
 			{
 				if (value.Contains('<')) value = value[..value.IndexOf('<')];
-				return Encoding.ASCII.GetString(Convert.FromBase64String(value));
-			}
-			catch { return ""; }
 
+				int paddingNeeded = value.Length % 4;
+				if (paddingNeeded > 0) value = value.PadRight(value.Length + (4 - paddingNeeded), '=');
+
+				byte[] buffer = Convert.FromBase64String(value);
+				return Encoding.UTF8.GetString(buffer);
+			}
+			catch { return string.Empty; }
 		}
 
-		internal static string ToBase64(this string value) => Convert.ToBase64String(Encoding.ASCII.GetBytes(value));
+		internal static string ToBase64(this string value) => Convert.ToBase64String(Encoding.UTF8.GetBytes(value));
 
 		internal static bool IsNullOrEmpty([NotNullWhen(false)] this string? value) => string.IsNullOrWhiteSpace(value);
 	}
