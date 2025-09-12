@@ -154,5 +154,7 @@ namespace RadiantConnect.Authentication
         }
 		
         public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null, bool skipTdid = false, bool skipClid = false, bool skipCsid = false) => await new RtcAuth().Run(settingsFile, this, skipTdid, skipClid, skipCsid);
+		
+        public async Task<RSOAuth?> AuthenticateWithLockFile() => await new LockFileAuth().Run();
     }
 }

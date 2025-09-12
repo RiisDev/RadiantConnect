@@ -33,6 +33,9 @@ namespace RadiantConnect.Methods
 			Skins,
 			SkinVariants,
 			Titles,
+			Flexes,
+			Totems,
+			PlayerCards
 		}
 
 		public enum Agent
@@ -80,6 +83,7 @@ namespace RadiantConnect.Methods
 			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
 			{ "e59aa87c-4cbf-517a-5983-6e81511be9b7", "Radianite Points" },
 		};
+
 		public static readonly Dictionary<ItemType, string> ItemTypeToId = new()
 		{
 			{ ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },
@@ -90,6 +94,9 @@ namespace RadiantConnect.Methods
 			{ ItemType.Skins, "e7c63390-eda7-46e0-bb7a-a6abdacd2433" },
 			{ ItemType.SkinVariants, "3ad1b2b2-acdb-4524-852f-954a76ddae0a" },
 			{ ItemType.Titles, "de7caa6b-adf7-4588-bbd1-143831e786c6" },
+			{ ItemType.Flexes, "03a572de-4234-31ed-d344-ababa488f981" },
+			{ ItemType.Totems, "03a572de-4234-31ed-d344-ababa488f981" },
+			{ ItemType.PlayerCards, "3f296c07-64c3-494c-923b-fe692a4fa1bd" }
 		};
 
 		public readonly static Dictionary<string, string> InternalMapNames = new()
@@ -192,7 +199,6 @@ namespace RadiantConnect.Methods
 			{ "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" }
 		};
 
-		// Move these here instead of maintaing multiple tables.
 
 		public static readonly Dictionary<Agent, string> AgentToId = new()
 		{
