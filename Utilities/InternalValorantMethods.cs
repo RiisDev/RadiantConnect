@@ -6,7 +6,7 @@ namespace RadiantConnect.Utilities
 	public class InternalValorantMethods
 	{
 		public static bool ClientIsReady() =>
-			InternalValorantMethods.IsValorantProcessRunning() &&
+			IsValorantProcessRunning() &&
 			Directory.Exists(Path.GetDirectoryName(LogService.LogPath)) &&
 			File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
 				"Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
