@@ -13,7 +13,7 @@ namespace RadiantConnect.Network.PVPEndpoints
 
 		public async Task<AccountXP?> FetchAccountXPAsync() => await initiator.ExternalSystem.Net.GetAsync<AccountXP>(Url, $"account-xp/v1/players/{initiator.Client.UserId}");
 
-		public async Task<PlayerLoadout?> FetchPlayerLoadoutAsync() => await initiator.ExternalSystem.Net.GetAsync<PlayerLoadout>(Url, $"personalization/v2/players/{initiator.Client.UserId}");
+		public async Task<PlayerLoadout?> FetchPlayerLoadoutAsync() => await initiator.ExternalSystem.Net.GetAsync<PlayerLoadout>(Url, $"personalization/v2/players/{initiator.Client.UserId}/playerloadout");
 
 		public async Task<PlayerMMR?> FetchPlayerMMRAsync(string userId) => await initiator.ExternalSystem.Net.GetAsync<PlayerMMR>(Url, $"mmr/v1/players/{userId}");
 

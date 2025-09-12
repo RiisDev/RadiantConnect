@@ -53,10 +53,7 @@ namespace RadiantConnect
         public InternalSystem ExternalSystem { get; private set; } = null!;
         public Endpoints Endpoints { get; private set; } = null!;
         public GameEvents GameEvents { get; internal set; } = null!;
-
-#if DEBUG
 		public TcpEvents TcpEvents { get; internal set; } = null!;
-#endif
 		public LogService.ClientData Client { get; private set; } = null!;
 
         private async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
@@ -157,9 +154,7 @@ namespace RadiantConnect
                 new StoreEndpoints(this)
             );
 
-#if DEBUG
-			TcpEvents = new TcpEvents(new ValSocket(this), true);
-#endif
+			TcpEvents = new TcpEvents(this, new ValSocket(this, false), true);
 			_ = LogService.InitiateEvents(this);
         }
 

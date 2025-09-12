@@ -60,7 +60,7 @@ namespace RadiantConnect.Network
             AuthCodes = rsoAuth;
             _client.Timeout = TimeSpan.FromSeconds(value: 10);
 
-            ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result;
+            ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result;
 
 			if (apiData?.Data is null)
 				throw new RadiantConnectException("Failed to get Valorant version data from API");
@@ -319,23 +319,24 @@ namespace RadiantConnect.Network
             [property: JsonPropertyName("subject")] string Subject,
             [property: JsonPropertyName("token")] string Token
         );
-        
-        public record ValorantVersionApi(
-            [property: JsonPropertyName("manifestId")] string ManifestId,
-            [property: JsonPropertyName("branch")] string Branch,
-            [property: JsonPropertyName("version")] string Version,
-            [property: JsonPropertyName("buildVersion")] string BuildVersion,
-            [property: JsonPropertyName("engineVersion")] string EngineVersion,
-            [property: JsonPropertyName("riotClientVersion")] string RiotClientVersion,
-            [property: JsonPropertyName("riotClientBuild")] string RiotClientBuild,
-            [property: JsonPropertyName("buildDate")] DateTime? BuildDate
-        );
 
-        public record ValorantVersionApiRoot(
-            [property: JsonPropertyName("status")] int? Status,
-            [property: JsonPropertyName("data")] ValorantVersionApi Data
-        );
+		public record ValorantVersionApi(
+			[property: JsonPropertyName("manifest_id")] string ManifestId,
+			[property: JsonPropertyName("branch")] string Branch,
+			[property: JsonPropertyName("version")] string Version,
+			[property: JsonPropertyName("build_version")] string BuildVersion,
+			[property: JsonPropertyName("engine_version")] string EngineVersion,
+			[property: JsonPropertyName("riot_client_version")] string RiotClientVersion,
+			[property: JsonPropertyName("riot_client_build")] string RiotClientBuild,
+			[property: JsonPropertyName("vanguard_version")] string VanguardVersion,
+			[property: JsonPropertyName("build_date")] DateTime? BuildDate
+		);
 
-        #endregion
-    }
+		public record ValorantVersionApiRoot(
+			[property: JsonPropertyName("status")] int? Status,
+			[property: JsonPropertyName("data")] ValorantVersionApi Data
+		);
+
+		#endregion
+	}
 }

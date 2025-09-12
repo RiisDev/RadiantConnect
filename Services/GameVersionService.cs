@@ -16,7 +16,7 @@ namespace RadiantConnect.Services
 
 		internal static ValorantNet.ValorantVersionApi GetVersionFromApi()
 		{
-			ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://valorant-api.com", "/v1/version").Result!;
+			ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result!;
 			
 			return versionApiRoot.Data ?? throw new RadiantConnectException("Failed to get fallback version from API.");
 		}

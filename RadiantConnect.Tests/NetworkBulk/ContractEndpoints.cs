@@ -21,11 +21,9 @@ namespace RadiantConnect.Tests.NetworkBulk
         public async Task GetContracts()
         {
             if (!Client.MachineReady()) return;
-            Contract? contract = await Initiator.Endpoints.ContractEndpoints.GetContractsAsync(Initiator.Client.UserId);
+            object? contract = await Initiator.Endpoints.ContractEndpoints.GetContractsAsync();
 
             Assert.NotNull(contract);
-            Assert.NotEmpty(contract.Contracts);
-            Assert.NotEmpty(contract.Contracts[0].ContractDefinitionId);
         }
     }
 }

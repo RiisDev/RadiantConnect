@@ -14,7 +14,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
         internal ValorantNet.UserAuth? Authentication;
         internal Initiator Init;
 
-        public ValSocket(Initiator init)
+        public ValSocket(Initiator init, bool create = true)
         {
             Authentication = ValorantNet.GetAuth();
 
@@ -24,11 +24,12 @@ namespace RadiantConnect.SocketServices.InternalTcp
             Init = init;
 
 			// Disabled since it's either set in the initiator, or here, and is a hidden null.
-            // ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
-            init.TcpEvents ??= new TcpEvents(this);
-        }
+			// ReSharper disable once NullCoalescingConditionIsAlwaysNotNullAccordingToAPIContract
+			if (create)
+				init.TcpEvents ??= new TcpEvents(init, this);
+		}
 
-        internal async Task<IReadOnlyList<string>> GetEvents()
+		internal async Task<IReadOnlyList<string>> GetEvents()
         {
             JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync();
             if (response is null) return [];

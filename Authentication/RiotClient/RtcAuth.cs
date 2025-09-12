@@ -4,7 +4,7 @@ namespace RadiantConnect.Authentication.RiotClient
 {
 	internal class RtcAuth
 	{
-		private static string RiotClientSettings => Path.Join(
+		internal static string RiotClientSettings => Path.Join(
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
 			"AppData",
 			"Local",
@@ -52,7 +52,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			);
 		}
 
-		private static async Task<string> GetTdidFallback(string fileLocation)
+		internal static async Task<string> GetTdidFallback(string fileLocation)
 		{
 			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
 
@@ -72,7 +72,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			return tdid;
 		}
 
-		private static async Task<Dictionary<string, string?>> GetCookiesFromYaml(string fileLocation)
+		internal static async Task<Dictionary<string, string?>> GetCookiesFromYaml(string fileLocation)
 		{
 			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
 
@@ -93,7 +93,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			return GetCookieValues(allCookies, "ssid", "clid", "csid", "tdid");
 		}
-		
+
 		private static async Task<Dictionary<string, object>> GetYamlData(string fileLocation)
 		{
 			if (!File.Exists(fileLocation)) throw new FileNotFoundException("Riot Client persistent file not found.", fileLocation);

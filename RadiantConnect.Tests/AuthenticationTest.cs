@@ -43,7 +43,7 @@ namespace RadiantConnect.Tests
 
             Initiator ini = new(rso);
 
-            AccountXP? accountXp = await ini.Endpoints.PvpEndpoints.FetchAccountXPAsync(ini.Client.UserId);
+            AccountXP? accountXp = await ini.Endpoints.PvpEndpoints.FetchAccountXPAsync();
 
             Assert.NotNull(accountXp);
             Assert.True(accountXp.Progress.Level > -1, "Expected Progress to be non-empty.");
@@ -94,7 +94,7 @@ namespace RadiantConnect.Tests
 
             Initiator ini = new(rso);
 
-            AccountXP? accountXp = await ini.Endpoints.PvpEndpoints.FetchAccountXPAsync(ini.Client.UserId);
+            AccountXP? accountXp = await ini.Endpoints.PvpEndpoints.FetchAccountXPAsync();
 
             Assert.NotNull(accountXp);
             Assert.True(accountXp.Progress.Level > -1, "Expected Progress to be non-empty.");
