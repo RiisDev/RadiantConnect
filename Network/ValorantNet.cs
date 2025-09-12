@@ -67,11 +67,11 @@ namespace RadiantConnect.Network
 
 			ValorantService.Version valorantClient = new (
                 RiotClientVersion: apiData.Data.RiotClientVersion.Replace("-shipping", ""), 
-                Branch: "live", 
+                Branch: apiData.Data.Branch, 
                 BuildVersion: apiData.Data.BuildVersion, 
                 Changelist: apiData.Data.ManifestId, 
                 EngineVersion: apiData.Data.EngineVersion, 
-                VanguardVersion: "0.0.0",
+                VanguardVersion: apiData.Data.VanguardVersion,
                 UserClientVersion: "10.0.19042.1.256.64bit",
                 UserPlatform: "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
             );
