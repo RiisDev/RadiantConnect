@@ -22,11 +22,7 @@ namespace RadiantConnect.Network.PartyEndpoints
 				.GetAsync<Party>(Url, $"parties/v1/parties/{partyId}");
 		}
 
-		public async Task<CustomGameConfig?> FetchCustomGameConfigAsync()
-		{
-			return await initiator.ExternalSystem.Net
-				.GetAsync<CustomGameConfig>(Url, "parties/v1/parties/customgameconfigs");
-		}
+		public async Task<CustomGameConfig?> FetchCustomGameConfigAsync() => await initiator.ExternalSystem.Net.GetAsync<CustomGameConfig>(Url, "parties/v1/parties/customgameconfigs");
 
 		public async Task<PartyChatToken?> FetchPartyChatTokenAsync()
 		{
