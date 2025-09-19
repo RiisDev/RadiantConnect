@@ -13,25 +13,20 @@
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
 		<Copyright>Copyright © 2025 (IrisDev/RiisDev). All rights reserved.</Copyright>
-		<Description>
-			Valorant .Net API, Internal Riot API Usage, With automatic game event handlers
-			&amp; image recognition, XMPP Integration, Riot Login, TCP Integration
-		</Description>
+		<Description>Valorant .Net API, Internal Riot API Usage, With automatic game event handlers, XMPP Integration, Riot Login and Auth, TCP Integration</Description>
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
 		<LangVersion>preview</LangVersion>
-		<PackageReleaseNotes>
-			* Modified, PreGame,CurrentGame,Party endpoints to not double requests if not needed.
-			* Improved ValSocket performance on initiate.
-			* Improved GetRiotIdByPuuidAsync data.
-			* FetchNameServiceReturn now accepts and returns an array instead of single use.
-			* ValorantNet has been optimized and handles some error codes:
-			   * 404 no longer throws an exception but returns null.
-			   * 429 should now retry automatically up to 3 times with a built in delay.
-			   * Entitlement bug should also be fixed, report any issues.
-			* TcpEvents has a new event `OnPresenceUpdated` which returns base64 presence data decoded.
-			- ImageRecognition will most likely be removed in future versions, this is the last warning about it.
-		</PackageReleaseNotes>
+		<PackageReleaseNotes>* Modified, PreGame,CurrentGame,Party endpoints to not double requests if not needed.
+* Improved ValSocket performance on initiate.
+* Improved GetRiotIdByPuuidAsync data.
+* FetchNameServiceReturn now accepts and returns an array instead of single use.
+* ValorantNet has been optimized and handles some error codes:
+ * 404 no longer throws an exception but returns null.
+ * 429 should now retry automatically up to 3 times with a built in delay.
+ * Entitlement bug should also be fixed, report any issues.
+* TcpEvents has a new event `OnPresenceUpdated` which returns base64 presence data decoded.
+- ImageRecognition will most likely be removed in future versions, this is the last warning about it.</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -40,15 +35,16 @@
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ErrorReport>none</ErrorReport>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-		<IncludeSymbols>true</IncludeSymbols>
+		<IncludeSymbols>False</IncludeSymbols>
 		<SymbolPackageFormat>snupkg</SymbolPackageFormat>
 		<SignAssembly>True</SignAssembly>
 		<AssemblyOriginatorKeyFile>RadiantConnectKey.snk</AssemblyOriginatorKeyFile>
+		<IncludeBuildOutput>true</IncludeBuildOutput>
 		<DelaySign>False</DelaySign>
 		<PackageId>RadiantConnect</PackageId>
 		<Product>RadiantConnect</Product>
 		<Company>IrisDev</Company>
-		<AnalysisLevel>none</AnalysisLevel>
+		<AnalysisLevel>preview-all</AnalysisLevel>
 	</PropertyGroup>
 
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
@@ -92,21 +88,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<Compile Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-		<None Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**;HenrikApi\4.2.0.json" />
-		<Content Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-		<EmbeddedResource Remove="packages\**;RadiantConnect.Tests\**;HenrikApi\**" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'net8.0-windows' OR '$(TargetFramework)' == 'net9.0-windows' ">
-		<PackageReference Include="System.Drawing.Common" Version="8.0.0" />
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' != 'net8.0-windows' AND '$(TargetFramework)' != 'net9.0-windows' ">
-		<Content Remove="ImageRecognition\**" />
-		<EmbeddedResource Remove="ImageRecognition\**" />
-		<None Remove="ImageRecognition\**" />
-		<Compile Remove="ImageRecognition\**" />
+		<Compile Remove="RadiantConnect.Tests\**;HenrikApi\**" />
+		<None Remove="RadiantConnect.Tests\**;HenrikApi\**" />
+		<Content Remove="RadiantConnect.Tests\**;HenrikApi\**" />
+		<EmbeddedResource Remove="RadiantConnect.Tests\**;HenrikApi\**" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -133,5 +118,6 @@
 	<PropertyGroup>
 		<DeterministicSourcePaths>true</DeterministicSourcePaths>
 		<PathMap>$(MSBuildThisFileDirectory)=./</PathMap>
+		<EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
 	</PropertyGroup>
 </Project>

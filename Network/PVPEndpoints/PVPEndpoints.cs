@@ -36,7 +36,7 @@ namespace RadiantConnect.Network.PVPEndpoints
 
 		public async Task<List<NameService>?> FetchNameServiceReturn(params string[] userIds)
 		{
-			StringContent jsonData = new StringContent(JsonSerializer.Serialize(userIds), MediaTypeHeaderValue.Parse("application/json"));
+			StringContent jsonData = new (JsonSerializer.Serialize(userIds), MediaTypeHeaderValue.Parse("application/json"));
 			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", jsonData);
 			return namesData;
 		} 

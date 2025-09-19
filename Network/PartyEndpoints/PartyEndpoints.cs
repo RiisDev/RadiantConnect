@@ -15,11 +15,11 @@ namespace RadiantConnect.Network.PartyEndpoints
 		public async Task<Party?> FetchPartyAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.GetAsync<Party>(Url, $"parties/v1/parties/{partyId}");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.GetAsync<Party>(Url, $"parties/v1/parties/{partyId}");
 		}
 
 		public async Task<CustomGameConfig?> FetchCustomGameConfigAsync() => await initiator.ExternalSystem.Net.GetAsync<CustomGameConfig>(Url, "parties/v1/parties/customgameconfigs");
@@ -27,141 +27,156 @@ namespace RadiantConnect.Network.PartyEndpoints
 		public async Task<PartyChatToken?> FetchPartyChatTokenAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.GetAsync<PartyChatToken>(Url, $"parties/v1/parties/{partyId}/muctoken");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.GetAsync<PartyChatToken>(Url, $"parties/v1/parties/{partyId}/muctoken");
 		}
 
 		public async Task<PartyVoiceToken?> FetchPartyVoiceTokenAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.GetAsync<PartyVoiceToken>(Url, $"parties/v1/parties/{partyId}/voicetoken");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.GetAsync<PartyVoiceToken>(Url, $"parties/v1/parties/{partyId}/voicetoken");
 		}
 
 		public async Task<PartySetReady?> SetPartyReadyAsync(bool ready)
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			JsonContent jsonContent = JsonContent.Create(
-				new NameValueCollection() { { "ready", ready.ToString() } });
+			if (!partyId.IsNullOrEmpty())
+			{
+				JsonContent jsonContent = JsonContent.Create(
+					new NameValueCollection() { { "ready", ready.ToString() } });
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<PartySetReady>(Url, $"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/setReady", jsonContent);
+				return await initiator.ExternalSystem.Net
+					.PostAsync<PartySetReady>(Url,
+						$"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/setReady", jsonContent);
+			}
+
+			return null;
 		}
 
 		public async Task<Party?> RefreshCompetitveTierAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshCompetitiveTier");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url,
+						$"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshCompetitiveTier");
 		}
 
 		public async Task<Party?> RefreshPlayerIdentityAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshPlayerIdentity");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url,
+						$"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshPlayerIdentity");
 		}
 
 		public async Task<Party?> RefreshPingsAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshPings");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url,
+						$"parties/v1/parties/{partyId}/members/{initiator.Client.UserId}/refreshPings");
 		}
 
 		public async Task<Party?> ChangeQueueAsync(ValorantTables.QueueId queueId)
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			JsonContent jsonContent = JsonContent.Create(new { queueID = queueId.ToString() });
+			if (!partyId.IsNullOrEmpty())
+			{
+				JsonContent jsonContent = JsonContent.Create(new { queueID = queueId.ToString() });
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue", jsonContent);
+				return await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/queue", jsonContent);
+			}
+
+			return null;
 		}
 
 		public async Task<Party?> StartCustomGameAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/startcustomgame");
 		}
 
 		public async Task<Party?> EnterQueueAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/join");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/join");
 		}
 
 		public async Task<Party?> LeaveQueueAsync()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/leave");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/matchmaking/leave");
 		}
 
 		public async Task<Party?> SetPartyOpenStatusAsync(ValorantTables.PartyState state)
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			JsonContent jsonContent = JsonContent.Create(
-				new NameValueCollection() { { "accessibility", state.ToString() } });
+			if (!partyId.IsNullOrEmpty())
+			{
+				JsonContent jsonContent = JsonContent.Create(
+					new NameValueCollection() { { "accessibility", state.ToString() } });
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility", jsonContent);
+				return await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/accessibility", jsonContent);
+			}
+			
+			return null;
 		}
 
 		public async Task<Party?> SetCustomGameSettingsAsync(CustomGameSettings gameSettings)
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			JsonContent jsonContent = JsonContent.Create(gameSettings);
+			if (!partyId.IsNullOrEmpty())
+			{
+				JsonContent jsonContent = JsonContent.Create(gameSettings);
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/customgamesettings", jsonContent);
+				return await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/customgamesettings", jsonContent);
+			}
+
+			return null;
 		}
 
 		public async Task EnterCustomGameQueue()
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return;
 
-			await initiator.ExternalSystem.Net
-				.PostAsync(Url, $"parties/v1/parties/{partyId}/makecustomgame");
+			if (!partyId.IsNullOrEmpty())
+				await initiator.ExternalSystem.Net
+					.PostAsync(Url, $"parties/v1/parties/{partyId}/makecustomgame");
 		}
 
 		public async Task EnterCustomGame() => await EnterCustomGameQueue();
@@ -171,11 +186,11 @@ namespace RadiantConnect.Network.PartyEndpoints
 		public async Task<Party?> InvitePlayerAsync(string name, string tagLine)
 		{
 			string? partyId = await FetchPartyIdAsync();
-			if (partyId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net
-				.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invites/name/{name}/tag/{tagLine}");
 		}
 
 		public async Task KickFromPartyAsync(string userId) => await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}");

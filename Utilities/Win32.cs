@@ -2,24 +2,24 @@
 
 namespace RadiantConnect.Utilities
 {
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
-    [SuppressMessage("ReSharper", "IdentifierTypo")]
-    internal static class Win32
-    {
-        
-        [DllImport("user32.dll")]
-        internal static extern bool ShowWindow(nint hWnd, int nCmdShow);
+	[SuppressMessage("ReSharper", "InconsistentNaming")]
+	[SuppressMessage("ReSharper", "IdentifierTypo")]
+	internal static class Win32
+	{
+		
+		[DllImport("user32.dll")]
+		internal static extern bool ShowWindow(nint hWnd, int nCmdShow);
 
-        // Yknow "thread safety" and all that
-        private static int _captchaFound;
-        internal static bool CaptchaFound
-        {
-            get => Interlocked.CompareExchange(ref _captchaFound, 1, 1) == 1;
-            set => Interlocked.Exchange(ref _captchaFound, value ? 1 : 0);
-        }
+		// Yknow "thread safety" and all that
+		private static int _captchaFound;
+		internal static bool CaptchaFound
+		{
+			get => Interlocked.CompareExchange(ref _captchaFound, 1, 1) == 1;
+			set => Interlocked.Exchange(ref _captchaFound, value ? 1 : 0);
+		}
 
-        internal static Task HideDriver(Process? driver)
-        {
+		internal static Task HideDriver(Process? driver)
+		{
 
 #if WINDOWS
 			if (driver == null || driver.HasExited) return Task.CompletedTask;
@@ -27,8 +27,8 @@ namespace RadiantConnect.Utilities
 
 			return Task.CompletedTask;
 #else
-            return Task.CompletedTask;
+			return Task.CompletedTask;
 #endif
-        }
-    }
+		}
+	}
 }

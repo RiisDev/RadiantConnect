@@ -15,37 +15,40 @@ namespace RadiantConnect.Network.PreGameEndpoints
 		public async Task<PreGameMatch?> FetchPreGameMatchAsync()
 		{
 			string? matchId = await FetchPreGameMatchId();
-			if (matchId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
 		}
 
 		public async Task<GameLoadout?> FetchPreGameLoadoutAsync()
 		{
 			string? matchId = await FetchPreGameMatchId();
-			if (matchId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{matchId}/loadouts");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url,
+					$"/pregame/v1/matches/{matchId}/loadouts");
 		}
 
 		public async Task<PreGameMatch?> SelectCharacterAsync(ValorantTables.Agent agent)
 		{
 			string? matchId = await FetchPreGameMatchId();
-			if (matchId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/select/{ValorantTables.AgentToId[agent]}");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url,
+					$"/pregame/v1/matches/{matchId}/select/{ValorantTables.AgentToId[agent]}");
 		}
 
 		public async Task<PreGameMatch?> LockCharacterAsync(ValorantTables.Agent agent)
 		{
 			string? matchId = await FetchPreGameMatchId();
-			if (matchId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/lock/{ValorantTables.AgentToId[agent]}");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url,
+					$"/pregame/v1/matches/{matchId}/lock/{ValorantTables.AgentToId[agent]}");
 		}
 
 		public async Task QuitGameAsync()

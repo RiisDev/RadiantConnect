@@ -3,7 +3,7 @@
 	public class MiscEvents
 	{
 		public delegate void MiscEvent();
-    
+	
 		public event MiscEvent? OnHeartbeat;
 
 		public void HandleInGameEvent(string invoker, string _)

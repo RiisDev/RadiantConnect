@@ -10,74 +10,74 @@ using RadiantConnect.Authentication.QRSignIn.Modules;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-    public delegate void UrlBuilder(string url);
+	public delegate void UrlBuilder(string url);
 
-    internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false)
-    {
-        internal event UrlBuilder? OnUrlBuilt;
+	internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false)
+	{
+		internal event UrlBuilder? OnUrlBuilt;
 
-        internal Process? DisplayImage(string path)
-        {
-	        if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-		        throw new PlatformNotSupportedException("Unsupported OS");
+		internal Process? DisplayImage(string path)
+		{
+			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+				throw new PlatformNotSupportedException("Unsupported OS");
 
-            if (!File.Exists(path)) throw new FileNotFoundException("QR code image not found", path);
+			if (!File.Exists(path)) throw new FileNotFoundException("QR code image not found", path);
 
-            if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            {
-                ProcessStartInfo startInfo = new()
-                {
-                    FileName = path,
-                    UseShellExecute = true
-                };
-                return Process.Start(startInfo);
-            }
+			if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
+			{
+				ProcessStartInfo startInfo = new()
+				{
+					FileName = path,
+					UseShellExecute = true
+				};
+				return Process.Start(startInfo);
+			}
 
-            return (Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? Environment.GetEnvironmentVariable("DESKTOP_SESSION")).IsNullOrEmpty()
-	            ? throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.")
-	            : Process.Start("xdg-open", path);
-        }
+			return (Environment.GetEnvironmentVariable("XDG_CURRENT_DESKTOP") ?? Environment.GetEnvironmentVariable("DESKTOP_SESSION")).IsNullOrEmpty()
+				? throw new InvalidOperationException("No desktop environment detected, please use ReturnUrl.")
+				: Process.Start("xdg-open", path);
+		}
 
-        internal async Task<RSOAuth?> Authenticate()
-        {
-            (HttpClient httpClient, CookieContainer container) = AuthUtil.BuildClient();
+		internal async Task<RSOAuth?> Authenticate()
+		{
+			(HttpClient httpClient, CookieContainer container) = AuthUtil.BuildClient();
 
-            LoginQrManager builder = new(httpClient);
-            BuiltData qrData = await builder.Build(code);
+			LoginQrManager builder = new(httpClient);
+			BuiltData qrData = await builder.Build(code);
 
-            string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.jpg");
-            Process? form = null;
-            
-            try
-            {
-                if (returnUrl) OnUrlBuilt?.Invoke(qrData.LoginUrl);
-                else
-                {
-                    string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
-                    byte[] imageData = await httpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
-                    await File.WriteAllBytesAsync(tempName, imageData);
-                    form = DisplayImage(tempName);
-                }
-                
-                TokenManager manager = new(form, qrData, httpClient, returnUrl, container);
-                TaskCompletionSource<RSOAuth?> tcs = new();
+			string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.jpg");
+			Process? form = null;
+			
+			try
+			{
+				if (returnUrl) OnUrlBuilt?.Invoke(qrData.LoginUrl);
+				else
+				{
+					string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
+					byte[] imageData = await httpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
+					await File.WriteAllBytesAsync(tempName, imageData);
+					form = DisplayImage(tempName);
+				}
+				
+				TokenManager manager = new(form, qrData, httpClient, returnUrl, container);
+				TaskCompletionSource<RSOAuth?> tcs = new();
 
-                manager.OnTokensFinished += tcs.SetResult;
-                manager.InitiateTimer(tempName);
+				manager.OnTokensFinished += tcs.SetResult;
+				manager.InitiateTimer(tempName);
 
-                return await tcs.Task;
-            }
-            finally
-            {
-                httpClient.Dispose();
-                try { form?.Kill(true); }catch{/**/}
-                try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
+				return await tcs.Task;
+			}
+			finally
+			{
+				httpClient.Dispose();
+				try { form?.Kill(true); }catch{/**/}
+				try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
 
-                form?.Dispose();
+				form?.Dispose();
 
-                if (File.Exists(tempName)) File.Delete(tempName);
-            }
-        }
-    }
+				if (File.Exists(tempName)) File.Delete(tempName);
+			}
+		}
+	}
 }
 

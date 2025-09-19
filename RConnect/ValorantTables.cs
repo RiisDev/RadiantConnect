@@ -76,12 +76,12 @@ namespace RadiantConnect.Methods
 			system
 		}
 
-		public readonly static Dictionary<string, string> CurrencyIdToCurrency = new()
+		public static readonly Dictionary<string, string> CurrencyIdToCurrency = new()
 		{
 			{ "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "Valorant Points" },
 			{ "85ca954a-41f2-ce94-9b45-8ca3dd39a00d", "Kingdom Credits" },
-			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
 			{ "e59aa87c-4cbf-517a-5983-6e81511be9b7", "Radianite Points" },
+			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
 		};
 
 		public static readonly Dictionary<ItemType, string> ItemTypeToId = new()
@@ -99,7 +99,7 @@ namespace RadiantConnect.Methods
 			{ ItemType.PlayerCards, "3f296c07-64c3-494c-923b-fe692a4fa1bd" }
 		};
 
-		public readonly static Dictionary<string, string> InternalMapNames = new()
+		public static readonly Dictionary<string, string> InternalMapNames = new()
 		{
 			{ "1f10dab3-4294-3827-fa35-c2aa00213cf3", "Basic Training"},
 			{ "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047", "Haven" },
@@ -143,7 +143,7 @@ namespace RadiantConnect.Methods
 			{ "Triad", "Haven" },
 		};
 
-		public readonly static Dictionary<string, string> GunIdToGun = new()
+		public static readonly Dictionary<string, string> GunIdToGun = new()
 		{
 			{ "0afb2636-4093-c63b-4ef1-1e97966e2a3e", "SPIKE" },
 			{ "3de32920-4a8f-0499-7740-648a5bf95470", "Golden Gun" },
@@ -230,7 +230,7 @@ namespace RadiantConnect.Methods
 			{ Agent.Waylay, "df1cb487-4902-002e-5c17-d28e83e78588" },
 			{ Agent.Yoru, "7f94d92c-4234-0a36-9646-3a87eb8b5c89" }
 		};
-    
+	
 		public static readonly Dictionary<long, string> TierToRank = new()
 		{
 			{ 0, "Unranked" },

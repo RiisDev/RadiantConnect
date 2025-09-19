@@ -2,122 +2,122 @@
 
 namespace RadiantConnect.SocketServices.XMPP
 {
-    public class XMPPController
-    {
-        public enum Status
-        {
-            Chat,
-            Away,
-        }
+	public class XMPPController
+	{
+		public enum Status
+		{
+			Chat,
+			Away,
+		}
 
-        public enum ChatRoom
-        {
-            Party,
-            InGame,
-            PreGame,
-            PrivateMessage
-        }
+		public enum ChatRoom
+		{
+			Party,
+			InGame,
+			PreGame,
+			PrivateMessage
+		}
 
-        public delegate void XMPPReceived(string xmlData);
+		public delegate void XMPPReceived(string xmlData);
 
-        public event XMPPReceived? OnXMPPReceived;
-        public event ValXMPP.PresenceUpdated? OnPresenceUpdated;
-        public event ValXMPP.PlayerPresenceUpdated? OnPlayerPresenceUpdated;
+		public event XMPPReceived? OnXMPPReceived;
+		public event ValXMPP.PresenceUpdated? OnPresenceUpdated;
+		public event ValXMPP.PlayerPresenceUpdated? OnPlayerPresenceUpdated;
 
-        #region Controller Setup
-        private readonly RemoteXMPP? _remoteClient;
-        private readonly ValXMPP? _valClient;
-        private readonly string? _affinity;
-        public XMPPController(RemoteXMPP remoteClient)
-        {
-            _remoteClient = remoteClient;
-            remoteClient.OnMessage += HandleXMPPData;
+		#region Controller Setup
+		private readonly RemoteXMPP? _remoteClient;
+		private readonly ValXMPP? _valClient;
+		private readonly string? _affinity;
+		public XMPPController(RemoteXMPP remoteClient)
+		{
+			_remoteClient = remoteClient;
+			remoteClient.OnMessage += HandleXMPPData;
 
-            if (remoteClient.AuthData is null || string.IsNullOrEmpty(remoteClient.AuthData.Affinity))
-                throw new RadiantConnectXMPPException("Failed to find stream url");
+			if (remoteClient.AuthData is null || string.IsNullOrEmpty(remoteClient.AuthData.Affinity))
+				throw new RadiantConnectXMPPException("Failed to find stream url");
 
-            _affinity = remoteClient.ChatAffinity[remoteClient.AuthData.Affinity];
-        }
+			_affinity = remoteClient.ChatAffinity[remoteClient.AuthData.Affinity];
+		}
 
-        public XMPPController(ValXMPP valClient)
-        {
-            _valClient = valClient;
-            _valClient.OnServerMessage += HandleXMPPData;
+		public XMPPController(ValXMPP valClient)
+		{
+			_valClient = valClient;
+			_valClient.OnServerMessage += HandleXMPPData;
 
-            if (string.IsNullOrEmpty(valClient.StreamUrl))
-                throw new RadiantConnectXMPPException("Failed to find stream url");
+			if (string.IsNullOrEmpty(valClient.StreamUrl))
+				throw new RadiantConnectXMPPException("Failed to find stream url");
 
-            _affinity = valClient.StreamUrl;
-        }
+			_affinity = valClient.StreamUrl;
+		}
 
-        #endregion
-        #region Base Methods
+		#endregion
+		#region Base Methods
 
-        private string _lastData = "";
-        private void HandleXMPPData(string data)
-        {
-            if (string.Equals(_lastData, data, StringComparison.OrdinalIgnoreCase)) return;
-            _lastData = data;
+		private string _lastData = "";
+		private void HandleXMPPData(string data)
+		{
+			if (string.Equals(_lastData, data, StringComparison.OrdinalIgnoreCase)) return;
+			_lastData = data;
 
-            OnXMPPReceived?.Invoke(data);
-            ValXMPP.HandlePlayerPresence(data, presence => OnPlayerPresenceUpdated?.Invoke(presence));
-            ValXMPP.HandlePresenceObject(data, valorantPresence => OnPresenceUpdated?.Invoke(valorantPresence));
-        }
+			OnXMPPReceived?.Invoke(data);
+			ValXMPP.HandlePlayerPresence(data, presence => OnPlayerPresenceUpdated?.Invoke(presence));
+			ValXMPP.HandlePresenceObject(data, valorantPresence => OnPresenceUpdated?.Invoke(valorantPresence));
+		}
 
-        public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
-        {
-            if (_remoteClient is not null)
-                await _remoteClient.SendMessage(message);
-            else if (_valClient is not null)
-                await _valClient.Handle.SendXmlToOutgoingStream(message);
-            else
-                throw new RadiantConnectXMPPException("No client connected");
-        }
+		public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
+		{
+			if (_remoteClient is not null)
+				await _remoteClient.SendMessage(message);
+			else if (_valClient is not null)
+				await _valClient.Handle.SendXmlToOutgoingStream(message);
+			else
+				throw new RadiantConnectXMPPException("No client connected");
+		}
 
-        public async Task SendInternalMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
-        {
-            if (_valClient is not null)
-                await _valClient.Handle.SendXmlMessageAsync(message);
-            else if (_remoteClient is not null && _valClient is null)
-                throw new RadiantConnectXMPPException("Cannot send internal XMPP to remote client.");
-            else
-                throw new RadiantConnectXMPPException("No client connected");
-        }
+		public async Task SendInternalMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
+		{
+			if (_valClient is not null)
+				await _valClient.Handle.SendXmlMessageAsync(message);
+			else if (_remoteClient is not null && _valClient is null)
+				throw new RadiantConnectXMPPException("Cannot send internal XMPP to remote client.");
+			else
+				throw new RadiantConnectXMPPException("No client connected");
+		}
 
-        #endregion
+		#endregion
 
-        public async Task SendPresenceEvent() => await SendMessage("<presence/>");
+		public async Task SendPresenceEvent() => await SendMessage("<presence/>");
 
-        public async Task SendChatMessage([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient, string message)
-        {
-            if (!SocketUtil.IsValidGuid(recipient))
-                throw new RadiantConnectXMPPException("Invalid user Id provided.");
+		public async Task SendChatMessage([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient, string message)
+		{
+			if (!SocketUtil.IsValidGuid(recipient))
+				throw new RadiantConnectXMPPException("Invalid user Id provided.");
 
-            await SendMessage($"""
-                              <message id="{SocketUtil.GetUnixTimestamp()}:1" to="{recipient}@{_affinity}.pvp.net" type="chat">
-                              	<body>{message}</body>
-                              </message>
-                              """);
+			await SendMessage($"""
+							  <message id="{SocketUtil.GetUnixTimestamp()}:1" to="{recipient}@{_affinity}.pvp.net" type="chat">
+							  	<body>{message}</body>
+							  </message>
+							  """);
 
-            await GetChatMessages(recipient);
-        }
+			await GetChatMessages(recipient);
+		}
 
-        public async Task GetChatMessages([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient)
-        {
-            if (!SocketUtil.IsValidGuid(recipient))
-                throw new RadiantConnectXMPPException("Invalid user Id provided.");
+		public async Task GetChatMessages([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient)
+		{
+			if (!SocketUtil.IsValidGuid(recipient))
+				throw new RadiantConnectXMPPException("Invalid user Id provided.");
 
-            await SendMessage($"""
-                               <iq type="get" id="get_archive_7">
-                                 <query xmlns="jabber:iq:riotgames:archive">
-                                   <with>{recipient}@{_affinity}.pvp.net</with>
-                                 </query>
-                               </iq>
-                               """);
-        }
+			await SendMessage($"""
+								<iq type="get" id="get_archive_7">
+									<query xmlns="jabber:iq:riotgames:archive">
+										<with>{recipient}@{_affinity}.pvp.net</with>
+									</query>
+								</iq>
+								""");
+		}
 
-        public record ChatMessage(string Timestamp, string Sender, string Recipient, string Text, string Type);
-    }
+		public record ChatMessage(string Timestamp, string Sender, string Recipient, string Text, string Type);
+	}
 }
 /*
   <!-- Party Chat -->

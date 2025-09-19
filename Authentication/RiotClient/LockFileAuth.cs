@@ -16,8 +16,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			ValorantNet.UserAuth? userAuth = ValorantNet.GetAuth();
 
-			if (userAuth == null)
-				throw new RadiantConnectAuthException("Failed to grab auth from lockfile, is riot client logged in and running? 0x2");
+			if (userAuth == null) throw new RadiantConnectAuthException("Failed to grab auth from lockfile, is riot client logged in and running? 0x2");
 
 			HttpClient client = new(new HttpClientHandler
 			{
@@ -30,7 +29,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			HttpResponseMessage response = await client.GetAsync($"https://127.0.0.1:{userAuth.AuthorizationPort}/riot-client-auth/v1/authorization");
 			
 			if (!response.IsSuccessStatusCode) 
-				throw new RadiantConnectNetworkStatusException($"Failed to get LockFile tokens: {response.StatusCode.ToString()}");
+				throw new RadiantConnectNetworkStatusException($"Failed to get LockFile tokens: {response.StatusCode}");
 
 			RSOClientReturn? rsoClientData = JsonSerializer.Deserialize<RSOClientReturn>(response.Content.ReadAsStringAsync().Result);
 			

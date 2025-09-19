@@ -14,28 +14,29 @@ namespace RadiantConnect.Network.CurrentGameEndpoints
 		public async Task<CurrentGameMatch?> GetCurrentGameMatchAsync()
 		{
 			string? matchId = await GetCurrentGameMatchIdAsync();
-			if (matchId.IsNullOrEmpty())
-				return null;
-
-			return await initiator.ExternalSystem.Net.GetAsync<CurrentGameMatch>(Url, $"/core-game/v1/matches/{matchId}");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.GetAsync<CurrentGameMatch>(Url,
+					$"/core-game/v1/matches/{matchId}");
 		}
 
 		public async Task<GameLoadout?> GetCurrentGameLoadoutsAsync()
 		{
 			string? matchId = await GetCurrentGameMatchIdAsync();
-			if (matchId.IsNullOrEmpty())
-				return null;
 
-			return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}");
+			return matchId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}");
 		}
 
 		public async Task QuitCurrentGameAsync()
 		{
 			string? matchId = await GetCurrentGameMatchIdAsync();
-			if (matchId.IsNullOrEmpty())
-				return;
 
-			await initiator.ExternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{initiator.Client.UserId}/disassociate/{matchId}").ConfigureAwait(false);
+			if (!matchId.IsNullOrEmpty())
+				await initiator.ExternalSystem.Net
+					.PostAsync(Url, $"/core-game/v1/players/{initiator.Client.UserId}/disassociate/{matchId}")
+					.ConfigureAwait(false);
 		}
 
 

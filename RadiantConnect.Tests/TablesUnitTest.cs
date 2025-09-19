@@ -57,7 +57,7 @@ namespace RadiantConnect.Tests
 				Assert.Fail(message);
 			}
 		}
-    
+	
 		[Fact]
 		public async Task TestCurrency()
 		{
@@ -134,7 +134,7 @@ namespace RadiantConnect.Tests
 				Assert.Fail(message);
 			}
 		}
-    
+	
 		[Fact]
 		public async Task TestWeapons()
 		{

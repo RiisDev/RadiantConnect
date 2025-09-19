@@ -116,7 +116,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			{
 				string line = rawLine.Trim();
 
-				if (line.Length == 0 || line.StartsWith("#")) continue;
+				if (line.Length == 0 || line.StartsWith('#')) continue;
 
 				int indent = rawLine.Length - rawLine.TrimStart().Length;
 
@@ -124,7 +124,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 				Dictionary<string, object> currentDict = stack.Peek().Dict;
 
-				if (line.StartsWith("-"))
+				if (line.StartsWith('-'))
 				{
 					string value = line[1..].Trim();
 
@@ -137,7 +137,7 @@ namespace RadiantConnect.Authentication.RiotClient
 						currentDict[currentKey] = list;
 					}
 
-					if (value.Contains(":"))
+					if (value.Contains(':'))
 					{
 						Dictionary<string, object> newDict = [];
 						list.Add(newDict);
@@ -149,7 +149,7 @@ namespace RadiantConnect.Authentication.RiotClient
 					}
 					else list.Add(value.Trim('"'));
 				}
-				else if (line.Contains(":"))
+				else if (line.Contains(':'))
 				{
 					string[] parts = line.Split(':', 2);
 					string key = parts[0].Trim();
