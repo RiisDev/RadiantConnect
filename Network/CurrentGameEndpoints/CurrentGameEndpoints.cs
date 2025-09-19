@@ -11,16 +11,38 @@ namespace RadiantConnect.Network.CurrentGameEndpoints
 
 		public async Task<string?> GetCurrentGameMatchIdAsync() => (await GetCurrentGamePlayerAsync())?.MatchId;
 
-		public async Task<CurrentGameMatch?> GetCurrentGameMatchAsync() => await initiator.ExternalSystem.Net.GetAsync<CurrentGameMatch>(Url, $"/core-game/v1/matches/{await GetCurrentGameMatchIdAsync()}");
+		public async Task<CurrentGameMatch?> GetCurrentGameMatchAsync()
+		{
+			string? matchId = await GetCurrentGameMatchIdAsync();
+			if (matchId.IsNullOrEmpty())
+				return null;
 
-		public async Task<GameLoadout?> GetCurrentGameLoadoutsAsync() => await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{await GetCurrentGameMatchIdAsync()}");
+			return await initiator.ExternalSystem.Net.GetAsync<CurrentGameMatch>(Url, $"/core-game/v1/matches/{matchId}");
+		}
+
+		public async Task<GameLoadout?> GetCurrentGameLoadoutsAsync()
+		{
+			string? matchId = await GetCurrentGameMatchIdAsync();
+			if (matchId.IsNullOrEmpty())
+				return null;
+
+			return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}");
+		}
+
+		public async Task QuitCurrentGameAsync()
+		{
+			string? matchId = await GetCurrentGameMatchIdAsync();
+			if (matchId.IsNullOrEmpty())
+				return;
+
+			await initiator.ExternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{initiator.Client.UserId}/disassociate/{matchId}").ConfigureAwait(false);
+		}
+
+
+		public async Task<CurrentSession?> GetCurrentSession() => await initiator.ExternalSystem.Net.GetAsync<CurrentSession>(Url, $"/session/v1/sessions/{initiator.Client.UserId}");
+
 
 		[Obsolete("Ambiguous spelling, please use newer method 'GetCurrentGameLoadoutsAsync'")]
 		public async Task<GameLoadout?> GetCurrentGameLoadoutAsync() => await GetCurrentGameLoadoutsAsync();
-
-		// Need to get data return
-		public async Task<CurrentSession?> GetCurrentSession() => await initiator.ExternalSystem.Net.GetAsync<CurrentSession>(Url, $"/session/v1/sessions/{initiator.Client.UserId}");
-
-		public async Task QuitCurrentGameAsync() => await initiator.ExternalSystem.Net.PostAsync(Url, $"/core-game/v1/players/{initiator.Client.UserId}/disassociate/{await GetCurrentGameMatchIdAsync()}");
 	}
 }

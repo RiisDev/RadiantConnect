@@ -99,9 +99,14 @@ namespace RadiantConnect.RConnect
 
         public static async Task<string?> GetRiotIdByPuuidAsync(this Initiator initiator, string puuid)
         {
-            NameService? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid);
+            List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid);
            
-            return $"{serviceResponse?.GameName}#{serviceResponse?.TagLine}";
+			if (serviceResponse == null) return null;
+			if (serviceResponse.Count == 0) return null;
+
+			NameService userId = serviceResponse[0];
+
+			return $"{userId?.GameName}#{userId?.TagLine}";
         }
 
         public static async Task<string?> GetPuuidByNameAsync(this Initiator initiator, string gameName, string tagLine)

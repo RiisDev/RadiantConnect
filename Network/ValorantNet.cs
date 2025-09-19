@@ -215,7 +215,7 @@ namespace RadiantConnect.Network
 
             if (!(InternalValorantMethods.IsValorantProcessRunning() || InternalValorantMethods.IsRiotClientRunning()) && AuthCodes is null) return string.Empty;
 
-			const int maxRetries = 5;
+			const int maxRetries = 3;
 			int retryCount = 0;
 			int backoffDelayMs = 5000;
 			bool resetCache = false;
@@ -238,8 +238,9 @@ namespace RadiantConnect.Network
 				if (customHeaders is not null)
 					ResetDefaultHeaders();
 
-				OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
-
+				if (retryCount == 0)
+					OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+				
 				HttpStatusCode statusCode = responseMessage.StatusCode;
 
 				switch ((int)statusCode)
@@ -256,12 +257,19 @@ namespace RadiantConnect.Network
 						await Task.Delay(backoffDelayMs);
 						backoffDelayMs *= 2;
 						break;
+					case 404:
+						OnLog?.Invoke($"\n[ValorantNet Log] Uri: (404 Not Found) {baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+						return null;
 					default:
 						throw new RadiantConnectNetworkStatusException($"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
 				}
 				
 				retryCount++;
-				if (!resetCache) return responseContent;
+
+				if (!resetCache && backoffDelayMs == 5000) 
+					return responseContent;
+
+				OnLog?.Invoke($"[ValorantNet Log] Retrying... Attempt {retryCount} of {maxRetries}");
 			}
 
 			throw new RadiantConnectNetworkStatusException(

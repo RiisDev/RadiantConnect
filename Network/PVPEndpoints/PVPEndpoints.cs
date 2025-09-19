@@ -1,5 +1,6 @@
 ﻿using RadiantConnect.Network.PVPEndpoints.DataTypes;
 using RadiantConnect.Services;
+using System.Net.Http.Headers;
 
 // ReSharper disable All
 
@@ -33,10 +34,11 @@ namespace RadiantConnect.Network.PVPEndpoints
 
 		public async Task<PlayerLoadout?> SetPlayerLoadoutAsync(SetPlayerLoadout newLoadout) => await initiator.ExternalSystem.Net.PutAsync<PlayerLoadout>(Url, $"personalization/v2/players/{initiator.Client.UserId}/playerloadout", JsonContent.Create(newLoadout));
 
-		public async Task<NameService?> FetchNameServiceReturn(params string[] userIds)
+		public async Task<List<NameService>?> FetchNameServiceReturn(params string[] userIds)
 		{
-			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", new StringContent(JsonSerializer.Serialize(userIds)));
-			return namesData == null || namesData.Count == 0 ? null : namesData[0];
+			StringContent jsonData = new StringContent(JsonSerializer.Serialize(userIds), MediaTypeHeaderValue.Parse("application/json"));
+			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", jsonData);
+			return namesData;
 		} 
 	}
 }

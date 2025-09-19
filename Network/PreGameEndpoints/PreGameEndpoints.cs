@@ -11,15 +11,51 @@ namespace RadiantConnect.Network.PreGameEndpoints
 		public async Task<PreGamePlayer?> FetchPreGamePlayerAsync() => await initiator.ExternalSystem.Net.GetAsync<PreGamePlayer>(Url, $"/pregame/v1/players/{initiator.Client.UserId}");
 
 		public async Task<string?> FetchPreGameMatchId() => (await FetchPreGamePlayerAsync())?.MatchId;
+		
+		public async Task<PreGameMatch?> FetchPreGameMatchAsync()
+		{
+			string? matchId = await FetchPreGameMatchId();
+			if (matchId.IsNullOrEmpty())
+				return null;
 
-		public async Task<PreGameMatch?> FetchPreGameMatchAsync() => await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{await FetchPreGameMatchId()}");
+			return await initiator.ExternalSystem.Net.GetAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}");
+		}
 
-		public async Task<GameLoadout?> FetchPreGameLoadoutAsync() => await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{await FetchPreGameMatchId()}/loadouts");
+		public async Task<GameLoadout?> FetchPreGameLoadoutAsync()
+		{
+			string? matchId = await FetchPreGameMatchId();
+			if (matchId.IsNullOrEmpty())
+				return null;
 
-		public async Task<PreGameMatch?> SelectCharacterAsync(ValorantTables.Agent agent) => await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{await FetchPreGameMatchId()}/select/{ValorantTables.AgentToId[agent]}");
+			return await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/pregame/v1/matches/{matchId}/loadouts");
+		}
 
-		public async Task<PreGameMatch?> LockCharacterAsync(ValorantTables.Agent agent) => await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{await FetchPreGameMatchId()}/lock/{ValorantTables.AgentToId[agent]}");
+		public async Task<PreGameMatch?> SelectCharacterAsync(ValorantTables.Agent agent)
+		{
+			string? matchId = await FetchPreGameMatchId();
+			if (matchId.IsNullOrEmpty())
+				return null;
 
-		public async Task QuitGameAsync() => await initiator.ExternalSystem.Net.PostAsync(Url, $"/pregame/v1/matches/{await FetchPreGameMatchId()}/quit").ConfigureAwait(false);
+			return await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/select/{ValorantTables.AgentToId[agent]}");
+		}
+
+		public async Task<PreGameMatch?> LockCharacterAsync(ValorantTables.Agent agent)
+		{
+			string? matchId = await FetchPreGameMatchId();
+			if (matchId.IsNullOrEmpty())
+				return null;
+
+			return await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url, $"/pregame/v1/matches/{matchId}/lock/{ValorantTables.AgentToId[agent]}");
+		}
+
+		public async Task QuitGameAsync()
+		{
+			string? matchId = await FetchPreGameMatchId();
+			if (matchId.IsNullOrEmpty())
+				return;
+			
+			await initiator.ExternalSystem.Net.PostAsync(Url, $"/pregame/v1/matches/{matchId}/quit").ConfigureAwait(false);
+		}
+
 	}
 }
