@@ -11,6 +11,8 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		private string _gamestate = "unknown";
 		private string _score = "unknown";
 
+		public delegate void PresenceUpdate(string base64);
+
 		public delegate void CurrencyEvent(string value);
 		public delegate void QueueEvent(string value);
 		public delegate void MatchChange(string value);
@@ -33,6 +35,8 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		public event MmrEvent? OnMmrChanged;
 		public event ContractEvent? OnContractChanged;
 		public event Heartbeat? OnSessionHeartbeat;
+
+		public event PresenceUpdate? OnPresenceUpdated;
 
 		private readonly Initiator _initiator;
 
@@ -111,6 +115,8 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			string presence64 = match.Groups[1].Value;
 			string jsonData = presence64.FromBase64();
 
+			OnPresenceUpdated?.Invoke(jsonData);
+			
 			Debug.WriteLine(jsonData);
 
 			JsonDocument jsonDocument = JsonDocument.Parse(jsonData);
