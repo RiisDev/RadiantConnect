@@ -1,6 +1,7 @@
-﻿using System.Net.Http.Headers;
-using RadiantConnect.Authentication.DriverRiotAuth.Records;
+﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.Services;
+using System.Net.Http.Headers;
+
 
 #pragma warning disable IDE0046
 
@@ -47,6 +48,8 @@ namespace RadiantConnect.Network
         private readonly string _defaultPlatform;
         private readonly string _defaultUserAgent;
         private readonly string _defaultClientVersion;
+
+        private readonly Cache _cache = new();
 
         private void ResetDefaultHeaders()
         {
@@ -114,7 +117,7 @@ namespace RadiantConnect.Network
 
             if (AuthCodes is not null)
             {
-				if (string.IsNullOrEmpty(AuthCodes.AccessToken) || string.IsNullOrEmpty(AuthCodes.Entitlement)) 
+				if (AuthCodes.AccessToken.IsNullOrEmpty() || AuthCodes.Entitlement.IsNullOrEmpty()) 
 					throw new RadiantConnectException("AuthCodes are not valid, AccessToken or EntitlementToken is empty.");
 				
 				return (AuthCodes.AccessToken, AuthCodes.Entitlement);
@@ -131,7 +134,7 @@ namespace RadiantConnect.Network
             return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
         }
        
-        private async Task ResetAuth()
+        private async Task ResetAuth(bool resetAuth = false)
         {
             try
             {
@@ -140,16 +143,29 @@ namespace RadiantConnect.Network
             }
             catch {/**/}
 
-            (string, string) authTokens = await GetAuthorizationToken();
+            if (!resetAuth && !_cache.AccessToken.IsNullOrEmpty() && !_cache.Jwt.IsNullOrEmpty())
+            {
+	            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {_cache.AccessToken}");
+	            _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", _cache.Jwt);
+
+				OnLog?.Invoke("[ValorantNet Log] Using cached Auth Tokens");
+
+				return;
+            }
+
+			(string, string) authTokens = await GetAuthorizationToken();
 
             if (authTokens.Item1.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get Authorization Token");
             if (authTokens.Item2.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get JWT Token");
+
+			_cache.AccessToken = authTokens.Item1;
+			_cache.Jwt = authTokens.Item2;
 
 			_client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Bearer {authTokens.Item1}");
             _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-Entitlements-JWT", authTokens.Item2);
         }
 
-        private Task SetBasicAuth()
+        private Task SetBasicAuth(bool resetAuth = false)
         {
             OnLog?.Invoke("[ValorantNet Log] Settings Basic Auth");
 
@@ -159,7 +175,15 @@ namespace RadiantConnect.Network
             _client.DefaultRequestHeaders.Remove("X-Riot-Entitlements-JWT");
             _client.DefaultRequestHeaders.Remove("Authorization");
 
-            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{GetAuth()?.OAuth}".ToBase64()}");
+            if (!resetAuth && !_cache.Basic.IsNullOrEmpty())
+            {
+	            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {_cache.Basic}");
+	            return Task.CompletedTask;
+            }
+
+            _cache.Basic = $"riot:{GetAuth()?.OAuth}".ToBase64();
+            
+            _client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {_cache.Basic}");
 
             return Task.CompletedTask;
         }
@@ -172,9 +196,16 @@ namespace RadiantConnect.Network
                 _client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
         }
 
+        public class Cache
+        {
+			public string Jwt { get; set; } = string.Empty;
+			public string AccessToken { get; set; } = string.Empty;
+			public string Basic { get; set; } = string.Empty;
+		}
+
         public async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, Dictionary<string, string>? customHeaders = null)
         {
-            if (baseUrl.IsNullOrEmpty()) return string.Empty;
+			if (baseUrl.IsNullOrEmpty()) return string.Empty;
 
             if (!endPoint.IsNullOrEmpty())
             {
@@ -182,32 +213,68 @@ namespace RadiantConnect.Network
                 if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
             }
 
-            // I no longer need the loop, as the client will now handle edge-cases.
             if (!(InternalValorantMethods.IsValorantProcessRunning() || InternalValorantMethods.IsRiotClientRunning()) && AuthCodes is null) return string.Empty;
 
-            if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth();
-            else if (customHeaders is not null) SetCustomHeaders(customHeaders);
-            else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth();
+			const int maxRetries = 3;
+			int retryCount = 0;
+			int backoffDelayMs = 5000;
+			bool resetCache = false;
 
-            using HttpRequestMessage httpRequest = new();
-            httpRequest.Method = MapHttpMethod(httpMethod);
-            httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
-            httpRequest.Content = content;
+			while (retryCount < maxRetries)
+			{
+				// Set authentication headers
+				if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache);
+				else if (customHeaders is not null) SetCustomHeaders(customHeaders);
+				else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth(resetCache);
 
-            using HttpResponseMessage responseMessage = await _client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+				using HttpRequestMessage httpRequest = new();
+				httpRequest.Method = MapHttpMethod(httpMethod);
+				httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
+				httpRequest.Content = content;
 
-            string responseContent = await responseMessage.Content.ReadAsStringAsync();
+				using HttpResponseMessage responseMessage = await _client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
+				string responseContent = await responseMessage.Content.ReadAsStringAsync();
 
-            if (customHeaders is not null)
-                ResetDefaultHeaders();
+				if (customHeaders is not null)
+					ResetDefaultHeaders();
 
-            OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+				if (retryCount == 0)
+					OnLog?.Invoke($"[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+				
+				HttpStatusCode statusCode = responseMessage.StatusCode;
 
-            return !responseMessage.IsSuccessStatusCode
-	            ? throw new RadiantConnectNetworkStatusException(
-		            $"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}")
-	            : responseContent;
-        }
+				switch ((int)statusCode)
+				{
+					case 200:
+						return responseContent;
+					case 401:
+					case 403:
+						OnLog?.Invoke("[ValorantNet Log] Unauthorized/Forbidden, resetting cache and retrying.");
+						resetCache = true;
+						break;
+					case 429:
+						OnLog?.Invoke($"[ValorantNet Log] Rate limited, waiting {backoffDelayMs / 1000} seconds before retrying.");
+						await Task.Delay(backoffDelayMs);
+						backoffDelayMs *= 2;
+						break;
+					case 404:
+						return null;
+					default:
+						throw new RadiantConnectNetworkStatusException($"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
+				}
+				
+				retryCount++;
+
+				if (!resetCache && backoffDelayMs == 5000) 
+					return responseContent;
+
+				OnLog?.Invoke($"[ValorantNet Log] Retrying... Attempt {retryCount} of {maxRetries}");
+			}
+
+			throw new RadiantConnectNetworkStatusException(
+				$"[ValorantNet Log] Failed after {maxRetries} retries. Uri:{baseUrl}{endPoint}");
+
+		}
 
         public async Task<T?> GetAsync<T>(string baseUrl, string endPoint) 
             => await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint);

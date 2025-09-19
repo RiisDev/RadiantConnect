@@ -68,7 +68,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 	        {
 		        try
 		        {
-			        while (!await InternalValorantMethods.IsReady(Init.Endpoints.LocalEndpoints))
+					IReadOnlyList<string> events = await GetEvents();
+
+					while (events.Count == 0)
 			        {
 				        Debug.WriteLine("Waiting for ClientReady...");
 				        await Task.Delay(500);
@@ -81,7 +83,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			        clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
 			        await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
-			        foreach (string eventName in await GetEvents()) 
+			        foreach (string eventName in events) 
 				        await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, CancellationToken.None);
 
 			        while (!ShutdownSocket.IsCancellationRequested) 
