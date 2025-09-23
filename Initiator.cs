@@ -44,8 +44,8 @@ namespace RadiantConnect
 
 	public class Initiator : IDisposable
 	{
-		internal static bool IsDisposed { get; private set; }
-		
+		private bool _disposed;
+
 		private static string IsVpnDetected() => string.Join('|',
 			Process.GetProcesses().Where(process =>
 				process.ProcessName.Contains("vpn", StringComparison.CurrentCultureIgnoreCase)));
@@ -64,7 +64,7 @@ namespace RadiantConnect
 				"https://riot-geo.pas.si.riotgames.com",
 				"/pas/v1/product/valorant",
 				new StringContent($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}")
-			);
+			).ConfigureAwait(false);
 
 			Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
 
@@ -155,7 +155,7 @@ namespace RadiantConnect
 			);
 
 			TcpEvents = new TcpEvents(this, new ValSocket(this, false), true);
-			_ = LogService.InitiateEvents(this);
+			_ = logService.InitiateEvents(this);
 		}
 
 		// RiotClient is just used to differentiate the constructor
@@ -214,8 +214,27 @@ namespace RadiantConnect
 
 		public void Dispose()
 		{
-			IsDisposed = true;
+			Dispose(disposing: true);
 			GC.SuppressFinalize(this);
+		}
+	
+		protected virtual void Dispose(bool disposing)
+		{
+			if (_disposed) return;
+
+			if (disposing)
+			{
+				try { ExternalSystem.LogService.Dispose(); } catch { /**/ }
+				try { TcpEvents.Dispose(); } catch { /**/ }
+			}
+
+			ExternalSystem = null!;
+			Endpoints = null!;
+			GameEvents = null!;
+			TcpEvents = null!;
+			Client = null!;
+
+			_disposed = true;
 		}
 	}
 }

@@ -2,15 +2,15 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Sprays
 	{
-		public static async Task<SpraysData?> GetSpraysAsync() => await ValorantApiClient.GetAsync<SpraysData?>("https://valorant-api.com/v1", "/sprays");
+		public static async Task<SpraysData?> GetSpraysAsync() => await ValorantApiClient.GetAsync<SpraysData?>("https://valorant-api.com/v1", "/sprays").ConfigureAwait(false);
 
-		public static async Task<LevelsData?> GetSprayLevelsAsync() => await ValorantApiClient.GetAsync<LevelsData?>("https://valorant-api.com/v1", "/sprays/levels");
+		public static async Task<LevelsData?> GetSprayLevelsAsync() => await ValorantApiClient.GetAsync<LevelsData?>("https://valorant-api.com/v1", "/sprays/levels").ConfigureAwait(false);
 
-		public static async Task<SprayData?> GetSprayAsync(string uuid) => await ValorantApiClient.GetAsync<SprayData?>("https://valorant-api.com/v1", $"/sprays/{uuid}");
+		public static async Task<SprayData?> GetSprayAsync(string uuid) => await ValorantApiClient.GetAsync<SprayData?>("https://valorant-api.com/v1", $"/sprays/{uuid}").ConfigureAwait(false);
 
-		public static async Task<SprayData?> GetSprayByUuidAsync(string uuid) => await GetSprayAsync(uuid);
+		public static async Task<SprayData?> GetSprayByUuidAsync(string uuid) => await GetSprayAsync(uuid).ConfigureAwait(false);
 
-		public static async Task<LevelData?> GetSprayLevelByLevelUuidAsync(string uuid) => await ValorantApiClient.GetAsync<LevelData?>("https://valorant-api.com/v1", $"/sprays/levels/{uuid}");
+		public static async Task<LevelData?> GetSprayLevelByLevelUuidAsync(string uuid) => await ValorantApiClient.GetAsync<LevelData?>("https://valorant-api.com/v1", $"/sprays/levels/{uuid}").ConfigureAwait(false);
 
 		public record SprayDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

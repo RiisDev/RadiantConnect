@@ -7,8 +7,8 @@ namespace RadiantConnect.Network.ContractEndpoints
 	{
 		internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
 
-		public async Task<ItemUpgrade?> GetItemUpgradesAsync() => await initiator.ExternalSystem.Net.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades");
+		public async Task<ItemUpgrade?> GetItemUpgradesAsync() => await initiator.ExternalSystem.Net.GetAsync<ItemUpgrade>(Url, "/contract-definitions/v3/item-upgrades").ConfigureAwait(false);
 
-		public async Task<object?> GetContractsAsync() => await initiator.ExternalSystem.Net.GetAsync<object?>(Url, $"/contracts/v1/contracts/{initiator.Client.UserId}");
+		public async Task<object?> GetContractsAsync() => await initiator.ExternalSystem.Net.GetAsync<object?>(Url, $"/contracts/v1/contracts/{initiator.Client.UserId}").ConfigureAwait(false);
 	}
 }

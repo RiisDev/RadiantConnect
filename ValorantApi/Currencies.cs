@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Currencies
 	{
-		public static async Task<CurrenciesData?> GetCurrenciesAsync() => await ValorantApiClient.GetAsync<CurrenciesData?>("https://valorant-api.com/v1", "currencies");
+		public static async Task<CurrenciesData?> GetCurrenciesAsync() => await ValorantApiClient.GetAsync<CurrenciesData?>("https://valorant-api.com/v1", "currencies").ConfigureAwait(false);
 
-		public static async Task<CurrencyData?> GetCurrencyAsync(string uuid) => await ValorantApiClient.GetAsync<CurrencyData?>("https://valorant-api.com/v1", $"currencies/{uuid}");
+		public static async Task<CurrencyData?> GetCurrencyAsync(string uuid) => await ValorantApiClient.GetAsync<CurrencyData?>("https://valorant-api.com/v1", $"currencies/{uuid}").ConfigureAwait(false);
 
-		public static async Task<CurrencyData?> GetCurrencyByUuidAsync(string uuid) => await GetCurrencyAsync(uuid);
+		public static async Task<CurrencyData?> GetCurrencyByUuidAsync(string uuid) => await GetCurrencyAsync(uuid).ConfigureAwait(false);
 	   
 		public record CurrencyDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

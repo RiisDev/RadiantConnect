@@ -90,7 +90,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		
 		internal static async Task HandleMessage(string message)
 		{
-			await CheckForEvent(message);
+			await CheckForEvent(message).ConfigureAwait(false);
 			if (OnRuntimeChanged is not null && (
 					message.Contains("frameScheduledNavigation") || 
 					message.Contains("\"result\":{}}") || 
@@ -121,11 +121,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 					WebSocketReceiveResult result;
 					do
 					{
-						result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+						result = await socket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None).ConfigureAwait(false);
 						memoryStream.Write(buffer, 0, result.Count);
 					} while (!result.EndOfMessage);
 
-					await HandleMessage(Encoding.UTF8.GetString(memoryStream.ToArray()));
+					await HandleMessage(Encoding.UTF8.GetString(memoryStream.ToArray())).ConfigureAwait(false);
 				}
 			}
 			catch (WebSocketException)
@@ -138,7 +138,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		{
 			while (true)
 			{
-				string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json");
+				string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json").ConfigureAwait(false);
 				if (pageData.IsNullOrEmpty()) return null;
 				if (pageData.Contains("\"title\": \"Google\"")) continue;
 				int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
@@ -169,7 +169,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 			driverProcess.PriorityClass = ProcessPriorityClass.High;
 
-			string? socketUrl = await GetInitialSocket(port);
+			string? socketUrl = await GetInitialSocket(port).ConfigureAwait(false);
 
 			Debug.WriteLine($"Debug: http://localhost:{port}/json");
 

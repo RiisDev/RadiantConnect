@@ -67,8 +67,8 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 
 				OnOutboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{message.Headers}");
 
-				HttpResponseMessage responseMessage = await Client.SendAsync(message);
-				string responseString = await responseMessage.Content.ReadAsStringAsync();
+				HttpResponseMessage responseMessage = await Client.SendAsync(message).ConfigureAwait(false);
+				string responseString = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 				OnInboundMessage?.Invoke($"Url:{rawUrl}\nHeaders:\n{responseMessage.Headers}\nResponse:{responseString}");
 
@@ -104,7 +104,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 					string? affinity = string.Empty;
 					try
 					{
-						string pasJwt = await (await Client.SendAsync(pasRequest)).Content.ReadAsStringAsync();
+						string pasJwt = await (await Client.SendAsync(pasRequest).ConfigureAwait(false)).Content.ReadAsStringAsync().ConfigureAwait(false);
 						string pasJwtContent = pasJwt.Split('.')[1];
 						string validBase64 = pasJwtContent.PadRight(pasJwtContent.Length / 4 * 4 + (pasJwtContent.Length % 4 == 0 ? 0 : 4), '=');
 						string pasJwtString = validBase64.FromBase64();
@@ -138,7 +138,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 				try
 				{
 					await listenerResponse.OutputStream
-						.WriteAsync(responseBytes); // The specified network name is no longer available.
+						.WriteAsync(responseBytes).ConfigureAwait(false); // The specified network name is no longer available.
 				}
 				catch {/**/}
 

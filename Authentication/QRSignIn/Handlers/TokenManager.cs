@@ -45,8 +45,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			string traceparent = GenerateTraceParent();
 			SetHeaders("authenticate.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-authenticator (Windows;10;;Professional, x64) riot_client/0");
 
-			HttpResponseMessage response = await client.GetAsync("https://authenticate.riotgames.com/api/v1/login");
-			string responseData = await response.Content.ReadAsStringAsync();
+			HttpResponseMessage response = await client.GetAsync("https://authenticate.riotgames.com/api/v1/login").ConfigureAwait(false);
+			string responseData = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 			client.DefaultRequestHeaders.Clear();
 
 			if (!responseData.Contains("success")) return string.Empty;
@@ -90,7 +90,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				}
 			};
 
-			HttpResponseMessage response = await client.SendAsync(requestMessage);
+			HttpResponseMessage response = await client.SendAsync(requestMessage).ConfigureAwait(false);
 
 			if (response.StatusCode != HttpStatusCode.NoContent)
 				throw new RadiantConnectAuthException("Failed to verify login_token");
@@ -117,19 +117,19 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				{ "scope", "openid link lol_region lol summoner offline_access ban" }, // Just for shits, doesn't actually work
 			};
 
-			HttpResponseMessage response = await client.PostAsJsonAsync("https://auth.riotgames.com/api/v1/authorization", postParams);
-			Debug.WriteLine($"AccessTokenStage2: {await response.Content.ReadAsStringAsync()}");
+			HttpResponseMessage response = await client.PostAsJsonAsync("https://auth.riotgames.com/api/v1/authorization", postParams).ConfigureAwait(false);
+			Debug.WriteLine($"AccessTokenStage2: {await response.Content.ReadAsStringAsync().ConfigureAwait(false)}");
 			client.DefaultRequestHeaders.Clear();
 
-			AccessTokenReturn? accessTokenData = await response.Content.ReadFromJsonAsync<AccessTokenReturn>();
+			AccessTokenReturn? accessTokenData = await response.Content.ReadFromJsonAsync<AccessTokenReturn>().ConfigureAwait(false);
 
 			return accessTokenData?.Response.Parameters.Uri ?? "";
 		}
 
 		internal async Task<(string, string)> GetAccessTokens(string loginToken)
 		{
-			string traceData = await GetAccessTokenStage1(loginToken);
-			string accessTokenUri = await GetAccessTokenStage2(traceData);
+			string traceData = await GetAccessTokenStage1(loginToken).ConfigureAwait(false);
+			string accessTokenUri = await GetAccessTokenStage2(traceData).ConfigureAwait(false);
 
 			string[] urlTokens = accessTokenUri.Split('&');
 
@@ -150,7 +150,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			{
 				Task.Run(async () =>
 				{
-					await Task.Delay(30000);
+					await Task.Delay(30000).ConfigureAwait(false);
 					timer.Stop();
 					timer.Dispose();
 					try { form?.Kill(true); } catch {/**/}
@@ -161,7 +161,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
 			timer.Elapsed += async (_, _) =>
 			{
-				string loginToken = await GetLoginToken();
+				string loginToken = await GetLoginToken().ConfigureAwait(false);
 				if (loginToken.IsNullOrEmpty()) return;
 
 				timer.Stop();
@@ -170,10 +170,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				try { Process.GetProcessesByName(tempName).ToList().ForEach(x => x.Kill(true)); } catch {/**/}
 				form?.Dispose();
 
-				(string accessToken, string idToken) = await GetAccessTokens(loginToken);
+				(string accessToken, string idToken) = await GetAccessTokens(loginToken).ConfigureAwait(false);
 				if (accessToken.IsNullOrEmpty()) return;
 
-				(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetAuthTokensFromAccessToken(accessToken);
+				(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetAuthTokensFromAccessToken(accessToken).ConfigureAwait(false);
 
 				JsonWebToken jwt = new(pasToken);
 				string? affinity = jwt.GetPayloadValue<string>("affinity");

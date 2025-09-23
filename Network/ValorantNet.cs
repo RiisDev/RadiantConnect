@@ -50,9 +50,9 @@ namespace RadiantConnect.Network
 
 		private void ResetDefaultHeaders()
 		{
-			_ = _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", _defaultPlatform);
-			_ = _client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", _defaultUserAgent);
-			_ = _client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", _defaultClientVersion);
+			_client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientPlatform", _defaultPlatform);
+			_client.DefaultRequestHeaders.TryAddWithoutValidation("User-Agent", _defaultUserAgent);
+			_client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", _defaultClientVersion);
 		}
 
 		public ValorantNet(RSOAuth rsoAuth)
@@ -113,20 +113,18 @@ namespace RadiantConnect.Network
 			OnLog?.Invoke("[ValorantNet Log] Getting local AuthorizationTokens");
 
 			if (AuthCodes is not null)
-			{
 				return AuthCodes.AccessToken.IsNullOrEmpty() || AuthCodes.Entitlement.IsNullOrEmpty()
 					? throw new RadiantConnectException(
 						"AuthCodes are not valid, AccessToken or EntitlementToken is empty.")
 					: (AuthCodes.AccessToken, AuthCodes.Entitlement);
-			}
 
 			UserAuth? auth = GetAuth();
 			_client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{auth?.OAuth}".ToBase64()}");
-			HttpResponseMessage response = await _client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token");
+			HttpResponseMessage response = await _client.GetAsync($"https://127.0.0.1:{auth?.AuthorizationPort}/entitlements/v1/token").ConfigureAwait(false);
 			
-			if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {await response.Content.ReadAsStringAsync()}");
+			if (!response.IsSuccessStatusCode) return ("", $"Failed to get entitlement | {response.StatusCode} | {await response.Content.ReadAsStringAsync().ConfigureAwait(false)}");
 
-			Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(response.Content.ReadAsStringAsync().Result);
+			Entitlement? entitlement = JsonSerializer.Deserialize<Entitlement>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
 			OnLog?.Invoke($"[ValorantNet GetAuthorizationToken Log] AccessToken: {entitlement?.AccessToken}\n[ValorantNet GetAuthorizationToken Log] EntitlementToken: {entitlement?.Token}");
 			return (entitlement?.AccessToken ?? "", entitlement?.Token ?? "");
 		}
@@ -150,7 +148,7 @@ namespace RadiantConnect.Network
 				return;
 			}
 
-			(string, string) authTokens = await GetAuthorizationToken();
+			(string, string) authTokens = await GetAuthorizationToken().ConfigureAwait(false);
 
 			if (authTokens.Item1.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get Authorization Token");
 			if (authTokens.Item2.IsNullOrEmpty()) throw new RadiantConnectException("Failed to get JWT Token");
@@ -210,8 +208,8 @@ namespace RadiantConnect.Network
 				if (baseUrl[^1] != '/' && endPoint[0] != '/') baseUrl += "/"; // Make sure it actually contains a slash
 			}
 
-			if (!(InternalValorantMethods.IsValorantProcessRunning() || InternalValorantMethods.IsRiotClientRunning()) && AuthCodes is null) return string.Empty;
-
+			if (!(InternalValorantMethods.IsValorantProcessRunning() || InternalValorantMethods.IsRiotClientRunning()) && AuthCodes is null) return null;
+			
 			const int maxRetries = 3;
 			int retryCount = 0;
 			int backoffDelayMs = 5000;
@@ -220,9 +218,9 @@ namespace RadiantConnect.Network
 			while (retryCount < maxRetries)
 			{
 				// Set authentication headers
-				if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache);
+				if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache).ConfigureAwait(false);
 				else if (customHeaders is not null) SetCustomHeaders(customHeaders);
-				else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth(resetCache);
+				else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth(resetCache).ConfigureAwait(false);
 
 				using HttpRequestMessage httpRequest = new();
 				httpRequest.Method = MapHttpMethod(httpMethod);
@@ -230,7 +228,7 @@ namespace RadiantConnect.Network
 				httpRequest.Content = content;
 
 				using HttpResponseMessage responseMessage = await _client.SendAsync(httpRequest, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
-				string responseContent = await responseMessage.Content.ReadAsStringAsync();
+				string responseContent = await responseMessage.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 				if (customHeaders is not null)
 					ResetDefaultHeaders();
@@ -251,7 +249,7 @@ namespace RadiantConnect.Network
 						break;
 					case 429:
 						OnLog?.Invoke($"[ValorantNet Log] Rate limited, waiting {backoffDelayMs / 1000} seconds before retrying.");
-						await Task.Delay(backoffDelayMs);
+						await Task.Delay(backoffDelayMs).ConfigureAwait(false);
 						backoffDelayMs *= 2;
 						break;
 					case 404:
@@ -274,55 +272,55 @@ namespace RadiantConnect.Network
 		}
 
 		public async Task<T?> GetAsync<T>(string baseUrl, string endPoint) 
-			=> await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint);
+			=> await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 		
 		public async Task<T?> DeleteAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task<T?> PatchAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint) 
-			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint);
+			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task<T?> HeadAsync<T>(string baseUrl, string endPoint)
-			=> await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint);
+			=> await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent)
-			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task GetAsync(string baseUrl, string endPoint)
-			=> await CreateRequest(HttpMethod.Get, baseUrl, endPoint);
+			=> await CreateRequest(HttpMethod.Get, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task PostAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
-			=> await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent);
+			=> await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task PutAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent);
+			=> await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task DeleteAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
-			=> await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, httpContent);
+			=> await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task PatchAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent);
+			=> await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
 		public async Task OptionsAsync(string baseUrl, string endPoint)
-			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint);
+			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task HeadAsync(string baseUrl, string endPoint) 
-			=> await CreateRequest(HttpMethod.Head, baseUrl, endPoint);
+			=> await CreateRequest(HttpMethod.Head, baseUrl, endPoint).ConfigureAwait(false);
 
 		public async Task OptionsAsync(string baseUrl, string endPoint, HttpContent? httpContent)
-			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent);
+			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 		
 		private async Task<T?> SendAndConvertAsync<T>(HttpMethod method, string baseUrl, string endPoint, HttpContent? httpContent = null) 
-			=> ConvertResponse<T>(await CreateRequest(method, baseUrl, endPoint, httpContent));
+			=> ConvertResponse<T>(await CreateRequest(method, baseUrl, endPoint, httpContent).ConfigureAwait(false));
 
 		#pragma warning disable IDE0046 // Convert if possible
 		private static T? ConvertResponse<T>(string? jsonData)

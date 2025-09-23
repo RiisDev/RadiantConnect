@@ -4,8 +4,10 @@ using Path = System.IO.Path;
 
 namespace RadiantConnect.Services
 {
-	public class LogService
+	public class LogService : IDisposable
 	{
+		private readonly CancellationTokenSource _shutdownLog = new();
+
 		internal static string ReadTextFile(string path)
 		{
 			string tempFileName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}-radiant-{Path.GetExtension(path)}");
@@ -59,22 +61,33 @@ namespace RadiantConnect.Services
 		}
 
 		[SuppressMessage("ReSharper", "FunctionNeverReturns")]
-		public static async Task InitiateEvents(Initiator initiator)
+		public async Task InitiateEvents(Initiator initiator)
 		{
 			GameEvents events = new(initiator);
 			initiator.GameEvents = events;
 			long lastFileSize = 0;
 			await Task.Run(async () =>
 			{
-				while (!Initiator.IsDisposed)
+				try
 				{
-					await Task.Delay(100);
-					long currentFileSize = new FileInfo(LogPath).Length;
-					if (currentFileSize == lastFileSize) continue;
-					lastFileSize = currentFileSize;
-					events?.ParseLogText(ReadTextFile(LogPath));
+					while (true)
+					{
+						await Task.Delay(100, _shutdownLog.Token).ConfigureAwait(false);
+						long currentFileSize = new FileInfo(LogPath).Length;
+						if (currentFileSize == lastFileSize) continue;
+						lastFileSize = currentFileSize;
+						events?.ParseLogText(ReadTextFile(LogPath));
+					}
 				}
-			});
+				catch (OperationCanceledException) { /* expected on shutdown */ }
+			}, _shutdownLog.Token).ConfigureAwait(false);
+		}
+
+		public void Dispose()
+		{
+			_shutdownLog.Cancel();
+			_shutdownLog.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }

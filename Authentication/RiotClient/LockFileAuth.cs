@@ -26,12 +26,12 @@ namespace RadiantConnect.Authentication.RiotClient
 			});
 			
 			client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{userAuth.OAuth}".ToBase64()}");
-			HttpResponseMessage response = await client.GetAsync($"https://127.0.0.1:{userAuth.AuthorizationPort}/riot-client-auth/v1/authorization");
+			HttpResponseMessage response = await client.GetAsync($"https://127.0.0.1:{userAuth.AuthorizationPort}/riot-client-auth/v1/authorization").ConfigureAwait(false);
 			
 			if (!response.IsSuccessStatusCode) 
 				throw new RadiantConnectNetworkStatusException($"Failed to get LockFile tokens: {response.StatusCode}");
 
-			RSOClientReturn? rsoClientData = JsonSerializer.Deserialize<RSOClientReturn>(response.Content.ReadAsStringAsync().Result);
+			RSOClientReturn? rsoClientData = JsonSerializer.Deserialize<RSOClientReturn>(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
 			
 			if (rsoClientData == null)
 				throw new RadiantConnectAuthException("Failed to parse RSO client data from lockfile auth.");
@@ -40,7 +40,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			string authBearer = rsoClientData.AccessToken.Token;
 
-			(string pasToken, string entitlementToken, object clientConfig, string userInfo, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer);
+			(string pasToken, string entitlementToken, object clientConfig, string userInfo, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer).ConfigureAwait(false);
 
 			JsonDocument document = JsonDocument.Parse(userInfo);
 			string affinity = document.RootElement.GetProperty("original_platform_id").GetString() ?? "";
@@ -49,14 +49,14 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			if (File.Exists(RtcAuth.RiotClientSettings))
 			{
-				Dictionary<string, string?> cookieValues = await RtcAuth.GetCookiesFromYaml(RtcAuth.RiotClientSettings);
+				Dictionary<string, string?> cookieValues = await RtcAuth.GetCookiesFromYaml(RtcAuth.RiotClientSettings).ConfigureAwait(false);
 
 				if (cookieValues.Count >= 3)
 				{
 					cookieValues.TryGetValue("ssid", out ssid);
 
 					if (cookieValues["tdid"].IsNullOrEmpty())
-						cookieValues["tdid"] = await RtcAuth.GetTdidFallback(RtcAuth.RiotClientSettings);
+						cookieValues["tdid"] = await RtcAuth.GetTdidFallback(RtcAuth.RiotClientSettings).ConfigureAwait(false);
 
 					cookieValues.TryGetValue("clid", out clid);
 					cookieValues.TryGetValue("csid", out csid);

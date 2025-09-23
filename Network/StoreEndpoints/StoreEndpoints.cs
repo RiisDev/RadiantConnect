@@ -6,10 +6,10 @@ namespace RadiantConnect.Network.StoreEndpoints
 	{
 		internal string Url = initiator.ExternalSystem.ClientData.PdUrl;
 	
-		public async Task<Storefront?> FetchStorefrontAsync() => await initiator.ExternalSystem.Net.PostAsync<Storefront>(Url, $"/store/v3/storefront/{initiator.Client.UserId}", new StringContent("{}"));
+		public async Task<Storefront?> FetchStorefrontAsync() => await initiator.ExternalSystem.Net.PostAsync<Storefront>(Url, $"/store/v3/storefront/{initiator.Client.UserId}", new StringContent("{}")).ConfigureAwait(false);
 
-		public async Task<BalancesMain?> FetchBalancesAsync() => await initiator.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v1/wallet/{initiator.Client.UserId}");
+		public async Task<BalancesMain?> FetchBalancesAsync() => await initiator.ExternalSystem.Net.GetAsync<BalancesMain>(Url, $"/store/v1/wallet/{initiator.Client.UserId}").ConfigureAwait(false);
 
-		public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ValorantTables.ItemType type) => await initiator.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{initiator.Client.UserId}/{ValorantTables.ItemTypeToId[type]}");
+		public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ValorantTables.ItemType type) => await initiator.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{initiator.Client.UserId}/{ValorantTables.ItemTypeToId[type]}").ConfigureAwait(false);
 	}
 }

@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Flexes
 	{
-		public static async Task<FlexesData?> GetFlexesAsync() => await ValorantApiClient.GetAsync<FlexesData?>("https://valorant-api.com/v1", "flex");
+		public static async Task<FlexesData?> GetFlexesAsync() => await ValorantApiClient.GetAsync<FlexesData?>("https://valorant-api.com/v1", "flex").ConfigureAwait(false);
 
-		public static async Task<FlexData?> GetFlexAsync(string uuid) => await ValorantApiClient.GetAsync<FlexData?>("https://valorant-api.com/v1", $"flex/{uuid}");
+		public static async Task<FlexData?> GetFlexAsync(string uuid) => await ValorantApiClient.GetAsync<FlexData?>("https://valorant-api.com/v1", $"flex/{uuid}").ConfigureAwait(false);
 
-		public static async Task<FlexData?> GetFlexByUuidAsync(string uuid) => await GetFlexAsync(uuid);
+		public static async Task<FlexData?> GetFlexByUuidAsync(string uuid) => await GetFlexAsync(uuid).ConfigureAwait(false);
 
 		public record FlexDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

@@ -37,7 +37,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			DriverHandler.DoDriverCheck(browserProcess, browserExecutable, killBrowser);
 
 			DriverStatus = Authentication.DriverStatus.CreatingDriver;
-			(WebDriver, string? socketUrl) = await DriverHandler.StartDriver(browserExecutable, DriverPort, headless);
+			(WebDriver, string? socketUrl) = await DriverHandler.StartDriver(browserExecutable, DriverPort, headless).ConfigureAwait(false);
 
 			if (WebDriver == null)
 				throw new RadiantConnectException("Failed to start browser driver");
@@ -46,21 +46,21 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 			Socket = new ClientWebSocket();
 
-			try { await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None); }
+			try { await Socket.ConnectAsync(new Uri(socketUrl), CancellationToken.None).ConfigureAwait(false); }
 			catch (WebSocketException e) { throw new RadiantConnectAuthException($"Failed to connect to socket please try again. {e.Message}"); }
 
 			SocketHandler = new SocketHandler(Socket, this, DriverPort);
 
 			_ = Task.Run(() => DriverHandler.ListenAsync(Socket));
 
-			await SocketHandler.InitiateRuntimeHandles(Socket, username, password);
+			await SocketHandler.InitiateRuntimeHandles(Socket, username, password).ConfigureAwait(false);
 
 			DriverStatus = Authentication.DriverStatus.DriverCreated;
 
 			try
 			{
 				DriverStatus = Authentication.DriverStatus.BeginSignIn;
-				return await PerformSignInAsync();
+				return await PerformSignInAsync().ConfigureAwait(false);
 			}
 			catch (Exception e)
 			{
@@ -91,16 +91,16 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			DriverHandler.OnMfaDetected += async (_) =>
 			{
 				DriverStatus = Authentication.DriverStatus.CheckingRSOMultiFactor;
-				await HandleMfaAsync();
+				await HandleMfaAsync().ConfigureAwait(false);
 			};
 
 			DriverHandler.OnAccessTokenFound += (data) => accessTokenFound = data!;
 
-			while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5);
+			while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5).ConfigureAwait(false);
 
 			DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
 
-			return await GetRsoCookiesFromDriver();
+			return await GetRsoCookiesFromDriver().ConfigureAwait(false);
 		}
 
 		internal async Task HandleMfaAsync()
@@ -108,7 +108,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			DriverStatus = Authentication.DriverStatus.MultiFactorRequested;
 			OnMultiFactorRequested?.Invoke();
 
-			while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500); // Wait for MFA code to be set
+			while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500).ConfigureAwait(false); // Wait for MFA code to be set
 
 			MultiFactorCode = MultiFactorCode.Replace(" ", "");
 			MultiFactorCode = MultiFactorCode.Trim();
@@ -125,14 +125,14 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				}
 			};
 
-			await SocketHandler.ExecuteOnPageWithResponse(mfaDataInput);
+			await SocketHandler.ExecuteOnPageWithResponse(mfaDataInput).ConfigureAwait(false);
 
 			DriverStatus = Authentication.DriverStatus.MultiFactorCompleted;
 		}
 
 		internal async Task<(string, string, string, string)> GetRsoCookiesFromDriver()
 		{
-			CookieRoot? getCookies = await SocketHandler.GetCookiesAsync();
+			CookieRoot? getCookies = await SocketHandler.GetCookiesAsync().ConfigureAwait(false);
 
 			// Dispose early, we don't need the browser.
 			try { Dispose(); } catch {/**/}
@@ -140,7 +140,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			if (cacheCookies)
 			{
 				Directory.CreateDirectory($@"{Path.GetTempPath()}\RadiantConnect\");
-				await File.WriteAllTextAsync($@"{Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies));
+				await File.WriteAllTextAsync($@"{Path.GetTempPath()}\RadiantConnect\cookies.json", JsonSerializer.Serialize(getCookies)).ConfigureAwait(false);
 			}
 
 			Dictionary<string, string> cookieDict = getCookies?.Result.Cookies.GroupBy(c => c.Name).ToDictionary(g => g.Key, g => g.First().Value) ?? [];
@@ -155,7 +155,5 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				: (ssid, clid, tdid, csid);
 		}
 
-		[Obsolete("Logout is no longer function as cookies are cleared every run.", true)]
-		public Task Logout() => throw new NotImplementedException("Logout is no longer functional as cookies are cleared each run.");
 	}
 }

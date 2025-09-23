@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Contracts
 	{
-		public static async Task<ContractsData?> GetContractsAsync() => await ValorantApiClient.GetAsync<ContractsData>("https://valorant-api.com/v1", "/contracts");
+		public static async Task<ContractsData?> GetContractsAsync() => await ValorantApiClient.GetAsync<ContractsData>("https://valorant-api.com/v1", "/contracts").ConfigureAwait(false);
 
-		public static async Task<ContractData?> GetContractAsync(string contractUuid) => await ValorantApiClient.GetAsync<ContractData>("https://valorant-api.com/v1", $"/contracts/{contractUuid}");
+		public static async Task<ContractData?> GetContractAsync(string contractUuid) => await ValorantApiClient.GetAsync<ContractData>("https://valorant-api.com/v1", $"/contracts/{contractUuid}").ConfigureAwait(false);
 
-		public static async Task<ContractData?> GetContractByUuidAsync(string contractUuid) => await GetContractAsync(contractUuid);
+		public static async Task<ContractData?> GetContractByUuidAsync(string contractUuid) => await GetContractAsync(contractUuid).ConfigureAwait(false);
 
 		public record Chapter(
 			[property: JsonPropertyName("isEpilogue")] bool? IsEpilogue,

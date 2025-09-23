@@ -59,7 +59,7 @@ namespace RadiantConnect.Authentication
 
 		internal AuthHandler AuthHandler = null!;
 
-		public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null) => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid, asid, proxy);
+		public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null) => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid, asid, proxy).ConfigureAwait(false);
 
 		public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
 		{
@@ -68,7 +68,7 @@ namespace RadiantConnect.Authentication
 			if (returnLoginUrl)
 				manager.OnUrlBuilt += OnUrlBuilt;
 
-			return await manager.Authenticate();
+			return await manager.Authenticate().ConfigureAwait(false);
 		}
 		
 		public async Task<RSOAuth?> AuthenticateWithDriver(string username, string password, DriverSettings? driverSettings = null, bool acceptedTerms = false)
@@ -98,15 +98,15 @@ namespace RadiantConnect.Authentication
 #else
 			Task delayTask = Task.Delay(TimeSpan.FromSeconds(45));
 #endif
-			if (await Task.WhenAny(authTask, delayTask) == authTask)
+			if (await Task.WhenAny(authTask, delayTask).ConfigureAwait(false) == authTask)
 			{
 				// Authentication completed within timeout
-				(string ssid, string clid, string tdid, string csid) = await authTask;
+				(string ssid, string clid, string tdid, string csid) = await authTask.ConfigureAwait(false);
 				Debug.WriteLine($"{DateTime.Now} LOGIN DONE");
 
 				AuthHandler.Dispose();
 
-				return await SsidAuthManager.Authenticate(ssid, clid, csid, tdid);
+				return await SsidAuthManager.Authenticate(ssid, clid, csid, tdid).ConfigureAwait(false);
 			}
 
 			AuthHandler.Dispose();
@@ -118,17 +118,17 @@ namespace RadiantConnect.Authentication
 		public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
 		{
 			string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
-			return !File.Exists(cacheFile) ? null : JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile))?.Result.Cookies;
+			return !File.Exists(cacheFile) ? null : JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile).ConfigureAwait(false))?.Result.Cookies;
 		}
 
 		public async Task<string?> GetSsidFromDriverCache()
 		{
-			IEnumerable<Cookie>? cookiesData = await GetCachedCookies();
+			IEnumerable<Cookie>? cookiesData = await GetCachedCookies().ConfigureAwait(false);
 			return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
 		}
 		
-		public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null, bool skipTdid = false, bool skipClid = false, bool skipCsid = false) => await new RtcAuth().Run(settingsFile, this, skipTdid, skipClid, skipCsid);
+		public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null, bool skipTdid = false, bool skipClid = false, bool skipCsid = false) => await new RtcAuth().Run(settingsFile, this, skipTdid, skipClid, skipCsid).ConfigureAwait(false);
 		
-		public async Task<RSOAuth?> AuthenticateWithLockFile() => await new LockFileAuth().Run();
+		public async Task<RSOAuth?> AuthenticateWithLockFile() => await new LockFileAuth().Run().ConfigureAwait(false);
 	}
 }

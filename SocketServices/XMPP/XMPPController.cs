@@ -67,9 +67,9 @@ namespace RadiantConnect.SocketServices.XMPP
 		public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
 		{
 			if (_remoteClient is not null)
-				await _remoteClient.SendMessage(message);
+				await _remoteClient.SendMessage(message).ConfigureAwait(false);
 			else if (_valClient is not null)
-				await _valClient.Handle.SendXmlToOutgoingStream(message);
+				await _valClient.Handle.SendXmlToOutgoingStream(message).ConfigureAwait(false);
 			else
 				throw new RadiantConnectXMPPException("No client connected");
 		}
@@ -77,7 +77,7 @@ namespace RadiantConnect.SocketServices.XMPP
 		public async Task SendInternalMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message)
 		{
 			if (_valClient is not null)
-				await _valClient.Handle.SendXmlMessageAsync(message);
+				await _valClient.Handle.SendXmlMessageAsync(message).ConfigureAwait(false);
 			else if (_remoteClient is not null && _valClient is null)
 				throw new RadiantConnectXMPPException("Cannot send internal XMPP to remote client.");
 			else
@@ -86,7 +86,7 @@ namespace RadiantConnect.SocketServices.XMPP
 
 		#endregion
 
-		public async Task SendPresenceEvent() => await SendMessage("<presence/>");
+		public async Task SendPresenceEvent() => await SendMessage("<presence/>").ConfigureAwait(false);
 
 		public async Task SendChatMessage([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient, string message)
 		{
@@ -97,9 +97,9 @@ namespace RadiantConnect.SocketServices.XMPP
 							  <message id="{SocketUtil.GetUnixTimestamp()}:1" to="{recipient}@{_affinity}.pvp.net" type="chat">
 							  	<body>{message}</body>
 							  </message>
-							  """);
+							  """).ConfigureAwait(false);
 
-			await GetChatMessages(recipient);
+			await GetChatMessages(recipient).ConfigureAwait(false);
 		}
 
 		public async Task GetChatMessages([StringSyntax(StringSyntaxAttribute.GuidFormat)] string recipient)
@@ -113,7 +113,7 @@ namespace RadiantConnect.SocketServices.XMPP
 										<with>{recipient}@{_affinity}.pvp.net</with>
 									</query>
 								</iq>
-								""");
+								""").ConfigureAwait(false);
 		}
 
 		public record ChatMessage(string Timestamp, string Sender, string Recipient, string Text, string Type);

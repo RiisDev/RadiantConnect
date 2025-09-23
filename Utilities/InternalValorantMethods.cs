@@ -10,10 +10,36 @@ namespace RadiantConnect.Utilities
 			File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
 				"Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
 			File.Exists(LogService.LogPath) &&
-			!LogService.ReadTextFile(LogService.LogPath).Split('\n').Last().Contains("Log file closed");
+			!LogService.ReadTextFile(LogService.LogPath).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.RemoveEmptyEntries).Last().Contains("Log file closed");
 
-		public static bool IsValorantProcessRunning() => Process.GetProcessesByName("VALORANT").Length > 0;
+		// Don't convert to LINQ, it's slower
+		[SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
+		public static bool IsValorantProcessRunning()
+		{
+			foreach (Process process in Process.GetProcesses())
+				if (process.ProcessName.Equals("VALORANT", StringComparison.OrdinalIgnoreCase))
+					return true;
+			return false;
+		}
 
-		public static bool IsRiotClientRunning() => Process.GetProcessesByName("RiotClientServices").Length > 0 && Process.GetProcessesByName("Riot Client").Length > 0;
+		public static bool IsRiotClientRunning()
+		{
+			bool riotClientServicesFound = false;
+			bool riotClientFound = false;
+
+			foreach (Process process in Process.GetProcesses())
+			{
+				if (process.ProcessName.Equals("RiotClientServices", StringComparison.OrdinalIgnoreCase))
+					riotClientServicesFound = true;
+
+				if (process.ProcessName.Equals("Riot Client", StringComparison.OrdinalIgnoreCase))
+					riotClientFound = true;
+
+				if (riotClientServicesFound && riotClientFound)
+					return true;
+			}
+
+			return false;
+		}
 	}
 }

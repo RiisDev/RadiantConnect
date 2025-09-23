@@ -80,35 +80,35 @@ namespace RadiantConnect.Utilities
 
 		public static async Task<(string, string, object, string, string)> GetAuthTokensFromAccessToken(string accessToken)
 		{
-			using HttpClient httpClient = new();
+			using HttpClient httpClient = BuildClient().Item1;
 			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
 			// Get PAS token
-			HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat");
-			string pasToken = await response.Content.ReadAsStringAsync();
+			HttpResponseMessage response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/chat").ConfigureAwait(false);
+			string pasToken = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 			// Get RMS PAS Token
-			response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/rms");
-			string rmsToken = await response.Content.ReadAsStringAsync();
+			response = await httpClient.GetAsync("https://riot-geo.pas.si.riotgames.com/pas/v1/service/rms").ConfigureAwait(false);
+			string rmsToken = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 			// GetUserInfo 
-			response = await httpClient.GetAsync("https://auth.riotgames.com/userinfo");
-			string userInfo = await response.Content.ReadAsStringAsync();
+			response = await httpClient.GetAsync("https://auth.riotgames.com/userinfo").ConfigureAwait(false);
+			string userInfo = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 			// Get entitlement token
 			httpClient.DefaultRequestHeaders.Accept.Clear();
-			response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json"));
-			string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>())?.EntitlementsToken ?? "";
+			response = await httpClient.PostAsync("https://entitlements.auth.riotgames.com/api/token/v1", new StringContent("{}", Encoding.UTF8, "application/json")).ConfigureAwait(false);
+			string entitlementToken = (await response.Content.ReadFromJsonAsync<EntitleReturn>().ConfigureAwait(false))?.EntitlementsToken ?? "";
 			
 			// Get client config
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 			httpClient.DefaultRequestHeaders.Add("X-Riot-Entitlements-JWT", entitlementToken);
-			response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client");
+			response = await httpClient.GetAsync("https://clientconfig.rpg.riotgames.com/api/v1/config/player?app=Riot%20Client").ConfigureAwait(false);
 			object clientConfig;
 			try
 			{
-				clientConfig = await response.Content.ReadFromJsonAsync<object>() ?? new { };
+				clientConfig = await response.Content.ReadFromJsonAsync<object>().ConfigureAwait(false) ?? new { };
 			}
 			catch
 			{

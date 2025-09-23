@@ -34,7 +34,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 						HttpMethod.Get,
 						"https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid%20ban%20link%20lol_region%20lol%20summoner%20offline_access"
 						)
-					);
+					).ConfigureAwait(false);
 
 			string? validAuthUrl = response.RequestMessage?.RequestUri?.ToString();
 
@@ -52,7 +52,7 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			string accessToken = AuthUtil.ParseAccessToken(validAuthUrl);
 			string idToken = AuthUtil.ParseIdToken(validAuthUrl);
 			(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) =
-				await AuthUtil.GetAuthTokensFromAccessToken(accessToken);
+				await AuthUtil.GetAuthTokensFromAccessToken(accessToken).ConfigureAwait(false);
 
 			JsonWebToken token = new(accessToken);
 			string suuid = token.Subject;

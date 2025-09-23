@@ -101,8 +101,8 @@ namespace RadiantConnect.SocketServices.XMPP
 			{
 
 				byte[] buffer = Encoding.UTF8.GetBytes(message);
-				await sslStream.WriteAsync(buffer, 0, buffer.Length);
-				await sslStream.FlushAsync();
+				await sslStream.WriteAsync(buffer, 0, buffer.Length).ConfigureAwait(false);
+				await sslStream.FlushAsync().ConfigureAwait(false);
 			}
 			catch (Exception ex)
 			{
@@ -140,7 +140,7 @@ namespace RadiantConnect.SocketServices.XMPP
 			return contentBuilder.ToString();
 		}
 
-		public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message) => await AsyncSocketWrite(SslStream, message);
+		public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message) => await AsyncSocketWrite(SslStream, message).ConfigureAwait(false);
 
 		public async Task InitiateRemoteXMPP(RSOAuth auth)
 		{
@@ -159,36 +159,35 @@ namespace RadiantConnect.SocketServices.XMPP
 				Status = XMPPStatus.InitiatingSslConnection;
 				TcpClient tcpClient = new(chatHost, 5223);
 				SslStream = new(tcpClient.GetStream(), true, (_, _, _, _) => true);
-				await SslStream.AuthenticateAsClientAsync(chatHost);
+				await SslStream.AuthenticateAsClientAsync(chatHost).ConfigureAwait(false);
 
 				SslStream.ReadTimeout = 500;
 
 				Status = XMPPStatus.InitiatingSocketStream;
 				await AsyncSocketWrite(SslStream,
-					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
 				string incomingData;
 				do
 				{
-					incomingData = await AsyncSocketRead(SslStream);
+					incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
 				} while (!incomingData.Contains("X-Riot-RSO-PAS"));
 
 				Status = XMPPStatus.SendingAuthorizationTokens;
-				await AsyncSocketWrite(SslStream,
-					$"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{token}</rso_token><pas_token>{pasToken}</pas_token></auth>");
-				await AsyncSocketRead(SslStream);
+				await AsyncSocketWrite(SslStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{token}</rso_token><pas_token>{pasToken}</pas_token></auth>").ConfigureAwait(false);
+				await AsyncSocketRead(SslStream).ConfigureAwait(false);
 
 				Status = XMPPStatus.ReceivingFeatures;
 				await AsyncSocketWrite(SslStream,
-					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">");
+					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
 				do
 				{
-					incomingData = await AsyncSocketRead(SslStream);
+					incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
 				} while (!incomingData.Contains("stream:features"));
 
 				Status = XMPPStatus.BindingStream;
 				await AsyncSocketWrite(SslStream,
-					"<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"><puuid-mode enabled=\"true\"/></bind></iq>");
-				incomingData = await AsyncSocketRead(SslStream);
+					"<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"><puuid-mode enabled=\"true\"/></bind></iq>").ConfigureAwait(false);
+				incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
 
 				if (incomingData.Contains("jid"))
 				{
@@ -197,13 +196,13 @@ namespace RadiantConnect.SocketServices.XMPP
 
 				Status = XMPPStatus.BindingSession;
 				await AsyncSocketWrite(SslStream,
-					"<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>");
-				await AsyncSocketRead(SslStream);
+					"<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>").ConfigureAwait(false);
+				await AsyncSocketRead(SslStream).ConfigureAwait(false);
 
 				Status = XMPPStatus.BindingEntitlement;
 				await AsyncSocketWrite(SslStream,
-					$"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>");
-				await AsyncSocketRead(SslStream);
+					$"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>").ConfigureAwait(false);
+				await AsyncSocketRead(SslStream).ConfigureAwait(false);
 
 				Status = XMPPStatus.Connected;
 
@@ -211,7 +210,7 @@ namespace RadiantConnect.SocketServices.XMPP
 				{
 					while (tcpClient.Connected)
 					{
-						await AsyncSocketRead(SslStream);
+						await AsyncSocketRead(SslStream).ConfigureAwait(false);
 					}
 				});
 
@@ -219,8 +218,8 @@ namespace RadiantConnect.SocketServices.XMPP
 				{
 					while (tcpClient.Connected)
 					{
-						await AsyncSocketWrite(SslStream, "");
-						await Task.Delay(150000);
+						await AsyncSocketWrite(SslStream, "").ConfigureAwait(false);
+						await Task.Delay(150000).ConfigureAwait(false);
 					}
 				});
 			}

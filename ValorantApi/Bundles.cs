@@ -2,9 +2,9 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Bundles
 	{
-		public static async Task<BundlesData?> GetBundlesAsync() => await ValorantApiClient.GetAsync<BundlesData?>("https://valorant-api.com/v1", "/bundles");
-		public static async Task<BundleData?> GetBundleAsync(string uuid) => await ValorantApiClient.GetAsync<BundleData?>("https://valorant-api.com/v1", $"/bundles/{uuid}");
-		public static async Task<BundleData?> GetBundleByUuidAsync(string uuid) => await GetBundleAsync(uuid);
+		public static async Task<BundlesData?> GetBundlesAsync() => await ValorantApiClient.GetAsync<BundlesData?>("https://valorant-api.com/v1", "/bundles").ConfigureAwait(false);
+		public static async Task<BundleData?> GetBundleAsync(string uuid) => await ValorantApiClient.GetAsync<BundleData?>("https://valorant-api.com/v1", $"/bundles/{uuid}").ConfigureAwait(false);
+		public static async Task<BundleData?> GetBundleByUuidAsync(string uuid) => await GetBundleAsync(uuid).ConfigureAwait(false);
 
 		public record BundleDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

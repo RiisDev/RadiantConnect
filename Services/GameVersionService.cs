@@ -1,6 +1,7 @@
 ﻿using RadiantConnect.Network;
+#if WINDOWS
 using static Microsoft.Win32.Registry;
-
+#endif
 namespace RadiantConnect.Services
 {
 	public partial class GameVersionService
@@ -104,9 +105,11 @@ namespace RadiantConnect.Services
 		{
 			try
 			{
-#pragma warning disable CA1416 // Registry only supported on Windows
+#if WINDOWS
 				return $"{Environment.OSVersion.Version}.{GetValue($@"{LocalMachine}\SOFTWARE\Microsoft\Windows NT\CurrentVersion", "UBR", "256")}.64bit";
-#pragma warning restore CA1416
+#else
+				return "10.0.19043.1.256.64bit";
+#endif
 			}
 			catch { return "10.0.19043.1.256"; }
 		}

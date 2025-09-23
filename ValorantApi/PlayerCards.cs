@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class PlayerCards
 	{
-		public static async Task<PlayerCardsData?> GetPlayerCardsAsync() => await ValorantApiClient.GetAsync<PlayerCardsData?>("https://valorant-api.com/v1", "playercards");
+		public static async Task<PlayerCardsData?> GetPlayerCardsAsync() => await ValorantApiClient.GetAsync<PlayerCardsData?>("https://valorant-api.com/v1", "playercards").ConfigureAwait(false);
 
-		public static async Task<PlayerCardData?> GetPlayerCardAsync(string uuid) => await ValorantApiClient.GetAsync<PlayerCardData?>("https://valorant-api.com/v1", $"playercards/{uuid}");
+		public static async Task<PlayerCardData?> GetPlayerCardAsync(string uuid) => await ValorantApiClient.GetAsync<PlayerCardData?>("https://valorant-api.com/v1", $"playercards/{uuid}").ConfigureAwait(false);
 
-		public static async Task<PlayerCardData?> GetPlayerCardByUuidAsync(string uuid) => await GetPlayerCardAsync(uuid);
+		public static async Task<PlayerCardData?> GetPlayerCardByUuidAsync(string uuid) => await GetPlayerCardAsync(uuid).ConfigureAwait(false);
 
 		public record PlayerCardDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

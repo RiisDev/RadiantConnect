@@ -99,7 +99,7 @@ namespace RadiantConnect.RConnect
 
 		public static async Task<string?> GetRiotIdByPuuidAsync(this Initiator initiator, string puuid)
 		{
-			List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid);
+			List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid).ConfigureAwait(false);
 		   
 			if (serviceResponse == null) return null;
 			if (serviceResponse.Count == 0) return null;
@@ -111,7 +111,7 @@ namespace RadiantConnect.RConnect
 
 		public static async Task<string?> GetPuuidByNameAsync(this Initiator initiator, string gameName, string tagLine)
 		{
-			string? aliasReturn = await initiator.Endpoints.LocalEndpoints.PerformLocalRequestAsync(ValorantNet.HttpMethod.Get, $"/player-account/aliases/v1/lookup?gameName={gameName}&tagLine={tagLine}");
+			string? aliasReturn = await initiator.Endpoints.LocalEndpoints.PerformLocalRequestAsync(ValorantNet.HttpMethod.Get, $"/player-account/aliases/v1/lookup?gameName={gameName}&tagLine={tagLine}").ConfigureAwait(false);
 
 			string? parsedId = aliasReturn?[(aliasReturn.LastIndexOf(':') + 2)..^3];
 
@@ -121,9 +121,9 @@ namespace RadiantConnect.RConnect
 		#pragma warning disable IDE0046
 		public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
 		{
-			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
+			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
 			
-			string? seasonId = await FetchCurrentSeasonIdAsync(initiator);
+			string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
 			if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return "Unranked";
 		   
 			return !playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId,
@@ -134,9 +134,9 @@ namespace RadiantConnect.RConnect
 
 		public static async Task<int?> GetCurrentRankRatingAsync(this Initiator initiator, string puuid)
 		{
-			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid);
+			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
 
-			string? seasonId = await FetchCurrentSeasonIdAsync(initiator);
+			string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
 
 			if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return 0;
 			try
@@ -151,20 +151,20 @@ namespace RadiantConnect.RConnect
 		public static async Task<List<MatchStats?>> GetRecentMatchStatsAsync(this Initiator initiator, string puuid)
 		{
 			List<MatchStats?> stats = [];
-			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid);
+			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
 
 			if (matchHistory == null) return stats;
 			if (matchHistory.History.Count == 0) return stats;
 
 			foreach (MatchHistoryInternal matchData in matchHistory.History)
-				stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchID));
+				stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchID).ConfigureAwait(false));
 
 			return stats;
 		}
 
 		public static async Task<MatchStats?> GetLastMatchLeaderboardAsync(this Initiator initiator, string puuid, bool competitiveOnly = false)
 		{
-			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid);
+			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
 
 			if (matchHistory == null) return null;
 			if (matchHistory.History.Count == 0) return null;
@@ -178,12 +178,12 @@ namespace RadiantConnect.RConnect
 			}
 			catch (InvalidOperationException) { return null;}
 
-			return await GetMatchLeaderboardAsync(initiator, match.MatchID);
+			return await GetMatchLeaderboardAsync(initiator, match.MatchID).ConfigureAwait(false);
 		}
 
 		public static async Task<MatchStats?> GetMatchLeaderboardAsync(this Initiator initiator, string matchId)
 		{
-			MatchInfo? matchInfo = await initiator.Endpoints.PvpEndpoints.FetchMatchInfoAsync(matchId);
+			MatchInfo? matchInfo = await initiator.Endpoints.PvpEndpoints.FetchMatchInfoAsync(matchId).ConfigureAwait(false);
 			if (matchInfo == null) return null;
 
 			List<Player> playerList = [];
@@ -209,7 +209,7 @@ namespace RadiantConnect.RConnect
 
 		public static async Task<string?> FetchCurrentSeasonIdAsync(this Initiator initiator)
 		{
-			Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync();
+			Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync().ConfigureAwait(false);
 			string? seasonId;
 			try {
 				seasonId = content?.Seasons.First(x => x.IsActive.HasValue && x.IsActive.Value && x.Type == "act").ID;
