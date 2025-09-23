@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Maps
 	{
-		public static async Task<MapsData?> GetMapsAsync() => await ValorantApiClient.GetAsync<MapsData?>("https://valorant-api.com/v1", "maps");
+		public static async Task<MapsData?> GetMapsAsync() => await ValorantApiClient.GetAsync<MapsData?>("https://valorant-api.com/v1", "maps").ConfigureAwait(false);
 
-		public static async Task<MapData?> GetMapAsync(string uuid) => await ValorantApiClient.GetAsync<MapData?>("https://valorant-api.com/v1", $"maps/{uuid}");
+		public static async Task<MapData?> GetMapAsync(string uuid) => await ValorantApiClient.GetAsync<MapData?>("https://valorant-api.com/v1", $"maps/{uuid}").ConfigureAwait(false);
 
-		public static async Task<MapData?> GetMapByUuidAsync(string uuid) => await GetMapAsync(uuid);
+		public static async Task<MapData?> GetMapByUuidAsync(string uuid) => await GetMapAsync(uuid).ConfigureAwait(false);
 
 		public record Callout(
 			[property: JsonPropertyName("regionName")] string RegionName,

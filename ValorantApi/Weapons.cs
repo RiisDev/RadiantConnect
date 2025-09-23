@@ -3,28 +3,28 @@ namespace RadiantConnect.ValorantApi
 	public static class Weapons
 	{
 		public static async Task<WeaponsData?> GetWeaponsAsync() =>
-			await ValorantApiClient.GetAsync<WeaponsData?>("https://valorant-api.com/v1", "/weapons");
+			await ValorantApiClient.GetAsync<WeaponsData?>("https://valorant-api.com/v1", "/weapons").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinsData?> GetWeaponSkinsAsync() =>
-			await ValorantApiClient.GetAsync<WeaponSkinsData?>("https://valorant-api.com/v1", "/weapons/skins");
+			await ValorantApiClient.GetAsync<WeaponSkinsData?>("https://valorant-api.com/v1", "/weapons/skins").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinChromasData?> GetWeaponSkinChromasAsync() =>
-			await ValorantApiClient.GetAsync<WeaponSkinChromasData?>("https://valorant-api.com/v1", "/weapons/skinchromas");
+			await ValorantApiClient.GetAsync<WeaponSkinChromasData?>("https://valorant-api.com/v1", "/weapons/skinchromas").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinLevelsData?> GetWeaponSkinLevelsAsync() =>
-			await ValorantApiClient.GetAsync<WeaponSkinLevelsData?>("https://valorant-api.com/v1", "/weapons/skinlevels");
+			await ValorantApiClient.GetAsync<WeaponSkinLevelsData?>("https://valorant-api.com/v1", "/weapons/skinlevels").ConfigureAwait(false);
 
 		public static async Task<WeaponData?> GetWeaponByUuidAsync(string weaponUuid) =>
-			await ValorantApiClient.GetAsync<WeaponData?>("https://valorant-api.com/v1", $"/weapons/{weaponUuid}");
+			await ValorantApiClient.GetAsync<WeaponData?>("https://valorant-api.com/v1", $"/weapons/{weaponUuid}").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinData?> GetWeaponSkinByUuidAsync(string weaponSkinUuid) =>
-			await ValorantApiClient.GetAsync<WeaponSkinData?>("https://valorant-api.com/v1", $"/weapons/skins/{weaponSkinUuid}");
+			await ValorantApiClient.GetAsync<WeaponSkinData?>("https://valorant-api.com/v1", $"/weapons/skins/{weaponSkinUuid}").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinChromaData?> GetWeaponSkinChromaByUuidAsync(string weaponSkinChromaUuid) =>
-			await ValorantApiClient.GetAsync<WeaponSkinChromaData?>("https://valorant-api.com/v1", $"/weapons/skinchromas/{weaponSkinChromaUuid}");
+			await ValorantApiClient.GetAsync<WeaponSkinChromaData?>("https://valorant-api.com/v1", $"/weapons/skinchromas/{weaponSkinChromaUuid}").ConfigureAwait(false);
 
 		public static async Task<WeaponSkinLevelData?> GetWeaponSkinLevelByUuidAsync(string weaponSkinLevelUuid) =>
-			await ValorantApiClient.GetAsync<WeaponSkinLevelData?>("https://valorant-api.com/v1", $"/weapons/skinlevels/{weaponSkinLevelUuid}");
+			await ValorantApiClient.GetAsync<WeaponSkinLevelData?>("https://valorant-api.com/v1", $"/weapons/skinlevels/{weaponSkinLevelUuid}").ConfigureAwait(false);
 
 		public record WeaponsData(
 			[property: JsonPropertyName("status")] int? Status,

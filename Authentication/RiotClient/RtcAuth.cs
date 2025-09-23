@@ -20,7 +20,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			if (auth == null) throw new Exception("Authentication somehow null, report bug to github, this should never be seen.");
 
-			Dictionary<string, string?> cookieValues = await GetCookiesFromYaml(fileLocation);
+			Dictionary<string, string?> cookieValues = await GetCookiesFromYaml(fileLocation).ConfigureAwait(false);
 
 			cookieValues.TryGetValue("ssid", out string? ssid);
 
@@ -29,7 +29,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			
 			// Has built in checking
 			if (!skipTdid && cookieValues["tdid"].IsNullOrEmpty())
-				cookieValues["tdid"] = await GetTdidFallback(fileLocation);
+				cookieValues["tdid"] = await GetTdidFallback(fileLocation).ConfigureAwait(false);
 
 			cookieValues.TryGetValue("clid", out string? clid);
 			cookieValues.TryGetValue("csid", out string? csid);
@@ -49,12 +49,12 @@ namespace RadiantConnect.Authentication.RiotClient
 				csid: csid,
 				tdid: tdid,
 				asid: asid
-			);
+			).ConfigureAwait(false);
 		}
 
 		internal static async Task<string> GetTdidFallback(string fileLocation)
 		{
-			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
+			Dictionary<string, object> yamlData = await GetYamlData(fileLocation).ConfigureAwait(false);
 
 			if (!yamlData.ContainsKey("rso-authenticator") || yamlData["rso-authenticator"] is not Dictionary<string, object> rsoAuthenticator)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
@@ -74,7 +74,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 		internal static async Task<Dictionary<string, string?>> GetCookiesFromYaml(string fileLocation)
 		{
-			Dictionary<string, object> yamlData = await GetYamlData(fileLocation);
+			Dictionary<string, object> yamlData = await GetYamlData(fileLocation).ConfigureAwait(false);
 
 			if (!yamlData.ContainsKey("riot-login") || yamlData["riot-login"] is not Dictionary<string, object> riotLoginData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
@@ -99,7 +99,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			if (!File.Exists(fileLocation)) throw new FileNotFoundException("Riot Client persistent file not found.", fileLocation);
 			if (!fileLocation.EndsWith(".yaml")) throw new Exception($"Invalid file detected, expected .yaml got {Path.GetExtension(fileLocation)}");
 
-			string fileData = await File.ReadAllTextAsync(fileLocation);
+			string fileData = await File.ReadAllTextAsync(fileLocation).ConfigureAwait(false);
 
 			return ParseSimpleYaml(fileData);
 		}

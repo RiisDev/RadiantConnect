@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Events
 	{
-		public static async Task<EventsData?> GetEventsAsync() => await ValorantApiClient.GetAsync<EventsData?>("https://valorant-api.com/v1", "events");
+		public static async Task<EventsData?> GetEventsAsync() => await ValorantApiClient.GetAsync<EventsData?>("https://valorant-api.com/v1", "events").ConfigureAwait(false);
 
-		public static async Task<EventData?> GetEventAsync(string uuid) => await ValorantApiClient.GetAsync<EventData?>("https://valorant-api.com/v1", $"events/{uuid}");
+		public static async Task<EventData?> GetEventAsync(string uuid) => await ValorantApiClient.GetAsync<EventData?>("https://valorant-api.com/v1", $"events/{uuid}").ConfigureAwait(false);
 
-		public static async Task<EventData?> GetEventByUuidAsync(string uuid) => await GetEventAsync(uuid);
+		public static async Task<EventData?> GetEventByUuidAsync(string uuid) => await GetEventAsync(uuid).ConfigureAwait(false);
 		
 		public record EventDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

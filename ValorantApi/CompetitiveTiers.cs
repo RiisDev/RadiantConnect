@@ -2,13 +2,13 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class CompetitiveTiers
 	{
-		public static async Task<CompetitiveTiersData?> GetCompetitiveTiersAsync() => await ValorantApiClient.GetAsync<CompetitiveTiersData>("https://valorant-api.com/v1", "competitivetiers");
+		public static async Task<CompetitiveTiersData?> GetCompetitiveTiersAsync() => await ValorantApiClient.GetAsync<CompetitiveTiersData>("https://valorant-api.com/v1", "competitivetiers").ConfigureAwait(false);
 
-		public static async Task<CompetitiveTierData?> GetCompetitiveTierAsync(string uuid) => await ValorantApiClient.GetAsync<CompetitiveTierData>("https://valorant-api.com/v1", $"competitivetiers/{uuid}");
+		public static async Task<CompetitiveTierData?> GetCompetitiveTierAsync(string uuid) => await ValorantApiClient.GetAsync<CompetitiveTierData>("https://valorant-api.com/v1", $"competitivetiers/{uuid}").ConfigureAwait(false);
 
-		public static async Task<CompetitiveTierData?> GetCompetitiveTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid);
+		public static async Task<CompetitiveTierData?> GetCompetitiveTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid).ConfigureAwait(false);
 
-		public static async Task<CompetitiveTierData?> GetTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid);
+		public static async Task<CompetitiveTierData?> GetTierByUuidAsync(string uuid) => await GetCompetitiveTierAsync(uuid).ConfigureAwait(false);
 
 		public record CompetitiveDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

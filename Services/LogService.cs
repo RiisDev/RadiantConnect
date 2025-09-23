@@ -72,7 +72,7 @@ namespace RadiantConnect.Services
 				{
 					while (true)
 					{
-						await Task.Delay(100, _shutdownLog.Token);
+						await Task.Delay(100, _shutdownLog.Token).ConfigureAwait(false);
 						long currentFileSize = new FileInfo(LogPath).Length;
 						if (currentFileSize == lastFileSize) continue;
 						lastFileSize = currentFileSize;
@@ -80,7 +80,7 @@ namespace RadiantConnect.Services
 					}
 				}
 				catch (OperationCanceledException) { /* expected on shutdown */ }
-			}, _shutdownLog.Token);
+			}, _shutdownLog.Token).ConfigureAwait(false);
 		}
 
 		public void Dispose()

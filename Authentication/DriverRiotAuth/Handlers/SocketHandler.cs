@@ -87,8 +87,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 			for (int eventId = 0; eventId < eventList.Count; eventId++)
 			{
-				await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventList[eventId]))), WebSocketMessageType.Text, true, CancellationToken.None);
-				while (eventPassed != eventId) await Task.Delay(50);
+				await socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(eventList[eventId]))), WebSocketMessageType.Text, true, CancellationToken.None).ConfigureAwait(false);
+				while (eventPassed != eventId) await Task.Delay(50).ConfigureAwait(false);
 			}
 
 			DriverHandler.OnRuntimeChanged -= Changed;
@@ -214,9 +214,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			TaskCompletionSource<string> tcs = new();
 			DriverHandler.PendingRequests[id] = tcs;
 			
-			await Socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None);
+			await Socket.SendAsync(new ArraySegment<byte>(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(dataToSend))), WebSocketMessageType.Text, true, CancellationToken.None).ConfigureAwait(false);
 
-			string response = await tcs.Task;
+			string response = await tcs.Task.ConfigureAwait(false);
 
 			return response;
 		}
@@ -231,7 +231,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				{ "method", "Network.getAllCookies" }
 			};
 
-			string? cookieData = await ExecuteOnPageWithResponse(cookieResponse);
+			string? cookieData = await ExecuteOnPageWithResponse(cookieResponse).ConfigureAwait(false);
 			return cookieData.IsNullOrEmpty() ? null : JsonSerializer.Deserialize<CookieRoot>(cookieData);
 		}
 	}

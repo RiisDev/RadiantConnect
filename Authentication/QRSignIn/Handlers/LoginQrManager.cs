@@ -60,8 +60,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				{ "patchline", "KeystoneFoundationLiveWin" },
 			};
 
-			HttpResponseMessage response = await client.GetAsync(BuildUrlWithQueryParameters("https://clientconfig.rpg.riotgames.com/api/v1/config/public", queryParams));
-			Debug.WriteLine($"Stage1: {await response.Content.ReadAsStringAsync()}");
+			HttpResponseMessage response = await client.GetAsync(BuildUrlWithQueryParameters("https://clientconfig.rpg.riotgames.com/api/v1/config/public", queryParams)).ConfigureAwait(false);
+			Debug.WriteLine($"Stage1: {await response.Content.ReadAsStringAsync().ConfigureAwait(false)}");
 
 			client.DefaultRequestHeaders.Clear();
 		}
@@ -70,8 +70,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 		{
 			SetHeaders("auth.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-auth (Windows;10;;Professional, x64) riot_client/0");
 
-			HttpResponseMessage response = await client.GetAsync("https://auth.riotgames.com/.well-known/openid-configuration");
-			Debug.WriteLine($"Stage2: {await response.Content.ReadAsStringAsync()}");
+			HttpResponseMessage response = await client.GetAsync("https://auth.riotgames.com/.well-known/openid-configuration").ConfigureAwait(false);
+			Debug.WriteLine($"Stage2: {await response.Content.ReadAsStringAsync().ConfigureAwait(false)}");
 
 			client.DefaultRequestHeaders.Clear();
 		}
@@ -107,8 +107,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				{ "xbox", null },
 			};
 
-			HttpResponseMessage response = await client.PostAsJsonAsync("https://authenticate.riotgames.com/api/v1/login", postParams);
-			Stage3Return? responseBody = await response.Content.ReadFromJsonAsync<Stage3Return>();
+			HttpResponseMessage response = await client.PostAsJsonAsync("https://authenticate.riotgames.com/api/v1/login", postParams).ConfigureAwait(false);
+			Stage3Return? responseBody = await response.Content.ReadFromJsonAsync<Stage3Return>().ConfigureAwait(false);
 
 			client.DefaultRequestHeaders.Clear();
 
@@ -122,11 +122,11 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
 		internal async Task<BuiltData> Build(Authentication.CountryCode countryCode)
 		{
-			await Stage1( _traceparent, countryCode);
+			await Stage1( _traceparent, countryCode).ConfigureAwait(false);
 
-			await Stage2(_traceparent);
+			await Stage2(_traceparent).ConfigureAwait(false);
 
-			(string cluster, string suuid, string timestamp) = await Stage3(_traceparent, countryCode);
+			(string cluster, string suuid, string timestamp) = await Stage3(_traceparent, countryCode).ConfigureAwait(false);
 
 			return new BuiltData(
 				LoginUrl: $"https://qrlogin.riotgames.com/riotmobile?cluster={cluster}&suuid={suuid}&timestamp={timestamp}&utm_source=riotclient&utm_medium=client&utm_campaign=qrlogin-riotmobile",

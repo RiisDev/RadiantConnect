@@ -54,7 +54,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		{
 			try
 			{
-				FriendPresences? friendPresences = await _initiator.Endpoints.LocalEndpoints.GetFriendsPresencesAsync();
+				FriendPresences? friendPresences = await _initiator.Endpoints.LocalEndpoints.GetFriendsPresencesAsync().ConfigureAwait(false);
 				Presence? localPresence = friendPresences?.Presences.FirstOrDefault(x => x.Puuid == _initiator.Client.UserId);
 
 				try
@@ -100,7 +100,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 					break;
 			}
 
-			await Task.CompletedTask;
+			await Task.CompletedTask.ConfigureAwait(false);
 		}
 
 		private void HandleCurrencyUpdate(string data)

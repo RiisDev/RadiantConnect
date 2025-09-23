@@ -31,7 +31,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
 		internal async Task<IReadOnlyList<string>> GetEvents()
 		{
-			JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync();
+			JsonElement? response = await Init.Endpoints.LocalEndpoints.GetHelpAsync().ConfigureAwait(false);
 			if (response is null) return [];
 
 			JsonDocument jsonDocument = JsonDocument.Parse(response.ToString()!);
@@ -52,7 +52,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
 			do
 			{
-				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), ShutdownSocket.Token);
+				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), ShutdownSocket.Token).ConfigureAwait(false);
 
 				if (result.MessageType == WebSocketMessageType.Text)
 					messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
@@ -68,12 +68,12 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			{
 				try
 				{
-					IReadOnlyList<string> events = await GetEvents();
+					IReadOnlyList<string> events = await GetEvents().ConfigureAwait(false);
 
 					while (events.Count == 0)
 					{
 						Debug.WriteLine("Waiting for ClientReady...");
-						await Task.Delay(500);
+						await Task.Delay(500).ConfigureAwait(false);
 					}
 
 					Uri uri = new($"wss://riot:{Authentication?.OAuth}@127.0.0.1:{Authentication?.AuthorizationPort}");
@@ -81,16 +81,16 @@ namespace RadiantConnect.SocketServices.InternalTcp
 					ClientWebSocket clientWebSocket = new();
 					clientWebSocket.Options.RemoteCertificateValidationCallback = (_, _, _, _) => true;
 					clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
-					await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
+					await clientWebSocket.ConnectAsync(uri, CancellationToken.None).ConfigureAwait(false);
 
 					foreach (string eventName in events)
-						await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, ShutdownSocket.Token);
+						await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, ShutdownSocket.Token).ConfigureAwait(false);
 
 					while (!ShutdownSocket.IsCancellationRequested) 
-						await ReceiveMessageAsync(clientWebSocket);
+						await ReceiveMessageAsync(clientWebSocket).ConfigureAwait(false);
 
-					await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
-					await clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None);
+					await clientWebSocket.CloseOutputAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None).ConfigureAwait(false);
+					await clientWebSocket.CloseAsync(WebSocketCloseStatus.Empty, null, CancellationToken.None).ConfigureAwait(false);
 
 					clientWebSocket.Dispose();
 				}

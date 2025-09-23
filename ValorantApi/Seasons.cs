@@ -3,16 +3,16 @@ namespace RadiantConnect.ValorantApi
 	public static class Seasons
 	{
 		public static async Task<SeasonsData?> GetSeasonsAsync() =>
-			await ValorantApiClient.GetAsync<SeasonsData?>("https://valorant-api.com/v1", "/seasons");
+			await ValorantApiClient.GetAsync<SeasonsData?>("https://valorant-api.com/v1", "/seasons").ConfigureAwait(false);
 
 		public static async Task<CompetitiveSeasonsData?> GetCompetitiveSeasonsAsync() =>
-			await ValorantApiClient.GetAsync<CompetitiveSeasonsData?>("https://valorant-api.com/v1", "/seasons/competitive");
+			await ValorantApiClient.GetAsync<CompetitiveSeasonsData?>("https://valorant-api.com/v1", "/seasons/competitive").ConfigureAwait(false);
 
 		public static async Task<SeasonData?> GetSeasonByUuidAsync(string seasonUuid) =>
-			await ValorantApiClient.GetAsync<SeasonData?>("https://valorant-api.com/v1", $"/seasons/{seasonUuid}");
+			await ValorantApiClient.GetAsync<SeasonData?>("https://valorant-api.com/v1", $"/seasons/{seasonUuid}").ConfigureAwait(false);
 
 		public static async Task<CompetitiveSeasonData?> GetCompetitiveSeasonByUuidAsync(string competitiveSeasonUuid) =>
-			await ValorantApiClient.GetAsync<CompetitiveSeasonData?>("https://valorant-api.com/v1", $"/seasons/competitive/{competitiveSeasonUuid}");
+			await ValorantApiClient.GetAsync<CompetitiveSeasonData?>("https://valorant-api.com/v1", $"/seasons/competitive/{competitiveSeasonUuid}").ConfigureAwait(false);
 
 
 		public record SeasonDatum(

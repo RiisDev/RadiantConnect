@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Gears
 	{
-		public static async Task<GearsData?> GetGearsAsync() => await ValorantApiClient.GetAsync<GearsData?>("https://valorant-api.com/v1", "gear");
+		public static async Task<GearsData?> GetGearsAsync() => await ValorantApiClient.GetAsync<GearsData?>("https://valorant-api.com/v1", "gear").ConfigureAwait(false);
 
-		public static async Task<GearData?> GetGearAsync(string uuid) => await ValorantApiClient.GetAsync<GearData?>("https://valorant-api.com/v1", $"gear/{uuid}");
+		public static async Task<GearData?> GetGearAsync(string uuid) => await ValorantApiClient.GetAsync<GearData?>("https://valorant-api.com/v1", $"gear/{uuid}").ConfigureAwait(false);
 
-		public static async Task<GearData?> GetGearByUuidAsync(string uuid) => await GetGearAsync(uuid);
+		public static async Task<GearData?> GetGearByUuidAsync(string uuid) => await GetGearAsync(uuid).ConfigureAwait(false);
 
 		public record GearDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

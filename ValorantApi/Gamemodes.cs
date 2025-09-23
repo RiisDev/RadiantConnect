@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class Gamemodes
 	{
-		public static async Task<GamemodesData?> GetGamemodesAsync() => await ValorantApiClient.GetAsync<GamemodesData?>("https://valorant-api.com/v1", "gamemodes");
+		public static async Task<GamemodesData?> GetGamemodesAsync() => await ValorantApiClient.GetAsync<GamemodesData?>("https://valorant-api.com/v1", "gamemodes").ConfigureAwait(false);
 
-		public static async Task<GamemodeData?> GetGamemodeAsync(string uuid) => await ValorantApiClient.GetAsync<GamemodeData?>("https://valorant-api.com/v1", $"gamemodes/{uuid}");
+		public static async Task<GamemodeData?> GetGamemodeAsync(string uuid) => await ValorantApiClient.GetAsync<GamemodeData?>("https://valorant-api.com/v1", $"gamemodes/{uuid}").ConfigureAwait(false);
 
-		public static async Task<GamemodeData?> GetGamemodeByUuidAsync(string uuid) => await GetGamemodeAsync(uuid);
+		public static async Task<GamemodeData?> GetGamemodeByUuidAsync(string uuid) => await GetGamemodeAsync(uuid).ConfigureAwait(false);
 
 		public record GamemodeDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

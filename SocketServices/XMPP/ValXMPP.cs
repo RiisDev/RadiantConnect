@@ -173,9 +173,9 @@ namespace RadiantConnect.XMPP
 			{
 				try
 				{
-					TcpClient incomingClient = await server.AcceptTcpClientAsync(_cancellationTokenSource.Token);
+					TcpClient incomingClient = await server.AcceptTcpClientAsync(_cancellationTokenSource.Token).ConfigureAwait(false);
 					SslStream incomingStream = new(incomingClient.GetStream());
-					await incomingStream.AuthenticateAsServerAsync(proxyCertificate);
+					await incomingStream.AuthenticateAsServerAsync(proxyCertificate).ConfigureAwait(false);
 
 					TcpClient outgoingClient;
 					while (true)
@@ -185,7 +185,7 @@ namespace RadiantConnect.XMPP
 					}
 
 					SslStream outgoingStream = new(outgoingClient.GetStream());
-					await outgoingStream.AuthenticateAsClientAsync(chatHost);
+					await outgoingStream.AuthenticateAsClientAsync(chatHost).ConfigureAwait(false);
 
 					XMPPSocketHandle handler = new(incomingStream, outgoingStream);
 					OnSocketCreated?.Invoke(handler);
@@ -233,7 +233,7 @@ namespace RadiantConnect.XMPP
 				if (serverHooked) return;
 				serverHooked = true;
 				StreamUrl = args.ChatAffinity;
-				await HandleClients(currentTcpListener, args.ChatHost, args.ChatPort);
+				await HandleClients(currentTcpListener, args.ChatHost, args.ChatPort).ConfigureAwait(false);
 			};
 
 			proxyServer.OnOutboundMessage += data => OnOutboundMessage?.Invoke(data);

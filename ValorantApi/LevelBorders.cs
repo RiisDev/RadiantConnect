@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class LevelBorders
 	{
-		public static async Task<LevelBordersData?> GetLevelBordersAsync() => await ValorantApiClient.GetAsync<LevelBordersData?>("https://valorant-api.com/v1", "levelborders");
+		public static async Task<LevelBordersData?> GetLevelBordersAsync() => await ValorantApiClient.GetAsync<LevelBordersData?>("https://valorant-api.com/v1", "levelborders").ConfigureAwait(false);
 
-		public static async Task<LevelBorderData?> GetLevelBorderAsync(string uuid) => await ValorantApiClient.GetAsync<LevelBorderData?>("https://valorant-api.com/v1", $"levelborders/{uuid}");
+		public static async Task<LevelBorderData?> GetLevelBorderAsync(string uuid) => await ValorantApiClient.GetAsync<LevelBorderData?>("https://valorant-api.com/v1", $"levelborders/{uuid}").ConfigureAwait(false);
 
-		public static async Task<LevelBorderData?> GetLevelBorderByUuidAsync(string uuid) => await GetLevelBorderAsync(uuid);
+		public static async Task<LevelBorderData?> GetLevelBorderByUuidAsync(string uuid) => await GetLevelBorderAsync(uuid).ConfigureAwait(false);
 
 		public record LevelBorderDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

@@ -67,7 +67,7 @@ namespace RadiantConnect.ValorantApi
 
 				using HttpResponseMessage response = await Client.SendAsync(request, HttpCompletionOption.ResponseContentRead).ConfigureAwait(false);
 
-				string responseContent = await response.Content.ReadAsStringAsync();
+				string responseContent = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 
 #if DEBUG
 				string logContent = $"[NetLog] Uri: {queryUrl}";
@@ -95,55 +95,55 @@ namespace RadiantConnect.ValorantApi
 		}
 
 		internal static async Task<T?> GetAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint, queryParams);
+			=> await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task<T?> PostAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, queryParams, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task<T?> PutAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, queryParams, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task<T?> DeleteAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, queryParams, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task<T?> PatchAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, queryParams, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, queryParams);
+			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task<T?> HeadAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint, queryParams);
+			=> await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, queryParams, httpContent);
+			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task GetAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await CreateRequest(HttpMethod.Get, baseUrl, endPoint, queryParams);
+			=> await CreateRequest(HttpMethod.Get, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task PostAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Post, baseUrl, endPoint, queryParams, httpContent);
+			=> await CreateRequest(HttpMethod.Post, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task PutAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Put, baseUrl, endPoint, queryParams, httpContent);
+			=> await CreateRequest(HttpMethod.Put, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task DeleteAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, queryParams, httpContent);
+			=> await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task PatchAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, queryParams, httpContent);
+			=> await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		internal static async Task OptionsAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, queryParams);
+			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task HeadAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null)
-			=> await CreateRequest(HttpMethod.Head, baseUrl, endPoint, queryParams);
+			=> await CreateRequest(HttpMethod.Head, baseUrl, endPoint, queryParams).ConfigureAwait(false);
 
 		internal static async Task OptionsAsync(string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, queryParams, httpContent);
+			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false);
 
 		private static async Task<T?> SendAndConvertAsync<T>(HttpMethod method, string baseUrl, string endPoint, (string Key, string Value)[]? queryParams = null, HttpContent? httpContent = null)
-			=> ConvertResponse<T>(await CreateRequest(method, baseUrl, endPoint, queryParams, httpContent));
+			=> ConvertResponse<T>(await CreateRequest(method, baseUrl, endPoint, queryParams, httpContent).ConfigureAwait(false));
 
 		private static T? ConvertResponse<T>(string? jsonData)
 		{

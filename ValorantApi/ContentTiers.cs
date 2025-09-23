@@ -2,11 +2,11 @@ namespace RadiantConnect.ValorantApi
 {
 	public static class ContentTiers
 	{
-		public static async Task<ContentTiersData?> GetContentTiersAsync() => await ValorantApiClient.GetAsync<ContentTiersData>("https://valorant-api.com/v1", "contenttiers");
+		public static async Task<ContentTiersData?> GetContentTiersAsync() => await ValorantApiClient.GetAsync<ContentTiersData>("https://valorant-api.com/v1", "contenttiers").ConfigureAwait(false);
 
-		public static async Task<ContentTierData?> GetContentTierAsync(string uuid) => await ValorantApiClient.GetAsync<ContentTierData>("https://valorant-api.com/v1", $"contenttiers/{uuid}");
+		public static async Task<ContentTierData?> GetContentTierAsync(string uuid) => await ValorantApiClient.GetAsync<ContentTierData>("https://valorant-api.com/v1", $"contenttiers/{uuid}").ConfigureAwait(false);
 
-		public static async Task<ContentTierData?> GetContentTierByUuidAsync(string uuid) => await GetContentTierAsync(uuid);
+		public static async Task<ContentTierData?> GetContentTierByUuidAsync(string uuid) => await GetContentTierAsync(uuid).ConfigureAwait(false);
 
 		public record ContentDatum(
 			[property: JsonPropertyName("uuid")] string Uuid,

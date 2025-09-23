@@ -64,7 +64,7 @@ namespace RadiantConnect
 				"https://riot-geo.pas.si.riotgames.com",
 				"/pas/v1/product/valorant",
 				new StringContent($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}")
-			);
+			).ConfigureAwait(false);
 
 			Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
 

@@ -23,7 +23,7 @@ namespace RadiantConnect.EventHandler.Events
 
 		private async Task<T?> GetPartyData<T>(PartyDataReturn dataReturn, string endPoint) where T : class?
 		{
-			string? data = await initiator.ExternalSystem.Net.GetAsync<string>(initiator.ExternalSystem.ClientData.GlzUrl, endPoint);
+			string? data = await initiator.ExternalSystem.Net.GetAsync<string>(initiator.ExternalSystem.ClientData.GlzUrl, endPoint).ConfigureAwait(false);
 
 			return data is null ? null : dataReturn switch
 			{
@@ -46,16 +46,16 @@ namespace RadiantConnect.EventHandler.Events
 				switch (invoker)
 				{
 					case "Party_ChangeQueue":
-						OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+						OnQueueChanged?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)).ConfigureAwait(false));
 						break;
 					case "Party_EnterMatchmakingQueue":
-						OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+						OnEnteredQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)).ConfigureAwait(false));
 						break;
 					case "Party_LeaveMatchmakingQueue":
-						OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+						OnLeftQueue?.Invoke(await GetPartyData<string>(PartyDataReturn.ChangeQueue, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)).ConfigureAwait(false));
 						break;
 					case "Party_MakePartyIntoCustomGame":
-						OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)));
+						OnCustomGameLobbyCreated?.Invoke(await GetPartyData<CustomGameData>(PartyDataReturn.CustomGame, GetEndpoint(initiator.ExternalSystem.ClientData.GlzUrl, parsedEndPoint)).ConfigureAwait(false));
 						break;
 					case "Travel_To_Menu":
 						OnTravelToMenu?.Invoke(null);

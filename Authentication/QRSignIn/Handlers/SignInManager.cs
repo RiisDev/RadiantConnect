@@ -43,7 +43,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			(HttpClient httpClient, CookieContainer container) = AuthUtil.BuildClient();
 
 			LoginQrManager builder = new(httpClient);
-			BuiltData qrData = await builder.Build(code);
+			BuiltData qrData = await builder.Build(code).ConfigureAwait(false);
 
 			string tempName = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid():N}.jpg");
 			Process? form = null;
@@ -54,8 +54,8 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				else
 				{
 					string urlProper = HttpUtility.UrlEncode(qrData.LoginUrl);
-					byte[] imageData = await httpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}");
-					await File.WriteAllBytesAsync(tempName, imageData);
+					byte[] imageData = await httpClient.GetByteArrayAsync($"https://api.qrserver.com/v1/create-qr-code/?size=250x250&data={urlProper}").ConfigureAwait(false);
+					await File.WriteAllBytesAsync(tempName, imageData).ConfigureAwait(false);
 					form = DisplayImage(tempName);
 				}
 				
@@ -65,7 +65,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				manager.OnTokensFinished += tcs.SetResult;
 				manager.InitiateTimer(tempName);
 
-				return await tcs.Task;
+				return await tcs.Task.ConfigureAwait(false);
 			}
 			finally
 			{
