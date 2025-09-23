@@ -2,7 +2,7 @@
 
 namespace RadiantConnect.SocketServices.InternalTcp
 {
-	public partial class TcpEvents
+	public partial class TcpEvents : IDisposable
 	{
 		// User Variables to detect changes
 		private string _matchmakingStatus = "unknown";
@@ -39,10 +39,12 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		public event PresenceUpdate? OnPresenceUpdated;
 
 		private readonly Initiator _initiator;
+		private readonly ValSocket _socket;
 
 		public TcpEvents(Initiator init, ValSocket socket, bool initiateSocket = false)
 		{
 			_initiator = init;
+			_socket = socket;
 			SetupVariables().Wait();
 			socket.OnNewMessage += (e) => TcpMessage(e).Wait();
 			if (initiateSocket) socket.InitializeConnection();
@@ -173,5 +175,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
 		[GeneratedRegex("amount\\\\\":(\\d+)", RegexOptions.Compiled)]
 		private static partial Regex GetCurrencyAmount();
+
+		public void Dispose() => _socket.Dispose();
 	}
 }

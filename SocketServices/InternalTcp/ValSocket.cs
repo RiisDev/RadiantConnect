@@ -3,7 +3,7 @@ using RadiantConnect.Network;
 
 namespace RadiantConnect.SocketServices.InternalTcp
 {
-	public class ValSocket
+	public class ValSocket : IDisposable
 	{
 		public void ShutdownConnection() => ShutdownSocket.Cancel();
 		public delegate void SocketFired(string value);
@@ -52,7 +52,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
 			do
 			{
-				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), CancellationToken.None);
+				result = await webSocket.ReceiveAsync(new ArraySegment<byte>(buffer), ShutdownSocket.Token);
 
 				if (result.MessageType == WebSocketMessageType.Text)
 					messageBuilder.Append(Encoding.UTF8.GetString(buffer, 0, result.Count));
@@ -83,8 +83,8 @@ namespace RadiantConnect.SocketServices.InternalTcp
 					clientWebSocket.Options.SetRequestHeader("Authorization", $"Basic {$"riot:{Authentication?.OAuth}".ToBase64()}");
 					await clientWebSocket.ConnectAsync(uri, CancellationToken.None);
 
-					foreach (string eventName in events) 
-						await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, CancellationToken.None);
+					foreach (string eventName in events)
+						await clientWebSocket.SendAsync(new ArraySegment<byte>([.. Encoding.UTF8.GetBytes($"[5, \"{eventName}\"]")]), WebSocketMessageType.Text, true, ShutdownSocket.Token);
 
 					while (!ShutdownSocket.IsCancellationRequested) 
 						await ReceiveMessageAsync(clientWebSocket);
@@ -96,5 +96,14 @@ namespace RadiantConnect.SocketServices.InternalTcp
 				}
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 			});
+
+		public void Dispose()
+		{
+			if (!ShutdownSocket.IsCancellationRequested)
+				ShutdownSocket.Cancel();
+			ShutdownSocket.Dispose();
+
+			GC.SuppressFinalize(this);
+		}
 	}
 }

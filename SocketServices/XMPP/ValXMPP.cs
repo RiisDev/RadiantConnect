@@ -12,8 +12,10 @@ using RadiantConnect.SocketServices.XMPP.XMPPManagement;
 
 namespace RadiantConnect.XMPP
 {
-	public partial class ValXMPP
+	public partial class ValXMPP : IDisposable
 	{
+		private readonly CancellationTokenSource _cancellationTokenSource = new();
+
 		public event Action? OnReady;
 
 		public bool Ready
@@ -21,10 +23,11 @@ namespace RadiantConnect.XMPP
 			get;
 			private set
 			{
-				OnReady?.Invoke();
+				if (!field && value)
+					OnReady?.Invoke();
 				field = value;
 			}
-		} = false;
+		}
 
 		internal string? StreamUrl { get; set; }
 
@@ -45,17 +48,24 @@ namespace RadiantConnect.XMPP
 
 		internal XMPPSocketHandle Handle { get; private set; } = null!;
 
+		private Process _valorantProcess = null!;
+
+		public void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			Handle.Dispose();
+			try { _valorantProcess.Kill(); } catch { /**/ }
+			_cancellationTokenSource.Dispose();
+			GC.SuppressFinalize(this);
+		}
+
 		public static void KillRiot()
 		{
 			Process[] processes = Process.GetProcesses();
 			foreach (Process process in processes.Where(proc => proc.ProcessName is "Riot Client" or "VALORANT-Win64-Shipping" or "RiotClientServices")) process.Kill();
 		}
 
-		public static bool IsRiotRunning()
-		{
-			Process[] processes = Process.GetProcesses();
-			return processes.Any(proc => proc.ProcessName is "Riot Client" or "VALORANT-Win64-Shipping" or "RiotClientServices");
-		}
+		public static bool IsRiotRunning() => InternalValorantMethods.IsRiotClientRunning() || InternalValorantMethods.IsValorantProcessRunning();
 
 		internal static (TcpListener, int) NewTcpListener()
 		{
@@ -159,11 +169,11 @@ namespace RadiantConnect.XMPP
 		{
 			X509Certificate2 proxyCertificate = new(GenerateCertificate());
 
-			while (true)
+			while (!_cancellationTokenSource.IsCancellationRequested)
 			{
 				try
 				{
-					TcpClient incomingClient = await server.AcceptTcpClientAsync();
+					TcpClient incomingClient = await server.AcceptTcpClientAsync(_cancellationTokenSource.Token);
 					SslStream incomingStream = new(incomingClient.GetStream());
 					await incomingStream.AuthenticateAsServerAsync(proxyCertificate);
 
@@ -192,6 +202,7 @@ namespace RadiantConnect.XMPP
 					handler.Initiate();
 					Ready = true;
 				}
+				catch (OperationCanceledException) { /**/ }
 				catch (IOException ex)
 				{
 					throw new RadiantConnectXMPPException($"Client closed. {ex}");
@@ -233,10 +244,18 @@ namespace RadiantConnect.XMPP
 				FileName = riotClientPath,
 				Arguments = $"--client-config-url=\"http://127.0.0.1:{proxyServer.ConfigPort}\" --launch-product=valorant --launch-patchline={patchLine}"
 			};
-			
-			return Process.Start(riotClientStartArgs)!;
-		}
 
+			_valorantProcess = Process.Start(riotClientStartArgs)!;
+
+			if (_valorantProcess is null)
+				throw new RadiantConnectXMPPException("Failed to start Riot Client process.");
+
+			_valorantProcess.EnableRaisingEvents = true;
+			_valorantProcess.Exited += (_, _) => Dispose();
+
+			return _valorantProcess;
+		}
+		
 		[GeneratedRegex("<p>(.*?)<\\/p>")]
 		private static partial Regex ValorantPresenceRegex();
 

@@ -2,8 +2,6 @@
 
 namespace RadiantConnect.Utilities
 {
-	[SuppressMessage("ReSharper", "InconsistentNaming")]
-	[SuppressMessage("ReSharper", "IdentifierTypo")]
 	internal static class Win32
 	{
 		

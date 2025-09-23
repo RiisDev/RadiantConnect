@@ -4,13 +4,22 @@
 
 namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 {
-	public class XMPPSocketHandle(Stream? incomingStream, Stream outgoingStream)
+	public class XMPPSocketHandle(Stream? incomingStream, Stream outgoingStream) : IDisposable
 	{
+		private readonly CancellationTokenSource _cancellationTokenSource = new();
 		internal bool DoBreak;
 		internal delegate void InternalMessage(string data);
 
 		internal event InternalMessage? OnClientMessage;
 		internal event InternalMessage? OnServerMessage;
+
+		public void Dispose()
+		{
+			_cancellationTokenSource.Cancel();
+			try { incomingStream?.Dispose(); } catch { /* ignored */ }
+			try { outgoingStream.Dispose(); } catch { /* ignored */ }
+			_cancellationTokenSource.Dispose();
+		}
 
 		internal void Initiate()
 		{
@@ -27,13 +36,14 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 				do
 				{
 					if (incomingStream is null) break;
-					byteCount = await incomingStream.ReadAsync(bytes);
+					byteCount = await incomingStream.ReadAsync(bytes, _cancellationTokenSource.Token);
 					string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
-					await outgoingStream.WriteAsync(bytes.AsMemory(0, byteCount));
+					await outgoingStream.WriteAsync(bytes.AsMemory(0, byteCount), _cancellationTokenSource.Token);
 					Array.Clear(bytes);
 					OnClientMessage?.Invoke(content);
 				} while (byteCount != 0 && !DoBreak);
 			}
+			catch (OperationCanceledException) {/**/}
 			catch (IOException)
 			{
 				DoBreak = true;
@@ -49,13 +59,14 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 				do
 				{
 					if (incomingStream is null) break;
-					byteCount = await outgoingStream.ReadAsync(bytes);
+					byteCount = await outgoingStream.ReadAsync(bytes, _cancellationTokenSource.Token);
 					string content = Encoding.UTF8.GetString(bytes, 0, byteCount);
-					await incomingStream.WriteAsync(bytes.AsMemory(0, byteCount));
+					await incomingStream.WriteAsync(bytes.AsMemory(0, byteCount), _cancellationTokenSource.Token);
 					Array.Clear(bytes);
 					OnServerMessage?.Invoke(content);
 				} while (byteCount != 0 && !DoBreak);
 			}
+			catch (OperationCanceledException) {/**/}
 			catch (IOException)
 			{
 				DoBreak = true;
@@ -64,17 +75,21 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 
 		public async Task SendXmlMessageAsync([StringSyntax(StringSyntaxAttribute.Xml)] string data)
 		{
+			if (_cancellationTokenSource.IsCancellationRequested) return;
+
 			try
 			{
 				while (!incomingStream?.CanWrite ?? false)
 				{
-					if (incomingStream is null) break; 
-					await Task.Delay(50); }
+					if (incomingStream is null) break;
+					await Task.Delay(50);
+				}
 				byte[] bytes = Encoding.UTF8.GetBytes(data);
 
 				if (incomingStream is null) return;
-				await incomingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+				await incomingStream.WriteAsync(bytes.AsMemory(0, bytes.Length), _cancellationTokenSource.Token);
 			}
+			catch (OperationCanceledException) {/**/}
 			catch (Exception ex) { Debug.WriteLine(ex); }
 		}
 
@@ -82,10 +97,11 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 		{
 			try
 			{
-				while (!outgoingStream.CanWrite) { await Task.Delay(50); }
+				while (!outgoingStream.CanWrite) await Task.Delay(50);
 				byte[] bytes = Encoding.UTF8.GetBytes(data);
-				await outgoingStream.WriteAsync(bytes.AsMemory(0, bytes.Length));
+				await outgoingStream.WriteAsync(bytes.AsMemory(0, bytes.Length), _cancellationTokenSource.Token);
 			}
+			catch (OperationCanceledException) {/**/}
 			catch (Exception ex) { Debug.WriteLine(ex); }
 		}
 	}
