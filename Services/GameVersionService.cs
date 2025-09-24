@@ -59,7 +59,7 @@ namespace RadiantConnect.Services
 			if (string.IsNullOrEmpty(branch))
 				throw new RadiantConnectException("Branch not found in file.");
 
-			string? baseMajorVersion = block.FirstOrDefault(x=> x.Length == 2);
+			string? baseMajorVersion = block.FirstOrDefault(x=> x.Length <= 2);
 			if (string.IsNullOrEmpty(baseMajorVersion))
 				throw new RadiantConnectException($"Invalid base major version: {baseMajorVersion}");
 

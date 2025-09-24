@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.4.0</Version>
+		<Version>10.4.1</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -17,16 +17,11 @@
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
 		<LangVersion>preview</LangVersion>
-		<PackageReleaseNotes>* Modified, PreGame,CurrentGame,Party endpoints to not double requests if not needed.
-* Improved ValSocket performance on initiate.
-* Improved GetRiotIdByPuuidAsync data.
-* FetchNameServiceReturn now accepts and returns an array instead of single use.
-* ValorantNet has been optimized and handles some error codes:
- * 404 no longer throws an exception but returns null.
- * 429 should now retry automatically up to 3 times with a built in delay.
- * Entitlement bug should also be fixed, report any issues.
-* TcpEvents has a new event `OnPresenceUpdated` which returns base64 presence data decoded.
-- ImageRecognition will most likely be removed in future versions, this is the last warning about it.</PackageReleaseNotes>
+		<PackageReleaseNotes>* GameVersionService fix yet again
+* All methods have been updated to use ConfigureAwait
+* All major systems now are disposable
+
+- Removed ImageRecognition</PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
