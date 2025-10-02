@@ -166,10 +166,7 @@ namespace RadiantConnect
 
 			if (!riotClient)
 				throw new ArgumentException("This constructor is only to be used when using the Riot Client for authentication.");
-
-			if (RiotPathService.GetRiotClientPath(false).IsNullOrEmpty())
-				throw new RadiantConnectException("Failed to find Riot Client path.");
-
+			
 			ValorantService client = new();
 			ValorantNet net = new(client);
 
