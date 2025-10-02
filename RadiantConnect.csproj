@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>False</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.4.2</Version>
+		<Version>10.4.3</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -23,7 +23,7 @@
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
-		<AssemblyVersion>10.4.0</AssemblyVersion>
+		<AssemblyVersion>10.4.3</AssemblyVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ErrorReport>none</ErrorReport>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
