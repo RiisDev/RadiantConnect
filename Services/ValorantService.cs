@@ -1,4 +1,6 @@
-﻿namespace RadiantConnect.Services
+﻿using RadiantConnect.Network;
+
+namespace RadiantConnect.Services
 {
 	public class ValorantService
 	{
@@ -66,8 +68,29 @@
 		public ValorantService()
 		{
 			string valorantPath = RiotPathService.GetValorantPath();
-			
-			ValorantClientVersion = File.Exists(valorantPath) ? GetVersionFromFile(valorantPath) : GetVersionFromLog();
+
+			if (File.Exists(valorantPath)) ValorantClientVersion = GetVersionFromFile(valorantPath);
+			else if (File.Exists(LogService.LogPath)) ValorantClientVersion = GetVersionFromLog();
+			else
+			{
+				ValorantNet.ValorantVersionApiRoot versionApiRoot = InternalHttp.GetAsync<ValorantNet.ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result!;
+				ValorantNet.ValorantVersionApi data = versionApiRoot.Data;
+
+				if (data == null || string.IsNullOrEmpty(data.Version))
+					throw new RadiantConnectException("Failed to get fallback version from API.");
+
+				ValorantClientVersion = new Version(
+					RiotClientVersion: data.RiotClientVersion,
+					Branch: data.Branch,
+					BuildVersion: data.BuildVersion,
+					Changelist: data.ManifestId,
+					EngineVersion: data.EngineVersion,
+					VanguardVersion: data.VanguardVersion,
+					UserClientVersion: GameVersionService.GetVersionHeader(),
+					UserPlatform: GameVersionService.GetClientPlatform()
+				);
+			}
+
 		}
 	}
 }
