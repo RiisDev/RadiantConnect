@@ -67,7 +67,9 @@ namespace RadiantConnect.Services
 
 		public ValorantService()
 		{
-			string valorantPath = RiotPathService.GetValorantPath();
+			string valorantPath;
+			try { valorantPath = RiotPathService.GetValorantPath(); }
+			catch { valorantPath = ""; }
 
 			if (File.Exists(valorantPath)) ValorantClientVersion = GetVersionFromFile(valorantPath);
 			else if (File.Exists(LogService.LogPath)) ValorantClientVersion = GetVersionFromLog();
