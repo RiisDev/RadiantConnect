@@ -66,7 +66,7 @@ namespace RadiantConnect.Network
 				throw new RadiantConnectException("Failed to get Valorant version data from API");
 
 			ValorantService.Version valorantClient = new (
-				RiotClientVersion: apiData.Data.RiotClientVersion.Replace("-shipping", ""), 
+				RiotClientVersion: apiData.Data.RiotClientVersion,
 				Branch: apiData.Data.Branch, 
 				BuildVersion: apiData.Data.BuildVersion, 
 				Changelist: apiData.Data.ManifestId, 
@@ -78,6 +78,8 @@ namespace RadiantConnect.Network
 
 			_defaultPlatform = valorantClient.UserPlatform;
 			_defaultUserAgent = $"ShooterGame/{valorantClient.BuildVersion} Windows/{valorantClient.UserClientVersion}";
+
+			GameVersionService.ValidateVersionData(apiData.Data.RiotClientVersion);
 			_defaultClientVersion = valorantClient.RiotClientVersion;
 
 			ResetDefaultHeaders();
@@ -88,8 +90,34 @@ namespace RadiantConnect.Network
 			_client.Timeout = TimeSpan.FromSeconds(10);
 			_defaultPlatform = valorantClient?.ValorantClientVersion.UserPlatform ?? "";
 			_defaultUserAgent = $"ShooterGame/{valorantClient?.ValorantClientVersion.BuildVersion} {valorantClient?.ValorantClientVersion.UserClientVersion}";
-			_defaultClientVersion = valorantClient?.ValorantClientVersion.RiotClientVersion ?? "";
 
+			try
+			{
+				GameVersionService.ValidateVersionData(valorantClient?.ValorantClientVersion.RiotClientVersion ?? "");
+				_defaultClientVersion = valorantClient?.ValorantClientVersion.RiotClientVersion ?? "";
+			}
+			catch
+			{
+				ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result;
+
+				if (apiData?.Data is null)
+					throw new RadiantConnectException("Failed to get Valorant version data from API");
+
+				ValorantService.Version valorantClientVersion = new(
+					RiotClientVersion: apiData.Data.RiotClientVersion,
+					Branch: apiData.Data.Branch,
+					BuildVersion: apiData.Data.BuildVersion,
+					Changelist: apiData.Data.ManifestId,
+					EngineVersion: apiData.Data.EngineVersion,
+					VanguardVersion: apiData.Data.VanguardVersion,
+					UserClientVersion: "10.0.19042.1.256.64bit",
+					UserPlatform: "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
+				);
+
+				_defaultClientVersion = valorantClientVersion.RiotClientVersion;
+				GameVersionService.ValidateVersionData(apiData.Data.RiotClientVersion);
+			}
+			
 			ResetDefaultHeaders();
 		}
 		
@@ -221,7 +249,7 @@ namespace RadiantConnect.Network
 				if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache).ConfigureAwait(false);
 				else if (customHeaders is not null) SetCustomHeaders(customHeaders);
 				else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth(resetCache).ConfigureAwait(false);
-
+				
 				using HttpRequestMessage httpRequest = new();
 				httpRequest.Method = MapHttpMethod(httpMethod);
 				httpRequest.RequestUri = new Uri($"{baseUrl}{endPoint}");
