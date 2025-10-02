@@ -93,10 +93,16 @@ namespace RadiantConnect.Services
 			return new VersionData(versionApi.Branch, buildNumber, int.Parse(versionApi.BuildVersion), builtData);
 		}
 
-		private static void ValidateVersionData(VersionData versionData)
+		internal static void ValidateVersionData(VersionData versionData)
 		{
 			if (!VersionPattern().IsMatch(versionData.BuiltData))
-				throw new RadiantConnectException($"Invalid version format: {versionData.BuiltData}");
+				throw new RadiantConnectException($"Invalid game version format: {versionData.BuiltData}");
+		}
+
+		internal static void ValidateVersionData(string versionData)
+		{
+			if (!VersionPattern().IsMatch(versionData))
+				throw new RadiantConnectException($"Invalid game version format: {versionData}");
 		}
 
 		private static string ExtractBranch(string rawBranch) => rawBranch.Contains('+') ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
