@@ -4,9 +4,9 @@
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 {
 	public record MatchHistoryInternal(
-		[property: JsonPropertyName("MatchID")] string MatchID,
+		[property: JsonPropertyName("MatchID")] string MatchId,
 		[property: JsonPropertyName("GameStartTime")] object GameStartTime,
-		[property: JsonPropertyName("QueueID")] string QueueID
+		[property: JsonPropertyName("QueueID")] string QueueId
 	);
 
 	public record MatchHistory(

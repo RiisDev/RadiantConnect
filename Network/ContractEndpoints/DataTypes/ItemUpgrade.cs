@@ -6,7 +6,7 @@
 	);
 
 	public record Definition(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item,
 		[property: JsonPropertyName("RequiredEntitlement")] RequiredEntitlement RequiredEntitlement,
 		[property: JsonPropertyName("ProgressionSchedule")] ProgressionSchedule ProgressionSchedule,
@@ -15,18 +15,18 @@
 	);
 
 	public record EntitlementReward(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
-		[property: JsonPropertyName("ItemID")] string ItemID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
+		[property: JsonPropertyName("ItemID")] string ItemId,
 		[property: JsonPropertyName("Amount")] int Amount
 	);
 
 	public record Item(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
 		[property: JsonPropertyName("ItemID")] string ItemID
 	);
 
 	public record Option(
-		[property: JsonPropertyName("OptionID")] string OptionID,
+		[property: JsonPropertyName("OptionID")] string OptionId,
 		[property: JsonPropertyName("Cost")] Cost Cost,
 		[property: JsonPropertyName("Rewards")] IReadOnlyList<Reward> Rewards
 	);
@@ -37,28 +37,28 @@
 
 	public record ProgressionSchedule(
 		[property: JsonPropertyName("Name")] string Name,
-		[property: JsonPropertyName("ProgressionCurrencyID")] string ProgressionCurrencyID,
+		[property: JsonPropertyName("ProgressionCurrencyID")] string ProgressionCurrencyId,
 		[property: JsonPropertyName("ProgressionDeltaPerLevel")] IReadOnlyList<int> ProgressionDeltaPerLevel
 	);
 
 	public record RequiredEntitlement(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
 		[property: JsonPropertyName("ItemID")] string ItemID
 	);
 
 	public record RequiredEntitlement2(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
 		[property: JsonPropertyName("ItemID")] string ItemID
 	);
 
 	public record Reward(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
-		[property: JsonPropertyName("ItemID")] string ItemID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
+		[property: JsonPropertyName("ItemID")] string ItemId,
 		[property: JsonPropertyName("Amount")] long Amount
 	);
 
 	public record RewardSchedule(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Name")] string Name,
 		[property: JsonPropertyName("Prerequisites")] object Prerequisites,
 		[property: JsonPropertyName("RewardsPerLevel")] IReadOnlyList<RewardsPerLevel> RewardsPerLevel
@@ -75,13 +75,13 @@
 	);
 
 	public record Sidegrade(
-		[property: JsonPropertyName("SidegradeID")] string SidegradeID,
+		[property: JsonPropertyName("SidegradeID")] string SidegradeId,
 		[property: JsonPropertyName("Options")] IReadOnlyList<Option> Options,
 		[property: JsonPropertyName("Prerequisites")] Prerequisites Prerequisites
 	);
 
 	public record WalletCost(
-		[property: JsonPropertyName("CurrencyID")] string CurrencyID,
+		[property: JsonPropertyName("CurrencyID")] string CurrencyId,
 		[property: JsonPropertyName("AmountToDeduct")] int AmountToDeduct
 	);
 }

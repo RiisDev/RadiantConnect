@@ -3,135 +3,135 @@
 	// ReSharper disable All
 
 	public record Ghost(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Classic(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Melee(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record SkinChroma(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item
 	);
 
 	public record Shorty(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Frenzy(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Spectre(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Guardian(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Ares(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Odin(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
-	public record _7725866571d14623Bc7244db9bd5b3b3(
-		[property: JsonPropertyName("ID")] string ID,
+	public record EquippableCharmContentType(
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item
 	);
 
 	public record Bucky(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Vandal(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Operator(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Bulldug(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record AESSelection(
-		[property: JsonPropertyName("SocketID")] string SocketID,
-		[property: JsonPropertyName("AssetID")] string AssetID,
+		[property: JsonPropertyName("SocketID")] string SocketId,
+		[property: JsonPropertyName("AssetID")] string AssetId,
 		[property: JsonPropertyName("TypeID")] string TypeID
 	);
 
-	public record Bcef87d6209b46c68b19Fbe40bd95abc(
-		[property: JsonPropertyName("ID")] string ID,
+	public record EquippableSkinContentType(
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item
 	);
 
 	public record Marshal(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Buddy(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item
 	);
 
 	public record Sheriff(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record SkinLevel(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Item")] Item Item
 	);
 
 	public record Judge(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Phantom(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
@@ -140,13 +140,13 @@
 	);
 
 	public record Stinger(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("Sockets")] Sockets Sockets
 	);
 
 	public record Item(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("TypeID")] string TypeID
 	);
 
@@ -185,8 +185,8 @@
 
 	public record Sockets(
 		[property: JsonPropertyName("3ad1b2b2-acdb-4524-852f-954a76ddae0a")] SkinChroma SkinChroma,
-		[property: JsonPropertyName("77258665-71d1-4623-bc72-44db9bd5b3b3")] _7725866571d14623Bc7244db9bd5b3b3 _7725866571d14623Bc7244db9bd5b3b3,
-		[property: JsonPropertyName("bcef87d6-209b-46c6-8b19-fbe40bd95abc")] Bcef87d6209b46c68b19Fbe40bd95abc Bcef87d6209b46c68b19Fbe40bd95abc,
+		[property: JsonPropertyName("77258665-71d1-4623-bc72-44db9bd5b3b3")] EquippableCharmContentType EquippableCharmContentType,
+		[property: JsonPropertyName("bcef87d6-209b-46c6-8b19-fbe40bd95abc")] EquippableSkinContentType EquippableSkinContentType,
 		[property: JsonPropertyName("dd3bf334-87f3-40bd-b043-682a57a8dc3a")] Buddy Buddy,
 		[property: JsonPropertyName("e7c63390-eda7-46e0-bb7a-a6abdacd2433")] SkinLevel SkinLevel
 	);
@@ -196,9 +196,9 @@
 	);
 
 	public record SpraySelection(
-		[property: JsonPropertyName("SocketID")] string SocketID,
-		[property: JsonPropertyName("SprayID")] string SprayID,
-		[property: JsonPropertyName("LevelID")] string LevelID
+		[property: JsonPropertyName("SocketID")] string SocketId,
+		[property: JsonPropertyName("SprayID")] string SprayId,
+		[property: JsonPropertyName("LevelID")] string LevelId
 	);
 }
 

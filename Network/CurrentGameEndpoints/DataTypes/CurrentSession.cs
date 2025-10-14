@@ -12,7 +12,7 @@
 		[property: JsonPropertyName("subject")] string Subject,
 		[property: JsonPropertyName("cxnState")] string CxnState,
 		[property: JsonPropertyName("cxnCloseReason")] string CxnCloseReason,
-		[property: JsonPropertyName("clientID")] string ClientID,
+		[property: JsonPropertyName("clientID")] string ClientId,
 		[property: JsonPropertyName("clientVersion")] string ClientVersion,
 		[property: JsonPropertyName("loopState")] string LoopState,
 		[property: JsonPropertyName("loopStateMetadata")] string LoopStateMetadata,

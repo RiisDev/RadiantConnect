@@ -4,21 +4,21 @@
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 {
 	public record Gun(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("SkinID")] string SkinID,
-		[property: JsonPropertyName("SkinLevelID")] string SkinLevelID,
-		[property: JsonPropertyName("ChromaID")] string ChromaID,
-		[property: JsonPropertyName("CharmInstanceID")] string CharmInstanceID,
-		[property: JsonPropertyName("CharmID")] string CharmID,
-		[property: JsonPropertyName("CharmLevelID")] string CharmLevelID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("SkinID")] string SkinId,
+		[property: JsonPropertyName("SkinLevelID")] string SkinLevelId,
+		[property: JsonPropertyName("ChromaID")] string ChromaId,
+		[property: JsonPropertyName("CharmInstanceID")] string CharmInstanceId,
+		[property: JsonPropertyName("CharmID")] string CharmId,
+		[property: JsonPropertyName("CharmLevelID")] string CharmLevelId,
 		[property: JsonPropertyName("Attachments")] IReadOnlyList<object> Attachments
 	);
 
 	public record Identity(
-		[property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
-		[property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
+		[property: JsonPropertyName("PlayerCardID")] string PlayerCardId,
+		[property: JsonPropertyName("PlayerTitleID")] string PlayerTitleId,
 		[property: JsonPropertyName("AccountLevel")] long? AccountLevel,
-		[property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
+		[property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderId,
 		[property: JsonPropertyName("HideAccountLevel")] bool? HideAccountLevel
 	);
 
@@ -32,8 +32,8 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 	);
 
 	public record Spray(
-		[property: JsonPropertyName("EquipSlotID")] string EquipSlotID,
-		[property: JsonPropertyName("SprayID")] string SprayID,
+		[property: JsonPropertyName("EquipSlotID")] string EquipSlotId,
+		[property: JsonPropertyName("SprayID")] string SprayId,
 		[property: JsonPropertyName("SprayLevelID")] object SprayLevelID
 	);
 }

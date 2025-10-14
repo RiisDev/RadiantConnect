@@ -4,73 +4,35 @@
 
 namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 {
-	public record _5Internal(
-		[property: JsonPropertyName("0")] long? _0,
-		[property: JsonPropertyName("1")] long? _1,
-		[property: JsonPropertyName("10")] long? _10,
-		[property: JsonPropertyName("11")] long? _11,
-		[property: JsonPropertyName("12")] long? _12,
-		[property: JsonPropertyName("13")] long? _13,
-		[property: JsonPropertyName("14")] long? _14,
-		[property: JsonPropertyName("15")] long? _15,
-		[property: JsonPropertyName("16")] long? _16,
-		[property: JsonPropertyName("17")] long? _17,
-		[property: JsonPropertyName("18")] long? _18,
-		[property: JsonPropertyName("19")] long? _19,
-		[property: JsonPropertyName("2")] long? _2,
-		[property: JsonPropertyName("20")] long? _20,
-		[property: JsonPropertyName("21")] long? _21,
-		[property: JsonPropertyName("22")] long? _22,
-		[property: JsonPropertyName("23")] long? _23,
-		[property: JsonPropertyName("24")] long? _24,
-		[property: JsonPropertyName("25")] long? _25,
-		[property: JsonPropertyName("26")] long? _26,
-		[property: JsonPropertyName("27")] long? _27,
-		[property: JsonPropertyName("3")] long? _3,
-		[property: JsonPropertyName("4")] long? _4,
-		[property: JsonPropertyName("5")] long? _5,
-		[property: JsonPropertyName("6")] long? _6,
-		[property: JsonPropertyName("7")] long? _7,
-		[property: JsonPropertyName("8")] long? _8,
-		[property: JsonPropertyName("9")] long? _9
-	);
+	public record NumericTierMap(
+		[property: JsonExtensionData] Dictionary<string, JsonElement>? RawJsonElements
+	)
+	{
+		public IReadOnlyDictionary<int, long?> Values =>
+			RawJsonElements?
+				.Where(kvp => int.TryParse(kvp.Key, out _))
+				.ToDictionary(
+					kvp => int.Parse(kvp.Key),
+					kvp => kvp.Value.ValueKind == JsonValueKind.Number
+						? kvp.Value.GetInt64()
+						: (long?)null
+				) ?? new Dictionary<int, long?>();
+	}
 
-	public record AresriotAwsAtl1ProdNaGpAtlanta1(
-		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
-		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
-		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
-		[property: JsonPropertyName("PingProxyAddresses")] IReadOnlyList<string> PingProxyAddresses
-	);
+	public record PartySizeTierMap(
+		[property: JsonExtensionData] Dictionary<string, JsonElement>? RawJsonElements
+	)
+	{
+		public IReadOnlyDictionary<int, NumericTierMap> Values =>
+			RawJsonElements?
+				.Where(kvp => int.TryParse(kvp.Key, out _))
+				.ToDictionary(
+					kvp => int.Parse(kvp.Key),
+					kvp => JsonSerializer.Deserialize<NumericTierMap>(kvp.Value.GetRawText())!
+				) ?? new Dictionary<int, NumericTierMap>();
+	}
 
-	public record AresriotAwsChi1ProdNaGpChicago1(
-		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
-		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
-		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
-		[property: JsonPropertyName("PingProxyAddresses")] IReadOnlyList<string> PingProxyAddresses
-	);
-
-	public record AresriotAwsDfw1ProdNaGpDallas1(
-		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
-		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
-		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
-		[property: JsonPropertyName("PingProxyAddresses")] IReadOnlyList<string> PingProxyAddresses
-	);
-
-	public record AresriotAwsUse1ProdNaGpAshburn1(
-		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
-		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
-		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
-		[property: JsonPropertyName("PingProxyAddresses")] IReadOnlyList<string> PingProxyAddresses
-	);
-
-	public record AresriotAwsUsw1ProdNaGpNorcal1(
-		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
-		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
-		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
-		[property: JsonPropertyName("PingProxyAddresses")] IReadOnlyList<string> PingProxyAddresses
-	);
-
-	public record AresriotAwsUsw2ProdNaGpOregon1(
+	public record GamePodRegionInfo(
 		[property: JsonPropertyName("SecurityHash")] long? SecurityHash,
 		[property: JsonPropertyName("ObfuscatedIP")] long? ObfuscatedIP,
 		[property: JsonPropertyName("PingProxyAddress")] string PingProxyAddress,
@@ -78,13 +40,19 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 	);
 
 	public record GamePodPingServiceInfo(
-		[property: JsonPropertyName("aresriot.aws-atl1-prod.na-gp-atlanta-1")] AresriotAwsAtl1ProdNaGpAtlanta1 AresriotAwsAtl1ProdNaGpAtlanta1,
-		[property: JsonPropertyName("aresriot.aws-chi1-prod.na-gp-chicago-1")] AresriotAwsChi1ProdNaGpChicago1 AresriotAwsChi1ProdNaGpChicago1,
-		[property: JsonPropertyName("aresriot.aws-dfw1-prod.na-gp-dallas-1")] AresriotAwsDfw1ProdNaGpDallas1 AresriotAwsDfw1ProdNaGpDallas1,
-		[property: JsonPropertyName("aresriot.aws-use1-prod.na-gp-ashburn-1")] AresriotAwsUse1ProdNaGpAshburn1 AresriotAwsUse1ProdNaGpAshburn1,
-		[property: JsonPropertyName("aresriot.aws-usw1-prod.na-gp-norcal-1")] AresriotAwsUsw1ProdNaGpNorcal1 AresriotAwsUsw1ProdNaGpNorcal1,
-		[property: JsonPropertyName("aresriot.aws-usw2-prod.na-gp-oregon-1")] AresriotAwsUsw2ProdNaGpOregon1 AresriotAwsUsw2ProdNaGpOregon1
-	);
+		[property: JsonExtensionData] Dictionary<string, JsonElement>? RawJsonElements
+	)
+	{
+		public IReadOnlyDictionary<string, GamePodRegionInfo> Regions =>
+			RawJsonElements is null
+				? new Dictionary<string, GamePodRegionInfo>()
+				: RawJsonElements
+					.Where(kvp => kvp.Value.ValueKind == JsonValueKind.Object)
+					.ToDictionary(
+						kvp => kvp.Key,
+						kvp => JsonSerializer.Deserialize<GamePodRegionInfo>(kvp.Value.GetRawText())!
+					);
+	}
 
 	public record GameRules(
 		[property: JsonPropertyName("IsOvertimeWinByTwo")] string IsOvertimeWinByTwo,
@@ -97,41 +65,6 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 		[property: JsonPropertyName("AllowOvertimePriorityVote")] string AllowOvertimePriorityVote,
 		[property: JsonPropertyName("IsOvertimeWinByTwoCapped")] string IsOvertimeWinByTwoCapped,
 		[property: JsonPropertyName("PremierTournamentMode")] string PremierTournamentMode
-	);
-
-	public record PartySkillDisparityCompetitiveTiersCeilings(
-		[property: JsonPropertyName("0")] long? _0,
-		[property: JsonPropertyName("1")] long? _1,
-		[property: JsonPropertyName("10")] long? _10,
-		[property: JsonPropertyName("11")] long? _11,
-		[property: JsonPropertyName("12")] long? _12,
-		[property: JsonPropertyName("13")] long? _13,
-		[property: JsonPropertyName("14")] long? _14,
-		[property: JsonPropertyName("15")] long? _15,
-		[property: JsonPropertyName("16")] long? _16,
-		[property: JsonPropertyName("17")] long? _17,
-		[property: JsonPropertyName("18")] long? _18,
-		[property: JsonPropertyName("19")] long? _19,
-		[property: JsonPropertyName("2")] long? _2,
-		[property: JsonPropertyName("20")] long? _20,
-		[property: JsonPropertyName("21")] long? _21,
-		[property: JsonPropertyName("22")] long? _22,
-		[property: JsonPropertyName("23")] long? _23,
-		[property: JsonPropertyName("24")] long? _24,
-		[property: JsonPropertyName("25")] long? _25,
-		[property: JsonPropertyName("26")] long? _26,
-		[property: JsonPropertyName("27")] long? _27,
-		[property: JsonPropertyName("3")] long? _3,
-		[property: JsonPropertyName("4")] long? _4,
-		[property: JsonPropertyName("5")] long? _5,
-		[property: JsonPropertyName("6")] long? _6,
-		[property: JsonPropertyName("7")] long? _7,
-		[property: JsonPropertyName("8")] long? _8,
-		[property: JsonPropertyName("9")] long? _9
-	);
-
-	public record PartySkillDisparityPartySizeCompetitiveTiersCeilings(
-		[property: JsonPropertyName("5")] _5Internal _5
 	);
 
 	public record Queue(
@@ -157,8 +90,8 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 		[property: JsonPropertyName("PartyMaxCompetitiveTierRange")] long? PartyMaxCompetitiveTierRange,
 		[property: JsonPropertyName("PartyMaxCompetitiveTierRangePlacementBuffer")] long? PartyMaxCompetitiveTierRangePlacementBuffer,
 		[property: JsonPropertyName("FullPartyMaxCompetitiveTierRange")] long? FullPartyMaxCompetitiveTierRange,
-		[property: JsonPropertyName("PartySkillDisparityCompetitiveTiersCeilings")] PartySkillDisparityCompetitiveTiersCeilings PartySkillDisparityCompetitiveTiersCeilings,
-		[property: JsonPropertyName("PartySkillDisparityPartySizeCompetitiveTiersCeilings")] PartySkillDisparityPartySizeCompetitiveTiersCeilings PartySkillDisparityPartySizeCompetitiveTiersCeilings,
+		[property: JsonPropertyName("PartySkillDisparityCompetitiveTiersCeilings")] NumericTierMap PartySkillDisparityCompetitiveTiersCeilings,
+		[property: JsonPropertyName("PartySkillDisparityPartySizeCompetitiveTiersCeilings")] PartySizeTierMap PartySkillDisparityPartySizeCompetitiveTiersCeilings,
 		[property: JsonPropertyName("UseAccountLevelRequirement")] bool? UseAccountLevelRequirement,
 		[property: JsonPropertyName("MinimumAccountLevelRequired")] long? MinimumAccountLevelRequired,
 		[property: JsonPropertyName("GameRules")] GameRules GameRules,

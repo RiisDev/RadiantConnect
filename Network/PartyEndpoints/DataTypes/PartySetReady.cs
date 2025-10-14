@@ -24,7 +24,7 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 	);
 
 	public record PartySetReadyMatchmakingData(
-		[property: JsonPropertyName("QueueID")] string QueueID,
+		[property: JsonPropertyName("QueueID")] string QueueId,
 		[property: JsonPropertyName("PreferredGamePods")] IReadOnlyList<string> PreferredGamePods,
 		[property: JsonPropertyName("SkillDisparityRRPenalty")] long? SkillDisparityRRPenalty
 	);
@@ -58,18 +58,18 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 
 	public record PartySetReadyPlayerIdentity(
 		[property: JsonPropertyName("Subject")] string Subject,
-		[property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
-		[property: JsonPropertyName("PlayerTitleID")] string PlayerTitleID,
+		[property: JsonPropertyName("PlayerCardID")] string PlayerCardId,
+		[property: JsonPropertyName("PlayerTitleID")] string PlayerTitleId,
 		[property: JsonPropertyName("AccountLevel")] long? AccountLevel,
-		[property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderID,
+		[property: JsonPropertyName("PreferredLevelBorderID")] string PreferredLevelBorderId,
 		[property: JsonPropertyName("Incognito")] bool? Incognito,
 		[property: JsonPropertyName("HideAccountLevel")] bool? HideAccountLevel
 	);
 
 	public record PartySetReady(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("MUCName")] string MUCName,
-		[property: JsonPropertyName("VoiceRoomID")] string VoiceRoomID,
+		[property: JsonPropertyName("VoiceRoomID")] string VoiceRoomId,
 		[property: JsonPropertyName("Version")] long? Version,
 		[property: JsonPropertyName("ClientVersion")] string ClientVersion,
 		[property: JsonPropertyName("Members")] IReadOnlyList<PartySetReadyMember> Members,
@@ -100,7 +100,7 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 	);
 
 	public record PartySetReadyXPBonuse(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Applied")] bool? Applied
 	);
 }

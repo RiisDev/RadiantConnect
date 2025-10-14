@@ -10,7 +10,7 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 	);
 
 	public record History(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("MatchStart")] DateTime? MatchStart,
 		[property: JsonPropertyName("StartProgress")] StartProgress StartProgress,
 		[property: JsonPropertyName("EndProgress")] EndProgress EndProgress,
@@ -39,7 +39,7 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 	);
 
 	public record XPSource(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Amount")] long? Amount
 	);
 }

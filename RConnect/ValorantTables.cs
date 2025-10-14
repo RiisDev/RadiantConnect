@@ -1,5 +1,7 @@
 ﻿// ReSharper disable All
 
+using System.Collections.Immutable;
+
 #pragma warning disable IDE0130
 
 namespace RadiantConnect.Methods
@@ -77,7 +79,7 @@ namespace RadiantConnect.Methods
 			system
 		}
 
-		public static readonly Dictionary<string, string> CurrencyIdToCurrency = new()
+		public static readonly IReadOnlyDictionary<string, string> CurrencyIdToCurrency = new Dictionary<string, string>()
 		{
 			{ "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "Valorant Points" },
 			{ "85ca954a-41f2-ce94-9b45-8ca3dd39a00d", "Kingdom Credits" },
@@ -85,7 +87,7 @@ namespace RadiantConnect.Methods
 			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
 		};
 
-		public static readonly Dictionary<ItemType, string> ItemTypeToId = new()
+		public static readonly IReadOnlyDictionary<ItemType, string> ItemTypeToId = new Dictionary<ItemType, string>()
 		{
 			{ ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },
 			{ ItemType.Contracts, "f85cb6f7-33e5-4dc8-b609-ec7212301948" },
@@ -100,7 +102,7 @@ namespace RadiantConnect.Methods
 			{ ItemType.PlayerCards, "3f296c07-64c3-494c-923b-fe692a4fa1bd" }
 		};
 
-		public static readonly Dictionary<string, string> InternalMapNames = new()
+		public static readonly IReadOnlyDictionary<string, string> InternalMapNames = new Dictionary<string, string>()
 		{
 			{ "1f10dab3-4294-3827-fa35-c2aa00213cf3", "Basic Training"},
 			{ "2bee0dc9-4ffe-519b-1cbd-7fbe763a6047", "Haven" },
@@ -144,7 +146,7 @@ namespace RadiantConnect.Methods
 			{ "Triad", "Haven" },
 		};
 
-		public static readonly Dictionary<string, string> GunIdToGun = new()
+		public static readonly IReadOnlyDictionary<string, string> GunIdToGun = new Dictionary<string, string>()
 		{
 			{ "0afb2636-4093-c63b-4ef1-1e97966e2a3e", "SPIKE" },
 			{ "3de32920-4a8f-0499-7740-648a5bf95470", "Golden Gun" },
@@ -169,7 +171,7 @@ namespace RadiantConnect.Methods
 			{ "f7e1b454-4ad4-1063-ec0a-159e56b58941", "Stinger" },
 		};
 
-		public static readonly Dictionary<string, string> AgentIdToAgent = new()
+		public static readonly IReadOnlyDictionary<string, string> AgentIdToAgent = new Dictionary<string, string>()
 		{
 			{ "41fb69c1-4189-7b37-f117-bcaf1e96f1bf", "Astra" },
 			{ "5f8d3a7f-467b-97f3-062c-13acf203c006", "Breach" },
@@ -202,7 +204,7 @@ namespace RadiantConnect.Methods
 		};
 
 
-		public static readonly Dictionary<Agent, string> AgentToId = new()
+		public static readonly IReadOnlyDictionary<Agent, string> AgentToId = new Dictionary<Agent, string>()
 		{
 			{ Agent.Astra, "41fb69c1-4189-7b37-f117-bcaf1e96f1bf" },
 			{ Agent.Breach, "5f8d3a7f-467b-97f3-062c-13acf203c006" },
@@ -234,7 +236,7 @@ namespace RadiantConnect.Methods
 			{ Agent.Yoru, "7f94d92c-4234-0a36-9646-3a87eb8b5c89" }
 		};
 	
-		public static readonly Dictionary<long, string> TierToRank = new()
+		public static readonly IReadOnlyDictionary<long, string> TierToRank = new Dictionary<long, string>()
 		{
 			{ 0, "Unranked" },
 			{ 1, "Unranked" },
@@ -266,7 +268,7 @@ namespace RadiantConnect.Methods
 			{ 27, "Radiant" }
 		};
 
-		public static readonly Dictionary<string, string> InternalGameModeToGameMode = new()
+		public static readonly IReadOnlyDictionary<string, string> InternalGameModeToGameMode = new Dictionary<string, string>()
 		{
 			{ "newmap", "New Map"},
 			{ "competitive", "Competitive"},
