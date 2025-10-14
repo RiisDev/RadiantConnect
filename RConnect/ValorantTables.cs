@@ -64,6 +64,7 @@ namespace RadiantConnect.Methods
 			Sova,
 			Tejo,
 			Viper,
+			Veto,
 			Vyse,
 			Waylay,
 			Yoru
@@ -195,6 +196,7 @@ namespace RadiantConnect.Methods
 			{ "b444168c-4e35-8076-db47-ef9bf368f384", "Tejo" },
 			{ "707eab51-4836-f488-046a-cda6bf494859", "Viper" },
 			{ "efba5359-4016-a1e5-7626-b1ae76895940", "Vyse" },
+			{ "92eeef5d-43b5-1d4a-8d03-b3927a09034b", "Veto" },
 			{ "df1cb487-4902-002e-5c17-d28e83e78588", "Waylay" },
 			{ "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" }
 		};
@@ -227,6 +229,7 @@ namespace RadiantConnect.Methods
 			{ Agent.Tejo, "b444168c-4e35-8076-db47-ef9bf368f384" },
 			{ Agent.Viper, "707eab51-4836-f488-046a-cda6bf494859" },
 			{ Agent.Vyse, "efba5359-4016-a1e5-7626-b1ae76895940" },
+			{ Agent.Veto, "92eeef5d-43b5-1d4a-8d03-b3927a09034b" },
 			{ Agent.Waylay, "df1cb487-4902-002e-5c17-d28e83e78588" },
 			{ Agent.Yoru, "7f94d92c-4234-0a36-9646-3a87eb8b5c89" }
 		};
