@@ -1,24 +1,22 @@
-﻿
-
-// ReSharper disable All
+﻿// ReSharper disable All
 
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 {
-	public record _21(
+	public record AscendantCap(
 		[property: JsonPropertyName("rankedRatingThreshold")] long? RankedRatingThreshold,
 		[property: JsonPropertyName("startingPage")] long? StartingPage,
 		[property: JsonPropertyName("startingIndex")] long? StartingIndex
 	);
 
-	public record _24(
+	public record ImmortalCap(
 		[property: JsonPropertyName("rankedRatingThreshold")] long? RankedRatingThreshold,
 		[property: JsonPropertyName("startingPage")] long? StartingPage,
 		[property: JsonPropertyName("startingIndex")] long? StartingIndex
 	);
 
 	public record LeaderboardPlayer(
-		[property: JsonPropertyName("PlayerCardID")] string PlayerCardID,
-		[property: JsonPropertyName("TitleID")] string TitleID,
+		[property: JsonPropertyName("PlayerCardID")] string PlayerCardId,
+		[property: JsonPropertyName("TitleID")] string TitleId,
 		[property: JsonPropertyName("IsBanned")] bool? IsBanned,
 		[property: JsonPropertyName("IsAnonymized")] bool? IsAnonymized,
 		[property: JsonPropertyName("puuid")] string Puuid,
@@ -32,8 +30,8 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 
 	public record Leaderboard(
 		[property: JsonPropertyName("Deployment")] string Deployment,
-		[property: JsonPropertyName("QueueID")] string QueueID,
-		[property: JsonPropertyName("SeasonID")] string SeasonID,
+		[property: JsonPropertyName("QueueID")] string QueueId,
+		[property: JsonPropertyName("SeasonID")] string SeasonId,
 		[property: JsonPropertyName("Players")] IReadOnlyList<LeaderboardPlayer> Players,
 		[property: JsonPropertyName("totalPlayers")] long? TotalPlayers,
 		[property: JsonPropertyName("immortalStartingPage")] long? ImmortalStartingPage,
@@ -45,7 +43,7 @@ namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 	);
 
 	public record TierDetails(
-		[property: JsonPropertyName("21")] _21 AscendantOne,
-		[property: JsonPropertyName("24")] _24 ImmortalOne
+		[property: JsonPropertyName("21")] AscendantCap AscendantCap,
+		[property: JsonPropertyName("24")] ImmortalCap ImmortalCap
 	);
 }

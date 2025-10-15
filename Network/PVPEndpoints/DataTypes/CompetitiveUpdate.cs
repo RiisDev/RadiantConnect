@@ -3,9 +3,9 @@
 namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 {
 	public record Match(
-		[property: JsonPropertyName("MatchID")] string MatchID,
-		[property: JsonPropertyName("MapID")] string MapID,
-		[property: JsonPropertyName("SeasonID")] string SeasonID,
+		[property: JsonPropertyName("MatchID")] string MatchId,
+		[property: JsonPropertyName("MapID")] string MapId,
+		[property: JsonPropertyName("SeasonID")] string SeasonId,
 		[property: JsonPropertyName("MatchStartTime")] object MatchStartTime,
 		[property: JsonPropertyName("TierAfterUpdate")] long? TierAfterUpdate,
 		[property: JsonPropertyName("TierBeforeUpdate")] long? TierBeforeUpdate,

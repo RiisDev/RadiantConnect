@@ -14,7 +14,7 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 	public record PartyPlayer(
 		[property: JsonPropertyName("Subject")] string Subject,
 		[property: JsonPropertyName("Version")] long? Version,
-		[property: JsonPropertyName("CurrentPartyID")] string CurrentPartyID,
+		[property: JsonPropertyName("CurrentPartyID")] string CurrentPartyId,
 		[property: JsonPropertyName("Invites")] object Invites,
 		[property: JsonPropertyName("Requests")] IReadOnlyList<object> Requests,
 		[property: JsonPropertyName("PlatformInfo")] PlatformInfo PlatformInfo

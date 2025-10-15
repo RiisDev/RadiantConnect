@@ -5,12 +5,12 @@
 namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 {
 	public record Entitlement(
-		[property: JsonPropertyName("TypeID")] string TypeID,
+		[property: JsonPropertyName("TypeID")] string TypeId,
 		[property: JsonPropertyName("ItemID")] string ItemID
 	);
 
 	public record OwnedItem(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
 		[property: JsonPropertyName("Entitlements")] IReadOnlyList<Entitlement> Entitlements
 	);
 }

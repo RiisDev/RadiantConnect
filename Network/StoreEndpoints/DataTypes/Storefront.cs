@@ -15,9 +15,9 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record Bundle(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("DataAssetID")] string DataAssetID,
-		[property: JsonPropertyName("CurrencyID")] string CurrencyID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("DataAssetID")] string DataAssetId,
+		[property: JsonPropertyName("CurrencyID")] string CurrencyId,
 		[property: JsonPropertyName("Items")] IReadOnlyList<Item> Items,
 		[property: JsonPropertyName("ItemOffers")] IReadOnlyList<ItemOffer> ItemOffers,
 		[property: JsonPropertyName("TotalBaseCost")] TotalBaseCost TotalBaseCost,
@@ -29,9 +29,9 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record Bundle2(
-		[property: JsonPropertyName("ID")] string ID,
-		[property: JsonPropertyName("DataAssetID")] string DataAssetID,
-		[property: JsonPropertyName("CurrencyID")] string CurrencyID,
+		[property: JsonPropertyName("ID")] string Id,
+		[property: JsonPropertyName("DataAssetID")] string DataAssetId,
+		[property: JsonPropertyName("CurrencyID")] string CurrencyId,
 		[property: JsonPropertyName("Items")] IReadOnlyList<Item> Items,
 		[property: JsonPropertyName("ItemOffers")] IReadOnlyList<ItemOffer> ItemOffers,
 		[property: JsonPropertyName("TotalBaseCost")] TotalBaseCost TotalBaseCost,
@@ -60,27 +60,27 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	public record Item(
 		[property: JsonPropertyName("Item")] Item ItemData,
 		[property: JsonPropertyName("BasePrice")] long? BasePrice,
-		[property: JsonPropertyName("CurrencyID")] string CurrencyID,
+		[property: JsonPropertyName("CurrencyID")] string CurrencyId,
 		[property: JsonPropertyName("DiscountPercent")] double? DiscountPercent,
 		[property: JsonPropertyName("DiscountedPrice")] long? DiscountedPrice,
 		[property: JsonPropertyName("IsPromoItem")] bool? IsPromoItem
 	);
 
 	public record Item2(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
-		[property: JsonPropertyName("ItemID")] string ItemID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
+		[property: JsonPropertyName("ItemID")] string ItemId,
 		[property: JsonPropertyName("Amount")] long? Amount
 	);
 
 	public record ItemOffer(
-		[property: JsonPropertyName("BundleItemOfferID")] string BundleItemOfferID,
+		[property: JsonPropertyName("BundleItemOfferID")] string BundleItemOfferId,
 		[property: JsonPropertyName("Offer")] Offer Offer,
 		[property: JsonPropertyName("DiscountPercent")] double? DiscountPercent,
 		[property: JsonPropertyName("DiscountedCost")] DiscountedCost DiscountedCost
 	);
 
 	public record Offer(
-		[property: JsonPropertyName("OfferID")] string OfferID,
+		[property: JsonPropertyName("OfferID")] string OfferId,
 		[property: JsonPropertyName("IsDirectPurchase")] bool? IsDirectPurchase,
 		[property: JsonPropertyName("StartDate")] DateTime? StartDate,
 		[property: JsonPropertyName("Cost")] Cost Cost,
@@ -93,16 +93,16 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record PluginStore(
-		[property: JsonPropertyName("PluginID")] string PluginID,
+		[property: JsonPropertyName("PluginID")] string PluginId,
 		[property: JsonPropertyName("PluginOffers")] PluginOffers PluginOffers
 	);
 
 	public record PurchaseInformation(
-		[property: JsonPropertyName("DataAssetID")] string DataAssetID,
-		[property: JsonPropertyName("OfferID")] string OfferID,
+		[property: JsonPropertyName("DataAssetID")] string DataAssetId,
+		[property: JsonPropertyName("OfferID")] string OfferId,
 		[property: JsonPropertyName("OfferType")] long? OfferType,
 		[property: JsonPropertyName("StartDate")] DateTime? StartDate,
-		[property: JsonPropertyName("PrimaryCurrencyID")] string PrimaryCurrencyID,
+		[property: JsonPropertyName("PrimaryCurrencyID")] string PrimaryCurrencyId,
 		[property: JsonPropertyName("Cost")] Cost Cost,
 		[property: JsonPropertyName("DiscountedCost")] DiscountedCost DiscountedCost,
 		[property: JsonPropertyName("DiscountedPercentage")] long? DiscountedPercentage,
@@ -113,8 +113,8 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record Reward(
-		[property: JsonPropertyName("ItemTypeID")] string ItemTypeID,
-		[property: JsonPropertyName("ItemID")] string ItemID,
+		[property: JsonPropertyName("ItemTypeID")] string ItemTypeId,
+		[property: JsonPropertyName("ItemID")] string ItemId,
 		[property: JsonPropertyName("Quantity")] long? Quantity
 	);
 
@@ -127,7 +127,7 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record SingleItemStoreOffer(
-		[property: JsonPropertyName("OfferID")] string OfferID,
+		[property: JsonPropertyName("OfferID")] string OfferId,
 		[property: JsonPropertyName("IsDirectPurchase")] bool? IsDirectPurchase,
 		[property: JsonPropertyName("StartDate")] string StartDate,
 		[property: JsonPropertyName("Cost")] Cost Cost,
@@ -150,16 +150,16 @@ namespace RadiantConnect.Network.StoreEndpoints.DataTypes
 	);
 
 	public record TotalBaseCost(
-		[property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
+		[property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? Points
 	);
 
 	public record TotalDiscountedCost(
-		[property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? _85ad13f73d1b51289eb27cd8ee0b5741
+		[property: JsonPropertyName("85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741")] long? Points
 	);
 
 	public record UpgradeCurrencyOffer(
-		[property: JsonPropertyName("OfferID")] string OfferID,
-		[property: JsonPropertyName("StorefrontItemID")] string StorefrontItemID,
+		[property: JsonPropertyName("OfferID")] string OfferId,
+		[property: JsonPropertyName("StorefrontItemID")] string StorefrontItemId,
 		[property: JsonPropertyName("Offer")] Offer Offer,
 		[property: JsonPropertyName("DiscountedPercent")] double? DiscountedPercent
 	);

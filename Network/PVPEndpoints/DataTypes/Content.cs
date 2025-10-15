@@ -1,8 +1,9 @@
 ﻿namespace RadiantConnect.Network.PVPEndpoints.DataTypes
 {
+
 	// ReSharper disable All
 	public record Event(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Name")] string Name,
 		[property: JsonPropertyName("StartTime")] DateTime? StartTime,
 		[property: JsonPropertyName("EndTime")] DateTime? EndTime,
@@ -16,7 +17,7 @@
 	);
 
 	public record Season(
-		[property: JsonPropertyName("ID")] string ID,
+		[property: JsonPropertyName("ID")] string Id,
 		[property: JsonPropertyName("Name")] string Name,
 		[property: JsonPropertyName("Type")] string Type,
 		[property: JsonPropertyName("StartTime")] DateTime? StartTime,
