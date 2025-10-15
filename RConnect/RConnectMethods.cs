@@ -157,7 +157,7 @@ namespace RadiantConnect.RConnect
 			if (matchHistory.History.Count == 0) return stats;
 
 			foreach (MatchHistoryInternal matchData in matchHistory.History)
-				stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchID).ConfigureAwait(false));
+				stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchId).ConfigureAwait(false));
 
 			return stats;
 		}
@@ -174,11 +174,11 @@ namespace RadiantConnect.RConnect
 			try
 			{
 				if (competitiveOnly)
-					match = matchHistory.History.First(matchData => matchData.QueueID == "competitive");
+					match = matchHistory.History.First(matchData => matchData.QueueId == "competitive");
 			}
 			catch (InvalidOperationException) { return null;}
 
-			return await GetMatchLeaderboardAsync(initiator, match.MatchID).ConfigureAwait(false);
+			return await GetMatchLeaderboardAsync(initiator, match.MatchId).ConfigureAwait(false);
 		}
 
 		public static async Task<MatchStats?> GetMatchLeaderboardAsync(this Initiator initiator, string matchId)
@@ -191,7 +191,7 @@ namespace RadiantConnect.RConnect
 			string mapId = internalInfo.MapId;
 			string parsedMapName = mapId[(mapId.LastIndexOf('/')+1)..];
 			string properMapName = ValorantTables.InternalMapNames[parsedMapName];
-			string properQueueId = ValorantTables.InternalGameModeToGameMode[internalInfo.QueueID];
+			string properQueueId = ValorantTables.InternalGameModeToGameMode[internalInfo.QueueId];
 			string winningTeam = matchInfo.Teams.First(team => team.Won == true).TeamId;
 
 			playerList.AddRange(matchInfo.Players.Select(player => InternalMethods.ParsePlayerData(player, matchInfo.RoundResults, winningTeam)));
@@ -212,7 +212,7 @@ namespace RadiantConnect.RConnect
 			Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync().ConfigureAwait(false);
 			string? seasonId;
 			try {
-				seasonId = content?.Seasons.First(x => x.IsActive.HasValue && x.IsActive.Value && x.Type == "act").ID;
+				seasonId = content?.Seasons.First(x => x.IsActive.HasValue && x.IsActive.Value && x.Type == "act").Id;
 			} catch {
 				seasonId = string.Empty;
 			}

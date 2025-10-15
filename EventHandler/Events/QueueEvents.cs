@@ -28,7 +28,7 @@ namespace RadiantConnect.EventHandler.Events
 			return data is null ? null : dataReturn switch
 			{
 				PartyDataReturn.CustomGame => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.CustomGameData, typeof(T)),
-				PartyDataReturn.ChangeQueue => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.MatchmakingData.QueueID, typeof(T)),
+				PartyDataReturn.ChangeQueue => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.MatchmakingData.QueueId, typeof(T)),
 				_ => throw new ArgumentOutOfRangeException(nameof(dataReturn), dataReturn, null)
 			};
 		}

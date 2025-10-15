@@ -11,7 +11,7 @@ namespace RadiantConnect.Network.PartyEndpoints
 
 		public async Task<PartyPlayer?> FetchPartyPlayerAsync() => await initiator.ExternalSystem.Net.GetAsync<PartyPlayer>(Url, $"parties/v1/players/{initiator.Client.UserId}").ConfigureAwait(false);
 
-		private async Task<string?> FetchPartyIdAsync() => (await FetchPartyPlayerAsync().ConfigureAwait(false))?.CurrentPartyID;
+		private async Task<string?> FetchPartyIdAsync() => (await FetchPartyPlayerAsync().ConfigureAwait(false))?.CurrentPartyId;
 		public async Task<Party?> FetchPartyAsync()
 		{
 			string? partyId = await FetchPartyIdAsync().ConfigureAwait(false);
