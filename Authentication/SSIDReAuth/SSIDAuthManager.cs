@@ -3,7 +3,7 @@ using Cookie = System.Net.Cookie;
 
 namespace RadiantConnect.Authentication.SSIDReAuth
 {
-	internal class SsidAuthManager
+	internal sealed class SsidAuthManager
 	{
 		internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null)
 		{
@@ -41,11 +41,11 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			if (validAuthUrl.IsNullOrEmpty())
 				throw new RadiantConnectAuthException("Failed to get Auth Url");
 
-			if (!validAuthUrl.Contains("access_token"))
+			if (!validAuthUrl.Contains("access_token", StringComparison.InvariantCultureIgnoreCase))
 				throw new RadiantConnectAuthException(
 					"Failed to find access tokens in auth, note in certain regions you must specify CLID");
 
-			if (!validAuthUrl.Contains("id_token"))
+			if (!validAuthUrl.Contains("id_token", StringComparison.InvariantCultureIgnoreCase))
 				throw new RadiantConnectAuthException(
 					"Failed to find id tokens in auth, note in certain regions you must specify CLID");
 

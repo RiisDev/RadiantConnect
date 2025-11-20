@@ -5,7 +5,7 @@ using Timer = System.Timers.Timer;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-	internal class TokenManager(Process? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
+	internal sealed class TokenManager(Process? form, BuiltData qrData, HttpClient client, bool returnUrl, CookieContainer container)
 	{
 		internal delegate void TokensFinished(RSOAuth authData);
 		internal event TokensFinished? OnTokensFinished;
@@ -49,7 +49,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			string responseData = await response.Content.ReadAsStringAsync().ConfigureAwait(false);
 			client.DefaultRequestHeaders.Clear();
 
-			if (!responseData.Contains("success")) return string.Empty;
+			if (!responseData.Contains("success", StringComparison.InvariantCultureIgnoreCase)) return string.Empty;
 
 			QrDataSuccess? data = JsonSerializer.Deserialize<QrDataSuccess>(responseData);
 			
@@ -82,12 +82,10 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 
 			string jsonContent = JsonSerializer.Serialize(postParams);
 
-			HttpRequestMessage requestMessage = new (HttpMethod.Post, "https://auth.riotgames.com/api/v1/login-token")
+			using HttpRequestMessage requestMessage = new (HttpMethod.Post, "https://auth.riotgames.com/api/v1/login-token");
+			requestMessage.Content = new StringContent(jsonContent)
 			{
-				Content = new StringContent(jsonContent)
-				{
-					Headers = { ContentType = new MediaTypeHeaderValue("application/json") }
-				}
+				Headers = { ContentType = new MediaTypeHeaderValue("application/json") }
 			};
 
 			HttpResponseMessage response = await client.SendAsync(requestMessage).ConfigureAwait(false);
@@ -142,7 +140,9 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 		[SuppressMessage("ReSharper", "RemoveRedundantBraces")]
 		internal void InitiateTimer(string tempName)
 		{
-			Timer timer = new();
+#pragma warning disable CA2000 // It literally gets disposed later in the code
+            Timer timer = new();
+#pragma warning restore CA2000
 			timer.Interval = 1000;
 			timer.AutoReset = true;
 

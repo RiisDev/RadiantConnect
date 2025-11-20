@@ -2,7 +2,7 @@
 
 namespace RadiantConnect.Authentication.RiotClient
 {
-	internal class RtcAuth
+	internal sealed class RtcAuth
 	{
 		internal static string RiotClientSettings => Path.Join(
 			Environment.GetFolderPath(Environment.SpecialFolder.UserProfile),
@@ -18,8 +18,8 @@ namespace RadiantConnect.Authentication.RiotClient
 		{
 			fileLocation ??= RiotClientSettings;
 
-			if (auth == null) throw new Exception("Authentication somehow null, report bug to github, this should never be seen.");
-
+			ArgumentNullException.ThrowIfNull(auth, "Authentication");
+			
 			Dictionary<string, string?> cookieValues = await GetCookiesFromYaml(fileLocation).ConfigureAwait(false);
 
 			cookieValues.TryGetValue("ssid", out string? ssid);
@@ -56,10 +56,10 @@ namespace RadiantConnect.Authentication.RiotClient
 		{
 			Dictionary<string, object> yamlData = await GetYamlData(fileLocation).ConfigureAwait(false);
 
-			if (!yamlData.ContainsKey("rso-authenticator") || yamlData["rso-authenticator"] is not Dictionary<string, object> rsoAuthenticator)
+			if (!yamlData.TryGetValue("rso-authenticator", out object? value) || value is not Dictionary<string, object> rsoAuthenticator)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
 
-			if (!rsoAuthenticator.ContainsKey("tdid") || rsoAuthenticator["tdid"] is not Dictionary<string, object> tdidData)
+			if (!rsoAuthenticator.TryGetValue("tdid", out object? value2) || value2 is not Dictionary<string, object> tdidData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'tdid' section.");
 
 			tdidData.TryGetValue("value", out object? tdidValue);
@@ -76,13 +76,13 @@ namespace RadiantConnect.Authentication.RiotClient
 		{
 			Dictionary<string, object> yamlData = await GetYamlData(fileLocation).ConfigureAwait(false);
 
-			if (!yamlData.ContainsKey("riot-login") || yamlData["riot-login"] is not Dictionary<string, object> riotLoginData)
+			if (!yamlData.TryGetValue("riot-login", out object? value) || value is not Dictionary<string, object> riotLoginData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
 
-			if (!riotLoginData.ContainsKey("persist") || riotLoginData["persist"] is not Dictionary<string, object> persistData)
+			if (!riotLoginData.TryGetValue("persist", out object? value2) || value2 is not Dictionary<string, object> persistData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'persist' section.");
 
-			if (!persistData.ContainsKey("session") || persistData["session"] is not Dictionary<string, object> sessionData)
+			if (!persistData.TryGetValue("session", out object? value3) || value3 is not Dictionary<string, object> sessionData)
 				throw new RadiantConnectAuthException("Invalid Riot Client settings file, missing 'session' section.");
 
 			List<object> allCookies = [];
@@ -97,7 +97,7 @@ namespace RadiantConnect.Authentication.RiotClient
 		private static async Task<Dictionary<string, object>> GetYamlData(string fileLocation)
 		{
 			if (!File.Exists(fileLocation)) throw new FileNotFoundException("Riot Client persistent file not found.", fileLocation);
-			if (!fileLocation.EndsWith(".yaml")) throw new Exception($"Invalid file detected, expected .yaml got {Path.GetExtension(fileLocation)}");
+			if (!fileLocation.EndsWith(".yaml", StringComparison.InvariantCultureIgnoreCase)) throw new InvalidDataException($"Invalid file format detected, expected .yaml got {Path.GetExtension(fileLocation)}");
 
 			string fileData = await File.ReadAllTextAsync(fileLocation).ConfigureAwait(false);
 
@@ -137,7 +137,7 @@ namespace RadiantConnect.Authentication.RiotClient
 						currentDict[currentKey] = list;
 					}
 
-					if (value.Contains(':'))
+					if (value.Contains(':', StringComparison.InvariantCultureIgnoreCase))
 					{
 						Dictionary<string, object> newDict = [];
 						list.Add(newDict);
@@ -149,7 +149,7 @@ namespace RadiantConnect.Authentication.RiotClient
 					}
 					else list.Add(value.Trim('"'));
 				}
-				else if (line.Contains(':'))
+				else if (line.Contains(':', StringComparison.InvariantCultureIgnoreCase))
 				{
 					string[] parts = line.Split(':', 2);
 					string key = parts[0].Trim();

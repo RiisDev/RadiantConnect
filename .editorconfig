@@ -2,14 +2,14 @@
 root = true
 
 # C# files
-[*.{cs,vb}]
+[*.cs]
 
 #### Core EditorConfig Options ####
 
 # Indentation and spacing
-#indent_size = 4
+indent_size = 4
 indent_style = tab
-#tab_width = 4
+tab_width = 4
 
 # New line preferences
 end_of_line = crlf
@@ -73,17 +73,17 @@ dotnet_style_prefer_simplified_boolean_expressions = true:error
 dotnet_style_prefer_simplified_interpolation = true:suggestion
 
 # Field preferences
-dotnet_style_readonly_field = true:suggestion
+dotnet_style_readonly_field = true
 
 # Parameter preferences
-dotnet_code_quality_unused_parameters = all:warning
+dotnet_code_quality_unused_parameters = all
 
 # Suppression preferences
 dotnet_remove_unnecessary_suppression_exclusions = none
 
 # New line preferences
-dotnet_style_allow_multiple_blank_lines_experimental = true:suggestion
-dotnet_style_allow_statement_immediately_after_block_experimental = true:silent
+dotnet_style_allow_multiple_blank_lines_experimental = true
+dotnet_style_allow_statement_immediately_after_block_experimental = true
 
 #### C# Coding Conventions ####
 
@@ -93,14 +93,14 @@ csharp_style_var_for_built_in_types = false
 csharp_style_var_when_type_is_apparent = false
 
 # Expression-bodied members
-csharp_style_expression_bodied_accessors = true:silent
-csharp_style_expression_bodied_constructors = false:silent
-csharp_style_expression_bodied_indexers = true:silent
-csharp_style_expression_bodied_lambdas = true:silent
-csharp_style_expression_bodied_local_functions = false:silent
-csharp_style_expression_bodied_methods = false:silent
-csharp_style_expression_bodied_operators = false:silent
-csharp_style_expression_bodied_properties = true:silent
+csharp_style_expression_bodied_accessors = true
+csharp_style_expression_bodied_constructors = false
+csharp_style_expression_bodied_indexers = true
+csharp_style_expression_bodied_lambdas = true
+csharp_style_expression_bodied_local_functions = false
+csharp_style_expression_bodied_methods = false
+csharp_style_expression_bodied_operators = false
+csharp_style_expression_bodied_properties = true
 
 # Pattern matching preferences
 csharp_style_pattern_matching_over_as_with_null_check = true
@@ -121,13 +121,14 @@ csharp_style_prefer_readonly_struct = true
 csharp_style_prefer_readonly_struct_member = true
 
 # Code-block preferences
-csharp_prefer_braces = true:silent
-csharp_prefer_simple_using_statement = true:suggestion
-csharp_prefer_system_threading_lock = true:suggestion
-csharp_style_namespace_declarations = block_scoped:silent
-csharp_style_prefer_method_group_conversion = true:silent
-csharp_style_prefer_primary_constructors = true:suggestion
-csharp_style_prefer_top_level_statements = true:silent
+csharp_prefer_braces = true
+csharp_prefer_simple_using_statement = true
+csharp_prefer_system_threading_lock = true
+csharp_style_namespace_declarations = block_scoped
+csharp_style_prefer_method_group_conversion = true
+csharp_style_prefer_primary_constructors = true
+csharp_style_prefer_simple_property_accessors = true
+csharp_style_prefer_top_level_statements = true
 
 # Expression-level preferences
 csharp_prefer_simple_default_expression = true
@@ -147,7 +148,7 @@ csharp_style_unused_value_assignment_preference = discard_variable
 csharp_style_unused_value_expression_statement_preference = discard_variable
 
 # 'using' directive preferences
-csharp_using_directive_placement = outside_namespace:silent
+csharp_using_directive_placement = outside_namespace
 
 # New line preferences
 csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimental = true
@@ -245,70 +246,40 @@ dotnet_naming_style.begins_with_i.required_suffix =
 dotnet_naming_style.begins_with_i.word_separator = 
 dotnet_naming_style.begins_with_i.capitalization = pascal_case
 
-
-dotnet_style_coalesce_expression = true:suggestion
-dotnet_style_null_propagation = true:suggestion
-dotnet_style_prefer_is_null_check_over_reference_equality_method = true:warning
-dotnet_style_operator_placement_when_wrapping = beginning_of_line
-end_of_line = crlf
-
-[*.cs]
-csharp_indent_labels = no_change
-csharp_using_directive_placement = outside_namespace:error
-csharp_prefer_simple_using_statement = true:warning
-csharp_prefer_braces = false:warning
-csharp_style_namespace_declarations = block_scoped:suggestion
-csharp_style_prefer_method_group_conversion = true:suggestion
-csharp_style_prefer_top_level_statements = false:silent
-csharp_style_prefer_primary_constructors = true:warning
-csharp_prefer_system_threading_lock = true:error
-csharp_style_expression_bodied_methods = true:suggestion
-csharp_style_expression_bodied_constructors = true:suggestion
-csharp_style_expression_bodied_operators = true:suggestion
-csharp_style_expression_bodied_properties = true:suggestion
-csharp_style_expression_bodied_indexers = true:suggestion
-csharp_style_expression_bodied_accessors = true:suggestion
-csharp_style_expression_bodied_lambdas = true:suggestion
-csharp_style_expression_bodied_local_functions = true:suggestion
-csharp_space_around_binary_operators = before_and_after
-csharp_style_throw_expression = true:suggestion
-csharp_style_prefer_null_check_over_type_check = true:suggestion
-csharp_prefer_simple_default_expression = true:suggestion
-csharp_style_prefer_local_over_anonymous_function = true:suggestion
-csharp_style_prefer_index_operator = true:warning
-csharp_style_prefer_range_operator = true:warning
-csharp_style_implicit_object_creation_when_type_is_apparent = true:suggestion
-csharp_style_prefer_implicitly_typed_lambda_expression = true:suggestion
-csharp_style_prefer_tuple_swap = true:suggestion
-csharp_style_prefer_unbound_generic_type_in_nameof = true:suggestion
-csharp_style_prefer_utf8_string_literals = true:suggestion
-csharp_style_inlined_variable_declaration = true:suggestion
-csharp_style_deconstructed_variable_declaration = true:suggestion
-csharp_style_unused_value_assignment_preference = discard_variable:suggestion
-csharp_style_unused_value_expression_statement_preference = discard_variable:silent
-csharp_prefer_static_local_function = true:suggestion
-csharp_prefer_static_anonymous_function = true:suggestion
-csharp_style_prefer_readonly_struct = true:suggestion
-csharp_style_prefer_readonly_struct_member = true:suggestion
-csharp_style_allow_embedded_statements_on_same_line_experimental = true:silent
-csharp_style_allow_blank_lines_between_consecutive_braces_experimental = true:silent
-csharp_style_allow_blank_line_after_colon_in_constructor_initializer_experimental = true:silent
-csharp_style_allow_blank_line_after_token_in_conditional_expression_experimental = true:silent
-csharp_style_allow_blank_line_after_token_in_arrow_expression_clause_experimental = true:silent
-csharp_style_conditional_delegate_call = true:suggestion
-csharp_style_prefer_switch_expression = true:warning
-csharp_style_prefer_pattern_matching = true:silent
-csharp_style_pattern_matching_over_is_with_cast_check = true:suggestion
-csharp_style_pattern_matching_over_as_with_null_check = true:suggestion
-csharp_style_prefer_not_pattern = true:suggestion
-csharp_style_prefer_extended_property_pattern = true:suggestion
-csharp_style_var_for_built_in_types = false:error
-csharp_style_var_when_type_is_apparent = false:error
-csharp_style_var_elsewhere = false:error
-
-dotnet_diagnostic.IDE0079.severity = none
-dotnet_diagnostic.IDE00130.severity = none
-dotnet_diagnostic.SYSLIB1054.severity = none
+# IDE / Style Suggestions
 dotnet_diagnostic.IDE0010.severity = none
+dotnet_diagnostic.IDE00130.severity = none
 dotnet_diagnostic.IDE0055.severity = none
 dotnet_diagnostic.IDE0058.severity = none
+dotnet_diagnostic.IDE0079.severity = none
+
+# TODO Warnings
+dotnet_diagnostic.CA2234.severity = none     # Pass string URI objects instead of string paths
+dotnet_diagnostic.CA1054.severity = none     # URI parameters should not be strings
+dotnet_diagnostic.CA1056.severity = none     # URI properties should not be strings
+
+# Code Conflits
+dotnet_diagnostic.CA1724.severity = none     # Name conflictions with namespaces
+dotnet_diagnostic.CA1716.severity = none     # Type conflictions with namespaces
+
+# Code Analysis Suppressions
+dotnet_diagnostic.CA1031.severity = none     # Do not catch general exception types
+dotnet_diagnostic.CA1822.severity = none     # Mark members as static when possible
+dotnet_diagnostic.CA5394.severity = none     # Do not use insecure randomness
+dotnet_diagnostic.CA1003.severity = none     # Use generic event handler instances
+dotnet_diagnostic.CA1062.severity = none     # Validate arguments of public methods 
+dotnet_diagnostic.CA2000.severity = none     # Dispose objects before losing scope <-- Targeted towards the API, gets disposed in ValorantNet
+dotnet_diagnostic.CA1034.severity = none     # Nested types should not be visible <-- case by case basis
+dotnet_diagnostic.CA2101.severity = none     # Specify marshaling for P/Invoke string arguments
+dotnet_diagnostic.CA5392.severity = none	 # The Method {} didn't use DefaultDllImportSearchPaths attribute.
+dotnet_diagnostic.CA1063.severity = none	 # Implement IDisposable correctly
+dotnet_diagnostic.CA1308.severity = none	 # Normalize strings to uppercase
+dotnet_diagnostic.CA1835.severity = none	 # MemoryStream vs byte
+dotnet_diagnostic.CA1849.severity = none	 # MemoryStream vs byte
+dotnet_diagnostic.CA5359.severity = none     # ServerCertificateValidationCallback
+dotnet_diagnostic.CA1812.severity = none     # Internal class never instantiated
+dotnet_diagnostic.CA1852.severity = none     # Seal internal classes
+dotnet_diagnostic.CA5399.severity = none     # Do not disable certificate validation
+
+# System Library Warnings
+dotnet_diagnostic.SYSLIB1054.severity = none # Convert PINVOKE to LibraryImprot

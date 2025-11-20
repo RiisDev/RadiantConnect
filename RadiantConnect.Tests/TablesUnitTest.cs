@@ -31,7 +31,7 @@ namespace RadiantConnect.Tests
 		public async Task TestAgents()
 		{
 			// Pull RadiantConnects internal Table
-			Dictionary<string, string> internalAgentTable = ValorantTables.AgentIdToAgent;
+			IReadOnlyDictionary<string, string> internalAgentTable = ValorantTables.AgentIdToAgent;
 
 			// Pull the data from Valorant API, and pull only playable (existing) characters.
 			List<AgentData>? agents = await GetAgents();
@@ -62,7 +62,7 @@ namespace RadiantConnect.Tests
 		public async Task TestCurrency()
 		{
 			// Pull RadiantConnects internal Table
-			Dictionary<string, string> currencyIdToCurrency = ValorantTables.CurrencyIdToCurrency;
+			IReadOnlyDictionary<string, string> currencyIdToCurrency = ValorantTables.CurrencyIdToCurrency;
 
 			// Pull the data from Valorant API
 			List<Currency>? currencies = await GetCurrencies();
@@ -95,7 +95,7 @@ namespace RadiantConnect.Tests
 		public async Task TestMaps()
 		{
 			// Pull RadiantConnects internal Table
-			Dictionary<string, string> internalMapNames = ValorantTables.InternalMapNames;
+			IReadOnlyDictionary<string, string> internalMapNames = ValorantTables.InternalMapNames;
 
 			// Pull the data from Valorant API
 			List<MapsData>? maps = await GetMaps();
@@ -139,7 +139,7 @@ namespace RadiantConnect.Tests
 		public async Task TestWeapons()
 		{
 			// Pull RadiantConnects internal Table
-			Dictionary<string, string> internalWeaponNames = ValorantTables.GunIdToGun;
+			IReadOnlyDictionary<string, string> internalWeaponNames = ValorantTables.GunIdToGun;
 
 			// Pull the data from Valorant API
 			List<WeaponData>? weapons = await GetWeapons();

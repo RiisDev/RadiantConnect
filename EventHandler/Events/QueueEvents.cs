@@ -27,8 +27,8 @@ namespace RadiantConnect.EventHandler.Events
 
 			return data is null ? null : dataReturn switch
 			{
-				PartyDataReturn.CustomGame => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.CustomGameData, typeof(T)),
-				PartyDataReturn.ChangeQueue => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.MatchmakingData.QueueId, typeof(T)),
+				PartyDataReturn.CustomGame => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.CustomGameData, typeof(T), StringExtensions.CultureInfo),
+				PartyDataReturn.ChangeQueue => (T?)Convert.ChangeType(JsonSerializer.Deserialize<Party>(data)?.MatchmakingData.QueueId, typeof(T), StringExtensions.CultureInfo),
 				_ => throw new ArgumentOutOfRangeException(nameof(dataReturn), dataReturn, null)
 			};
 		}
@@ -37,11 +37,11 @@ namespace RadiantConnect.EventHandler.Events
 		{
 			try
 			{
-				string parsedEndPoint = logData.Replace("/queue", "")
-					.Replace("/matchmaking/join", "")
-					.Replace("/matchmaking/leave", "")
-					.Replace("/makecustomgame", "");
-				if (!logData.Contains("https") && !logData.Contains("LogTravelManager")) return;
+				string parsedEndPoint = logData.Replace("/queue", "", StringComparison.Ordinal)
+					.Replace("/matchmaking/join", "", StringComparison.Ordinal)
+					.Replace("/matchmaking/leave", "", StringComparison.Ordinal)
+					.Replace("/makecustomgame", "", StringComparison.Ordinal);
+				if (!logData.Contains("https", StringComparison.Ordinal) && !logData.Contains("LogTravelManager", StringComparison.Ordinal)) return;
 			
 				switch (invoker)
 				{

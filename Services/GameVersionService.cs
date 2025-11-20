@@ -4,13 +4,13 @@ using static Microsoft.Win32.Registry;
 #endif
 namespace RadiantConnect.Services
 {
-	public partial class GameVersionService
+	public static partial class GameVersionService
 	{
 		internal static readonly char[] Separator = ['\0'];
 
 		public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
-		private static int GetBuildNumberFromLog() => int.Parse(LogService.ReadTextFile(LogService.LogPath).ExtractValue(@"Build version: (\d+)", 1));
+		private static int GetBuildNumberFromLog() => int.Parse(LogService.ReadTextFile(LogService.LogPath).ExtractValue(@"Build version: (\d+)", 1), StringExtensions.CultureInfo);
 	   
 		[GeneratedRegex(@"^release-\d\d.\d\d-shipping-\d{1,2}-\d{6,8}$")]
 		internal static partial Regex VersionPattern();
@@ -55,7 +55,7 @@ namespace RadiantConnect.Services
 			if (block.Length < 4)
 				throw new RadiantConnectException("Unexpected file block structure.");
 
-			string branch = ExtractBranch(block.FirstOrDefault(x=> x.Contains("release")) ?? "");
+			string branch = ExtractBranch(block.FirstOrDefault(x=> x.Contains("release", StringComparison.Ordinal)) ?? "");
 			if (string.IsNullOrEmpty(branch))
 				throw new RadiantConnectException("Branch not found in file.");
 
@@ -63,7 +63,7 @@ namespace RadiantConnect.Services
 			if (string.IsNullOrEmpty(baseMajorVersion))
 				throw new RadiantConnectException($"Invalid base major version: {baseMajorVersion}");
 
-			string? buildNumber = block.FirstOrDefault(x => x.StartsWith(branch.Replace("release-","")))?.Split('.').LastOrDefault()?.Trim();
+			string? buildNumber = block.FirstOrDefault(x => x.StartsWith(branch.Replace("release-","", StringComparison.Ordinal), StringComparison.Ordinal))?.Split('.').LastOrDefault()?.Trim();
 			
 			if (!int.TryParse(buildNumber, out int parsedBuildVersion))
 				parsedBuildVersion = int.TryParse(GetProductVersionString(filePath), out int fallbackBuild)
@@ -74,7 +74,7 @@ namespace RadiantConnect.Services
 				throw new RadiantConnectException($"Invalid major version: {baseMajorVersion}");
 
 			string builtData = $"{branch}-shipping-{baseMajorVersionParsed}-{parsedBuildVersion}";
-			return new VersionData(branch, parsedBuildVersion.ToString(), baseMajorVersionParsed, builtData);
+			return new VersionData(branch, parsedBuildVersion.ToString(StringExtensions.CultureInfo), baseMajorVersionParsed, builtData);
 		}
 
 		private static VersionData BuildVersionDataFromApi(ValorantNet.ValorantVersionApi versionApi)
@@ -90,7 +90,7 @@ namespace RadiantConnect.Services
 
 			string builtData = $"{versionApi.Branch}-shipping-{versionApi.BuildVersion}-{buildNumber}";
 
-			return new VersionData(versionApi.Branch, buildNumber, int.Parse(versionApi.BuildVersion), builtData);
+			return new VersionData(versionApi.Branch, buildNumber, int.Parse(versionApi.BuildVersion, StringExtensions.CultureInfo), builtData);
 		}
 
 		internal static void ValidateVersionData(VersionData versionData)
@@ -105,7 +105,7 @@ namespace RadiantConnect.Services
 				throw new RadiantConnectException($"Invalid game version format: {versionData}");
 		}
 
-		private static string ExtractBranch(string rawBranch) => rawBranch.Contains('+') ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
+		private static string ExtractBranch(string rawBranch) => rawBranch.Contains('+', StringComparison.Ordinal) ? rawBranch[(rawBranch.LastIndexOf('+') + 1)..] : rawBranch;
 
 		internal static string GetOsVersion()
 		{
@@ -130,7 +130,7 @@ namespace RadiantConnect.Services
 		{
 			string? arch = Environment.GetEnvironmentVariable("PROCESSOR_ARCHITECTURE");
 
-			return (arch is null || !arch.Contains("64")) ? "Unknown" : arch.ToLowerInvariant();
+			return (arch is null || !arch.Contains("64", StringComparison.Ordinal)) ? "Unknown" : arch.ToUpperInvariant();
 		}
 
 		private static readonly JsonSerializerOptions Base64Options = new() { WriteIndented = false };

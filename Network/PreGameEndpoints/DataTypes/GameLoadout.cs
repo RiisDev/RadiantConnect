@@ -1,4 +1,5 @@
-﻿namespace RadiantConnect.Network.PreGameEndpoints.DataTypes
+﻿#pragma warning disable CA1716
+namespace RadiantConnect.Network.PreGameEndpoints.DataTypes
 {
 	// ReSharper disable All
 

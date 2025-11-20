@@ -4,7 +4,7 @@ using System.Web;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
-	internal class LoginQrManager(HttpClient client)
+	internal sealed class LoginQrManager(HttpClient client)
 	{
 		private static readonly string TraceId = Guid.NewGuid().ToString("N");
 		private static readonly string ParentId = Guid.NewGuid().ToString("N")[..16];

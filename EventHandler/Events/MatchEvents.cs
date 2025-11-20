@@ -3,7 +3,7 @@
 	public class MatchEvents
 	{
 		private string? _mapName;
-		private static string GetWinningTeam(string log) => log.TryExtractSubstring("Team: ", '(', startIndex => startIndex >= 0).Trim().Replace("Team:'", "")[..^1];
+		private static string GetWinningTeam(string log) => log.TryExtractSubstring("Team: ", '(', startIndex => startIndex >= 0).Trim().Replace("Team:'", "", StringComparison.InvariantCultureIgnoreCase)[..^1];
 		private static string GetMapName(string log) => log.TryExtractSubstring("Map Name:", '|', startIndex => startIndex >= 0, "Map Name: ").Trim();
 		
 		public delegate void MatchEvent<in T>(T value);

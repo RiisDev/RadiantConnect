@@ -4,7 +4,7 @@ using System.Net.Http.Headers;
 
 namespace RadiantConnect.Authentication.RiotClient
 {
-	internal class LockFileAuth
+	internal sealed class LockFileAuth
 	{
 		[SuppressMessage("ReSharper", "InvertIf")] // Justification: Readability
 		internal async Task<RSOAuth?> Run()
@@ -18,12 +18,11 @@ namespace RadiantConnect.Authentication.RiotClient
 
 			if (userAuth == null) throw new RadiantConnectAuthException("Failed to grab auth from lockfile, is riot client logged in and running? 0x2");
 
-			HttpClient client = new(new HttpClientHandler
-			{
-				AllowAutoRedirect = true,
-				AutomaticDecompression = DecompressionMethods.All,
-				ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-			});
+			using HttpClientHandler handler = new();
+			handler.AllowAutoRedirect = true;
+			handler.AutomaticDecompression = DecompressionMethods.All;
+			handler.ServerCertificateCustomValidationCallback = (_, _, _, _) => true;
+			using HttpClient client = new(handler);
 			
 			client.DefaultRequestHeaders.Authorization = AuthenticationHeaderValue.Parse($"Basic {$"riot:{userAuth.OAuth}".ToBase64()}");
 			HttpResponseMessage response = await client.GetAsync($"https://127.0.0.1:{userAuth.AuthorizationPort}/riot-client-auth/v1/authorization").ConfigureAwait(false);
@@ -35,9 +34,7 @@ namespace RadiantConnect.Authentication.RiotClient
 			
 			if (rsoClientData == null)
 				throw new RadiantConnectAuthException("Failed to parse RSO client data from lockfile auth.");
-
-			client.Dispose();
-
+			
 			string authBearer = rsoClientData.AccessToken.Token;
 
 			(string pasToken, string entitlementToken, object clientConfig, string userInfo, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer).ConfigureAwait(false);
@@ -81,33 +78,34 @@ namespace RadiantConnect.Authentication.RiotClient
 			);
 
 		}
-		public record AccessToken(
+
+		private record AccessToken(
 			[property: JsonPropertyName("clientId")] string ClientId,
 			[property: JsonPropertyName("expiry")] int? Expiry,
 			[property: JsonPropertyName("scopes")] IReadOnlyList<string> Scopes,
 			[property: JsonPropertyName("token")] string Token
 		);
 
-		public record Acct(
+		private record Acct(
 			[property: JsonPropertyName("game_name")] string GameName,
 			[property: JsonPropertyName("tag_line")] string TagLine
 		);
 
-		public record Claims(
+		private record Claims(
 			[property: JsonPropertyName("acct")] Acct Acct,
 			[property: JsonPropertyName("acr")] string Acr,
 			[property: JsonPropertyName("country")] string Country,
 			[property: JsonPropertyName("login_country")] string LoginCountry
 		);
 
-		public record IdToken(
+		private record IdToken(
 			[property: JsonPropertyName("clientId")] string ClientId,
 			[property: JsonPropertyName("expiry")] int? Expiry,
 			[property: JsonPropertyName("nonce")] string Nonce,
 			[property: JsonPropertyName("token")] string Token
 		);
 
-		public record RSOClientReturn(
+		private record RSOClientReturn(
 			[property: JsonPropertyName("accessToken")] AccessToken AccessToken,
 			[property: JsonPropertyName("authenticationType")] string AuthenticationType,
 			[property: JsonPropertyName("claims")] Claims Claims,

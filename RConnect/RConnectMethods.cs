@@ -53,7 +53,7 @@ namespace RadiantConnect.RConnect
 			}
 
 			double calculation = Math.Floor(totalDamage / (totalSpent / 1000));
-			long parsedResult = long.Parse(calculation.ToString(CultureInfo.InvariantCulture));
+			long parsedResult = long.Parse(calculation.ToString(CultureInfo.InvariantCulture), StringExtensions.CultureInfo);
 			return parsedResult;
 		}
 
@@ -62,12 +62,12 @@ namespace RadiantConnect.RConnect
 			string puuid = player.Subject;
 			string gameName = player.GameName;
 			string tagLine = player.TagLine;
-			string character = ValorantTables.AgentIdToAgent[player.CharacterId.ToLower()];
+			string character = ValorantTables.AgentIdToAgent[player.CharacterId.ToLower(StringExtensions.CultureInfo)];
 			bool wonGame = player.TeamId == winningTeam;
-			int accountLevel = int.Parse(player.AccountLevel?.ToString() ?? "0");
+			int accountLevel = int.Parse(player.AccountLevel?.ToString(StringExtensions.CultureInfo) ?? "0", StringExtensions.CultureInfo);
 
 			double averageCombatScore = Math.Floor((player.Stats.Score + .0 ?? 1.0) / (player.Stats.RoundsPlayed + .0 ?? 1.0));
-			long acsParsed = long.Parse(averageCombatScore.ToString(CultureInfo.InvariantCulture));
+			long acsParsed = long.Parse(averageCombatScore.ToString(StringExtensions.CultureInfo), StringExtensions.CultureInfo);
 
 			Stats stats = new(
 				player.Stats.RoundsPlayed ?? 0,
@@ -97,127 +97,132 @@ namespace RadiantConnect.RConnect
 		public static bool IsValorantRunning() => InternalValorantMethods.IsValorantProcessRunning();
 		public static bool IsRiotClientRunning() => InternalValorantMethods.IsRiotClientRunning();
 
-		public static async Task<string?> GetRiotIdByPuuidAsync(this Initiator initiator, string puuid)
+#pragma warning disable CA1034
+		extension(Initiator initiator)
+#pragma warning restore CA1034
 		{
-			List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid).ConfigureAwait(false);
+			public async Task<string?> GetRiotIdByPuuidAsync(string puuid)
+			{
+				List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid).ConfigureAwait(false);
 		   
-			if (serviceResponse == null) return null;
-			if (serviceResponse.Count == 0) return null;
+				if (serviceResponse == null) return null;
+				if (serviceResponse.Count == 0) return null;
 
-			NameService userId = serviceResponse[0];
+				NameService userId = serviceResponse[0];
 
-			return $"{userId.GameName}#{userId.TagLine}";
-		}
+				return $"{userId.GameName}#{userId.TagLine}";
+			}
 
-		public static async Task<string?> GetPuuidByNameAsync(this Initiator initiator, string gameName, string tagLine)
-		{
-			string? aliasReturn = await initiator.Endpoints.LocalEndpoints.PerformLocalRequestAsync(ValorantNet.HttpMethod.Get, $"/player-account/aliases/v1/lookup?gameName={gameName}&tagLine={tagLine}").ConfigureAwait(false);
+			public async Task<string?> GetPuuidByNameAsync(string gameName, string tagLine)
+			{
+				string? aliasReturn = await initiator.Endpoints.LocalEndpoints.PerformLocalRequestAsync(ValorantNet.HttpMethod.Get, $"/player-account/aliases/v1/lookup?gameName={gameName}&tagLine={tagLine}").ConfigureAwait(false);
 
-			string? parsedId = aliasReturn?[(aliasReturn.LastIndexOf(':') + 2)..^3];
+				string? parsedId = aliasReturn?[(aliasReturn.LastIndexOf(':') + 2)..^3];
 
-			return parsedId;
-		}
+				return parsedId;
+			}
 
-		#pragma warning disable IDE0046
-		public static async Task<string?> GetValorantRankAsync(this Initiator initiator, string puuid)
-		{
-			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
+			public async Task<string?> GetValorantRankAsync(string puuid)
+			{
+				PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
 			
-			string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
-			if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return "Unranked";
+				string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
+				if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return "Unranked";
 		   
-			return !playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId,
-				out SeasonId? seasonData)
-				? "Unranked"
-				: ValorantTables.TierToRank[seasonData.CompetitiveTier ?? 0];
-		}
-
-		public static async Task<int?> GetCurrentRankRatingAsync(this Initiator initiator, string puuid)
-		{
-			PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
-
-			string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
-
-			if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return 0;
-			try
-			{
-				if (playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId, out SeasonId? seasonData))
-					return seasonData.RankedRating.HasValue ? int.Parse(seasonData.RankedRating.Value.ToString()) : 0;
-			}catch {/**/}
-
-			return 0;
-		}
-
-		public static async Task<List<MatchStats?>> GetRecentMatchStatsAsync(this Initiator initiator, string puuid)
-		{
-			List<MatchStats?> stats = [];
-			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
-
-			if (matchHistory == null) return stats;
-			if (matchHistory.History.Count == 0) return stats;
-
-			foreach (MatchHistoryInternal matchData in matchHistory.History)
-				stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchId).ConfigureAwait(false));
-
-			return stats;
-		}
-
-		public static async Task<MatchStats?> GetLastMatchLeaderboardAsync(this Initiator initiator, string puuid, bool competitiveOnly = false)
-		{
-			MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
-
-			if (matchHistory == null) return null;
-			if (matchHistory.History.Count == 0) return null;
-
-			MatchHistoryInternal match = matchHistory.History[0];
-
-			try
-			{
-				if (competitiveOnly)
-					match = matchHistory.History.First(matchData => matchData.QueueId == "competitive");
-			}
-			catch (InvalidOperationException) { return null;}
-
-			return await GetMatchLeaderboardAsync(initiator, match.MatchId).ConfigureAwait(false);
-		}
-
-		public static async Task<MatchStats?> GetMatchLeaderboardAsync(this Initiator initiator, string matchId)
-		{
-			MatchInfo? matchInfo = await initiator.Endpoints.PvpEndpoints.FetchMatchInfoAsync(matchId).ConfigureAwait(false);
-			if (matchInfo == null) return null;
-
-			List<Player> playerList = [];
-			MatchInfoInternal internalInfo = matchInfo.MatchInfoInternal;
-			string mapId = internalInfo.MapId;
-			string parsedMapName = mapId[(mapId.LastIndexOf('/')+1)..];
-			string properMapName = ValorantTables.InternalMapNames[parsedMapName];
-			string properQueueId = ValorantTables.InternalGameModeToGameMode[internalInfo.QueueId];
-			string winningTeam = matchInfo.Teams.First(team => team.Won == true).TeamId;
-
-			playerList.AddRange(matchInfo.Players.Select(player => InternalMethods.ParsePlayerData(player, matchInfo.RoundResults, winningTeam)));
-
-			return new MatchStats(
-				internalInfo.MatchId,
-				properMapName,
-				internalInfo.GamePodId,
-				properQueueId,
-				internalInfo.SeasonId,
-				winningTeam,
-				playerList
-			);
-		}
-
-		public static async Task<string?> FetchCurrentSeasonIdAsync(this Initiator initiator)
-		{
-			Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync().ConfigureAwait(false);
-			string? seasonId;
-			try {
-				seasonId = content?.Seasons.First(x => x.IsActive.HasValue && x.IsActive.Value && x.Type == "act").Id;
-			} catch {
-				seasonId = string.Empty;
+				return !playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId,
+					out SeasonId? seasonData)
+					? "Unranked"
+					: ValorantTables.TierToRank[seasonData.CompetitiveTier ?? 0];
 			}
 
-			return seasonId;
+			public async Task<int?> GetCurrentRankRatingAsync(string puuid)
+			{
+				PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
+
+				string? seasonId = await FetchCurrentSeasonIdAsync(initiator).ConfigureAwait(false);
+
+				if (playerMmr is null || seasonId is null or "" || playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID is null) return 0;
+				try
+				{
+					if (playerMmr.QueueSkills.Competitive.SeasonalInfoBySeasonID.TryGetValue(seasonId, out SeasonId? seasonData))
+						return seasonData.RankedRating.HasValue ? int.Parse(seasonData.RankedRating.Value.ToString(StringExtensions.CultureInfo), StringExtensions.CultureInfo) : 0;
+				}catch {/**/}
+
+				return 0;
+			}
+
+			public async Task<List<MatchStats?>> GetRecentMatchStatsAsync(string puuid)
+			{
+				List<MatchStats?> stats = [];
+				MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
+
+				if (matchHistory == null || matchHistory.History.Count == 0) return stats;
+
+				foreach (MatchHistoryInternal matchData in matchHistory.History)
+					stats.Add(await GetMatchLeaderboardAsync(initiator, matchData.MatchId).ConfigureAwait(false));
+
+				return stats;
+			}
+
+			public async Task<MatchStats?> GetLastMatchLeaderboardAsync(string puuid, bool competitiveOnly = false)
+			{
+				MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
+
+				if (matchHistory == null) return null;
+				if (matchHistory.History.Count == 0) return null;
+
+				MatchHistoryInternal match = matchHistory.History[0];
+
+				try
+				{
+					if (competitiveOnly)
+						match = matchHistory.History.First(matchData => matchData.QueueId == "competitive");
+				}
+				catch (InvalidOperationException) { return null;}
+
+				return await GetMatchLeaderboardAsync(initiator, match.MatchId).ConfigureAwait(false);
+			}
+
+			public async Task<MatchStats?> GetMatchLeaderboardAsync(string matchId)
+			{
+				MatchInfo? matchInfo = await initiator.Endpoints.PvpEndpoints.FetchMatchInfoAsync(matchId).ConfigureAwait(false);
+				if (matchInfo == null) return null;
+
+				List<Player> playerList = [];
+				MatchInfoInternal internalInfo = matchInfo.MatchInfoInternal;
+				string mapId = internalInfo.MapId;
+				string parsedMapName = mapId[(mapId.LastIndexOf('/')+1)..];
+				string properMapName = ValorantTables.InternalMapNames[parsedMapName];
+				string properQueueId = ValorantTables.InternalGameModeToGameMode[internalInfo.QueueId];
+				string winningTeam = matchInfo.Teams.First(team => team.Won == true).TeamId;
+
+				playerList.AddRange(matchInfo.Players.Select(player => InternalMethods.ParsePlayerData(player, matchInfo.RoundResults, winningTeam)));
+
+				return new MatchStats(
+					internalInfo.MatchId,
+					properMapName,
+					internalInfo.GamePodId,
+					properQueueId,
+					internalInfo.SeasonId,
+					winningTeam,
+					playerList
+				);
+			}
+
+			public async Task<string?> FetchCurrentSeasonIdAsync()
+			{
+				Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync().ConfigureAwait(false);
+				string? seasonId;
+				try {
+					seasonId = content?.Seasons.First(x => x.IsActive.HasValue && x.IsActive.Value && x.Type == "act").Id;
+				} catch {
+					seasonId = string.Empty;
+				}
+
+				return seasonId;
+			}
 		}
+
+#pragma warning disable IDE0046
 	}
 }

@@ -1,9 +1,10 @@
 ﻿using System.Net.WebSockets;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+#pragma warning disable CA1508
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-	internal class SocketHandler
+	internal sealed class SocketHandler
 	{
 		public SocketHandler(ClientWebSocket socket, AuthHandler authHandler, int port)
 		{
@@ -205,7 +206,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				 	}, 150);
 				 
 				 })();
-				 """.Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
+				 """.Replace("%PASSWORD_DATA%", password, StringComparison.InvariantCultureIgnoreCase).Replace("%USERNAME_DATA%", username, StringComparison.InvariantCultureIgnoreCase);
 		}
 		
 		internal static async Task<string?> ExecuteOnPageWithResponse(Dictionary<string, object> dataToSend)

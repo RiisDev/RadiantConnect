@@ -1,6 +1,4 @@
-﻿#pragma warning disable IDE0305
-#pragma warning disable IDE0046
-
+﻿
 namespace RadiantConnect.Utilities
 {
 	internal static class InternalHttp
@@ -142,28 +140,28 @@ namespace RadiantConnect.Utilities
 				return (T)(object)jsonData;
 
 			if (targetType == typeof(int) && int.TryParse(jsonData, out int intValue))
-				return (T)Convert.ChangeType(intValue, targetType);
+				return (T)Convert.ChangeType(intValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(long) && long.TryParse(jsonData, out long longValue))
-				return (T)Convert.ChangeType(longValue, targetType);
+				return (T)Convert.ChangeType(longValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(bool) && bool.TryParse(jsonData, out bool boolValue))
-				return (T)Convert.ChangeType(boolValue, targetType);
+				return (T)Convert.ChangeType(boolValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(double) && double.TryParse(jsonData, out double doubleValue))
-				return (T)Convert.ChangeType(doubleValue, targetType);
+				return (T)Convert.ChangeType(doubleValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(decimal) && decimal.TryParse(jsonData, out decimal decimalValue))
-				return (T)Convert.ChangeType(decimalValue, targetType);
+				return (T)Convert.ChangeType(decimalValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(float) && float.TryParse(jsonData, out float floatValue))
-				return (T)Convert.ChangeType(floatValue, targetType);
+				return (T)Convert.ChangeType(floatValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(DateTime) && DateTime.TryParse(jsonData, out DateTime dateValue))
-				return (T)Convert.ChangeType(dateValue, targetType);
+				return (T)Convert.ChangeType(dateValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType == typeof(Guid) && Guid.TryParse(jsonData, out Guid guidValue))
-				return (T)Convert.ChangeType(guidValue, targetType);
+				return (T)Convert.ChangeType(guidValue, targetType, StringExtensions.CultureInfo);
 
 			if (targetType.IsEnum && Enum.TryParse(targetType, jsonData, out object? enumValue))
 				return (T)enumValue;

@@ -25,7 +25,9 @@
 		[property: JsonPropertyName("ItemID")] string ItemID
 	);
 
+#pragma warning disable CA1716
 	public record Option(
+#pragma warning restore CA1716
 		[property: JsonPropertyName("OptionID")] string OptionId,
 		[property: JsonPropertyName("Cost")] Cost Cost,
 		[property: JsonPropertyName("Rewards")] IReadOnlyList<Reward> Rewards

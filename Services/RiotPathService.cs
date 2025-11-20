@@ -14,7 +14,7 @@ namespace RadiantConnect.Services
 					"InstallLocation", "")?.ToString() ?? "";
 
 				if (installLocation.IsNullOrEmpty())
-					throw new AccessViolationException("Failed to access registry key for valorant.live");
+					throw new InvalidOperationException("Failed to access registry key for valorant.live");
 
 				installLocation += @"\ShooterGame\Binaries\Win64\VALORANT-Win64-Shipping.exe";
 			}
@@ -40,7 +40,7 @@ namespace RadiantConnect.Services
 					"InstallLocation", "")?.ToString() ?? "";
 
 				if (installString.IsNullOrEmpty())
-					throw new AccessViolationException("Failed to access registry key for Riot_Client");
+					throw new InvalidOperationException("Failed to access registry key for Riot_Client");
 
 				if (!Directory.Exists(installString))
 					throw new DirectoryNotFoundException("Failed to find Riot Client install path");

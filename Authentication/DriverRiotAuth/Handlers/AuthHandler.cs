@@ -3,7 +3,7 @@ using RadiantConnect.Authentication.DriverRiotAuth.Records;
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-	internal class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies, bool headless) : IDisposable
+	internal sealed class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies, bool headless) : IDisposable
 	{
 		public Authentication.DriverStatus DriverStatus
 		{
@@ -110,7 +110,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 			while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500).ConfigureAwait(false); // Wait for MFA code to be set
 
-			MultiFactorCode = MultiFactorCode.Replace(" ", "");
+			MultiFactorCode = MultiFactorCode.Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
 			MultiFactorCode = MultiFactorCode.Trim();
 			if (MultiFactorCode.Length != 6) throw new RadiantConnectAuthException("Invalid MFA code length");
 

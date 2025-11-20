@@ -1,4 +1,5 @@
-﻿namespace RadiantConnect.Network.LocalEndpoints.DataTypes
+﻿#pragma warning disable CA1716
+namespace RadiantConnect.Network.LocalEndpoints.DataTypes
 {
 	// ReSharper disable All
 

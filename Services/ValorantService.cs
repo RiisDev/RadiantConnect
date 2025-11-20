@@ -26,7 +26,7 @@ namespace RadiantConnect.Services
 			string userPlatform = GameVersionService.GetClientPlatform();
 			string engineVersion = $"{fileInfo.FileMajorPart}.{fileInfo.FileMinorPart}.{fileInfo.FileBuildPart}.{fileInfo.FilePrivatePart}";
 			string branch = versionData.Branch;
-			string buildVersion = versionData.VersionNumber.ToString();
+			string buildVersion = versionData.VersionNumber.ToString(StringExtensions.CultureInfo);
 			string changelist = versionData.BuildVersion;
 			string clientVersion = versionData.BuiltData;
 

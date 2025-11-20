@@ -22,7 +22,7 @@
 					_roundEnded = false;
 					break;
 				case "Round_Ended":
-					int roundNumber = int.Parse(logData.ExtractValue(@"round '([a-fA-F\d-]+)'", 1)) + 1;
+					int roundNumber = int.Parse(logData.ExtractValue(@"round '([a-fA-F\d-]+)'", 1), StringExtensions.CultureInfo) + 1;
 					if (_roundNumber < roundNumber) _roundNumber = roundNumber;
 					OnRoundEnded?.Invoke(roundNumber);
 					_roundEnded = true;

@@ -196,9 +196,9 @@ namespace RadiantConnect.Network.PartyEndpoints
 		public async Task KickFromPartyAsync(string userId) => await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}").ConfigureAwait(false);
 
 		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
-		internal async Task<Party?> RequestPartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync()}/request").ConfigureAwait(false);
+		internal async Task<Party?> RequestPartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync().ConfigureAwait(false)}/request").ConfigureAwait(false);
 
 		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
-		internal async Task<Party?> DeclinePartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync()}/request").ConfigureAwait(false);
+		internal async Task<Party?> DeclinePartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync().ConfigureAwait(false)}/request").ConfigureAwait(false);
 	}
 }

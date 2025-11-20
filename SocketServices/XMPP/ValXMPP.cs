@@ -56,6 +56,7 @@ namespace RadiantConnect.XMPP
 			Handle.Dispose();
 			try { _valorantProcess.Kill(); } catch { /**/ }
 			_cancellationTokenSource.Dispose();
+			_valorantProcess.Dispose();
 			GC.SuppressFinalize(this);
 		}
 
@@ -101,14 +102,14 @@ namespace RadiantConnect.XMPP
 
 		internal static void HandlePlayerPresence(string data, Action<PlayerPresence>? action = null)
 		{
-			if (!data.Contains("<item jid=")) return;
+			if (!data.Contains("<item jid=", StringComparison.Ordinal)) return;
 
 			string[] presences = data.Split("<presence to=");
 
 			foreach (string presence in presences)
 			{
 				if (string.IsNullOrEmpty(presence)) continue;
-				if (!presence.Contains("tagline=")) continue;
+				if (!presence.Contains("tagline=", StringComparison.Ordinal)) continue;
 
 				Match presenceMatch = XmlPresenceUpdateRegex().Match($"<presence to={presence}");
 				if (!presenceMatch.Success) return;
@@ -145,7 +146,7 @@ namespace RadiantConnect.XMPP
 					"riot",
 					riotId,
 					tagLine,
-					lobbyServer[(lobbyServer.IndexOf('/') + 1)..],
+					lobbyServer[(lobbyServer.IndexOf('/', StringComparison.Ordinal) + 1)..],
 					platforms,
 					HandlePresenceObject(newData)!
 				));
@@ -195,7 +196,7 @@ namespace RadiantConnect.XMPP
 					{
 						OnServerMessage?.Invoke(data);
 
-						if (!data.Contains("<valorant>")) return;
+						if (!data.Contains("<valorant>", StringComparison.Ordinal)) return;
 
 						HandleValorantPresence(data);
 					};

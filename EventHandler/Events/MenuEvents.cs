@@ -15,7 +15,7 @@
 
 		public void HandleMenuEvent(string invoker, string logData)
 		{
-			if (!logData.Contains("LogMenuStackManager")) return;
+			if (!logData.Contains("LogMenuStackManager", StringComparison.InvariantCultureIgnoreCase)) return;
 
 			switch (invoker)
 			{

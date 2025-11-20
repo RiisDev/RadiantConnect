@@ -19,6 +19,7 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 			try { incomingStream?.Dispose(); } catch { /* ignored */ }
 			try { outgoingStream.Dispose(); } catch { /* ignored */ }
 			_cancellationTokenSource.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 		internal void Initiate()

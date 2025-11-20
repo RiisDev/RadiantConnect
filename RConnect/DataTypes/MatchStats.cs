@@ -33,6 +33,6 @@ namespace RadiantConnect.RConnect.DataTypes
 		string QueueId,
 		string SeasonId,
 		string WinningTeam,
-		List<Player> Players
+		IReadOnlyList<Player> Players
 	);
 }

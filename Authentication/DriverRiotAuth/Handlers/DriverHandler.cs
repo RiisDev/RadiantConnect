@@ -2,11 +2,12 @@
 using static RadiantConnect.Authentication.DriverRiotAuth.Events;
 using Match = System.Text.RegularExpressions.Match;
 
+#pragma warning disable CA1849 // ListenAsync memory stream
 #pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-	internal partial class DriverHandler
+	internal sealed partial class DriverHandler
 	{
 		internal static event RuntimeChanged? OnRuntimeChanged;
 
@@ -53,33 +54,33 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			Match match;
 			switch (message)
 			{
-				case var _ when message.Contains("Page.frameNavigated"):
+				case var _ when message.Contains("Page.frameNavigated", StringComparison.InvariantCultureIgnoreCase):
 					match = FrameNavigatedRegex().Match(message);
 					if (match.Success)
 						OnFrameNavigation?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
 					break;
-				case var _ when message.Contains("Page.frameStoppedLoading"):
+				case var _ when message.Contains("Page.frameStoppedLoading", StringComparison.InvariantCultureIgnoreCase):
 					match = FrameStoppedLoadingRegex().Match(message);
 					if (match.Success)
 						OnFrameLoaded?.Invoke(null, match.Groups[1].Value);
 					break;
-				case var _ when message.Contains("navigatedWithinDocument"):
+				case var _ when message.Contains("navigatedWithinDocument", StringComparison.InvariantCultureIgnoreCase):
 					match = NavigatedWithinDocument().Match(message);
 					if (match.Success)
 						OnDocumentNavigate?.Invoke(match.Groups[2].Value, match.Groups[1].Value);
 					break;
 
-				case var _ when message.Contains("[RADIANTCONNECT] MFA Detected"):
+				case var _ when message.Contains("[RADIANTCONNECT] MFA Detected", StringComparison.InvariantCultureIgnoreCase):
 					OnMfaDetected?.Invoke();
 					break;
-				case var _ when message.Contains("[RADIANTCONNECT] Access Token"):
+				case var _ when message.Contains("[RADIANTCONNECT] Access Token", StringComparison.InvariantCultureIgnoreCase):
 					OnAccessTokenFound?.Invoke(AuthUtil.ParseAccessToken(message));
 					break;
-				case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAFOUND"):
+				case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAFOUND", StringComparison.InvariantCultureIgnoreCase):
 					OnCaptchaFound?.Invoke();
 					Win32.CaptchaFound = true;
 					break;
-				case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAREMOVED"):
+				case var _ when message.Contains("[RADIANTCONNECT] CAPTCHAREMOVED", StringComparison.InvariantCultureIgnoreCase):
 					OnCaptchaRemoved?.Invoke();
 					Win32.CaptchaFound = false;
 					break;
@@ -92,16 +93,16 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		{
 			await CheckForEvent(message).ConfigureAwait(false);
 			if (OnRuntimeChanged is not null && (
-					message.Contains("frameScheduledNavigation") || 
-					message.Contains("\"result\":{}}") || 
-					message.Contains("\"result\":{\"identifier\":\"1\"}}"))
+					message.Contains("frameScheduledNavigation", StringComparison.InvariantCultureIgnoreCase) || 
+					message.Contains("\"result\":{}}", StringComparison.InvariantCultureIgnoreCase) || 
+					message.Contains("\"result\":{\"identifier\":\"1\"}}", StringComparison.InvariantCultureIgnoreCase))
 			) OnRuntimeChanged.Invoke();
 
 			Dictionary<string, object>? json = JsonSerializer.Deserialize<Dictionary<string, object>>(message);
 
 			if (json == null || !json.TryGetValue("id", out object? value)) return;
 
-			int id = int.Parse(value.ToString() ?? "-1");
+			int id = int.Parse(value.ToString() ?? "-1", StringExtensions.CultureInfo);
 			if (id == -1) return;
 			if (!PendingRequests.TryGetValue(id, out TaskCompletionSource<string>? tcs)) return;
 
@@ -140,11 +141,11 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			{
 				string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json").ConfigureAwait(false);
 				if (pageData.IsNullOrEmpty()) return null;
-				if (pageData.Contains("\"title\": \"Google\"")) continue;
+				if (pageData.Contains("\"title\": \"Google\"", StringComparison.InvariantCultureIgnoreCase)) continue;
 				int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
 				if (urlStartIndex == -1) continue;
 				int urlValueStart = pageData.IndexOf("ws://", urlStartIndex, StringComparison.OrdinalIgnoreCase);
-				int urlValueEnd = pageData.IndexOf("\"", urlValueStart, StringComparison.OrdinalIgnoreCase);
+				int urlValueEnd = pageData.IndexOf('"', urlValueStart);
 				
 				return pageData[urlValueStart..urlValueEnd];
 			}
