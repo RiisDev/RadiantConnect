@@ -40,7 +40,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			{
 				case 0 when !killBrowser:
 					throw new RadiantConnectException($"{browserProcesses.First().ProcessName} is currently running, it must be closed or Initialize must be started with 'true'");
-				case 0 when killBrowser:
+				case >0 when killBrowser:
 					browserProcesses.ToList().ForEach(x => x.Kill());
 					break;
 			}
@@ -141,7 +141,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			{
 				string? pageData = await InternalHttp.GetAsync<string>($"http://localhost:{port}", "/json").ConfigureAwait(false);
 				if (pageData.IsNullOrEmpty()) return null;
-				if (pageData.Contains("\"title\": \"Google\"", StringComparison.InvariantCultureIgnoreCase)) continue;
+				if (!pageData.Contains("\"title\": \"Google\"", StringComparison.InvariantCultureIgnoreCase)) continue;
 				int urlStartIndex = pageData.IndexOf("\"webSocketDebuggerUrl\": \"ws://", StringComparison.OrdinalIgnoreCase);
 				if (urlStartIndex == -1) continue;
 				int urlValueStart = pageData.IndexOf("ws://", urlStartIndex, StringComparison.OrdinalIgnoreCase);

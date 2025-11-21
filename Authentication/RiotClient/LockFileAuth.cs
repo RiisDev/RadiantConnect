@@ -37,10 +37,11 @@ namespace RadiantConnect.Authentication.RiotClient
 			
 			string authBearer = rsoClientData.AccessToken.Token;
 
-			(string pasToken, string entitlementToken, object clientConfig, string userInfo, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer).ConfigureAwait(false);
+			(string pasToken, string entitlementToken, object clientConfig, string _, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer).ConfigureAwait(false);
 
-			JsonDocument document = JsonDocument.Parse(userInfo);
-			string affinity = document.RootElement.GetProperty("original_platform_id").GetString() ?? "";
+			JsonWebToken affinityJwt = new(pasToken);
+			string affinity = affinityJwt.GetRequiredPayloadValue<string>("affinity") ?? "";
+			string chatAffinity = affinityJwt.GetRequiredPayloadValue<string>("desired.affinity") ?? "";
 
 			string? ssid = null, clid = null, csid = null, tdid = null;
 
@@ -71,7 +72,7 @@ namespace RadiantConnect.Authentication.RiotClient
 				PasToken: pasToken,
 				Entitlement: entitlementToken,
 				Affinity: affinity,
-				ChatAffinity: affinity,
+				ChatAffinity: chatAffinity,
 				ClientConfig: clientConfig,
 				RiotCookies: null,
 				IdToken: rsoClientData.IdToken.Token

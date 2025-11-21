@@ -176,13 +176,12 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) = await AuthUtil.GetAuthTokensFromAccessToken(accessToken).ConfigureAwait(false);
 
 				JsonWebToken jwt = new(pasToken);
-				string? affinity = jwt.GetPayloadValue<string>("affinity");
-				string? chatAffinity = jwt.GetPayloadValue<string>("desired.affinity");
-				string? subject = new JsonWebToken(accessToken).GetPayloadValue<string>("sub");
+				string affinity = jwt.GetRequiredPayloadValue<string>("affinity");
+				string chatAffinity = jwt.GetRequiredPayloadValue<string>("desired.affinity");
+				string subject = new JsonWebToken(accessToken).GetRequiredPayloadValue<string>("sub");
 
 				CookieCollection cookies = container.GetAllCookies();
-
-
+				
 				OnTokensFinished?.Invoke(new RSOAuth(
 					subject,
 					cookies.First(x => x.Name == "ssid").Value,

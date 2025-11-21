@@ -118,32 +118,40 @@ namespace RadiantConnect.Utilities
 			_headerElement.TryGetProperty(key, out JsonElement element)
 				? JsonSerializer.Deserialize<T>(element.GetRawText())
 				: default;
-
+		
 		public T? GetPayloadValue<T>(string keyPath) => TryGetPayloadElement(keyPath, out JsonElement element) ? JsonSerializer.Deserialize<T>(element.GetRawText()) : default;
+		
+		public T GetRequiredHeaderValue<T>(string key) => GetHeaderValue<T>(key) ?? throw new InvalidOperationException($"Required header value '{key}' not found in JWT.");
+		
+		public T GetRequiredPayloadValue<T>(string keyPath) => GetPayloadValue<T>(keyPath) ?? throw new InvalidOperationException($"Required payload value '{keyPath}' not found in JWT.");
 
 		[SuppressMessage("ReSharper", "RemoveRedundantBraces")]
 		private bool TryGetPayloadElement(string keyPath, out JsonElement element)
 		{
 			element = _payloadElement;
+
 			if (_payloadElement.ValueKind != JsonValueKind.Object)
 				return false;
 
 			string[] keys = keyPath.Split('.');
+			JsonElement current = _payloadElement;
+
 			foreach (string key in keys)
 			{
-				if (element.ValueKind == JsonValueKind.Object && element.TryGetProperty(key, out JsonElement next))
-				{
-					element = next;
-				}
-				else
-				{
-					element = default;
-					return false;
-				}
+				if (current.ValueKind == JsonValueKind.Object && current.TryGetProperty(key, out JsonElement next)) current = next;
+				else { current = default; break; }
 			}
-			return true;
-		}
 
+			if (current.ValueKind != JsonValueKind.Undefined) { element = current; return true; }
+
+			// Try fallback of full path
+			// Should fix issue with key 'desired.affinity' not being found
+			if (_payloadElement.TryGetProperty(keyPath, out JsonElement fallback)) { element = fallback; return true; }
+
+			element = default;
+			return false;
+		}
+		
 		private static string DecodeBase64Url(string input)
 		{
 			input = input.Replace('-', '+').Replace('_', '/');

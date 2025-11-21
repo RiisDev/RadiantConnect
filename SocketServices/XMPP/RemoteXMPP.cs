@@ -125,9 +125,9 @@ namespace RadiantConnect.SocketServices.XMPP
 				catch (IOException) { break; } // Timeout Occurred, aka no data left to read
 
 				if (byteCount > 0) contentBuilder.Append(Encoding.UTF8.GetString(bytes, 0, byteCount));
-
+				Debug.WriteLine(contentBuilder.ToString());
 			} while (byteCount > 0);
-
+			
 			if (contentBuilder.Length > 0 && Status == XMPPStatus.Connected)
 			{
 				OnMessage?.Invoke(contentBuilder.ToString());
@@ -146,11 +146,12 @@ namespace RadiantConnect.SocketServices.XMPP
 
 				Status = XMPPStatus.Connecting;
 
-				string? affinityDomain = ChatAffinity[auth.Affinity!];
-				string? token = auth.AccessToken;
 				string? pasToken = auth.PasToken;
+				string desiredAffinity = new JsonWebToken(pasToken).GetRequiredPayloadValue<string>("affinity");
+				string? affinityDomain = ChatAffinity[desiredAffinity];
+				string? token = auth.AccessToken;
 				string? entitlement = auth.Entitlement;
-				string chatHost = ChatUrls[auth.Affinity!];
+				string chatHost = ChatUrls[desiredAffinity];
 
 				Status = XMPPStatus.InitiatingSslConnection;
 				TcpClient tcpClient = new(chatHost, 5223);
@@ -173,8 +174,7 @@ namespace RadiantConnect.SocketServices.XMPP
 				AsyncSocketRead(SslStream);
 
 				Status = XMPPStatus.ReceivingFeatures;
-				await AsyncSocketWrite(SslStream,
-					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
+				await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
 				do
 				{
 					incomingData = AsyncSocketRead(SslStream);

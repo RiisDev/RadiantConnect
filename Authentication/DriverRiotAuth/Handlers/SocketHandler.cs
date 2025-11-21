@@ -58,7 +58,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				{
 					"urls", (string[])
 					[
-						"*.png",
+						//"*.png", Captcha seems to be using the png, and the lower escape doesn't work.
 						"*.webp",
 						"*.css",
 						"*.ico",
@@ -67,7 +67,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 						"*cdn.rgpub.io/*",
 						"*google-analytics.com/*",
 						"*googletagmanager.com/*",
-						"!*hcaptcha*"
 					]
 				}
 			});
@@ -156,12 +155,16 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				 		let docHref = document.location.href;
 				 
 				 		if (signInPageDetected() && !signInDetected) {
+				 			signInDetected = true;
 				 			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
 				 			set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
 				 			setTimeout(() => {
+				 				if (captchaFound) {
+				 					console.log('[RADIANTCONNECT] Waiting for CAPTCHA to be solved...');
+				 					return;
+				 				}
 				 				document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
 				 			}, 1500)
-				 			signInDetected = true;
 				 		}
 				 
 				 		if (mfaPageDetected() && !mfaDetected) {

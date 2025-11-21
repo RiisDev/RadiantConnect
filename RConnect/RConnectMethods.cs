@@ -115,6 +115,9 @@ namespace RadiantConnect.RConnect
 
 			public async Task<string?> GetPuuidByNameAsync(string gameName, string tagLine)
 			{
+				if (initiator.Endpoints.LocalEndpoints is null)
+					throw new InvalidOperationException("Endpoint is only available during local usage");
+
 				string? aliasReturn = await initiator.Endpoints.LocalEndpoints.PerformLocalRequestAsync(ValorantNet.HttpMethod.Get, $"/player-account/aliases/v1/lookup?gameName={gameName}&tagLine={tagLine}").ConfigureAwait(false);
 
 				string? parsedId = aliasReturn?[(aliasReturn.LastIndexOf(':') + 2)..^3];

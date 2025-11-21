@@ -54,12 +54,10 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) =
 				await AuthUtil.GetAuthTokensFromAccessToken(accessToken).ConfigureAwait(false);
 
-			JsonWebToken token = new(accessToken);
-			string suuid = token.Subject;
-
 			JsonWebToken affinityJwt = new(pasToken);
-			string? affinity = affinityJwt.GetPayloadValue<string>("affinity");
-			string? chatAffinity = affinityJwt.GetPayloadValue<string>("desired.affinity");
+			string suuid = affinityJwt.Subject;
+			string affinity = affinityJwt.GetRequiredPayloadValue<string>("affinity");
+			string chatAffinity = affinityJwt.GetRequiredPayloadValue<string>("desired.affinity");
 
 			CookieCollection cookies = container.GetAllCookies();
 
