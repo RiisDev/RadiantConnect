@@ -59,11 +59,11 @@ namespace RadiantConnect
 		private static async Task<LogService.ClientData> BuildClientData(ValorantNet net, RSOAuth rsoAuth)
 		{
 			if (net == null) throw new RadiantConnectException("Failed to build net data");
-
+			using StringContent content = new ($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}");
 			GeoRoot? data = await net.PutAsync<GeoRoot>(
 				"https://riot-geo.pas.si.riotgames.com",
 				"/pas/v1/product/valorant",
-				new StringContent($"{{\"id_token\": \"{rsoAuth.IdToken}\"}}")
+				content
 			).ConfigureAwait(false);
 
 			Enum.TryParse(data?.Affinities.Live, true, out LogService.ClientData.ShardType shard);
@@ -122,7 +122,10 @@ namespace RadiantConnect
 			}
 
 			ValorantService client = new ();
+
+#pragma warning disable CA2000 // LogService is disposed in InternalSystem
 			LogService logService = new();
+#pragma warning restore CA2000
 			LogService.ClientData cData = LogService.GetClientData();
 			ValorantNet net = new(client);
 

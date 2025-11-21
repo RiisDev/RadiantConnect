@@ -2,7 +2,7 @@
 
 namespace RadiantConnect.Utilities
 {
-	public class InternalValorantMethods
+	public static class InternalValorantMethods
 	{
 		public static bool ClientIsReady() =>
 			IsValorantProcessRunning() &&
@@ -10,7 +10,10 @@ namespace RadiantConnect.Utilities
 			File.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData",
 				"Local", "Riot Games", "Riot Client", "Config", "lockfile")) &&
 			File.Exists(LogService.LogPath) &&
-			!LogService.ReadTextFile(LogService.LogPath).Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.RemoveEmptyEntries).Last().Contains("Log file closed");
+			!LogService.ReadTextFile(LogService.LogPath)
+				.Split('\n', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.RemoveEmptyEntries)
+				.Last()
+				.Contains("Log file closed", StringComparison.Ordinal);
 
 		// Don't convert to LINQ, it's slower
 		[SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]

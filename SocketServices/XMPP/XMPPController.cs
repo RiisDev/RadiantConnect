@@ -78,7 +78,7 @@ namespace RadiantConnect.SocketServices.XMPP
 		{
 			if (_valClient is not null)
 				await _valClient.Handle.SendXmlMessageAsync(message).ConfigureAwait(false);
-			else if (_remoteClient is not null && _valClient is null)
+			else if (_remoteClient is not null)
 				throw new RadiantConnectXMPPException("Cannot send internal XMPP to remote client.");
 			else
 				throw new RadiantConnectXMPPException("No client connected");

@@ -16,7 +16,7 @@
 			{
 				case "Party_Updated":
 					string partyNegateData = logData[..(logData.LastIndexOf('/')+1)];
-					partyId = logData.Replace(partyNegateData, "");
+					partyId = logData.Replace(partyNegateData, "", StringComparison.Ordinal);
 					OnChanged?.Invoke(partyId);
 					break;
 				case "Party_InviteToParty":

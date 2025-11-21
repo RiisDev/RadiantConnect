@@ -3,7 +3,7 @@ using Cookie = System.Net.Cookie;
 
 namespace RadiantConnect.Authentication.SSIDReAuth
 {
-	internal class SsidAuthManager
+	internal sealed class SsidAuthManager
 	{
 		internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null)
 		{
@@ -41,11 +41,11 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			if (validAuthUrl.IsNullOrEmpty())
 				throw new RadiantConnectAuthException("Failed to get Auth Url");
 
-			if (!validAuthUrl.Contains("access_token"))
+			if (!validAuthUrl.Contains("access_token", StringComparison.InvariantCultureIgnoreCase))
 				throw new RadiantConnectAuthException(
 					"Failed to find access tokens in auth, note in certain regions you must specify CLID");
 
-			if (!validAuthUrl.Contains("id_token"))
+			if (!validAuthUrl.Contains("id_token", StringComparison.InvariantCultureIgnoreCase))
 				throw new RadiantConnectAuthException(
 					"Failed to find id tokens in auth, note in certain regions you must specify CLID");
 
@@ -54,12 +54,10 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			(string pasToken, string entitlementToken, object clientConfig, string _, string rmsToken) =
 				await AuthUtil.GetAuthTokensFromAccessToken(accessToken).ConfigureAwait(false);
 
-			JsonWebToken token = new(accessToken);
-			string suuid = token.Subject;
-
 			JsonWebToken affinityJwt = new(pasToken);
-			string? affinity = affinityJwt.GetPayloadValue<string>("affinity");
-			string? chatAffinity = affinityJwt.GetPayloadValue<string>("desired.affinity");
+			string suuid = affinityJwt.Subject;
+			string affinity = affinityJwt.GetRequiredPayloadValue<string>("affinity");
+			string chatAffinity = affinityJwt.GetRequiredPayloadValue<string>("desired.affinity");
 
 			CookieCollection cookies = container.GetAllCookies();
 

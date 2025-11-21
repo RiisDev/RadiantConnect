@@ -1,6 +1,6 @@
 ﻿// ReSharper disable CheckNamespace
 
-#pragma warning disable IDE0130
+#pragma warning disable CA1032
 
 namespace RadiantConnect
 {

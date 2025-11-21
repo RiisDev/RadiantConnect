@@ -12,7 +12,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
 	public delegate void UrlBuilder(string url);
 
-	internal class SignInManager(Authentication.CountryCode code, bool returnUrl = false)
+	internal sealed class SignInManager(Authentication.CountryCode code, bool returnUrl = false)
 	{
 		internal event UrlBuilder? OnUrlBuilt;
 

@@ -131,7 +131,7 @@ namespace RadiantConnect.Network
 
 			if (fileValues.Length < 3) return null;
 
-			int authPort = int.Parse(fileValues[2]);
+			int authPort = int.Parse(fileValues[2], StringExtensions.CultureInfo);
 			string oAuth = fileValues[3];
 			return new UserAuth(authPort, oAuth);
 		}
@@ -219,7 +219,7 @@ namespace RadiantConnect.Network
 				_client.DefaultRequestHeaders.TryAddWithoutValidation(key, value);
 		}
 
-		public class Cache
+		private class Cache
 		{
 			public string Jwt { get; set; } = string.Empty;
 			public string AccessToken { get; set; } = string.Empty;
@@ -246,9 +246,9 @@ namespace RadiantConnect.Network
 			while (retryCount < maxRetries)
 			{
 				// Set authentication headers
-				if (baseUrl.Contains("127.0.0.1") && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache).ConfigureAwait(false);
+				if (baseUrl.Contains("127.0.0.1", StringComparison.Ordinal) && _client.DefaultRequestHeaders.Authorization?.Scheme != "Basic") await SetBasicAuth(resetCache).ConfigureAwait(false);
 				else if (customHeaders is not null) SetCustomHeaders(customHeaders);
-				else if (!baseUrl.Contains("127.0.0.1")) await ResetAuth(resetCache).ConfigureAwait(false);
+				else if (!baseUrl.Contains("127.0.0.1", StringComparison.Ordinal)) await ResetAuth(resetCache).ConfigureAwait(false);
 				
 				using HttpRequestMessage httpRequest = new();
 				httpRequest.Method = MapHttpMethod(httpMethod);
@@ -269,11 +269,13 @@ namespace RadiantConnect.Network
 				switch ((int)statusCode)
 				{
 					case 200:
+						content?.Dispose();
 						return responseContent;
 					case 401:
 					case 403:
 						OnLog?.Invoke("[ValorantNet Log] Unauthorized/Forbidden, resetting cache and retrying.");
 						resetCache = true;
+						content?.Dispose();
 						break;
 					case 429:
 						OnLog?.Invoke($"[ValorantNet Log] Rate limited, waiting {backoffDelayMs / 1000} seconds before retrying.");
@@ -281,6 +283,7 @@ namespace RadiantConnect.Network
 						backoffDelayMs *= 2;
 						break;
 					case 404:
+						content?.Dispose();
 						return null;
 					default:
 						throw new RadiantConnectNetworkStatusException($"\n[ValorantNet Log] Uri:{baseUrl}{endPoint}\n[ValorantNet Log] Request Headers:{JsonSerializer.Serialize(_client.DefaultRequestHeaders.ToDictionary())}\n[ValorantNet Log] Request Content: {JsonSerializer.Serialize(content)}\n[ValorantNet Log] Response Content:{responseContent}\n[ValorantNet Log] Response Data: {responseMessage}");
@@ -365,28 +368,28 @@ namespace RadiantConnect.Network
 					return (T)(object)jsonData;
 
 				if (targetType == typeof(int) && int.TryParse(jsonData, out int intValue))
-					return (T)Convert.ChangeType(intValue, targetType);
+					return (T)Convert.ChangeType(intValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(long) && long.TryParse(jsonData, out long longValue))
-					return (T)Convert.ChangeType(longValue, targetType);
+					return (T)Convert.ChangeType(longValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(bool) && bool.TryParse(jsonData, out bool boolValue))
-					return (T)Convert.ChangeType(boolValue, targetType);
+					return (T)Convert.ChangeType(boolValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(double) && double.TryParse(jsonData, out double doubleValue))
-					return (T)Convert.ChangeType(doubleValue, targetType);
+					return (T)Convert.ChangeType(doubleValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(decimal) && decimal.TryParse(jsonData, out decimal decimalValue))
-					return (T)Convert.ChangeType(decimalValue, targetType);
+					return (T)Convert.ChangeType(decimalValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(float) && float.TryParse(jsonData, out float floatValue))
-					return (T)Convert.ChangeType(floatValue, targetType);
+					return (T)Convert.ChangeType(floatValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(DateTime) && DateTime.TryParse(jsonData, out DateTime dateValue))
-					return (T)Convert.ChangeType(dateValue, targetType);
+					return (T)Convert.ChangeType(dateValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType == typeof(Guid) && Guid.TryParse(jsonData, out Guid guidValue))
-					return (T)Convert.ChangeType(guidValue, targetType);
+					return (T)Convert.ChangeType(guidValue, targetType, StringExtensions.CultureInfo);
 
 				if (targetType.IsEnum && Enum.TryParse(targetType, jsonData, out object? enumValue))
 					return (T)enumValue;
@@ -401,9 +404,9 @@ namespace RadiantConnect.Network
 
 
 		#region  Records
-		public record UserAuth(int AuthorizationPort, string OAuth);
+		internal record UserAuth(int AuthorizationPort, string OAuth);
 
-		internal record Entitlement(
+		private record Entitlement(
 			[property: JsonPropertyName("accessToken")] string AccessToken,
 			[property: JsonPropertyName("entitlements")] IReadOnlyList<object> Entitlements,
 			[property: JsonPropertyName("issuer")] string Issuer,
@@ -411,7 +414,7 @@ namespace RadiantConnect.Network
 			[property: JsonPropertyName("token")] string Token
 		);
 
-		public record ValorantVersionApi(
+		internal record ValorantVersionApi(
 			[property: JsonPropertyName("manifest_id")] string ManifestId,
 			[property: JsonPropertyName("branch")] string Branch,
 			[property: JsonPropertyName("version")] string Version,
@@ -423,7 +426,7 @@ namespace RadiantConnect.Network
 			[property: JsonPropertyName("build_date")] DateTime? BuildDate
 		);
 
-		public record ValorantVersionApiRoot(
+		internal record ValorantVersionApiRoot(
 			[property: JsonPropertyName("status")] int? Status,
 			[property: JsonPropertyName("data")] ValorantVersionApi Data
 		);

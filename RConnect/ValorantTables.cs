@@ -1,6 +1,7 @@
 ﻿// ReSharper disable All
 
 using System.Collections.Immutable;
+#pragma warning disable CA1707
 
 #pragma warning disable IDE0130
 

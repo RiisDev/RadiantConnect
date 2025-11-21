@@ -2,6 +2,7 @@
 
 // ReSharper disable All
 
+#pragma warning disable CA1711
 namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 {
 	public record NumericTierMap(
@@ -12,7 +13,7 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 			RawJsonElements?
 				.Where(kvp => int.TryParse(kvp.Key, out _))
 				.ToDictionary(
-					kvp => int.Parse(kvp.Key),
+					kvp => int.Parse(kvp.Key, StringExtensions.CultureInfo),
 					kvp => kvp.Value.ValueKind == JsonValueKind.Number
 						? kvp.Value.GetInt64()
 						: (long?)null
@@ -27,7 +28,7 @@ namespace RadiantConnect.Network.PartyEndpoints.DataTypes
 			RawJsonElements?
 				.Where(kvp => int.TryParse(kvp.Key, out _))
 				.ToDictionary(
-					kvp => int.Parse(kvp.Key),
+					kvp => int.Parse(kvp.Key, StringExtensions.CultureInfo),
 					kvp => JsonSerializer.Deserialize<NumericTierMap>(kvp.Value.GetRawText())!
 				) ?? new Dictionary<int, NumericTierMap>();
 	}

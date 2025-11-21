@@ -80,22 +80,22 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		{
 			switch (value)
 			{
-				case var _ when value.Contains("\"eventType\":\"Update\",\"uri\":\"/chat/"):
+				case var _ when value.Contains("\"eventType\":\"Update\",\"uri\":\"/chat/", StringComparison.Ordinal):
 					HandlePresenceUpdate(value);
 					break;
-				case var _ when value.Contains("cap/v1/wallet"):
+				case var _ when value.Contains("cap/v1/wallet", StringComparison.Ordinal):
 					HandleCurrencyUpdate(value);
 					break;
-				case var _ when value.Contains("ares-account-xp/account-xp"):
+				case var _ when value.Contains("ares-account-xp/account-xp", StringComparison.Ordinal):
 					OnXpChanged?.Invoke();
 					break;
-				case var _ when value.Contains("ares-mmr/mmr/v1/players/"):
+				case var _ when value.Contains("ares-mmr/mmr/v1/players/", StringComparison.Ordinal):
 					OnMmrChanged?.Invoke();
 					break;
-				case var _ when value.Contains("ares-contracts/contracts/v1/players/"):
+				case var _ when value.Contains("ares-contracts/contracts/v1/players/", StringComparison.Ordinal):
 					OnContractChanged?.Invoke();
 					break;
-				case var _ when value.Contains("product-session/v1/session-heartbeats"):
+				case var _ when value.Contains("product-session/v1/session-heartbeats", StringComparison.Ordinal):
 					OnSessionHeartbeat?.Invoke();
 					break;
 			}
@@ -136,7 +136,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			string gameState = sessionState.GetString() ?? "unknown";
 			string score = $"{allyScore.GetInt32()} - {enemyScore.GetInt32()}";
 
-			if (map.Contains('/'))
+			if (map.Contains('/', StringComparison.Ordinal))
 				map = map[(map.LastIndexOf('/') + 1)..].Trim();
 
 			if (gameState != _gamestate)
@@ -176,6 +176,10 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		[GeneratedRegex("amount\\\\\":(\\d+)", RegexOptions.Compiled)]
 		private static partial Regex GetCurrencyAmount();
 
-		public void Dispose() => _socket.Dispose();
+		public void Dispose()
+		{
+			_socket.Dispose();
+			GC.SuppressFinalize(this);
+		}
 	}
 }

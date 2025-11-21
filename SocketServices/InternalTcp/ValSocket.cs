@@ -1,5 +1,6 @@
 ﻿using System.Net.WebSockets;
 using RadiantConnect.Network;
+#pragma warning disable CA5359 
 
 namespace RadiantConnect.SocketServices.InternalTcp
 {

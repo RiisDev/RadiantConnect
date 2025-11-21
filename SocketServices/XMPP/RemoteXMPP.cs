@@ -3,13 +3,9 @@ using System.Net.Sockets;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using IOException = System.IO.IOException;
 
-#pragma warning disable CS1998 // Async method lacks 'await' operators and will run synchronously
-
-#pragma warning disable CS4014 // Because this call is not awaited, execution of the current method continues before the call is completed
-
 namespace RadiantConnect.SocketServices.XMPP
 {
-	public class RemoteXMPP
+	public class RemoteXMPP : IDisposable
 	{
 		public enum XMPPStatus
 		{
@@ -106,7 +102,7 @@ namespace RadiantConnect.SocketServices.XMPP
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException?.Message.Contains("closed by the remote host") ?? false)
+				if (ex.InnerException?.Message.Contains("closed by the remote host", StringComparison.Ordinal) ?? false)
 					throw new RadiantConnectXMPPException(
 						"An issue occurred while messaging XMPP server, is the network stable?");
 
@@ -117,7 +113,7 @@ namespace RadiantConnect.SocketServices.XMPP
 
 		// Super hacky way of continuous reading from the stream,
 		// but it works and I apologize for the hackyness.
-		internal async Task<string> AsyncSocketRead(SslStream sslStream)
+		internal string AsyncSocketRead(SslStream sslStream)
 		{
 			int byteCount;
 			byte[] bytes = new byte[1024];
@@ -129,9 +125,9 @@ namespace RadiantConnect.SocketServices.XMPP
 				catch (IOException) { break; } // Timeout Occurred, aka no data left to read
 
 				if (byteCount > 0) contentBuilder.Append(Encoding.UTF8.GetString(bytes, 0, byteCount));
-
+				Debug.WriteLine(contentBuilder.ToString());
 			} while (byteCount > 0);
-
+			
 			if (contentBuilder.Length > 0 && Status == XMPPStatus.Connected)
 			{
 				OnMessage?.Invoke(contentBuilder.ToString());
@@ -150,11 +146,12 @@ namespace RadiantConnect.SocketServices.XMPP
 
 				Status = XMPPStatus.Connecting;
 
-				string? affinityDomain = ChatAffinity[auth.Affinity!];
-				string? token = auth.AccessToken;
 				string? pasToken = auth.PasToken;
+				string desiredAffinity = new JsonWebToken(pasToken).GetRequiredPayloadValue<string>("affinity");
+				string? affinityDomain = ChatAffinity[desiredAffinity];
+				string? token = auth.AccessToken;
 				string? entitlement = auth.Entitlement;
-				string chatHost = ChatUrls[auth.Affinity!];
+				string chatHost = ChatUrls[desiredAffinity];
 
 				Status = XMPPStatus.InitiatingSslConnection;
 				TcpClient tcpClient = new(chatHost, 5223);
@@ -169,27 +166,26 @@ namespace RadiantConnect.SocketServices.XMPP
 				string incomingData;
 				do
 				{
-					incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
-				} while (!incomingData.Contains("X-Riot-RSO-PAS"));
+					incomingData = AsyncSocketRead(SslStream);
+				} while (!incomingData.Contains("X-Riot-RSO-PAS", StringComparison.Ordinal));
 
 				Status = XMPPStatus.SendingAuthorizationTokens;
 				await AsyncSocketWrite(SslStream, $"<auth mechanism=\"X-Riot-RSO-PAS\" xmlns=\"urn:ietf:params:xml:ns:xmpp-sasl\"><rso_token>{token}</rso_token><pas_token>{pasToken}</pas_token></auth>").ConfigureAwait(false);
-				await AsyncSocketRead(SslStream).ConfigureAwait(false);
+				AsyncSocketRead(SslStream);
 
 				Status = XMPPStatus.ReceivingFeatures;
-				await AsyncSocketWrite(SslStream,
-					$"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
+				await AsyncSocketWrite(SslStream, $"<?xml version=\"1.0\"?><stream:stream to=\"{affinityDomain}.pvp.net\" version=\"1.0\" xmlns:stream=\"http://etherx.jabber.org/streams\">").ConfigureAwait(false);
 				do
 				{
-					incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
-				} while (!incomingData.Contains("stream:features"));
+					incomingData = AsyncSocketRead(SslStream);
+				} while (!incomingData.Contains("stream:features", StringComparison.Ordinal));
 
 				Status = XMPPStatus.BindingStream;
 				await AsyncSocketWrite(SslStream,
 					"<iq id=\"_xmpp_bind1\" type=\"set\"><bind xmlns=\"urn:ietf:params:xml:ns:xmpp-bind\"><puuid-mode enabled=\"true\"/></bind></iq>").ConfigureAwait(false);
-				incomingData = await AsyncSocketRead(SslStream).ConfigureAwait(false);
+				incomingData = AsyncSocketRead(SslStream);
 
-				if (incomingData.Contains("jid"))
+				if (incomingData.Contains("jid", StringComparison.Ordinal))
 				{
 					XmppBind = incomingData.ExtractValue("<jid>(.*?)</jid>", 1);
 				}
@@ -197,24 +193,24 @@ namespace RadiantConnect.SocketServices.XMPP
 				Status = XMPPStatus.BindingSession;
 				await AsyncSocketWrite(SslStream,
 					"<iq id=\"_xmpp_session1\" type=\"set\"><session xmlns=\"urn:ietf:params:xml:ns:xmpp-session\"/></iq>").ConfigureAwait(false);
-				await AsyncSocketRead(SslStream).ConfigureAwait(false);
+				AsyncSocketRead(SslStream);
 
 				Status = XMPPStatus.BindingEntitlement;
 				await AsyncSocketWrite(SslStream,
 					$"<iq id=\"xmpp_entitlements_0\" type=\"set\"><entitlements xmlns=\"urn:riotgames:entitlements\"><token xmlns=\"\">{entitlement}</token></entitlements></iq>").ConfigureAwait(false);
-				await AsyncSocketRead(SslStream).ConfigureAwait(false);
+				AsyncSocketRead(SslStream);
 
 				Status = XMPPStatus.Connected;
 
-				Task.Run(async () =>
+				_ = Task.Run(() =>
 				{
 					while (tcpClient.Connected)
 					{
-						await AsyncSocketRead(SslStream).ConfigureAwait(false);
+						AsyncSocketRead(SslStream);
 					}
 				});
 
-				Task.Run(async () => // Keep the stream active
+				_ = Task.Run(async () => // Keep the stream active
 				{
 					while (tcpClient.Connected)
 					{
@@ -225,13 +221,19 @@ namespace RadiantConnect.SocketServices.XMPP
 			}
 			catch (Exception ex)
 			{
-				if (ex.InnerException?.Message.Contains("closed by the remote host") ?? false)
+				if (ex.InnerException?.Message.Contains("closed by the remote host", StringComparison.Ordinal) ?? false)
 					throw new RadiantConnectXMPPException(
-						$"An issue occurred while connecting to riot's XMPP server, is the network stable? STEP_{Status.ToString().ToUpper()}");
+						$"An issue occurred while connecting to riot's XMPP server, is the network stable? STEP_{Status.ToString().ToUpperInvariant()}");
 
 				throw new RadiantConnectXMPPException(
-					$"An unknown error occured while connecting to riot XMPP servers STEP_{Status.ToString().ToUpper()}: {ex}");
+					$"An unknown error occured while connecting to riot XMPP servers STEP_{Status.ToString().ToUpperInvariant()}: {ex}");
 			}
+		}
+
+		public void Dispose()
+		{
+			SslStream.Dispose();
+			GC.SuppressFinalize(this);
 		}
 
 	}

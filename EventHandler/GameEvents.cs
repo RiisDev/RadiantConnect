@@ -4,22 +4,22 @@ namespace RadiantConnect.EventHandler
 {
 	public class GameEvents(Initiator initiator)
 	{
-		public QueueEvents Queue = new(initiator);
-		public PreGameEvents PreGame = new(initiator);
-		public MatchEvents Match = new();
-		public RoundEvents Round = new();
-		public VoteEvents Vote = new();
-		public InGameEvents InGame = new();
-		public MiscEvents Misc = new();
-		public PartyEvents Party = new();
-		public MenuEvents Menu = new();
+		public QueueEvents Queue { get; } = new(initiator);
+		public PreGameEvents PreGame { get; } = new(initiator);
+		public MatchEvents Match { get; } = new();
+		public RoundEvents Round { get; } = new();
+		public VoteEvents Vote { get; } = new();
+		public InGameEvents InGame { get; } = new(); 
+		public MiscEvents Misc { get; } = new();
+		public PartyEvents Party { get; } = new();
+		public MenuEvents Menu { get; } = new();
 
 		internal string LastEventCall = "";
 		internal long LastLineRead;
 		
 		internal void HandleEvent(Action<string, string> eventAction, string logInvoker, string log, long lineIndex)
 		{
-			if (LastEventCall == logInvoker && !(logInvoker.Equals("Party_ChangeQueue") || logInvoker.Equals("Pregame_SelectCharacter"))) return;
+			if (LastEventCall == logInvoker && !(logInvoker.Equals("Party_ChangeQueue", StringComparison.Ordinal) || logInvoker.Equals("Pregame_SelectCharacter", StringComparison.Ordinal))) return;
 			eventAction.Invoke(logInvoker, log);
 			LastEventCall = logInvoker;
 			LastLineRead = lineIndex;
@@ -54,8 +54,7 @@ namespace RadiantConnect.EventHandler
 
 				("LogMapLoadModel: Update: [Map Name: ", (line, index) =>
 				{
-					if (line.Contains(
-							"| Changed: FALSE] [Local World: TRUE | Changed: FALSE] [Match Setup: TRUE | Changed: TRUE] [Map Ready: FALSE | Changed: FALSE] [Map Complete: FALSE | Changed: FALSE]"))
+					if (line.Contains("| Changed: FALSE] [Local World: TRUE | Changed: FALSE] [Match Setup: TRUE | Changed: TRUE] [Map Ready: FALSE | Changed: FALSE] [Map Complete: FALSE | Changed: FALSE]", StringComparison.Ordinal))
 						HandleEvent(Match.HandleMatchEvent, "Map_Loaded", line, index);
 				}),
 
@@ -132,12 +131,12 @@ namespace RadiantConnect.EventHandler
 			{
 				string line = fileLines[i].Trim();
 
-				if (line.Contains("Log file closed"))
+				if (line.Contains("Log file closed", StringComparison.Ordinal))
 					break;
 
 				foreach ((string keyword, Action<string, long> handler) in handlers)
 				{
-					if (!line.Contains(keyword)) continue;
+					if (!line.Contains(keyword, StringComparison.Ordinal)) continue;
 
 					handler(line, i);
 				}

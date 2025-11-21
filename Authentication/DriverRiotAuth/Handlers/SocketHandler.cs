@@ -1,9 +1,10 @@
 ﻿using System.Net.WebSockets;
 using RadiantConnect.Authentication.DriverRiotAuth.Records;
+#pragma warning disable CA1508
 
 namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
-	internal class SocketHandler
+	internal sealed class SocketHandler
 	{
 		public SocketHandler(ClientWebSocket socket, AuthHandler authHandler, int port)
 		{
@@ -57,7 +58,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				{
 					"urls", (string[])
 					[
-						"*.png",
+						//"*.png", Captcha seems to be using the png, and the lower escape doesn't work.
 						"*.webp",
 						"*.css",
 						"*.ico",
@@ -66,7 +67,6 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 						"*cdn.rgpub.io/*",
 						"*google-analytics.com/*",
 						"*googletagmanager.com/*",
-						"!*hcaptcha*"
 					]
 				}
 			});
@@ -155,12 +155,16 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				 		let docHref = document.location.href;
 				 
 				 		if (signInPageDetected() && !signInDetected) {
+				 			signInDetected = true;
 				 			set(document.getElementsByName('username')[0], e => e.value = '%USERNAME_DATA%');
 				 			set(document.getElementsByName('password')[0], e => e.value = '%PASSWORD_DATA%');
 				 			setTimeout(() => {
+				 				if (captchaFound) {
+				 					console.log('[RADIANTCONNECT] Waiting for CAPTCHA to be solved...');
+				 					return;
+				 				}
 				 				document.querySelectorAll('[data-testid=\'btn-signin-submit\']')[0].click();
 				 			}, 1500)
-				 			signInDetected = true;
 				 		}
 				 
 				 		if (mfaPageDetected() && !mfaDetected) {
@@ -205,7 +209,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				 	}, 150);
 				 
 				 })();
-				 """.Replace("%PASSWORD_DATA%", password).Replace("%USERNAME_DATA%", username);
+				 """.Replace("%PASSWORD_DATA%", password, StringComparison.InvariantCultureIgnoreCase).Replace("%USERNAME_DATA%", username, StringComparison.InvariantCultureIgnoreCase);
 		}
 		
 		internal static async Task<string?> ExecuteOnPageWithResponse(Dictionary<string, object> dataToSend)

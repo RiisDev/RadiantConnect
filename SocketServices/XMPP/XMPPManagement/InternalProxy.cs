@@ -17,13 +17,12 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 		internal string? ChatAffinity { get; set; }
 	}
 
-	internal class InternalProxy
+	internal class InternalProxy : IDisposable
 	{
 		internal event EventHandler<ChatServerEventArgs>? OnChatPatched;
 		internal event ValXMPP.InternalMessage? OnOutboundMessage;
 		internal event ValXMPP.InternalMessage? OnInboundMessage;
-
-
+		
 		private readonly HttpListener _proxyServer = new();
 		private HttpClient Client { get; } = new();
 
@@ -148,6 +147,13 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 				listenerResponse.Close();
 			}
 			catch {/**/} // Just ignore output
+		}
+
+		public void Dispose()
+		{
+			((IDisposable)_proxyServer).Dispose();
+			Client.Dispose();
+			GC.SuppressFinalize(this);
 		}
 	}
 }

@@ -95,7 +95,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<None Include=".editorconfig" />
+		<None Include="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
 		<None Include="icon.png">
 			<Pack>True</Pack>
 			<PackagePath>\</PackagePath>
@@ -106,13 +106,13 @@
 		</None>
 	</ItemGroup>
 
-	<ItemGroup>
-	  <EditorConfigFiles Remove=".editorconfig" />
-	</ItemGroup>
-
 	<PropertyGroup>
 		<DeterministicSourcePaths>true</DeterministicSourcePaths>
 		<PathMap>$(MSBuildThisFileDirectory)=./</PathMap>
 		<EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
 	</PropertyGroup>
+
+	<ItemGroup>
+	  <EditorConfigFiles Remove="C:\Users\Riis\Documents\GitHub\RadiantConnect\.editorconfig" />
+	</ItemGroup>
 </Project>

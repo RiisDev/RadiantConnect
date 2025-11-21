@@ -6,6 +6,8 @@ using RadiantConnect.Authentication.RiotClient;
 using RadiantConnect.Authentication.SSIDReAuth;
 using Cookie = RadiantConnect.Authentication.DriverRiotAuth.Records.Cookie;
 
+#pragma warning disable CA1001 // Authentication class does not own disposable fields directly
+
 namespace RadiantConnect.Authentication
 {
 	public class Authentication
@@ -59,8 +61,9 @@ namespace RadiantConnect.Authentication
 
 		internal AuthHandler AuthHandler = null!;
 
+#pragma warning disable CA1822 // Shouldn't be static due to consistency with other methods
 		public async Task<RSOAuth?> AuthenticateWithSsid(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null) => await SsidAuthManager.Authenticate(ssid, clid, csid, tdid, asid, proxy).ConfigureAwait(false);
-
+#pragma warning restore
 		public async Task<RSOAuth?> AuthenticateWithQr(CountryCode countryCode, bool returnLoginUrl = false)
 		{
 			SignInManager manager = new(countryCode, returnLoginUrl);
@@ -115,20 +118,22 @@ namespace RadiantConnect.Authentication
 			throw new TimeoutException("Authentication timed out after 45 seconds.");
 		}
 
-		public async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
+		public static async Task<IReadOnlyList<Cookie>?> GetCachedCookies()
 		{
 			string cacheFile = $@"{Path.GetTempPath()}\RadiantConnect\cookies.json";
 			return !File.Exists(cacheFile) ? null : JsonSerializer.Deserialize<CookieRoot>(await File.ReadAllTextAsync(cacheFile).ConfigureAwait(false))?.Result.Cookies;
 		}
 
-		public async Task<string?> GetSsidFromDriverCache()
+		public static async Task<string?> GetSsidFromDriverCache()
 		{
 			IEnumerable<Cookie>? cookiesData = await GetCachedCookies().ConfigureAwait(false);
 			return cookiesData?.FirstOrDefault(x => x.Name == "ssid")?.Value;
 		}
 		
 		public async Task<RSOAuth?> AuthenticateWithRiotClient(string? settingsFile = null, bool skipTdid = false, bool skipClid = false, bool skipCsid = false) => await new RtcAuth().Run(settingsFile, this, skipTdid, skipClid, skipCsid).ConfigureAwait(false);
-		
+
+#pragma warning disable CA1822 // Shouldn't be static due to consistency with other methods
 		public async Task<RSOAuth?> AuthenticateWithLockFile() => await new LockFileAuth().Run().ConfigureAwait(false);
+#pragma warning restore CA1822
 	}
 }
