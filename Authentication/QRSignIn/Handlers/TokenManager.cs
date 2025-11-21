@@ -178,7 +178,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				JsonWebToken jwt = new(pasToken);
 				string affinity = jwt.GetRequiredPayloadValue<string>("affinity");
 				string chatAffinity = jwt.GetRequiredPayloadValue<string>("desired.affinity");
-				string subject = new JsonWebToken(accessToken).GetRequiredPayloadValue<string>("sub");
+				string subject = jwt.GetRequiredPayloadValue<string>("sub");
 
 				CookieCollection cookies = container.GetAllCookies();
 				
