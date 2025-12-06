@@ -2,16 +2,55 @@
 
 namespace RadiantConnect.EventHandler
 {
+	/// <summary>
+	/// Provides grouped game-related event handlers for different stages and systems within a Valorant match lifecycle.
+	/// </summary>
+	/// <param name="initiator">The event initiator used to bind and trigger underlying game event interactions.</param>
 	public class GameEvents(Initiator initiator)
 	{
+		/// <summary>
+		/// Gets the set of events related to matchmaking queue operations.
+		/// </summary>
 		public QueueEvents Queue { get; } = new(initiator);
+
+		/// <summary>
+		/// Gets the set of events triggered during the pre-game phase before a match begins.
+		/// </summary>
 		public PreGameEvents PreGame { get; } = new(initiator);
+
+		/// <summary>
+		/// Gets the set of events associated with active match gameplay.
+		/// </summary>
 		public MatchEvents Match { get; } = new();
+
+		/// <summary>
+		/// Gets the set of events related to individual round transitions, starts, and outcomes.
+		/// </summary>
 		public RoundEvents Round { get; } = new();
+
+		/// <summary>
+		/// Gets the set of events related to player voting interactions (e.g., surrender votes).
+		/// </summary>
 		public VoteEvents Vote { get; } = new();
-		public InGameEvents InGame { get; } = new(); 
+
+		/// <summary>
+		/// Gets the set of events that occur during active in-game interactions.
+		/// </summary>
+		public InGameEvents InGame { get; } = new();
+
+		/// <summary>
+		/// Gets the set of miscellaneous game-related events not tied to a specific phase.
+		/// </summary>
 		public MiscEvents Misc { get; } = new();
+
+		/// <summary>
+		/// Gets the set of events related to party management and party state updates.
+		/// </summary>
 		public PartyEvents Party { get; } = new();
+
+		/// <summary>
+		/// Gets the set of events triggered while the client is in menu or lobby states.
+		/// </summary>
 		public MenuEvents Menu { get; } = new();
 
 		internal string LastEventCall = "";

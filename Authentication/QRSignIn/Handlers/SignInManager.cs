@@ -10,13 +10,17 @@ using RadiantConnect.Authentication.QRSignIn.Modules;
 
 namespace RadiantConnect.Authentication.QRSignIn.Handlers
 {
+	/// <summary>
+	/// Represents a callback invoked when a login or authentication-related URL is generated.
+	/// </summary>
+	/// <param name="url">The URL that was constructed.</param>
 	public delegate void UrlBuilder(string url);
 
 	internal sealed class SignInManager(Authentication.CountryCode code, bool returnUrl = false)
 	{
 		internal event UrlBuilder? OnUrlBuilt;
 
-		internal Process? DisplayImage(string path)
+		private Process? DisplayImage(string path)
 		{
 			if (!RuntimeInformation.IsOSPlatform(OSPlatform.Linux) && !RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
 				throw new PlatformNotSupportedException("Unsupported OS");

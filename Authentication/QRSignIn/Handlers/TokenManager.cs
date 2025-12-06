@@ -10,14 +10,14 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 		internal delegate void TokensFinished(RSOAuth authData);
 		internal event TokensFinished? OnTokensFinished;
 
-		internal static string GenerateTraceParent()
+		private static string GenerateTraceParent()
 		{
 			string traceId = Guid.NewGuid().ToString("N");
 			string parentId = Guid.NewGuid().ToString("N")[..16];
 			return $"00-{traceId}-{parentId}-00";
 		}
 
-		internal void SetHeaders(string host, string traceparent, string useragent, Dictionary<string, string>? additionalHeaders = null, string? sdk = null)
+		private void SetHeaders(string host, string traceparent, string useragent, Dictionary<string, string>? additionalHeaders = null, string? sdk = null)
 		{
 			client.DefaultRequestHeaders.Clear();
 
@@ -40,7 +40,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
 		}
 
-		internal async Task<string> GetLoginToken()
+		private async Task<string> GetLoginToken()
 		{
 			string traceparent = GenerateTraceParent();
 			SetHeaders("authenticate.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-authenticator (Windows;10;;Professional, x64) riot_client/0");
@@ -56,7 +56,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			return data?.Success?.LoginToken ?? string.Empty;
 		}
 
-		internal async Task<string> GetAccessTokenStage1(string loginToken)
+		private async Task<string> GetAccessTokenStage1(string loginToken)
 		{
 			string traceparent = GenerateTraceParent();
 			SetHeaders(
@@ -98,7 +98,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			return traceparent;
 		}
 
-		internal async Task<string> GetAccessTokenStage2(string traceparent)
+		private async Task<string> GetAccessTokenStage2(string traceparent)
 		{
 			SetHeaders("auth.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-auth (Windows;10;;Professional, x64) riot_client/0");
 
@@ -124,7 +124,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			return accessTokenData?.Response.Parameters.Uri ?? "";
 		}
 
-		internal async Task<(string, string)> GetAccessTokens(string loginToken)
+		private async Task<(string, string)> GetAccessTokens(string loginToken)
 		{
 			string traceData = await GetAccessTokenStage1(loginToken).ConfigureAwait(false);
 			string accessTokenUri = await GetAccessTokenStage2(traceData).ConfigureAwait(false);

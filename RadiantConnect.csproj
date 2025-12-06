@@ -5,7 +5,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
 		<Nullable>enable</Nullable>
-		<GenerateDocumentationFile>False</GenerateDocumentationFile>
+		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
 		<Version>10.4.4</Version>

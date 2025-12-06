@@ -8,7 +8,7 @@ using Stats = RadiantConnect.RConnect.DataTypes.Stats;
 
 namespace RadiantConnect.RConnect
 {
-	public static class InternalMethods
+	internal static class InternalMethods
 	{
 		// This is hell, I want to kill myself
 		internal static long GetPlayerFirstBloods(string puuid, IReadOnlyList<RoundResult> rounds)
@@ -92,15 +92,34 @@ namespace RadiantConnect.RConnect
 		}
 	}
 
+	/// <summary>
+	/// Provides high-level helper methods for interacting with Riot/Valorant services,
+	/// including process checks and player/match information retrieval.
+	/// </summary>
 	public static class RConnectMethods
 	{
+		/// <summary>
+		/// Determines whether the Valorant game process is currently running.
+		/// </summary>
+		/// <returns>True if the Valorant process is running; otherwise, false.</returns>
 		public static bool IsValorantRunning() => InternalValorantMethods.IsValorantProcessRunning();
+
+		/// <summary>
+		/// Determines whether the Riot Client process is currently running.
+		/// </summary>
+		/// <returns>True if the Riot Client process is running; otherwise, false.</returns>
 		public static bool IsRiotClientRunning() => InternalValorantMethods.IsRiotClientRunning();
 
-#pragma warning disable CA1034
+		/// <summary>
+		///	Provides extension to the initiator class.
+		/// </summary>
 		extension(Initiator initiator)
-#pragma warning restore CA1034
 		{
+			/// <summary>
+			/// Retrieves the Riot ID (GameName#TagLine) for a given player UUID (puuid).
+			/// </summary>
+			/// <param name="puuid">The unique player identifier.</param>
+			/// <returns>The Riot ID string or null if not found.</returns>
 			public async Task<string?> GetRiotIdByPuuidAsync(string puuid)
 			{
 				List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid).ConfigureAwait(false);
@@ -113,6 +132,13 @@ namespace RadiantConnect.RConnect
 				return $"{userId.GameName}#{userId.TagLine}";
 			}
 
+			/// <summary>
+			/// Retrieves the puuid for a player given their in-game name and tag line.
+			/// </summary>
+			/// <param name="gameName">The player's in-game name.</param>
+			/// <param name="tagLine">The player's tag line/discriminator.</param>
+			/// <returns>The player's puuid or null if not found.</returns>
+			/// <exception cref="InvalidOperationException">Thrown if local endpoints are unavailable.</exception>
 			public async Task<string?> GetPuuidByNameAsync(string gameName, string tagLine)
 			{
 				if (initiator.Endpoints.LocalEndpoints is null)
@@ -125,6 +151,11 @@ namespace RadiantConnect.RConnect
 				return parsedId;
 			}
 
+			/// <summary>
+			/// Retrieves the player's current competitive rank in Valorant.
+			/// </summary>
+			/// <param name="puuid">The player's unique identifier.</param>
+			/// <returns>The player's rank as a string, or "Unranked" if unavailable.</returns>
 			public async Task<string?> GetValorantRankAsync(string puuid)
 			{
 				PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
@@ -138,6 +169,11 @@ namespace RadiantConnect.RConnect
 					: ValorantTables.TierToRank[seasonData.CompetitiveTier ?? 0];
 			}
 
+			/// <summary>
+			/// Retrieves the player's current rank rating points in competitive queue.
+			/// </summary>
+			/// <param name="puuid">The player's unique identifier.</param>
+			/// <returns>The player's rank rating as an integer, or 0 if unavailable.</returns>
 			public async Task<int?> GetCurrentRankRatingAsync(string puuid)
 			{
 				PlayerMMR? playerMmr = await initiator.Endpoints.PvpEndpoints.FetchPlayerMMRAsync(puuid).ConfigureAwait(false);
@@ -154,6 +190,11 @@ namespace RadiantConnect.RConnect
 				return 0;
 			}
 
+			/// <summary>
+			/// Retrieves recent match statistics for a given player.
+			/// </summary>
+			/// <param name="puuid">The player's unique identifier.</param>
+			/// <returns>A list of <see cref="MatchStats"/> objects for the player's recent matches.</returns>
 			public async Task<List<MatchStats?>> GetRecentMatchStatsAsync(string puuid)
 			{
 				List<MatchStats?> stats = [];
@@ -167,6 +208,12 @@ namespace RadiantConnect.RConnect
 				return stats;
 			}
 
+			/// <summary>
+			/// Retrieves the leaderboard information for the last match played by the player.
+			/// </summary>
+			/// <param name="puuid">The player's unique identifier.</param>
+			/// <param name="competitiveOnly">If true, only considers competitive matches.</param>
+			/// <returns>The last match's <see cref="MatchStats"/>, or null if unavailable.</returns>
 			public async Task<MatchStats?> GetLastMatchLeaderboardAsync(string puuid, bool competitiveOnly = false)
 			{
 				MatchHistory? matchHistory = await initiator.Endpoints.PvpEndpoints.FetchPlayerMatchHistoryAsync(puuid).ConfigureAwait(false);
@@ -186,6 +233,11 @@ namespace RadiantConnect.RConnect
 				return await GetMatchLeaderboardAsync(initiator, match.MatchId).ConfigureAwait(false);
 			}
 
+			/// <summary>
+			/// Retrieves the leaderboard information for a specific match by ID.
+			/// </summary>
+			/// <param name="matchId">The unique identifier of the match.</param>
+			/// <returns>The <see cref="MatchStats"/> object representing the match leaderboard, or null if unavailable.</returns>
 			public async Task<MatchStats?> GetMatchLeaderboardAsync(string matchId)
 			{
 				MatchInfo? matchInfo = await initiator.Endpoints.PvpEndpoints.FetchMatchInfoAsync(matchId).ConfigureAwait(false);
@@ -212,6 +264,10 @@ namespace RadiantConnect.RConnect
 				);
 			}
 
+			/// <summary>
+			/// Retrieves the current active Valorant season ID.
+			/// </summary>
+			/// <returns>The current season ID as a string, or empty string if unavailable.</returns>
 			public async Task<string?> FetchCurrentSeasonIdAsync()
 			{
 				Content? content = await initiator.Endpoints.PvpEndpoints.FetchContentAsync().ConfigureAwait(false);
@@ -226,6 +282,5 @@ namespace RadiantConnect.RConnect
 			}
 		}
 
-#pragma warning disable IDE0046
 	}
 }

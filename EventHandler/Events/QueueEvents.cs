@@ -2,22 +2,55 @@
 
 namespace RadiantConnect.EventHandler.Events
 {
+	/// <summary>
+	/// Provides events related to matchmaking queue transitions, custom game lobbies,
+	/// and navigation between queue and menu states.
+	/// </summary>
+	/// <param name="initiator">The event initiator used for binding queue-related event triggers.</param>
 	public class QueueEvents(Initiator initiator)
 	{
+		/// <summary>
+		/// Represents a callback for queue-related events that pass a value of type <typeparamref name="T"/>.
+		/// </summary>
+		/// <typeparam name="T">The type of value associated with the event.</typeparam>
+		/// <param name="value">The value passed by the event.</param>
+		public delegate void QueueEvent<in T>(T value);
+
+		/// <summary>
+		/// Occurs when a custom game lobby is created.
+		/// </summary>
+		public event QueueEvent<CustomGameData?>? OnCustomGameLobbyCreated;
+
+		/// <summary>
+		/// Occurs when the current matchmaking queue changes.
+		/// </summary>
+		public event QueueEvent<string?>? OnQueueChanged;
+
+		/// <summary>
+		/// Occurs when a player enters a matchmaking queue.
+		/// </summary>
+		public event QueueEvent<string?>? OnEnteredQueue;
+
+		/// <summary>
+		/// Occurs when a player leaves a matchmaking queue.
+		/// </summary>
+		public event QueueEvent<string?>? OnLeftQueue;
+
+		/// <summary>
+		/// Occurs when the client transitions from gameplay or queue back to the main menu.
+		/// </summary>
+		public event QueueEvent<object?>? OnTravelToMenu;
+
+		/// <summary>
+		/// Occurs when a match has been found.
+		/// </summary>
+		public event QueueEvent<object?>? OnMatchFound;
+
 		internal enum PartyDataReturn
 		{
 			CustomGame,
 			ChangeQueue
 		}
-
-		public delegate void QueueEvent<in T>(T value);
-
-		public event QueueEvent<CustomGameData?>? OnCustomGameLobbyCreated;
-		public event QueueEvent<string?>? OnQueueChanged;
-		public event QueueEvent<string?>? OnEnteredQueue;
-		public event QueueEvent<string?>? OnLeftQueue;
-		public event QueueEvent<object?>? OnTravelToMenu;
-		public event QueueEvent<object?>? OnMatchFound;
 
 		private static string GetEndpoint(string prefix, string log) => log.TryExtractSubstring("https", ']', startIndex => startIndex != -1, prefix);
 
@@ -33,7 +66,7 @@ namespace RadiantConnect.EventHandler.Events
 			};
 		}
 
-		public async void HandleQueueEvent(string invoker, string logData)
+		internal async void HandleQueueEvent(string invoker, string logData)
 		{
 			try
 			{

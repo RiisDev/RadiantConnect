@@ -4,17 +4,36 @@ using RadiantConnect.Network;
 
 namespace RadiantConnect.SocketServices.InternalTcp
 {
+	/// <summary>
+	/// Handles WebSocket communication with the local Riot Client for Valorant.
+	/// Listens for game events, presence updates, currency changes, and other local socket messages.
+	/// </summary>
 	public class ValSocket : IDisposable
 	{
+		/// <summary>
+		/// Cancels the WebSocket connection.
+		/// </summary>
 		public void ShutdownConnection() => ShutdownSocket.Cancel();
+		
+		/// <summary>
+		/// Delegate fired when a new message is received from the WebSocket.
+		/// </summary>
 		public delegate void SocketFired(string value);
 
+		/// <summary>
+		/// Event fired when a new incoming message is detected from the socket.
+		/// </summary>
 		public event SocketFired? OnNewMessage;
 
 		internal CancellationTokenSource ShutdownSocket = new();
 		internal ValorantNet.UserAuth? Authentication;
 		internal Initiator Init;
 
+		/// <summary>
+		/// Initializes a new instance of the ValSocket class and optionally attaches TcpEvents.
+		/// </summary>
+		/// <param name="init">The initiator instance providing client context.</param>
+		/// <param name="create">Whether to create TcpEvents if not already attached.</param>
 		public ValSocket(Initiator init, bool create = true)
 		{
 			Authentication = ValorantNet.GetAuth();
@@ -64,6 +83,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 				OnNewMessage?.Invoke(messageBuilder.ToString());
 		}
 
+		/// <summary>
+		/// Initializes a WebSocket connection to the local Riot Client and subscribes to all available event streams.
+		/// </summary>
 		public void InitializeConnection() =>
 			Task.Run(async () =>
 			{
@@ -98,6 +120,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 				catch (Exception ex) { Debug.WriteLine(ex.ToString()); }
 			});
 
+		/// <summary>
+		/// Releases all resources used by the <see cref="ValSocket"/> instance.
+		/// </summary>
 		public void Dispose()
 		{
 			if (!ShutdownSocket.IsCancellationRequested)

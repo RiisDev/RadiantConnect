@@ -17,7 +17,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		internal static int DriverPort;
 		internal static AuthHandler AuthHandler = null!;
 		
-		internal static Random ActionIdGenerator { get; } = new();
+		private static Random ActionIdGenerator { get; } = new();
 
 		#region StaticHandlers
 

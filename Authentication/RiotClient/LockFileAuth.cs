@@ -40,8 +40,8 @@ namespace RadiantConnect.Authentication.RiotClient
 			(string pasToken, string entitlementToken, object clientConfig, string _, string _) = await AuthUtil.GetAuthTokensFromAccessToken(authBearer).ConfigureAwait(false);
 
 			JsonWebToken affinityJwt = new(pasToken);
-			string affinity = affinityJwt.GetRequiredPayloadValue<string>("affinity") ?? "";
-			string chatAffinity = affinityJwt.GetRequiredPayloadValue<string>("desired.affinity") ?? "";
+			string affinity = affinityJwt.GetRequiredPayloadValue<string>("affinity");
+			string chatAffinity = affinityJwt.GetRequiredPayloadValue<string>("desired.affinity");
 
 			string? ssid = null, clid = null, csid = null, tdid = null;
 
@@ -80,6 +80,7 @@ namespace RadiantConnect.Authentication.RiotClient
 
 		}
 
+		// ReSharper disable NotAccessedPositionalProperty.Local
 		private record AccessToken(
 			[property: JsonPropertyName("clientId")] string ClientId,
 			[property: JsonPropertyName("expiry")] int? Expiry,

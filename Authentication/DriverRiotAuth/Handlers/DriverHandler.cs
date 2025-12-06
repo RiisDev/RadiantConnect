@@ -49,7 +49,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 				throw new RadiantConnectException($"Browser executable not found at {browserExecutable}");
 		}
 
-		internal static Task CheckForEvent(string message)
+		private static Task CheckForEvent(string message)
 		{
 			Match match;
 			switch (message)
@@ -89,7 +89,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			return Task.CompletedTask;
 		}
 		
-		internal static async Task HandleMessage(string message)
+		private static async Task HandleMessage(string message)
 		{
 			await CheckForEvent(message).ConfigureAwait(false);
 			if (OnRuntimeChanged is not null && (
@@ -135,7 +135,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			}
 		}
 
-		internal static async Task<string?> GetInitialSocket(int port)
+		private static async Task<string?> GetInitialSocket(int port)
 		{
 			while (true)
 			{

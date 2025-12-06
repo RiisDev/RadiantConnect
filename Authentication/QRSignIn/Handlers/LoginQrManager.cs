@@ -47,7 +47,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 				client.DefaultRequestHeaders.TryAddWithoutValidation(header.Key, header.Value);
 		}
 
-		internal async Task Stage1(string traceparent, Authentication.CountryCode countryCode)
+		private async Task Stage1(string traceparent, Authentication.CountryCode countryCode)
 		{
 			SetHeaders("clientconfig.rpg.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 client-config (Windows;10;;Professional, x64) riot_client/0");
 
@@ -66,7 +66,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			client.DefaultRequestHeaders.Clear();
 		}
 
-		internal async Task Stage2(string traceparent)
+		private async Task Stage2(string traceparent)
 		{
 			SetHeaders("auth.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-auth (Windows;10;;Professional, x64) riot_client/0");
 
@@ -76,7 +76,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			client.DefaultRequestHeaders.Clear();
 		}
 
-		internal async Task<(string Cluster, string Suuid, string Timestamp)> Stage3(string traceparent, Authentication.CountryCode countryCode)
+		private async Task<(string Cluster, string Suuid, string Timestamp)> Stage3(string traceparent, Authentication.CountryCode countryCode)
 		{
 			SetHeaders("authenticate.riotgames.com", traceparent, "RiotGamesApi/24.11.0.4602 rso-authenticator (Windows;10;;Professional, x64) riot_client/0");
 
@@ -140,7 +140,7 @@ namespace RadiantConnect.Authentication.QRSignIn.Handlers
 			);
 		}
 
-		internal static string BuildUrlWithQueryParameters(string baseUrl, Dictionary<string, string> queryParams)
+		private static string BuildUrlWithQueryParameters(string baseUrl, Dictionary<string, string> queryParams)
 		{
 			UriBuilder uriBuilder = new(baseUrl);
 			if (uriBuilder is { Scheme: "https", Port: 443 } or { Scheme: "http", Port: 80 }) uriBuilder.Port = -1;

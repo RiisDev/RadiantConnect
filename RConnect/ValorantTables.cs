@@ -1,85 +1,201 @@
 ﻿// ReSharper disable All
-
-using System.Collections.Immutable;
 #pragma warning disable CA1707
-
 #pragma warning disable IDE0130
 
 namespace RadiantConnect.Methods
 {
+	/// <summary>
+	/// Provides static lookup tables and mappings for Valorant-related identifiers,
+	/// including queues, agents, maps, items, ranks, and currencies.
+	/// </summary>
 	public static class ValorantTables
 	{
+		/// <summary>
+		/// Represents the different queue types in Valorant.
+		/// </summary>
 		public enum QueueId
 		{
+			/// <summary>Unrated queue.</summary>
 			unrated,
+
+			/// <summary>Competitive queue.</summary>
 			competitive,
+
+			/// <summary>Swiftplay queue.</summary>
 			swiftplay,
+
+			/// <summary>Spike Rush queue.</summary>
 			spikerush,
+
+			/// <summary>Deathmatch queue.</summary>
 			deathmatch,
+
+			/// <summary>Escalation/ggteam queue.</summary>
 			ggteam,
+
+			/// <summary>Team Deathmatch (HURM) queue.</summary>
 			hurm
 		}
 
+		/// <summary>
+		/// Represents the current state of a party.
+		/// </summary>
 		public enum PartyState
 		{
+			/// <summary>Party is open for new members.</summary>
 			OPEN,
+
+			/// <summary>Party is closed; no new members can join.</summary>
 			CLOSED
 		}
 
+		/// <summary>
+		/// Represents the various item types in Valorant.
+		/// </summary>
 		public enum ItemType
 		{
+			/// <summary>Playable agents.</summary>
 			Agents,
+
+			/// <summary>Player contracts.</summary>
 			Contracts,
+
+			/// <summary>Sprays.</summary>
 			Sprays,
+
+			/// <summary>Gun buddies.</summary>
 			GunBuddies,
+
+			/// <summary>Player cards.</summary>
 			Cards,
+
+			/// <summary>Weapon skins.</summary>
 			Skins,
+
+			/// <summary>Skin variants (chromas).</summary>
 			SkinVariants,
+
+			/// <summary>Titles.</summary>
 			Titles,
+
+			/// <summary>Flexes or emotes.</summary>
 			Flexes,
+
+			/// <summary>Totems or in-game decorations.</summary>
 			Totems,
+
+			/// <summary>Player cards.</summary>
 			PlayerCards
 		}
 
+		/// <summary>
+		/// Represents playable agents in Valorant.
+		/// </summary>
 		public enum Agent
 		{
+			/// <summary>Astra agent.</summary>
 			Astra,
+
+			/// <summary>Breach agent.</summary>
 			Breach,
+
+			/// <summary>Brimstone agent.</summary>
 			Brimstone,
+
+			/// <summary>Chamber agent.</summary>
 			Chamber,
+
+			/// <summary>Clove agent.</summary>
 			Clove,
+
+			/// <summary>Cypher agent.</summary>
 			Cypher,
+
+			/// <summary>Deadlock agent.</summary>
 			Deadlock,
+
+			/// <summary>Fade agent.</summary>
 			Fade,
+
+			/// <summary>Gekko agent.</summary>
 			Gekko,
+
+			/// <summary>Harbor agent.</summary>
 			Harbor,
+
+			/// <summary>ISO agent.</summary>
 			ISO,
+
+			/// <summary>Jett agent.</summary>
 			Jett,
+
+			/// <summary>KAY/O agent.</summary>
 			KAY_O,
+
+			/// <summary>Killjoy agent.</summary>
 			Killjoy,
+
+			/// <summary>Neon agent.</summary>
 			Neon,
+
+			/// <summary>Omen agent.</summary>
 			Omen,
+
+			/// <summary>Phoenix agent.</summary>
 			Phoenix,
+
+			/// <summary>Raze agent.</summary>
 			Raze,
+
+			/// <summary>Reyna agent.</summary>
 			Reyna,
+
+			/// <summary>Sage agent.</summary>
 			Sage,
+
+			/// <summary>Skye agent.</summary>
 			Skye,
+
+			/// <summary>Sova agent.</summary>
 			Sova,
+
+			/// <summary>Tejo agent.</summary>
 			Tejo,
+
+			/// <summary>Viper agent.</summary>
 			Viper,
+
+			/// <summary>Veto agent.</summary>
 			Veto,
+
+			/// <summary>Vyse agent.</summary>
 			Vyse,
+
+			/// <summary>Waylay agent.</summary>
 			Waylay,
+
+			/// <summary>Yoru agent.</summary>
 			Yoru
 		}
 
+		/// <summary>
+		/// Represents the different types of chat channels.
+		/// </summary>
 		public enum ChatType
 		{
+			/// <summary>Group chat channel.</summary>
 			groupchat,
+
+			/// <summary>Private or general chat channel.</summary>
 			chat,
+
+			/// <summary>System messages channel.</summary>
 			system
 		}
 
+		/// <summary>
+		/// Maps currency IDs to human-readable currency names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> CurrencyIdToCurrency = new Dictionary<string, string>()
 		{
 			{ "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "Valorant Points" },
@@ -88,6 +204,9 @@ namespace RadiantConnect.Methods
 			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
 		};
 
+		/// <summary>
+		/// Maps item types to their unique string identifiers.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<ItemType, string> ItemTypeToId = new Dictionary<ItemType, string>()
 		{
 			{ ItemType.Agents, "01bb38e1-da47-4e6a-9b3d-945fe4655707" },
@@ -103,6 +222,9 @@ namespace RadiantConnect.Methods
 			{ ItemType.PlayerCards, "3f296c07-64c3-494c-923b-fe692a4fa1bd" }
 		};
 
+		/// <summary>
+		/// Maps internal map IDs to their display names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> InternalMapNames = new Dictionary<string, string>()
 		{
 			{ "1f10dab3-4294-3827-fa35-c2aa00213cf3", "Basic Training"},
@@ -147,6 +269,9 @@ namespace RadiantConnect.Methods
 			{ "Triad", "Haven" },
 		};
 
+		/// <summary>
+		/// Maps internal gun IDs to human-readable gun names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> GunIdToGun = new Dictionary<string, string>()
 		{
 			{ "0afb2636-4093-c63b-4ef1-1e97966e2a3e", "SPIKE" },
@@ -172,6 +297,9 @@ namespace RadiantConnect.Methods
 			{ "f7e1b454-4ad4-1063-ec0a-159e56b58941", "Stinger" },
 		};
 
+		/// <summary>
+		/// Maps internal agent IDs to agent names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> AgentIdToAgent = new Dictionary<string, string>()
 		{
 			{ "41fb69c1-4189-7b37-f117-bcaf1e96f1bf", "Astra" },
@@ -203,8 +331,10 @@ namespace RadiantConnect.Methods
 			{ "df1cb487-4902-002e-5c17-d28e83e78588", "Waylay" },
 			{ "7f94d92c-4234-0a36-9646-3a87eb8b5c89", "Yoru" }
 		};
-
-
+		
+		/// <summary>
+		/// Maps agent enum values to their internal agent ID strings.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<Agent, string> AgentToId = new Dictionary<Agent, string>()
 		{
 			{ Agent.Astra, "41fb69c1-4189-7b37-f117-bcaf1e96f1bf" },
@@ -236,7 +366,10 @@ namespace RadiantConnect.Methods
 			{ Agent.Waylay, "df1cb487-4902-002e-5c17-d28e83e78588" },
 			{ Agent.Yoru, "7f94d92c-4234-0a36-9646-3a87eb8b5c89" }
 		};
-	
+
+		/// <summary>
+		/// Maps competitive tier numbers to their rank names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<long, string> TierToRank = new Dictionary<long, string>()
 		{
 			{ 0, "Unranked" },
@@ -269,6 +402,9 @@ namespace RadiantConnect.Methods
 			{ 27, "Radiant" }
 		};
 
+		/// <summary>
+		/// Maps internal game mode IDs to human-readable game mode names.
+		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> InternalGameModeToGameMode = new Dictionary<string, string>()
 		{
 			{ "newmap", "New Map"},

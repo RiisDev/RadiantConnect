@@ -1,17 +1,32 @@
 ﻿namespace RadiantConnect.EventHandler.Events
 {
+	/// <summary>
+	/// Provides events related to the start and end of individual rounds during a match.
+	/// </summary>
 	public class RoundEvents
 	{
-		private bool _roundEnded;
-		private int _roundNumber;
+		/// <summary>
+		/// Represents a callback for round-related events, providing the affected round number.
+		/// </summary>
+		/// <param name="roundNumber">The round number associated with the event.</param>
 		public delegate void RoundEvent(int roundNumber);
 
+		/// <summary>
+		/// Occurs when a new round begins.
+		/// </summary>
 		public event RoundEvent? OnRoundStarted;
+
+		/// <summary>
+		/// Occurs when a round has ended.
+		/// </summary>
 		public event RoundEvent? OnRoundEnded;
 
-		public void ResetRound() => _roundNumber = 0;
+		private bool _roundEnded;
+		private int _roundNumber;
 
-		public void HandleRoundEvent(string invoker, string logData)
+		internal void ResetRound() => _roundNumber = 0;
+
+		internal void HandleRoundEvent(string invoker, string logData)
 		{
 			switch (invoker)
 			{
