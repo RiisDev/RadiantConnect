@@ -283,3 +283,9 @@ dotnet_diagnostic.CA5399.severity = none     # Do not disable certificate valida
 
 # System Library Warnings
 dotnet_diagnostic.SYSLIB1054.severity = none # Convert PINVOKE to LibraryImprot
+
+[ValorantApi/*.cs]
+dotnet_diagnostic.CS1591.severity = none     # Missing XML comment for publicly visible type or member // Reasoning: I will not be generating XML documentation for this folder and it's items, to get documentation for desired endpoints visit https://dash.valorant-api.com/
+
+[Network/*/DataTypes/*.cs]
+dotnet_diagnostic.CS1591.severity = none     # Missing XML comment for publicly visible type or member // Reasoning: I'm lazy to document them all.

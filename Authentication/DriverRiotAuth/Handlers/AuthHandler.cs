@@ -5,6 +5,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 {
 	internal sealed class AuthHandler(string browserProcess, string browserExecutable, bool killBrowser, bool cacheCookies, bool headless) : IDisposable
 	{
+		/// <summary>
+		/// Gets or sets the current driver status and triggers the driver status update event when changed.
+		/// </summary>
 		public Authentication.DriverStatus DriverStatus
 		{
 			get;
@@ -16,8 +19,15 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		}
 
 		// Events
+
+		/// <summary>
+		/// Occurs when multi-factor authentication is requested during the sign-in process.
+		/// </summary>
 		public event Events.MultiFactorEvent? OnMultiFactorRequested;
 
+		/// <summary>
+		/// Occurs when the browser automation driver reports an updated status.
+		/// </summary>
 		public event Events.DriverEvent? OnDriverUpdate;
 
 		internal int DriverPort { get; } = AuthUtil.GetFreePort();
@@ -29,6 +39,9 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 		internal ClientWebSocket? Socket { get; set; } = new();
 
 		// User Variables
+		/// <summary>
+		/// Gets or sets the multi-factor authentication code used during sign-in flows that require MFA.
+		/// </summary>
 		public string? MultiFactorCode { get; set; }
 
 		internal async Task<(string, string, string, string)> Authenticate(string username, string password)

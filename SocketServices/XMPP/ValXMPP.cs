@@ -12,12 +12,32 @@ using RadiantConnect.SocketServices.XMPP.XMPPManagement;
 
 namespace RadiantConnect.XMPP
 {
+	/// <summary>
+	/// Represents a VAL-specific XMPP client responsible for intercepting,
+	/// proxying, and handling Valorant XMPP communication.
+	/// </summary>
+	/// <remarks>
+	/// This class manages lifecycle coordination between the Riot Client,
+	/// a local proxy server, and the XMPP stream. It supports presence updates,
+	/// internal messaging, and connection readiness notifications.
+	/// </remarks>
 	public partial class ValXMPP : IDisposable
 	{
 		private readonly CancellationTokenSource _cancellationTokenSource = new();
 
+		/// <summary>
+		/// Raised when the XMPP connection has fully initialized and is ready
+		/// for communication.
+		/// </summary>
 		public event Action? OnReady;
 
+		/// <summary>
+		/// Gets a value indicating whether the XMPP connection is fully ready.
+		/// </summary>
+		/// <remarks>
+		/// Transitioning from <c>false</c> to <c>true</c> will automatically
+		/// raise the <see cref="OnReady"/> event.
+		/// </remarks>
 		public bool Ready
 		{
 			get;
@@ -30,18 +50,61 @@ namespace RadiantConnect.XMPP
 		}
 
 		internal string? StreamUrl { get; set; }
-
+		
+		/// <summary>
+		/// Delegate invoked when an internal XMPP XML message is received.
+		/// </summary>
+		/// <param name="data">
+		/// The raw XML message payload.
+		/// </param>
 		public delegate void InternalMessage(string data);
+
+		/// <summary>
+		/// Delegate invoked when the local player's Valorant presence is updated.
+		/// </summary>
+		/// <param name="presence">
+		/// The updated presence information.
+		/// </param>
 		public delegate void PresenceUpdated(ValorantPresence presence);
+
+		/// <summary>
+		/// Delegate invoked when another player's presence is updated.
+		/// </summary>
+		/// <param name="presence">
+		/// The updated player presence information.
+		/// </param>
 		public delegate void PlayerPresenceUpdated(PlayerPresence presence);
 
+		/// <summary>
+		/// Raised when an internal client-side XMPP message is received.
+		/// </summary>
 		public event InternalMessage? OnClientMessage;
+
+		/// <summary>
+		/// Raised when an internal server-side XMPP message is received.
+		/// </summary>
 		public event InternalMessage? OnServerMessage;
+
+		/// <summary>
+		/// Raised when the local Valorant presence information is updated.
+		/// </summary>
 		public event PresenceUpdated? OnValorantPresenceUpdated;
+
+		/// <summary>
+		/// Raised when another player's presence information is updated.
+		/// </summary>
 		public event PlayerPresenceUpdated? OnPlayerPresenceUpdated;
 
+		/// <summary>
+		/// Raised when an outbound XMPP message is intercepted by the proxy.
+		/// </summary>
 		public event InternalMessage? OnOutboundMessage;
+
+		/// <summary>
+		/// Raised when an inbound XMPP message is intercepted by the proxy.
+		/// </summary>
 		public event InternalMessage? OnInboundMessage;
+
 
 		internal delegate void SocketHandled(XMPPSocketHandle handle);
 		internal event SocketHandled? OnSocketCreated;
@@ -50,6 +113,9 @@ namespace RadiantConnect.XMPP
 
 		private Process _valorantProcess = null!;
 
+		/// <summary>
+		/// Disposes the socket connection and disconnects from the MITM XMPP server.
+		/// </summary>
 		public void Dispose()
 		{
 			_cancellationTokenSource.Cancel();
@@ -60,12 +126,26 @@ namespace RadiantConnect.XMPP
 			GC.SuppressFinalize(this);
 		}
 
+		/// <summary>
+		/// Terminates all running Riot and Valorant-related processes.
+		/// </summary>
+		/// <remarks>
+		/// This method forcefully kills the Riot Client, Riot Client Services,
+		/// and Valorant game processes if they are running.
+		/// </remarks>
 		public static void KillRiot()
 		{
 			Process[] processes = Process.GetProcesses();
 			foreach (Process process in processes.Where(proc => proc.ProcessName is "Riot Client" or "VALORANT-Win64-Shipping" or "RiotClientServices")) process.Kill();
 		}
 
+		/// <summary>
+		/// Determines whether any Riot or Valorant processes are currently running.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if the Riot Client or Valorant process is running;
+		/// otherwise, <c>false</c>.
+		/// </returns>
 		public static bool IsRiotRunning() => InternalValorantMethods.IsRiotClientRunning() || InternalValorantMethods.IsValorantProcessRunning();
 
 		internal static (TcpListener, int) NewTcpListener()
@@ -215,6 +295,24 @@ namespace RadiantConnect.XMPP
 			}
 		}
 
+		/// <summary>
+		/// Initializes the Valorant XMPP connection by launching the Riot Client
+		/// with a local proxy configuration.
+		/// </summary>
+		/// <param name="patchLine">
+		/// The Valorant patch line to launch (default is <c>live</c>).
+		/// </param>
+		/// <returns>
+		/// The started Riot Client process instance.
+		/// </returns>
+		/// <exception cref="RadiantConnectXMPPException">
+		/// Thrown if Riot or Valorant is already running, required executables
+		/// cannot be found, or the Riot Client fails to start.
+		/// </exception>
+		/// <remarks>
+		/// This method starts a local proxy server, intercepts XMPP traffic,
+		/// determines the chat server affinity, and establishes the XMPP stream.
+		/// </remarks>
 		public Process InitializeConnection(string patchLine = "live")
 		{
 			string riotClientPath = RiotPathService.GetRiotClientPath();

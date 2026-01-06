@@ -5,6 +5,10 @@ using System.Security.Cryptography;
 
 namespace RadiantConnect.Utilities
 {
+	/// <summary>
+	/// Provides authentication-related helper methods for obtaining
+	/// Riot XMPP and service authorization tokens.
+	/// </summary>
 	public static class AuthUtil
 	{
 		internal static string ParseUrlQuery(string url, string key)
@@ -78,7 +82,30 @@ namespace RadiantConnect.Utilities
 			);
 		}
 
-		public static async Task<(string, string, object, string, string)> GetAuthTokensFromAccessToken(string accessToken)
+		/// <summary>
+		/// Retrieves all required authentication tokens and client configuration
+		/// data using an existing Riot access token.
+		/// </summary>
+		/// <param name="accessToken">
+		/// The OAuth access token used to authenticate with Riot services.
+		/// </param>
+		/// <returns>
+		/// A tuple containing authentication tokens and related metadata.
+		/// <list type="bullet">
+		/// <item><description><c>pasToken</c> – The Platform Authorization Service (PAS) token.</description></item>
+		/// <item><description><c>entitlementsToken</c> – The Riot entitlements token.</description></item>
+		/// <item><description><c>clientConfig</c> – The resolved client configuration object.</description></item>
+		/// <item><description><c>userInfo</c> – The authenticated user information payload.</description></item>
+		/// <item><description><c>rmsToken</c> – The Riot Messaging Service (RMS) token.</description></item>
+		/// </list>
+		/// </returns>
+		/// <exception cref="ArgumentException">
+		/// Thrown when the provided access token is null or empty.
+		/// </exception>
+		/// <exception cref="HttpRequestException">
+		/// Thrown when a network or service error occurs while retrieving tokens.
+		/// </exception>
+		public static async Task<(string pasToken, string entitlementsToken, object clientConfig, string userInfo, string rmsToken)> GetAuthTokensFromAccessToken(string accessToken)
 		{
 			using HttpClient httpClient = BuildClient().Item1;
 			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);

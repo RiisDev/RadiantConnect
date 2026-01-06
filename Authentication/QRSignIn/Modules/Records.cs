@@ -1,20 +1,20 @@
 ﻿namespace RadiantConnect.Authentication.QRSignIn.Modules
 {
-	public record Auth(
+	internal record Auth(
 		[property: JsonPropertyName("auth_method")] string AuthMethod
 	);
 
-	public record Captcha(
+	internal record Captcha(
 		[property: JsonPropertyName("type")] string Type,
 		[property: JsonPropertyName("hcaptcha")] Hcaptcha Hcaptcha
 	);
 
-	public record Hcaptcha(
+	internal record Hcaptcha(
 		[property: JsonPropertyName("key")] string Key,
 		[property: JsonPropertyName("data")] string Data
 	);
 
-	public record Stage3Return(
+	internal record Stage3Return(
 		[property: JsonPropertyName("type")] string Type,
 		[property: JsonPropertyName("auth")] Auth Auth,
 		[property: JsonPropertyName("captcha")] Captcha Captcha,
@@ -25,9 +25,9 @@
 		[property: JsonPropertyName("platform")] string Platform
 	);
 
-	public record BuiltData(string LoginUrl, string Session, string SdkSid, string Cluster, string Suuid, string Timestamp, string Language, Authentication.CountryCode CountryCode);
+	internal record BuiltData(string LoginUrl, string Session, string SdkSid, string Cluster, string Suuid, string Timestamp, string Language, Authentication.CountryCode CountryCode);
 
-	public record QrDataSuccess(
+	internal record QrDataSuccess(
 		[property: JsonPropertyName("type")] string? Type,
 		[property: JsonPropertyName("success")] Success? Success,
 		[property: JsonPropertyName("country")] string? Country,
@@ -35,7 +35,7 @@
 		[property: JsonPropertyName("platform")] string? Platform
 	);
 
-	public record Success(
+	internal record Success(
 		[property: JsonPropertyName("login_token")] string? LoginToken,
 		[property: JsonPropertyName("redirect_url")] string? RedirectUrl,
 		[property: JsonPropertyName("is_console_link_session")] bool? IsConsoleLinkSession,
@@ -43,16 +43,16 @@
 		[property: JsonPropertyName("puuid")] string? Puuid
 	);
 
-	public record Parameters(
+	internal record Parameters(
 		[property: JsonPropertyName("uri")] string Uri
 	);
 
-	public record Response(
+	internal record Response(
 		[property: JsonPropertyName("mode")] string Mode,
 		[property: JsonPropertyName("parameters")] Parameters Parameters
 	);
 
-	public record AccessTokenReturn(
+	internal record AccessTokenReturn(
 		[property: JsonPropertyName("type")] string Type,
 		[property: JsonPropertyName("response")] Response Response,
 		[property: JsonPropertyName("country")] string Country

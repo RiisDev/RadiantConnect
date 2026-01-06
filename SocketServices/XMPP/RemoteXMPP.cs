@@ -5,20 +5,67 @@ using IOException = System.IO.IOException;
 
 namespace RadiantConnect.SocketServices.XMPP
 {
+	/// <summary>
+	/// Represents a remote XMPP client responsible for establishing and managing
+	/// an XMPP connection to Riot Games chat servers.
+	/// </summary>
+	/// <remarks>
+	/// This class handles socket initialization, SSL negotiation, authentication,
+	/// stream binding, and message transmission.
+	/// </remarks>
 	public class RemoteXMPP : IDisposable
 	{
+		/// <summary>
+		/// Represents the current state of the XMPP connection lifecycle.
+		/// </summary>
 		public enum XMPPStatus
 		{
+			/// <summary>
+			/// The client is initializing and preparing to connect.
+			/// </summary>
 			Connecting,
+
+			/// <summary>
+			/// An SSL/TLS connection is being established.
+			/// </summary>
 			InitiatingSslConnection,
+
+			/// <summary>
+			/// The XMPP socket stream is being initiated.
+			/// </summary>
 			InitiatingSocketStream,
+
+			/// <summary>
+			/// Authentication tokens are being transmitted to the server.
+			/// </summary>
 			SendingAuthorizationTokens,
+
+			/// <summary>
+			/// Server features are being received and processed.
+			/// </summary>
 			ReceivingFeatures,
+
+			/// <summary>
+			/// The XMPP stream is being bound.
+			/// </summary>
 			BindingStream,
+
+			/// <summary>
+			/// The XMPP session is being bound.
+			/// </summary>
 			BindingSession,
+
+			/// <summary>
+			/// Entitlement data is being bound to the session.
+			/// </summary>
 			BindingEntitlement,
+
+			/// <summary>
+			/// The client is fully connected and ready for communication.
+			/// </summary>
 			Connected
 		}
+
 		#region XMPPRegions
 		internal readonly Dictionary<string, string> ChatUrls = new() {
 			{"asia", "jp1.chat.si.riotgames.com"},
@@ -67,10 +114,31 @@ namespace RadiantConnect.SocketServices.XMPP
 			{ "us-la2", "la2" }
 		};
 		#endregion
+
+		/// <summary>
+		/// Delegate invoked when raw XMPP message data is received.
+		/// </summary>
+		/// <param name="data">
+		/// The raw XML message payload.
+		/// </param>
 		public delegate void XMPPMessage(string data);
+
+		/// <summary>
+		/// Raised when a raw XMPP message is received from the server.
+		/// </summary>
 		public event XMPPMessage? OnMessage;
 
+		/// <summary>
+		/// Delegate invoked when the XMPP connection status changes.
+		/// </summary>
+		/// <param name="status">
+		/// The updated XMPP connection status.
+		/// </param>
 		public delegate void XMPPProgress(XMPPStatus status);
+
+		/// <summary>
+		/// Raised when the XMPP connection progresses through its lifecycle.
+		/// </summary>
 		public event XMPPProgress? OnXMPPProgress;
 
 		internal SslStream SslStream = null!;
@@ -81,6 +149,13 @@ namespace RadiantConnect.SocketServices.XMPP
 
 		internal RSOAuth AuthData { get; private set; } = null!;
 
+		/// <summary>
+		/// Gets or sets the current XMPP connection status.
+		/// </summary>
+		/// <remarks>
+		/// Setting this property will automatically notify all subscribers
+		/// via <see cref="OnXMPPProgress"/>.
+		/// </remarks>
 		public XMPPStatus Status
 		{
 			get => InternalStatus;
@@ -136,8 +211,20 @@ namespace RadiantConnect.SocketServices.XMPP
 			return contentBuilder.ToString();
 		}
 
+		/// <summary>
+		/// Sends a raw XMPP XML message to the server over the active SSL stream.
+		/// </summary>
+		/// <param name="message">
+		/// The XML payload to send.
+		/// </param>
 		public async Task SendMessage([StringSyntax(StringSyntaxAttribute.Xml)] string message) => await AsyncSocketWrite(SslStream, message).ConfigureAwait(false);
 
+		/// <summary>
+		/// Initiates the remote XMPP connection using the provided OAuth credentials.
+		/// </summary>
+		/// <param name="auth">
+		/// The OAuth authentication data used to authorize the XMPP session.
+		/// </param>
 		public async Task InitiateRemoteXMPP(RSOAuth auth)
 		{
 			try
@@ -230,6 +317,9 @@ namespace RadiantConnect.SocketServices.XMPP
 			}
 		}
 
+		/// <summary>
+		/// Disposes the socket connection and disconnects from the XMPP server.
+		/// </summary>
 		public void Dispose()
 		{
 			SslStream.Dispose();

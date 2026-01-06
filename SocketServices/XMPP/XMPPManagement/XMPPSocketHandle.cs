@@ -1,9 +1,13 @@
-﻿
-
-// ReSharper disable CheckNamespace
-
-namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
+﻿namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 {
+	/// <summary>
+	/// Represents a low-level socket handle for sending and receiving
+	/// XMPP XML data over managed streams.
+	/// </summary>
+	/// <remarks>
+	/// This class abstracts direct stream access and provides helper methods
+	/// for safely writing XMPP XML stanzas to the appropriate stream.
+	/// </remarks>
 	public class XMPPSocketHandle(Stream? incomingStream, Stream outgoingStream) : IDisposable
 	{
 		private readonly CancellationTokenSource _cancellationTokenSource = new();
@@ -13,6 +17,9 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 		internal event InternalMessage? OnClientMessage;
 		internal event InternalMessage? OnServerMessage;
 
+		/// <summary>
+		/// Disposes the socket connection and disconnects from the server.
+		/// </summary>
 		public void Dispose()
 		{
 			_cancellationTokenSource.Cancel();
@@ -74,6 +81,15 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 			}
 		}
 
+		/// <summary>
+		/// Sends an XMPP XML message using the primary XML messaging pipeline.
+		/// </summary>
+		/// <param name="data">
+		/// The XML payload to send.
+		/// </param>
+		/// <remarks>
+		/// This method is typically used for internal or server-bound XMPP messages.
+		/// </remarks>
 		public async Task SendXmlMessageAsync([StringSyntax(StringSyntaxAttribute.Xml)] string data)
 		{
 			if (_cancellationTokenSource.IsCancellationRequested) return;
@@ -94,6 +110,16 @@ namespace RadiantConnect.SocketServices.XMPP.XMPPManagement
 			catch (Exception ex) { Debug.WriteLine(ex); }
 		}
 
+		/// <summary>
+		/// Sends an XMPP XML message directly to the outgoing stream.
+		/// </summary>
+		/// <param name="data">
+		/// The raw XML payload to write to the outgoing stream.
+		/// </param>
+		/// <remarks>
+		/// This method bypasses higher-level routing and writes directly
+		/// to the underlying stream.
+		/// </remarks>
 		public async Task SendXmlToOutgoingStream([StringSyntax(StringSyntaxAttribute.Xml)] string data)
 		{
 			try

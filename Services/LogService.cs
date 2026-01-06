@@ -4,6 +4,9 @@ using Path = System.IO.Path;
 
 namespace RadiantConnect.Services
 {
+	/// <summary>
+	/// Service for reading Valorant log files and raising game-related events.
+	/// </summary>
 	public class LogService : IDisposable
 	{
 		private readonly CancellationTokenSource _shutdownLog = new();
@@ -31,13 +34,47 @@ namespace RadiantConnect.Services
 			return string.Empty;
 		}
 
+		/// <summary>
+		/// Represents client-related data extracted from the Valorant log file.
+		/// </summary>
+		/// <param name="Shard">The server shard/region of the client.</param>
+		/// <param name="UserId">The user ID of the logged-in player.</param>
+		/// <param name="PdUrl">The PD endpoint URL.</param>
+		/// <param name="GlzUrl">The GLZ endpoint URL.</param>
+		/// <param name="SharedUrl">The shared endpoint URL.</param>
 		public record ClientData(ClientData.ShardType Shard, string UserId, string PdUrl, string GlzUrl, string SharedUrl)
 		{
-			public enum ShardType { Na, Latam, Br, Eu, Ap, Kr, }
+			/// <summary>
+			/// Represents server regions/shards.
+			/// </summary>
+			public enum ShardType
+			{
+				/// <summary>North America shard.</summary>
+				Na,
+
+				/// <summary>Latin America shard.</summary>
+				Latam,
+
+				/// <summary>Brazil shard.</summary>
+				Br,
+
+				/// <summary>Europe shard.</summary>
+				Eu,
+
+				/// <summary>Asia Pacific shard.</summary>
+				Ap,
+
+				/// <summary>Korea shard.</summary>
+				Kr
+			}
 		}
 
 		internal static string LogPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local", "Valorant", "Saved", "Logs", "ShooterGame.log");
 		
+		/// <summary>
+		/// Extracts the client data (user ID, URLs, and region) from the Valorant log file.
+		/// </summary>
+		/// <returns>A <see cref="ClientData"/> object containing extracted log information.</returns>
 		public static ClientData GetClientData()
 		{
 			Restart:
@@ -61,7 +98,7 @@ namespace RadiantConnect.Services
 		}
 
 		[SuppressMessage("ReSharper", "FunctionNeverReturns")]
-		public async Task InitiateEvents(Initiator initiator)
+		internal async Task InitiateEvents(Initiator initiator)
 		{
 			GameEvents events = new(initiator);
 			initiator.GameEvents = events;
@@ -83,6 +120,9 @@ namespace RadiantConnect.Services
 			}, _shutdownLog.Token).ConfigureAwait(false);
 		}
 
+		/// <summary>
+		/// Disposes of the log service, stopping any active log monitoring tasks.
+		/// </summary>
 		public void Dispose()
 		{
 			_shutdownLog.Cancel();

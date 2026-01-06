@@ -4,10 +4,20 @@ using static Microsoft.Win32.Registry;
 #endif
 namespace RadiantConnect.Services
 {
+	/// <summary>
+	/// Provides methods and types for retrieving and parsing the Valorant game client version.
+	/// </summary>
 	public static partial class GameVersionService
 	{
 		internal static readonly char[] Separator = ['\0'];
 
+		/// <summary>
+		/// Represents the version information of the Valorant client.
+		/// </summary>
+		/// <param name="Branch">The release branch of the client.</param>
+		/// <param name="BuildVersion">The build version string of the client.</param>
+		/// <param name="VersionNumber">The numeric version of the client.</param>
+		/// <param name="BuiltData">The build date or timestamp of the client.</param>
 		public record VersionData(string Branch, string BuildVersion, int VersionNumber, string BuiltData);
 
 		private static int GetBuildNumberFromLog() => int.Parse(LogService.ReadTextFile(LogService.LogPath).ExtractValue(@"Build version: (\d+)", 1), StringExtensions.CultureInfo);
@@ -22,6 +32,15 @@ namespace RadiantConnect.Services
 			return versionApiRoot.Data ?? throw new RadiantConnectException("Failed to get fallback version from API.");
 		}
 
+		/// <summary>
+		/// Retrieves the client version information for Valorant.
+		/// Attempts to parse the version from a local file, and if that fails,
+		/// falls back to fetching the version from the Valorant API.
+		/// </summary>
+		/// <param name="filePath">The path to the local version file.</param>
+		/// <returns>
+		/// A <see cref="VersionData"/> object containing the client version information.
+		/// </returns>
 		public static VersionData GetClientVersion(string filePath)
 		{
 			try
@@ -135,6 +154,13 @@ namespace RadiantConnect.Services
 
 		private static readonly JsonSerializerOptions Base64Options = new() { WriteIndented = false };
 
+		/// <summary>
+		/// Generates and serializes a JSON object containing information about the client platform.
+		/// </summary>
+		/// <returns>
+		/// A Base64-encoded JSON string containing the platform type, operating system, OS version,
+		/// and system architecture of the client.
+		/// </returns>
 		public static string GetClientPlatform()
 		{
 			Dictionary<string, string> platform = new()

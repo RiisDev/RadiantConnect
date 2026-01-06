@@ -2,8 +2,16 @@
 #pragma warning disable IDE0046
 namespace RadiantConnect.Services
 {
+	/// <summary>
+	/// Provides methods to locate the installation paths for Valorant and the Riot Client on the local system.
+	/// </summary>
 	public static class RiotPathService
 	{
+		/// <summary>
+		/// Gets the full path to the Valorant game executable.
+		/// </summary>
+		/// <returns>The full file path to <c>VALORANT-Win64-Shipping.exe</c>.</returns>
+		/// <exception cref="FileNotFoundException">Thrown if the Valorant executable cannot be found.</exception>
 		public static string GetValorantPath()
 		{
 			string installLocation = string.Empty;
@@ -29,6 +37,15 @@ namespace RadiantConnect.Services
 			return installLocation;
 		}
 
+		/// <summary>
+		/// Gets the full path to the Riot Client executable.
+		/// </summary>
+		/// <param name="service">
+		/// If <c>true</c>, returns the path to <c>RiotClientServices.exe</c>;
+		/// if <c>false</c>, returns the path to the main <c>Riot Client.exe</c>.
+		/// </param>
+		/// <returns>The full file path to the selected Riot Client executable.</returns>
+		/// <exception cref="FileNotFoundException">Thrown if the Riot Client executable cannot be found.</exception>
 		public static string GetRiotClientPath(bool service = true)
 		{
 			string installLocation = string.Empty;

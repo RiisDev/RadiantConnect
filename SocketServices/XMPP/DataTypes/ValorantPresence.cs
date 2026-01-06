@@ -1,6 +1,14 @@
 ﻿namespace RadiantConnect.SocketServices.XMPP.DataTypes
 {
-	//ReSharper disable All
+	// ReSharper disable All
+	/// <summary>
+	/// Represents detailed Valorant presence information published over XMPP,
+	/// including party state, matchmaking status, competitive data, and account metadata.
+	/// </summary>
+	/// <remarks>
+	/// This data is typically sourced from presence broadcasts and may contain
+	/// nullable or transient fields depending on the player's current state.
+	/// </remarks>
 	public record ValorantPresence(
 		[property: JsonPropertyName("isValid")] bool? IsValid,
 		[property: JsonPropertyName("sessionLoopState")] string SessionLoopState,
@@ -42,6 +50,10 @@
 		[property: JsonPropertyName("premierPresenceData")] PremierPresenceData PremierPresenceData
 	);
 
+	/// <summary>
+	/// Represents Premier mode–specific presence information for a player,
+	/// including roster membership and competitive scoring.
+	/// </summary>
 	public record PremierPresenceData(
 		[property: JsonPropertyName("rosterId")] string RosterId,
 		[property: JsonPropertyName("rosterName")] string RosterName,

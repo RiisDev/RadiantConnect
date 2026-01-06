@@ -2,8 +2,22 @@
 
 namespace RadiantConnect.Services
 {
+	/// <summary>
+	/// Provides methods for retrieving and representing Valorant client version information.
+	/// </summary>
 	public class ValorantService
 	{
+		/// <summary>
+		/// Represents the detailed version information of the Valorant client.
+		/// </summary>
+		/// <param name="RiotClientVersion">The version of the Riot Client executable.</param>
+		/// <param name="Branch">The branch of the game build (e.g., live, beta).</param>
+		/// <param name="BuildVersion">The numeric build version of the client.</param>
+		/// <param name="Changelist">The changelist identifier for this build.</param>
+		/// <param name="EngineVersion">The engine version used by this build.</param>
+		/// <param name="VanguardVersion">The version of Riot Vanguard anti-cheat.</param>
+		/// <param name="UserClientVersion">The user-facing client version string.</param>
+		/// <param name="UserPlatform">The platform details of the client (OS, architecture).</param>
 		public record Version(
 			string RiotClientVersion,
 			string Branch,
@@ -15,6 +29,9 @@ namespace RadiantConnect.Services
 			string UserPlatform
 		);
 
+		/// <summary>
+		/// Gets the currently detected Valorant client version information.
+		/// </summary>
 		public Version ValorantClientVersion { get; init; }
 
 		internal static Version GetVersionFromFile(string valorantPath)
@@ -65,6 +82,11 @@ namespace RadiantConnect.Services
 			);
 		}
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="ValorantService"/> class,
+		/// attempting to detect the Valorant client version from the local install, logs, or fallback API.
+		/// </summary>
+		/// <exception cref="RadiantConnectException">Thrown if no version information can be retrieved from any source.</exception>
 		public ValorantService()
 		{
 			string valorantPath;
@@ -92,7 +114,6 @@ namespace RadiantConnect.Services
 					UserPlatform: GameVersionService.GetClientPlatform()
 				);
 			}
-
 		}
 	}
 }

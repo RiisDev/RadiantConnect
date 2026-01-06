@@ -1,7 +1,10 @@
 ﻿using RadiantConnect.Network.LocalEndpoints.DataTypes;
 
 namespace RadiantConnect.SocketServices.InternalTcp
-{
+{/// <summary>
+	/// Handles internal TCP events from the Valorant client, including presence updates,
+	/// currency changes, matchmaking state, scores, and other session-related events.
+	/// </summary>
 	public partial class TcpEvents : IDisposable
 	{
 		// User Variables to detect changes
@@ -11,35 +14,84 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		private string _gamestate = "unknown";
 		private string _score = "unknown";
 
+		/// <summary>
+		/// Delegate for presence updates (base64-encoded presence data).
+		/// </summary>
+		/// <param name="base64">The base64-encoded presence string.</param>
 		public delegate void PresenceUpdate(string base64);
 
+		/// <summary>
+		/// Delegate for currency change events.
+		/// </summary>
+		/// <param name="value">The new currency value.</param>
 		public delegate void CurrencyEvent(string value);
+
+		/// <summary>
+		/// Delegate for queue or matchmaking status updates.
+		/// </summary>
+		/// <param name="value">The queue or matchmaking status.</param>
 		public delegate void QueueEvent(string value);
+
+		/// <summary>
+		/// Delegate for match-related state changes, such as score updates.
+		/// </summary>
+		/// <param name="value">The new match-related value.</param>
 		public delegate void MatchChange(string value);
 
+		/// <summary> Delegate for experience points changes. </summary>
 		public delegate void XpEvent();
+
+		/// <summary> Delegate for MMR (matchmaking rating) changes. </summary>
 		public delegate void MmrEvent();
+
+		/// <summary> Delegate for contract-related updates. </summary>
 		public delegate void ContractEvent();
+
+		/// <summary> Delegate for session heartbeat events. </summary>
 		public delegate void Heartbeat();
 
+		/// <summary> Raised when the match score changes. </summary>
 		public event MatchChange? OnScoreChanged;
 
+		/// <summary> Raised when the queue state changes (e.g., matchmaking status). </summary>
 		public event QueueEvent? OnQueueStateChanged;
+
+		/// <summary> Raised when the queue ID changes. </summary>
 		public event QueueEvent? OnQueueIdChanged;
+
+		/// <summary> Raised when the match map changes during pregame. </summary>
 		public event QueueEvent? OnMapChanged;
+
+		/// <summary> Raised when the game session state changes. </summary>
 		public event QueueEvent? OnGameStateChanged;
 
+		/// <summary> Raised when a player's currency is updated. </summary>
 		public event CurrencyEvent? OnCurrencyAdjusted;
 
+		/// <summary> Raised when a player's XP changes. </summary>
 		public event XpEvent? OnXpChanged;
+
+		/// <summary> Raised when a player's MMR changes. </summary>
 		public event MmrEvent? OnMmrChanged;
+
+		/// <summary> Raised when a contract-related update occurs. </summary>
 		public event ContractEvent? OnContractChanged;
+
+		/// <summary> Raised on a session heartbeat. </summary>
 		public event Heartbeat? OnSessionHeartbeat;
 
+		/// <summary> Raised when the presence of the player is updated. </summary>
 		public event PresenceUpdate? OnPresenceUpdated;
 
 		private readonly Initiator _initiator;
 		private readonly ValSocket _socket;
+
+		/// <summary>
+		/// Initializes a new instance of the <see cref="TcpEvents"/> class.
+		/// </summary>
+		/// <param name="init">The <see cref="Initiator"/> for API interaction.</param>
+		/// <param name="socket">The socket connection for receiving TCP events.</param>
+		/// <param name="initiateSocket">Whether to immediately initiate the socket connection.</param>
 
 		public TcpEvents(Initiator init, ValSocket socket, bool initiateSocket = false)
 		{
@@ -110,6 +162,12 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			OnCurrencyAdjusted?.Invoke(match.Groups[1].Value);
 		}
 
+		/// <summary>
+		/// Processes a presence update received from the Valorant client.
+		/// Parses the base64-encoded presence data and triggers events
+		/// if relevant values have changed (e.g., matchmaking status, queue, map, score).
+		/// </summary>
+		/// <param name="data">The raw TCP message containing presence information.</param>
 		public void HandlePresenceUpdate(string data)
 		{
 			Match match = GetPresence64().Match(data);
@@ -176,6 +234,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		[GeneratedRegex("amount\\\\\":(\\d+)", RegexOptions.Compiled)]
 		private static partial Regex GetCurrencyAmount();
 
+		/// <summary>
+		/// Disposes the TCP event service and associated socket connection.
+		/// </summary>
 		public void Dispose()
 		{
 			_socket.Dispose();

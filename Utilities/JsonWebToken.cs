@@ -2,11 +2,27 @@
 
 namespace RadiantConnect.Utilities
 {
+	/// <summary>
+	/// Represents a parsed JSON Web Token (JWT) and provides strongly-typed
+	/// access to its header, payload, and claims.
+	/// </summary>
+	/// <remarks>
+	/// This class does not perform signature validation. It is intended for
+	/// inspecting JWT contents such as claims, timestamps, and metadata
+	/// after the token has been obtained from a trusted source.
+	/// </remarks>
 	public class JsonWebToken
 	{
 		private readonly JsonElement _payloadElement;
 		private readonly JsonElement _headerElement;
 
+		/// <summary>
+		/// Initializes a new instance of the <see cref="JsonWebToken"/> class
+		/// from a raw JWT string.
+		/// </summary>
+		/// <param name="jwt">
+		/// The raw JWT string in compact serialization format.
+		/// </param>
 		public JsonWebToken(string? jwt)
 		{
 			if (string.IsNullOrWhiteSpace(jwt))
@@ -33,19 +49,76 @@ namespace RadiantConnect.Utilities
 			}
 		}
 
+		/// <summary>
+		/// Gets the signing algorithm specified in the JWT header.
+		/// </summary>
 		public string? Algorithm => GetHeaderValue<string>("alg");
+
+		/// <summary>
+		/// Gets the token type specified in the JWT header.
+		/// </summary>
 		public string? Type => GetHeaderValue<string>("typ");
+
+		/// <summary>
+		/// Gets the key identifier used to sign the JWT.
+		/// </summary>
 		public string? KeyId => GetHeaderValue<string>("kid");
 
+		/// <summary>
+		/// Gets the subject (<c>sub</c>) claim identifying the token principal.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown if the subject claim is not present.
+		/// </exception>
 		public string Subject => GetPayloadValue<string>("sub") ?? throw new InvalidOperationException("Subject (sub) not found in JWT.");
+
+		/// <summary>
+		/// Gets the issuer (<c>iss</c>) claim identifying the token issuer.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown if the issuer claim is not present.
+		/// </exception>
 		public string Issuer => GetPayloadValue<string>("iss") ?? throw new InvalidOperationException("Issuer (iss) not found in JWT.");
+
+		/// <summary>
+		/// Gets the audience (<c>aud</c>) claim identifying the intended recipients.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown if the audience claim is not present.
+		/// </exception>
 		public string Audience => GetPayloadValue<string>("aud") ?? throw new InvalidOperationException("Audience (aud) not found in JWT.");
 
+		/// <summary>
+		/// Gets the UTC expiration time (<c>exp</c>) of the token, if present.
+		/// </summary>
 		public DateTime? Expires => GetPayloadValue<long?>("exp") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
+
+		/// <summary>
+		/// Gets the UTC expiration time of the token.
+		/// </summary>
+		/// <remarks>
+		/// This property is an alias for <see cref="Expires"/>.
+		/// </remarks>
 		public DateTime? ExpiresAt => Expires;
+
+		/// <summary>
+		/// Gets the UTC issue time (<c>iat</c>) of the token, if present.
+		/// </summary>
 		public DateTime? IssuedAt => GetPayloadValue<long?>("iat") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
+
+		/// <summary>
+		/// Gets the UTC time before which the token is not valid (<c>nbf</c>), if present.
+		/// </summary>
 		public DateTime? NotBefore => GetPayloadValue<long?>("nbf") is { } seconds ? DateTimeOffset.FromUnixTimeSeconds(seconds).UtcDateTime : null;
 
+		/// <summary>
+		/// Gets a value indicating whether the token is expired or otherwise invalid
+		/// based on its time-based claims.
+		/// </summary>
+		/// <remarks>
+		/// A small clock skew is tolerated. Tokens lacking both expiration and
+		/// issuance times are considered expired.
+		/// </remarks>
 		public bool IsExpired
 		{
 			get
@@ -60,18 +133,21 @@ namespace RadiantConnect.Utilities
 				if (expiresAt == default && issuedAt <= now)
 					return true;
 
-				if (expiresAt != default && expiresAt <= now)
-					return true;
-
-				return false;
+				return expiresAt != default && expiresAt <= now;
 			}
 		}
 
+		/// <summary>
+		/// Retrieves all claims contained in the JWT payload.
+		/// </summary>
+		/// <returns>
+		/// An array of <see cref="Claim"/> objects representing the token claims.
+		/// </returns>
 		public Claim[] GetClaims()
 		{
 			List<Claim> claims = [];
 			AddClaimsFromElement(_payloadElement, claims, "");
-			return [..claims];
+			return [.. claims];
 		}
 
 		private static void AddClaimsFromElement(JsonElement element, List<Claim> claims, string prefix)
@@ -102,6 +178,15 @@ namespace RadiantConnect.Utilities
 			}
 		}
 
+		/// <summary>
+		/// Retrieves a claim value as a string.
+		/// </summary>
+		/// <param name="claimType">
+		/// The claim type or JSON path.
+		/// </param>
+		/// <returns>
+		/// The claim value as a string, or an empty string if the claim is not present.
+		/// </returns>
 		public string GetClaim(string claimType) =>
 			TryGetPayloadElement(claimType, out JsonElement element)
 				? element.ValueKind switch
@@ -113,16 +198,70 @@ namespace RadiantConnect.Utilities
 				}
 				: string.Empty;
 
+		/// <summary>
+		/// Retrieves a value from the JWT header.
+		/// </summary>
+		/// <typeparam name="T">
+		/// The expected value type.
+		/// </typeparam>
+		/// <param name="key">
+		/// The header key.
+		/// </param>
+		/// <returns>
+		/// The deserialized header value, or <c>null</c> if not present.
+		/// </returns>
 		public T? GetHeaderValue<T>(string key) =>
 			_headerElement.ValueKind == JsonValueKind.Object &&
 			_headerElement.TryGetProperty(key, out JsonElement element)
 				? JsonSerializer.Deserialize<T>(element.GetRawText())
 				: default;
-		
+
+		/// <summary>
+		/// Retrieves a value from the JWT payload using a JSON path.
+		/// </summary>
+		/// <typeparam name="T">
+		/// The expected value type.
+		/// </typeparam>
+		/// <param name="keyPath">
+		/// The payload property name or JSON path.
+		/// </param>
+		/// <returns>
+		/// The deserialized payload value, or <c>null</c> if not present.
+		/// </returns>
 		public T? GetPayloadValue<T>(string keyPath) => TryGetPayloadElement(keyPath, out JsonElement element) ? JsonSerializer.Deserialize<T>(element.GetRawText()) : default;
 		
+		/// <summary>
+		/// Retrieves a required value from the JWT header.
+		/// </summary>
+		/// <typeparam name="T">
+		/// The expected value type.
+		/// </typeparam>
+		/// <param name="key">
+		/// The header key.
+		/// </param>
+		/// <returns>
+		/// The deserialized header value.
+		/// </returns>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown if the required header value is not present.
+		/// </exception>
 		public T GetRequiredHeaderValue<T>(string key) => GetHeaderValue<T>(key) ?? throw new InvalidOperationException($"Required header value '{key}' not found in JWT.");
 		
+		/// <summary>
+		/// Retrieves a required value from the JWT payload.
+		/// </summary>
+		/// <typeparam name="T">
+		/// The expected value type.
+		/// </typeparam>
+		/// <param name="keyPath">
+		/// The payload property name or JSON path.
+		/// </param>
+		/// <returns>
+		/// The deserialized payload value.
+		/// </returns>
+		/// <exception cref="InvalidOperationException">
+		/// Thrown if the required payload value is not present.
+		/// </exception>
 		public T GetRequiredPayloadValue<T>(string keyPath) => GetPayloadValue<T>(keyPath) ?? throw new InvalidOperationException($"Required payload value '{keyPath}' not found in JWT.");
 
 		[SuppressMessage("ReSharper", "RemoveRedundantBraces")]

@@ -1,17 +1,43 @@
 ﻿namespace RadiantConnect.EventHandler.Events
 {
+	/// <summary>
+	/// Provides events related to player voting actions such as surrender,
+	/// remake requests, and general vote declarations.
+	/// </summary>
 	public class VoteEvents
 	{
+		/// <summary>
+		/// Represents a callback for vote-related events, indicating a yes/no response.
+		/// </summary>
+		/// <param name="yesNo">A boolean value representing the vote outcome or selection.</param>
 		public delegate void VoteEvent(bool yesNo);
 
+		/// <summary>
+		/// Occurs when a vote is initially declared.
+		/// </summary>
 		public event VoteEvent? OnVoteDeclared;
+
+		/// <summary>
+		/// Occurs when a vote is actively invoked or cast.
+		/// </summary>
 		public event VoteEvent? OnVoteInvoked;
 
+		/// <summary>
+		/// Occurs when a surrender vote is initiated.
+		/// </summary>
 		public event VoteEvent? OnSurrenderCalled;
+
+		/// <summary>
+		/// Occurs when a remake vote is initiated.
+		/// </summary>
 		public event VoteEvent? OnRemakeCalled;
+
+		/// <summary>
+		/// Occurs when a timeout vote is initiated.
+		/// </summary>
 		public event VoteEvent? OnTimeoutCalled;
 
-		public void HandleVoteEvent(string invoker, string logData)
+		internal void HandleVoteEvent(string invoker, string logData)
 		{
 			switch (invoker)
 			{
