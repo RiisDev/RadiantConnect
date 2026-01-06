@@ -4,20 +4,51 @@ using System.Net.Http.Headers;
 
 namespace RadiantConnect.Network
 {
+	/// <summary>
+	/// Provides a high-level HTTP networking layer for communicating
+	/// with Riot and Valorant backend services.
+	/// </summary>
+	/// <remarks>
+	/// This class is responsible for:
+	/// <list type="bullet">
+	/// <item><description>Managing authentication headers</description></item>
+	/// <item><description>Resolving and validating game version metadata</description></item>
+	/// <item><description>Sending authenticated HTTP requests</description></item>
+	/// <item><description>Serializing and deserializing API payloads</description></item>
+	/// </list>
+	/// </remarks>
 	public class ValorantNet
 	{
 		internal static string LockFilePath =
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local",
 				"Riot Games", "Riot Client", "Config", "lockfile");
 
+		/// <summary>
+		/// Represents a logging callback for network-related events.
+		/// </summary>
+		/// <param name="message">The log message.</param>
 		public delegate void ValorantNetLog(string message);
+
+		/// <summary>
+		/// Raised when the networking layer emits a log message.
+		/// </summary>
 		public event ValorantNetLog? OnLog;
 
+		/// <summary>
+		/// Gets or sets the Riot Sign-On authentication context.
+		/// </summary>
 		public RSOAuth? AuthCodes { get; set; }
+
+		/// <summary>
+		/// Retrieves the local authorization port used by the Riot Client, if available.
+		/// </summary>
+		/// <returns>
+		/// The authorization port number, or <c>null</c> if not detected.
+		/// </returns>
+		public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
 		private readonly HttpClient _client = AuthUtil.BuildClient().Item1;
 
-		public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
 		private static System.Net.Http.HttpMethod MapHttpMethod(HttpMethod method) => method switch
 		{
@@ -31,14 +62,30 @@ namespace RadiantConnect.Network
 			_ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
 		};
 
+		/// <summary>
+		/// Represents supported HTTP methods used by Riot services.
+		/// </summary>
 		public enum HttpMethod
 		{
+			/// <summary>Retrieves data without modifying server state.</summary>
 			Get,
+
+			/// <summary>Creates a new resource on the server.</summary>
 			Post,
+
+			/// <summary>Replaces an existing resource.</summary>
 			Put,
+
+			/// <summary>Removes a resource from the server.</summary>
 			Delete,
+
+			/// <summary>Applies a partial update to a resource.</summary>
 			Patch,
+
+			/// <summary>Retrieves communication options for a resource.</summary>
 			Options,
+
+			/// <summary>Retrieves response headers without a response body.</summary>
 			Head
 		}
 
@@ -55,6 +102,19 @@ namespace RadiantConnect.Network
 			_client.DefaultRequestHeaders.TryAddWithoutValidation("X-Riot-ClientVersion", _defaultClientVersion);
 		}
 
+		/// <summary>
+		/// Initializes the networking layer using an existing Riot OAuth session.
+		/// </summary>
+		/// <param name="rsoAuth">
+		/// An authenticated Riot Sign-On context.
+		/// </param>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when Valorant version metadata cannot be resolved.
+		/// </exception>
+		/// <remarks>
+		/// This constructor resolves the current Valorant client version
+		/// using the RadiantConnect version API and validates compatibility.
+		/// </remarks>
 		public ValorantNet(RSOAuth rsoAuth)
 		{
 			AuthCodes = rsoAuth;
@@ -85,6 +145,16 @@ namespace RadiantConnect.Network
 			ResetDefaultHeaders();
 		}
 
+		/// <summary>
+		/// Initializes the networking layer using an attached Valorant client,
+		/// or resolves version data dynamically if unavailable.
+		/// </summary>
+		/// <param name="valorantClient">
+		/// An optional Valorant client instance providing version metadata.
+		/// </param>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when version validation fails and API fallback is unavailable.
+		/// </exception>
 		public ValorantNet(ValorantService? valorantClient = null)
 		{
 			_client.Timeout = TimeSpan.FromSeconds(10);
@@ -226,6 +296,17 @@ namespace RadiantConnect.Network
 			public string Basic { get; set; } = string.Empty;
 		}
 
+		/// <summary>
+		/// Creates and sends an HTTP request to a Riot service endpoint.
+		/// </summary>
+		/// <param name="httpMethod">The HTTP method to use.</param>
+		/// <param name="baseUrl">The base service URL.</param>
+		/// <param name="endPoint">The endpoint path.</param>
+		/// <param name="content">Optional HTTP request body.</param>
+		/// <param name="customHeaders">Optional custom headers.</param>
+		/// <returns>
+		/// The raw response body, or <c>null</c> if the request produced no content.
+		/// </returns>
 		public async Task<string?> CreateRequest(HttpMethod httpMethod, string baseUrl, string endPoint, HttpContent? content = null, Dictionary<string, string>? customHeaders = null)
 		{
 			if (baseUrl.IsNullOrEmpty()) return string.Empty;
@@ -302,51 +383,67 @@ namespace RadiantConnect.Network
 
 		}
 
+		/// <summary>Executes an HTTP GET request and deserializes the response.</summary>
 		public async Task<T?> GetAsync<T>(string baseUrl, string endPoint) 
 			=> await SendAndConvertAsync<T>(HttpMethod.Get, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP POST request without processing a response</summary>
 		public async Task<T?> PostAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await SendAndConvertAsync<T>(HttpMethod.Post, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP PUT request and deserializes the response.</summary>
 		public async Task<T?> PutAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await SendAndConvertAsync<T>(HttpMethod.Put, baseUrl, endPoint, httpContent).ConfigureAwait(false);
-		
+
+		/// <summary>Executes an HTTP DELETE request and deserializes the response.</summary>
 		public async Task<T?> DeleteAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await SendAndConvertAsync<T>(HttpMethod.Delete, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP PATCH request and deserializes the response.</summary>
 		public async Task<T?> PatchAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await SendAndConvertAsync<T>(HttpMethod.Patch, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP OPTIONS request and deserializes the response.</summary>
 		public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint) 
 			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP HEAD request and deserializes the response.</summary>
 		public async Task<T?> HeadAsync<T>(string baseUrl, string endPoint)
 			=> await SendAndConvertAsync<T>(HttpMethod.Head, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP OPTIONS request and deserializes the response.</summary>
 		public async Task<T?> OptionsAsync<T>(string baseUrl, string endPoint, HttpContent? httpContent)
 			=> await SendAndConvertAsync<T>(HttpMethod.Options, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP GET request without processing a response</summary>
 		public async Task GetAsync(string baseUrl, string endPoint)
 			=> await CreateRequest(HttpMethod.Get, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP POST request without processing a response</summary>
 		public async Task PostAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
 			=> await CreateRequest(HttpMethod.Post, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP PUT request without processing a response</summary>
 		public async Task PutAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await CreateRequest(HttpMethod.Put, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP DELETE request without processing a response</summary>
 		public async Task DeleteAsync(string baseUrl, string endPoint, HttpContent? httpContent = null) 
 			=> await CreateRequest(HttpMethod.Delete, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP PATCH request without processing a response</summary>
 		public async Task PatchAsync(string baseUrl, string endPoint, HttpContent? httpContent = null)
 			=> await CreateRequest(HttpMethod.Patch, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP OPTIONS request without processing a response</summary>
 		public async Task OptionsAsync(string baseUrl, string endPoint)
 			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP HEAD request without processing a response</summary>
 		public async Task HeadAsync(string baseUrl, string endPoint) 
 			=> await CreateRequest(HttpMethod.Head, baseUrl, endPoint).ConfigureAwait(false);
 
+		/// <summary>Executes an HTTP OPTIONS request without processing a response</summary>
 		public async Task OptionsAsync(string baseUrl, string endPoint, HttpContent? httpContent)
 			=> await CreateRequest(HttpMethod.Options, baseUrl, endPoint, httpContent).ConfigureAwait(false);
 		

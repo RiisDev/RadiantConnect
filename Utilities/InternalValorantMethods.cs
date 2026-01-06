@@ -2,8 +2,29 @@
 
 namespace RadiantConnect.Utilities
 {
+	/// <summary>
+	/// Provides internal helper methods for detecting the runtime state
+	/// of Valorant and Riot Client processes.
+	/// </summary>
+	/// <remarks>
+	/// These methods are used to determine readiness and lifecycle state
+	/// of Riot and Valorant components prior to initializing XMPP connections.
+	/// </remarks>
 	public static class InternalValorantMethods
 	{
+		/// <summary>
+		/// Determines whether the Valorant client is fully initialized and ready
+		/// for interaction.
+		/// </summary>
+		/// <returns>
+		/// <c>true</c> if the Valorant process is running, required configuration
+		/// and log files exist, and the client has not yet shut down;
+		/// otherwise, <c>false</c>.
+		/// </returns>
+		/// <remarks>
+		/// Readiness is inferred by checking process state, file system artifacts,
+		/// and the contents of the Valorant log file.
+		/// </remarks>
 		public static bool ClientIsReady() =>
 			IsValorantProcessRunning() &&
 			Directory.Exists(Path.GetDirectoryName(LogService.LogPath)) &&
@@ -15,9 +36,8 @@ namespace RadiantConnect.Utilities
 				.Last()
 				.Contains("Log file closed", StringComparison.Ordinal);
 
-		// Don't convert to LINQ, it's slower
 		[SuppressMessage("ReSharper", "LoopCanBeConvertedToQuery")]
-		public static bool IsValorantProcessRunning()
+		internal static bool IsValorantProcessRunning()
 		{
 			foreach (Process process in Process.GetProcesses())
 				if (process.ProcessName.Equals("VALORANT", StringComparison.OrdinalIgnoreCase))
@@ -25,7 +45,7 @@ namespace RadiantConnect.Utilities
 			return false;
 		}
 
-		public static bool IsRiotClientRunning()
+		internal static bool IsRiotClientRunning()
 		{
 			bool riotClientServicesFound = false;
 			bool riotClientFound = false;

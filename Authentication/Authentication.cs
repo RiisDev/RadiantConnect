@@ -144,7 +144,7 @@ namespace RadiantConnect.Authentication
 			My,
 
 			/// <summary>
-			/// Europe Nordic & East.
+			/// Europe Nordic - East.
 			/// </summary>
 			Eun,
 

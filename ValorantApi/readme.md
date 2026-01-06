@@ -1,0 +1,1 @@
+I will not be generating XML documentation for this folder and it's items, to get documentation for desired endpoints visit https://dash.valorant-api.com/
