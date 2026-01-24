@@ -62,13 +62,13 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			CookieCollection cookies = container.GetAllCookies();
 
 			client.Dispose();
-
+			
 			return new RSOAuth(
 				suuid,
 				ssid,
-				cookies.First(x => x.Name == "tdid").Value,
-				cookies.First(x => x.Name == "csid").Value,
-				cookies.First(x => x.Name == "clid").Value,
+				cookies.FirstOrDefault(x => x.Name == "tdid")?.Value,
+				cookies.FirstOrDefault(x => x.Name == "csid")?.Value,
+				cookies.FirstOrDefault(x => x.Name == "clid")?.Value,
 				accessToken,
 				pasToken,
 				entitlementToken,
