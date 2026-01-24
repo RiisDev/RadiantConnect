@@ -8,7 +8,7 @@
 		<GenerateDocumentationFile>True</GenerateDocumentationFile>
 		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Title>Radiant Connect Valorant API (UnOfficial)</Title>
-		<Version>10.4.4</Version>
+		<Version>10.5.1</Version>
 		<Authors>IrisDev</Authors>
 		<PackageProjectUrl>https://radiantconnect.ca/</PackageProjectUrl>
 		<RepositoryUrl>https://github.com/RiisDev/RadiantConnect</RepositoryUrl>
@@ -17,16 +17,13 @@
 		<PackageIcon>icon.png</PackageIcon>
 		<PackageTags>valorant;valorant api;.net;dotnet;api;xmpp;mitm;authentication;game events;tcp;pvp;socket;realtime;multiplayer;open source;csharp;c#;websocket;game development</PackageTags>
 		<LangVersion>preview</LangVersion>
-		<PackageReleaseNotes>* Fixes longest running Net Bug, MMR, Content should now work
-
-* ValorantService API Fallback
-* Riot Client Initiator modifications (internal)
+		<PackageReleaseNotes>* Change SSIDAuth to handle nullable cookies
 </PackageReleaseNotes>
 		<NeutralLanguage>en</NeutralLanguage>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<RepositoryType>git</RepositoryType>
-		<AssemblyVersion>10.4.4</AssemblyVersion>
+		<AssemblyVersion>10.5.1</AssemblyVersion>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 		<ErrorReport>none</ErrorReport>
 		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
