@@ -1,7 +1,8 @@
 ﻿using RadiantConnect.Network.LocalEndpoints.DataTypes;
 
 namespace RadiantConnect.SocketServices.InternalTcp
-{/// <summary>
+{
+	/// <summary>
 	/// Handles internal TCP events from the Valorant client, including presence updates,
 	/// currency changes, matchmaking state, scores, and other session-related events.
 	/// </summary>
@@ -11,7 +12,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		private string _matchmakingStatus = "unknown";
 		private string _queueId = "unknown";
 		private string _map = "unknown";
-		private string _gamestate = "unknown";
+		private string _gameState = "unknown";
 		private string _score = "unknown";
 
 		/// <summary>
@@ -162,57 +163,29 @@ namespace RadiantConnect.SocketServices.InternalTcp
 			OnCurrencyAdjusted?.Invoke(match.Groups[1].Value);
 		}
 
-		/// <summary>
-		/// Processes a presence update received from the Valorant client.
-		/// Parses the base64-encoded presence data and triggers events
-		/// if relevant values have changed (e.g., matchmaking status, queue, map, score).
-		/// </summary>
-		/// <param name="data">The raw TCP message containing presence information.</param>
-		public void HandlePresenceUpdate(string data)
+		[SuppressMessage("ReSharper", "InvertIf")]
+		private void HandleMatchPresenceData(JsonElement root)
 		{
-			Match match = GetPresence64().Match(data);
-			if (!match.Success) return;
-			string presence64 = match.Groups[1].Value;
-			string jsonData = presence64.FromBase64();
-
-			OnPresenceUpdated?.Invoke(jsonData);
-			
-			Debug.WriteLine(jsonData);
-
-			JsonDocument jsonDocument = JsonDocument.Parse(jsonData);
-			JsonElement root = jsonDocument.RootElement;
-			if (!root.TryGetProperty("partyState", out JsonElement partyState)) return;
+			if (!root.TryGetProperty("sessionLoopState", out JsonElement queueState)) return;
 			if (!root.TryGetProperty("queueId", out JsonElement queueId)) return;
-			if (!root.TryGetProperty("matchMap", out JsonElement matchMap)) return;
-			if (!root.TryGetProperty("sessionLoopState", out JsonElement sessionState)) return;
-			if (!root.TryGetProperty("partyOwnerMatchScoreAllyTeam", out JsonElement allyScore)) return;
-			if (!root.TryGetProperty("partyOwnerMatchScoreEnemyTeam", out JsonElement enemyScore)) return;
+			if (!root.TryGetProperty("matchMap", out JsonElement mapData)) return;
 
-			string matchmakingStatus = partyState.GetString() ?? "unknown";
+			string map = mapData.GetString() ?? "unknown";
 			string queueIdOut = queueId.GetString() ?? "unknown";
-			string map = matchMap.GetString() ?? "unknown";
-			string gameState = sessionState.GetString() ?? "unknown";
-			string score = $"{allyScore.GetInt32()} - {enemyScore.GetInt32()}";
 
-			if (map.Contains('/', StringComparison.Ordinal))
-				map = map[(map.LastIndexOf('/') + 1)..].Trim();
-
-			if (gameState != _gamestate)
-			{
-				_gamestate = gameState;
-				OnGameStateChanged?.Invoke(gameState);
-			}
-
-			if (matchmakingStatus != _matchmakingStatus)
-			{
-				_matchmakingStatus = matchmakingStatus;
-				OnQueueStateChanged?.Invoke(matchmakingStatus);
-			}
-
+			string gameState = queueState.GetString() ?? "unknown";
+			gameState = gameState == "Invalid" ? "Idle" : gameState;
+			
 			if (queueIdOut != _queueId)
 			{
 				_queueId = queueIdOut;
 				OnQueueIdChanged?.Invoke(queueIdOut);
+			}
+
+			if (gameState != _gameState)
+			{
+				_gameState = gameState;
+				OnGameStateChanged?.Invoke(gameState);
 			}
 
 			if (map != _map && gameState == "PREGAME")
@@ -220,8 +193,53 @@ namespace RadiantConnect.SocketServices.InternalTcp
 				_map = map;
 				OnMapChanged?.Invoke(map);
 			}
+		}
 
-			if (score != _score && gameState == "INGAME")
+		[SuppressMessage("ReSharper", "InvertIf")]
+		private void HandlePartyPresenceData(JsonElement root)
+		{
+			if (!root.TryGetProperty("partyState", out JsonElement matchmakingStatus)) return;
+
+			if (matchmakingStatus.GetString() != _matchmakingStatus)
+			{
+				_matchmakingStatus = matchmakingStatus.GetString() ?? "unknown";
+				OnQueueStateChanged?.Invoke(_matchmakingStatus);
+			}
+		}
+
+		/// <summary>
+		/// Processes a presence update received from the Valorant client.
+		/// Parses the base64-encoded presence data and triggers events
+		/// if relevant values have changed (e.g., matchmaking status, queue, map, score).
+		/// </summary>
+		/// <param name="data">The raw TCP message containing presence information.</param>
+		[SuppressMessage("ReSharper", "InvertIf")]
+		public void HandlePresenceUpdate(string data)
+		{
+			// We only want local player updates
+			Match puuidMatch = GetPuuid().Match(data);
+			if (!puuidMatch.Success) return;
+			string puuid = puuidMatch.Groups[1].Value;
+			if (puuid != _initiator.Client.UserId) return;
+
+			Match match = GetPresence64().Match(data);
+			if (!match.Success) return;
+			string presence64 = match.Groups[1].Value;
+			string jsonData = presence64.FromBase64();
+
+			OnPresenceUpdated?.Invoke(jsonData);
+			
+			JsonDocument jsonDocument = JsonDocument.Parse(jsonData);
+			JsonElement root = jsonDocument.RootElement;
+			if (!root.TryGetProperty("partyOwnerMatchScoreAllyTeam", out JsonElement allyScore)) return;
+			if (!root.TryGetProperty("partyOwnerMatchScoreEnemyTeam", out JsonElement enemyScore)) return;
+
+			if (root.TryGetProperty("partyPresenceData", out JsonElement partyPresence)) HandlePartyPresenceData(partyPresence);
+			if (root.TryGetProperty("matchPresenceData", out JsonElement matchPresence)) HandleMatchPresenceData(matchPresence);
+			
+			string score = $"{allyScore.GetInt32()} - {enemyScore.GetInt32()}";
+
+			if (score != _score && _gameState == "INGAME")
 			{
 				_score = score;
 				OnScoreChanged?.Invoke(score);
@@ -230,6 +248,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 
 		[GeneratedRegex("private\"\\s*:\\s*\"([^\"]+)", RegexOptions.Compiled)]
 		private static partial Regex GetPresence64();
+
+		[GeneratedRegex("puuid\"\\s*:\\s*\"([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12})", RegexOptions.Compiled)]
+		private static partial Regex GetPuuid();
 
 		[GeneratedRegex("amount\\\\\":(\\d+)", RegexOptions.Compiled)]
 		private static partial Regex GetCurrencyAmount();
