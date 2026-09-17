@@ -98,8 +98,9 @@ namespace RadiantConnect.SocketServices.InternalTcp
 		{
 			_initiator = init;
 			_socket = socket;
-			SetupVariables().Wait();
-			socket.OnNewMessage += (e) => TcpMessage(e).Wait();
+			// ponytail: constructor blocks on network I/O since it can't be async; async factory if this ever needs to run off a UI/request thread
+			SetupVariables().GetAwaiter().GetResult();
+			socket.OnNewMessage += (e) => TcpMessage(e).GetAwaiter().GetResult();
 			if (initiateSocket) socket.InitializeConnection();
 		}
 
@@ -122,7 +123,7 @@ namespace RadiantConnect.SocketServices.InternalTcp
 				{
 					_queueId = JsonDocument
 						.Parse(localPresence?.Private.FromBase64() ?? "[]").RootElement
-						.GetProperty("partyState").ToString();
+						.GetProperty("queueId").ToString();
 				}
 				catch { /**/ }
 			}

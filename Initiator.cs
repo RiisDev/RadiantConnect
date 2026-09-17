@@ -151,7 +151,8 @@ namespace RadiantConnect
 
 		private void Initialize(ValorantNet net, RSOAuth rsoAuth)
 		{
-			Client = BuildClientData(net, rsoAuth).Result;
+			// ponytail: constructor can't await; run on a threadpool thread with no captured SynchronizationContext to avoid deadlocking a UI/request thread
+			Client = Task.Run(() => BuildClientData(net, rsoAuth)).GetAwaiter().GetResult();
 
 			ExternalSystem = new InternalSystem(
 				null!,
@@ -215,7 +216,7 @@ namespace RadiantConnect
 				if (DateTime.Now - startTime > timeout)
 					throw new TimeoutException("Client did not become ready within 1 minute.");
 
-				Task.Delay(2000);
+				Thread.Sleep(2000);
 			}
 
 			ValorantService client = new ();
@@ -293,7 +294,7 @@ namespace RadiantConnect
 			ValorantService client = new();
 			ValorantNet net = new(client);
 
-			(string accessToken, string _) = net.GetAuthorizationToken().Result;
+			(string accessToken, string _) = Task.Run(() => net.GetAuthorizationToken()).GetAwaiter().GetResult();
 
 			LogService.ClientData cData = new(
 				Shard: shard,

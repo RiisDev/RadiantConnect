@@ -24,10 +24,10 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 				container.Add(new Cookie("clid", clid, "/", "auth.riotgames.com"));
 			if (!csid.IsNullOrEmpty())
 				container.Add(new Cookie("csid", csid, "/", "auth.riotgames.com"));
-			if (!asid.IsNullOrEmpty())
+			if (!tdid.IsNullOrEmpty())
 				container.Add(new Cookie("tdid", tdid, "/", "auth.riotgames.com"));
 			if (!asid.IsNullOrEmpty())
-				container.Add(new Cookie("asid", tdid, "/", "auth.riotgames.com"));
+				container.Add(new Cookie("asid", asid, "/", "auth.riotgames.com"));
 
 			HttpRequestMessage authRequest = new (HttpMethod.Get,
 				"https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid%20ban%20link%20lol_region%20lol%20summoner%20offline_access%20riot%3A%2F%2Friot.authenticator%2Fsession.auth"

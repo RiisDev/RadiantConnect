@@ -38,6 +38,8 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 		internal ClientWebSocket? Socket { get; set; } = new();
 
+		private readonly CancellationTokenSource _cts = new();
+
 		// User Variables
 		/// <summary>
 		/// Gets or sets the multi-factor authentication code used during sign-in flows that require MFA.
@@ -77,7 +79,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			}
 			catch (Exception e)
 			{
-				WebDriver.Kill(true);
+				try { WebDriver.Kill(true); } catch { /**/ }
 				throw new RadiantConnectAuthException(e.Message);
 			}
 			finally
@@ -88,9 +90,10 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 		public void Dispose()
 		{
-			Socket?.Abort();
-			Socket?.Dispose();
-			Process.GetProcessesByName(browserProcess).ToList().ForEach(x => x.Kill()); // Kill driver processes
+			try { _cts.Cancel(); } catch { /**/ }
+			try { Socket?.Abort(); } catch { /**/ }
+			try { Socket?.Dispose(); } catch { /**/ }
+			try { Process.GetProcessesByName(browserProcess).ToList().ForEach(x => x.Kill()); } catch { /**/ } // Kill driver processes
 		}
 
 		internal async Task<(string, string, string, string)> PerformSignInAsync()
@@ -109,7 +112,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 
 			DriverHandler.OnAccessTokenFound += (data) => accessTokenFound = data!;
 
-			while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5).ConfigureAwait(false);
+			while (accessTokenFound.IsNullOrEmpty()) await Task.Delay(5, _cts.Token).ConfigureAwait(false);
 
 			DriverStatus = Authentication.DriverStatus.GrabbingRequiredTokens;
 
@@ -121,7 +124,7 @@ namespace RadiantConnect.Authentication.DriverRiotAuth.Handlers
 			DriverStatus = Authentication.DriverStatus.MultiFactorRequested;
 			OnMultiFactorRequested?.Invoke();
 
-			while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500).ConfigureAwait(false); // Wait for MFA code to be set
+			while (MultiFactorCode.IsNullOrEmpty()) await Task.Delay(500, _cts.Token).ConfigureAwait(false); // Wait for MFA code to be set
 
 			MultiFactorCode = MultiFactorCode.Replace(" ", "", StringComparison.InvariantCultureIgnoreCase);
 			MultiFactorCode = MultiFactorCode.Trim();

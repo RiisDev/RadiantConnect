@@ -326,8 +326,7 @@ namespace RadiantConnect.XMPP
 					incomingStream?.Dispose();
 					incomingClient?.Dispose();
 					outgoingClient?.Dispose();
-					Dispose(); 
-					throw new RadiantConnectXMPPException($"Failed to initiate communication. {ex}");
+					Debug.WriteLine($"[ValXMPP Log] Transient client handling error, continuing to listen. {ex}");
 				}
 			}
 		}

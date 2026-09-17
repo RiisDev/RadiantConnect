@@ -26,6 +26,7 @@ namespace RadiantConnect.Utilities
 		});
 
 		internal static Dictionary<string, string> RequestHeaders = [];
+		private static readonly SemaphoreSlim RequestLock = new(1, 1);
 
 		internal static string BuildQuery(string baseUrl, string endpoint)
 		{
@@ -40,6 +41,7 @@ namespace RadiantConnect.Utilities
 
 		internal static async Task<string?> CreateRequest(HttpMethod method, string baseUrl, string endpoint, HttpContent? content = null)
 		{
+			await RequestLock.WaitAsync().ConfigureAwait(false);
 			try
 			{
 				string queryUrl = BuildQuery(baseUrl, endpoint);
@@ -75,6 +77,7 @@ namespace RadiantConnect.Utilities
 			finally
 			{
 				InternalClient.DefaultRequestHeaders.Clear();
+				RequestLock.Release();
 			}
 		}
 

@@ -48,6 +48,7 @@ namespace RadiantConnect.Network
 		public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
 		private readonly HttpClient _client = AuthUtil.BuildClient().Item1;
+		private readonly SemaphoreSlim _requestLock = new(1, 1);
 
 
 		private static System.Net.Http.HttpMethod MapHttpMethod(HttpMethod method) => method switch
@@ -115,22 +116,35 @@ namespace RadiantConnect.Network
 		/// This constructor resolves the current Valorant client version
 		/// using the RadiantConnect version API and validates compatibility.
 		/// </remarks>
-		public ValorantNet(RSOAuth rsoAuth)
+		public ValorantNet(RSOAuth rsoAuth) : this(rsoAuth, null) { }
+
+		/// <summary>
+		/// Asynchronously initializes the networking layer using an existing Riot OAuth session,
+		/// without blocking the calling thread on the version-resolution network call.
+		/// </summary>
+		/// <param name="rsoAuth">An authenticated Riot Sign-On context.</param>
+		public static async Task<ValorantNet> CreateAsync(RSOAuth rsoAuth)
+		{
+			ValorantVersionApiRoot? apiData = await InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").ConfigureAwait(false);
+			return new ValorantNet(rsoAuth, apiData);
+		}
+
+		private ValorantNet(RSOAuth rsoAuth, ValorantVersionApiRoot? preFetchedApiData)
 		{
 			AuthCodes = rsoAuth;
 			_client.Timeout = TimeSpan.FromSeconds(value: 10);
 
-			ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result;
+			ValorantVersionApiRoot? apiData = preFetchedApiData ?? FetchVersionDataSync();
 
 			if (apiData?.Data is null)
 				throw new RadiantConnectException("Failed to get Valorant version data from API");
 
 			ValorantService.Version valorantClient = new (
 				RiotClientVersion: apiData.Data.RiotClientVersion,
-				Branch: apiData.Data.Branch, 
-				BuildVersion: apiData.Data.BuildVersion, 
-				Changelist: apiData.Data.ManifestId, 
-				EngineVersion: apiData.Data.EngineVersion, 
+				Branch: apiData.Data.Branch,
+				BuildVersion: apiData.Data.BuildVersion,
+				Changelist: apiData.Data.ManifestId,
+				EngineVersion: apiData.Data.EngineVersion,
 				VanguardVersion: apiData.Data.VanguardVersion,
 				UserClientVersion: "10.0.19042.1.256.64bit",
 				UserPlatform: "ew0KCSJwbGF0Zm9ybVR5cGUiOiAiUEMiLA0KCSJwbGF0Zm9ybU9TIjogIldpbmRvd3MiLA0KCSJwbGF0Zm9ybU9TVmVyc2lvbiI6ICIxMC4wLjE5MDQyLjEuMjU2LjY0Yml0IiwNCgkicGxhdGZvcm1DaGlwc2V0IjogIlVua25vd24iDQp9"
@@ -145,6 +159,11 @@ namespace RadiantConnect.Network
 			ResetDefaultHeaders();
 		}
 
+		// ponytail: sync constructors can't await; run the fetch on a threadpool thread with no captured
+		// SynchronizationContext so blocking here can't deadlock a UI/request thread. Use CreateAsync to avoid blocking at all.
+		private static ValorantVersionApiRoot? FetchVersionDataSync() =>
+			Task.Run(() => InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest")).GetAwaiter().GetResult();
+
 		/// <summary>
 		/// Initializes the networking layer using an attached Valorant client,
 		/// or resolves version data dynamically if unavailable.
@@ -155,7 +174,28 @@ namespace RadiantConnect.Network
 		/// <exception cref="RadiantConnectException">
 		/// Thrown when version validation fails and API fallback is unavailable.
 		/// </exception>
-		public ValorantNet(ValorantService? valorantClient = null)
+		public ValorantNet(ValorantService? valorantClient = null) : this(valorantClient, null) { }
+
+		/// <summary>
+		/// Asynchronously initializes the networking layer using an attached Valorant client,
+		/// without blocking the calling thread if the version-resolution fallback needs the network.
+		/// </summary>
+		/// <param name="valorantClient">An optional Valorant client instance providing version metadata.</param>
+		public static async Task<ValorantNet> CreateAsync(ValorantService? valorantClient = null)
+		{
+			try
+			{
+				GameVersionService.ValidateVersionData(valorantClient?.ValorantClientVersion.RiotClientVersion ?? "");
+				return new ValorantNet(valorantClient, null);
+			}
+			catch
+			{
+				ValorantVersionApiRoot? apiData = await InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").ConfigureAwait(false);
+				return new ValorantNet(valorantClient, apiData);
+			}
+		}
+
+		private ValorantNet(ValorantService? valorantClient, ValorantVersionApiRoot? preFetchedApiData)
 		{
 			_client.Timeout = TimeSpan.FromSeconds(10);
 			_defaultPlatform = valorantClient?.ValorantClientVersion.UserPlatform ?? "";
@@ -168,7 +208,7 @@ namespace RadiantConnect.Network
 			}
 			catch
 			{
-				ValorantVersionApiRoot? apiData = InternalHttp.GetAsync<ValorantVersionApiRoot>("https://api.radiantconnect.ca", "/api/version/latest").Result;
+				ValorantVersionApiRoot? apiData = preFetchedApiData ?? FetchVersionDataSync();
 
 				if (apiData?.Data is null)
 					throw new RadiantConnectException("Failed to get Valorant version data from API");
@@ -187,7 +227,7 @@ namespace RadiantConnect.Network
 				_defaultClientVersion = valorantClientVersion.RiotClientVersion;
 				GameVersionService.ValidateVersionData(apiData.Data.RiotClientVersion);
 			}
-			
+
 			ResetDefaultHeaders();
 		}
 		
@@ -199,7 +239,7 @@ namespace RadiantConnect.Network
 
 			string[] fileValues = fileText.Split(':');
 
-			if (fileValues.Length < 3) return null;
+			if (fileValues.Length < 4) return null;
 
 			int authPort = int.Parse(fileValues[2], StringExtensions.CultureInfo);
 			string oAuth = fileValues[3];
@@ -324,6 +364,9 @@ namespace RadiantConnect.Network
 			int backoffDelayMs = 5000;
 			bool resetCache = false;
 
+			await _requestLock.WaitAsync().ConfigureAwait(false);
+			try
+			{
 			while (retryCount < maxRetries)
 			{
 				// Set authentication headers
@@ -356,7 +399,6 @@ namespace RadiantConnect.Network
 					case 403:
 						OnLog?.Invoke("[ValorantNet Log] Unauthorized/Forbidden, resetting cache and retrying.");
 						resetCache = true;
-						content?.Dispose();
 						break;
 					case 429:
 						OnLog?.Invoke($"[ValorantNet Log] Rate limited, waiting {backoffDelayMs / 1000} seconds before retrying.");
@@ -380,7 +422,11 @@ namespace RadiantConnect.Network
 
 			throw new RadiantConnectNetworkStatusException(
 				$"[ValorantNet Log] Failed after {maxRetries} retries. Uri:{baseUrl}{endPoint}");
-
+			}
+			finally
+			{
+				_requestLock.Release();
+			}
 		}
 
 		/// <summary>Executes an HTTP GET request and deserializes the response.</summary>

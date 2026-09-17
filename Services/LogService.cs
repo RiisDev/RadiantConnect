@@ -77,24 +77,30 @@ namespace RadiantConnect.Services
 		/// <returns>A <see cref="ClientData"/> object containing extracted log information.</returns>
 		public static ClientData GetClientData()
 		{
-			Restart:
-			string currentLogText = ReadTextFile(LogPath);
-			
-			string userId = currentLogText.ExtractValue("Logged in user changed: (.+)", 1);
-			string pdUrl = currentLogText.ExtractValue(@"https://pd\.[^\s]+\.net/", 0);
-			string glzUrl = currentLogText.ExtractValue(@"https://glz[^\s]+\.net/", 0);
-			string regionData = currentLogText.ExtractValue(@"https://pd\.([^\.]+)\.a\.pvp\.net/", 1);
-			if (!TryParse(regionData, out ClientData.ShardType region))
-				region = ClientData.ShardType.Na;
-			string sharedUrl = $"https://shared.{regionData.ToLowerInvariant()}.a.pvp.net/";
+			DateTime startTime = DateTime.Now;
+			TimeSpan timeout = TimeSpan.FromMinutes(5);
 
-			if (string.IsNullOrEmpty(userId)) goto Restart;
-			if (string.IsNullOrEmpty(pdUrl)) goto Restart;
-			if (string.IsNullOrEmpty(glzUrl)) goto Restart;
-			if (string.IsNullOrEmpty(regionData)) goto Restart;
-			if (string.IsNullOrEmpty(sharedUrl)) goto Restart;
+			while (true)
+			{
+				string currentLogText = ReadTextFile(LogPath);
 
-			return new ClientData(region, userId, pdUrl, glzUrl, sharedUrl);
+				string userId = currentLogText.ExtractValue("Logged in user changed: (.+)", 1);
+				string pdUrl = currentLogText.ExtractValue(@"https://pd\.[^\s]+\.net/", 0);
+				string glzUrl = currentLogText.ExtractValue(@"https://glz[^\s]+\.net/", 0);
+				string regionData = currentLogText.ExtractValue(@"https://pd\.([^\.]+)\.a\.pvp\.net/", 1);
+				if (!TryParse(regionData, out ClientData.ShardType region))
+					region = ClientData.ShardType.Na;
+				string sharedUrl = $"https://shared.{regionData.ToLowerInvariant()}.a.pvp.net/";
+
+				if (!string.IsNullOrEmpty(userId) && !string.IsNullOrEmpty(pdUrl) && !string.IsNullOrEmpty(glzUrl) &&
+					!string.IsNullOrEmpty(regionData) && !string.IsNullOrEmpty(sharedUrl))
+					return new ClientData(region, userId, pdUrl, glzUrl, sharedUrl);
+
+				if (DateTime.Now - startTime > timeout)
+					throw new TimeoutException("Timed out waiting for Valorant client data to appear in the log.");
+
+				Thread.Sleep(150);
+			}
 		}
 
 		[SuppressMessage("ReSharper", "FunctionNeverReturns")]
