@@ -120,17 +120,9 @@ namespace RadiantConnect.RConnect
 			/// </summary>
 			/// <param name="puuid">The unique player identifier.</param>
 			/// <returns>The Riot ID string or null if not found.</returns>
-			public async Task<string?> GetRiotIdByPuuidAsync(string puuid)
-			{
-				List<NameService>? serviceResponse = await initiator.Endpoints.PvpEndpoints.FetchNameServiceReturn(puuid).ConfigureAwait(false);
-		   
-				if (serviceResponse == null) return null;
-				if (serviceResponse.Count == 0) return null;
-
-				NameService userId = serviceResponse[0];
-
-				return $"{userId.GameName}#{userId.TagLine}";
-			}
+			[Obsolete("Method is against Riot TOS", true, DiagnosticId = "100000132045457",
+				UrlFormat = "https://www.riotgames.com/en/DevRel/valorant-api-launch?linkId={0}")]
+			public async Task<string?> GetRiotIdByPuuidAsync(string puuid) => throw new InvalidOperationException("UnAuthorized API usage");
 
 			/// <summary>
 			/// Retrieves the puuid for a player given their in-game name and tag line.

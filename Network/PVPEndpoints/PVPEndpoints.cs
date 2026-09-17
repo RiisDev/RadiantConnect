@@ -100,11 +100,8 @@ namespace RadiantConnect.Network.PVPEndpoints
 		/// </summary>
 		/// <param name="userIds">An array of user IDs to fetch name service information for.</param>
 		/// <returns>A list of <see cref="NameService"/> objects if available; otherwise, <c>null</c>.</returns>
-		public async Task<List<NameService>?> FetchNameServiceReturn(params string[] userIds)
-		{
-			StringContent jsonData = new (JsonSerializer.Serialize(userIds), MediaTypeHeaderValue.Parse("application/json"));
-			List<NameService>? namesData = await initiator.ExternalSystem.Net.PutAsync<List<NameService>>(Url, "name-service/v2/players", jsonData).ConfigureAwait(false);
-			return namesData;
-		} 
+		[Obsolete("Method is against Riot TOS", true, DiagnosticId = "100000132045457",
+			UrlFormat = "https://www.riotgames.com/en/DevRel/valorant-api-launch?linkId={0}")]
+		public async Task<List<NameService>?> FetchNameServiceReturn(params string[] userIds) => throw new InvalidOperationException("UnAuthorized API usage");
 	}
 }

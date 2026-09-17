@@ -61,30 +61,16 @@ namespace RadiantConnect.Network.PreGameEndpoints
 		/// </summary>
 		/// <param name="agent">The <see cref="ValorantTables.Agent"/> to select.</param>
 		/// <returns>The updated <see cref="PreGameMatch"/> after selection, or <c>null</c> if not in pre-game.</returns>
-		public async Task<PreGameMatch?> SelectCharacterAsync(ValorantTables.Agent agent)
-		{
-			string? matchId = await FetchPreGameMatchId().ConfigureAwait(false);
-
-			return matchId.IsNullOrEmpty()
-				? null
-				: await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url,
-					$"/pregame/v1/matches/{matchId}/select/{ValorantTables.AgentToId[agent]}").ConfigureAwait(false);
-		}
+		[Obsolete("Method is against Riot TOS", true, DiagnosticId = "100000132045457", UrlFormat = "https://www.riotgames.com/en/DevRel/valorant-api-launch?linkId={0}")]
+		public async Task<PreGameMatch?> SelectCharacterAsync(ValorantTables.Agent agent) => throw new InvalidOperationException("Non-Authorized Method");
 
 		/// <summary>
 		/// Locks the selected agent for the current player in pre-game.
 		/// </summary>
 		/// <param name="agent">The <see cref="ValorantTables.Agent"/> to lock.</param>
 		/// <returns>The updated <see cref="PreGameMatch"/> after locking, or <c>null</c> if not in pre-game.</returns>
-		public async Task<PreGameMatch?> LockCharacterAsync(ValorantTables.Agent agent)
-		{
-			string? matchId = await FetchPreGameMatchId().ConfigureAwait(false);
-
-			return matchId.IsNullOrEmpty()
-				? null
-				: await initiator.ExternalSystem.Net.PostAsync<PreGameMatch>(Url,
-					$"/pregame/v1/matches/{matchId}/lock/{ValorantTables.AgentToId[agent]}").ConfigureAwait(false);
-		}
+		[Obsolete("Method is against Riot TOS", true, DiagnosticId = "100000132045457", UrlFormat = "https://www.riotgames.com/en/DevRel/valorant-api-launch?linkId={0}")]
+		public async Task<PreGameMatch?> LockCharacterAsync(ValorantTables.Agent agent) => throw new InvalidOperationException("Non-Authorized Method");
 
 		/// <summary>
 		/// Quits the current pre-game session for the player.
