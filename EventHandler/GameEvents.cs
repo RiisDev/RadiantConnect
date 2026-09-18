@@ -124,11 +124,11 @@ namespace RadiantConnect.EventHandler
 				("LogVoteControllerComponent: Requesting new vote TimeoutVote_C",
 					(line, index) => HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, index)),
 				("LogVoteControllerComponent: Requesting new vote RemakeVoteNew_C",
-					(line, index) => HandleEvent(Vote.HandleVoteEvent, "Timeout_Called", line, index)),
+					(line, index) => HandleEvent(Vote.HandleVoteEvent, "Remake_Called", line, index)),
 
-				("LogMenuStackManager: Opening preRound",
+				("LogMenuStackManager: Opening WBP_Screen_PreRoundShopContainer_C",
 					(line, index) => HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Opened", line, index)),
-				("LogMenuStackManager: Closing preRound",
+				("LogMenuStackManager: Closing WBP_Screen_PreRoundShopContainer_C",
 					(line, index) => HandleEvent(InGame.HandleInGameEvent, "Buy_Menu_Closed", line, index)),
 				("LogNet: Warning: UNetDriver::ProcessRemoteFunction: No owning connection for actor",
 					(line, index) => HandleEvent(InGame.HandleInGameEvent, "Util_Placed", line, index)),
@@ -166,12 +166,15 @@ namespace RadiantConnect.EventHandler
 			];
 
 			string[] fileLines = logText.Split('\n');
-			for (long i = fileLines.Length - 1; i > LastLineRead; i--)
+			for (long i = LastLineRead + 1; i < fileLines.Length; i++)
 			{
 				string line = fileLines[i].Trim();
 
 				if (line.Contains("Log file closed", StringComparison.Ordinal))
+				{
+					LastLineRead = i;
 					break;
+				}
 
 				foreach ((string keyword, Action<string, long> handler) in handlers)
 				{
@@ -179,6 +182,8 @@ namespace RadiantConnect.EventHandler
 
 					handler(line, i);
 				}
+
+				LastLineRead = i;
 			}
 		}
 

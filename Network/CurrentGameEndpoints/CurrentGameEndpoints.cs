@@ -74,7 +74,7 @@ namespace RadiantConnect.Network.CurrentGameEndpoints
 
 			return matchId.IsNullOrEmpty()
 				? null
-				: await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}").ConfigureAwait(false);
+				: await initiator.ExternalSystem.Net.GetAsync<GameLoadout>(Url, $"/core-game/v1/matches/{matchId}/loadouts").ConfigureAwait(false);
 		}
 
 		/// <summary>
