@@ -355,6 +355,7 @@ namespace RadiantConnect
 			if (disposing)
 			{
 				try { ExternalSystem.LogService.Dispose(); } catch { /**/ }
+				try { ExternalSystem.Net.Dispose(); } catch { /**/ }
 				try { TcpEvents.Dispose(); } catch { /**/ }
 			}
 

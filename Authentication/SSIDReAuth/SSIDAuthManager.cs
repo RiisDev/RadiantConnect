@@ -7,16 +7,8 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 	{
 		internal static async Task<RSOAuth> Authenticate(string ssid, string? clid = "", string? csid = "", string? tdid = "", string? asid = "", WebProxy? proxy = null)
 		{
-			CookieContainer container = new();
-			HttpClientHandler handler = new()
-			{
-				AllowAutoRedirect = true,
-				CookieContainer = container,
-				AutomaticDecompression = DecompressionMethods.All,
-				ServerCertificateCustomValidationCallback = (_, _, _, _) => true,
-				Proxy = proxy
-			};
-			HttpClient client = new (handler);
+			(HttpClient client, CookieContainer container) = AuthUtil.BuildClient(proxy);
+			using HttpClient _ = client;
 
 			container.Add(new Cookie("ssid", ssid, "/", "auth.riotgames.com"));
 
@@ -29,10 +21,10 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 			if (!asid.IsNullOrEmpty())
 				container.Add(new Cookie("asid", asid, "/", "auth.riotgames.com"));
 
-			HttpRequestMessage authRequest = new (HttpMethod.Get,
+			using HttpRequestMessage authRequest = new (HttpMethod.Get,
 				"https://auth.riotgames.com/authorize?redirect_uri=https%3A%2F%2Fplayvalorant.com%2Fopt_in&client_id=play-valorant-web-prod&response_type=token%20id_token&nonce=1&scope=account%20openid%20ban%20link%20lol_region%20lol%20summoner%20offline_access%20riot%3A%2F%2Friot.authenticator%2Fsession.auth"
 			);
-			HttpResponseMessage response = await client.SendAsync(authRequest).ConfigureAwait(false);
+			using HttpResponseMessage response = await client.SendAsync(authRequest).ConfigureAwait(false);
 
 			string? validAuthUrl = response.RequestMessage?.RequestUri?.ToString();
 
@@ -59,11 +51,6 @@ namespace RadiantConnect.Authentication.SSIDReAuth
 
 			CookieCollection cookies = container.GetAllCookies();
 
-			authRequest.Dispose();
-			response.Dispose();
-			handler.Dispose();
-			client.Dispose();
-			
 			return new RSOAuth(
 				suuid,
 				ssid,

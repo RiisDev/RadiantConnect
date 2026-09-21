@@ -17,7 +17,7 @@ namespace RadiantConnect.Network
 	/// <item><description>Serializing and deserializing API payloads</description></item>
 	/// </list>
 	/// </remarks>
-	public class ValorantNet
+	public class ValorantNet : IDisposable
 	{
 		internal static string LockFilePath =
 			Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.UserProfile), "AppData", "Local",
@@ -47,8 +47,18 @@ namespace RadiantConnect.Network
 		/// </returns>
 		public static int? GetAuthPort() => GetAuth()?.AuthorizationPort;
 
-		private readonly HttpClient _client = AuthUtil.BuildClient().Item1;
+		private readonly HttpClient _client = AuthUtil.BuildClient().Client;
 		private readonly SemaphoreSlim _requestLock = new(1, 1);
+
+		/// <summary>
+		/// Releases the underlying <see cref="HttpClient"/> (and its handler) and the request lock.
+		/// </summary>
+		public void Dispose()
+		{
+			_client.Dispose();
+			_requestLock.Dispose();
+			GC.SuppressFinalize(this);
+		}
 
 
 		private static System.Net.Http.HttpMethod MapHttpMethod(HttpMethod method) => method switch

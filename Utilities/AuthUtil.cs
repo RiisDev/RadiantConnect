@@ -1,5 +1,6 @@
 ﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using System.Net.Http.Headers;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Security.Cryptography;
 
@@ -67,19 +68,26 @@ namespace RadiantConnect.Utilities
 
 		internal static string ParseIdToken(string url) => ParseUrlQuery(url, "id_token");
 
-		internal static (HttpClient, CookieContainer) BuildClient()
+		/// <summary>
+		/// Builds a new <see cref="HttpClient"/> with RadiantConnect's standard settings. Each call
+		/// gets its own client, handler, and cookie jar — call this again for isolated cookies instead
+		/// of sharing one client. Disposing the returned <see cref="HttpClient"/> also disposes its handler.
+		/// </summary>
+		/// <param name="proxy">An optional proxy to route this client's requests through.</param>
+		internal static (HttpClient Client, CookieContainer Cookies) BuildClient(WebProxy? proxy = null)
 		{
 			CookieContainer cookieContainer = new();
-			return (
-				new HttpClient(new HttpClientHandler
-				{
-					AllowAutoRedirect = true,
-					CookieContainer = cookieContainer,
-					AutomaticDecompression = DecompressionMethods.All,
-					ServerCertificateCustomValidationCallback = (_, _, _, _) => true
-				}),
-				cookieContainer
-			);
+			HttpClientHandler handler = new()
+			{
+				AllowAutoRedirect = true,
+				CookieContainer = cookieContainer,
+				AutomaticDecompression = DecompressionMethods.All,
+				CheckCertificateRevocationList = true,
+				ServerCertificateCustomValidationCallback = (message, _, _, errors) => errors == SslPolicyErrors.None || (message.RequestUri?.IsLoopback ?? false),
+				Proxy = proxy
+			};
+
+			return (new HttpClient(handler), cookieContainer);
 		}
 
 		/// <summary>
@@ -107,7 +115,7 @@ namespace RadiantConnect.Utilities
 		/// </exception>
 		public static async Task<(string pasToken, string entitlementsToken, object clientConfig, string userInfo, string rmsToken)> GetAuthTokensFromAccessToken(string accessToken)
 		{
-			using HttpClient httpClient = BuildClient().Item1;
+			using HttpClient httpClient = BuildClient().Client;
 			httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
 			httpClient.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
 
