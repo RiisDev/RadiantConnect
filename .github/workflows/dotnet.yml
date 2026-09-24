@@ -6,7 +6,8 @@ on:
       - main
     paths:
       - '**/*.csproj'
-      
+  workflow_dispatch:
+
 jobs:
   build:
     permissions:
@@ -16,7 +17,7 @@ jobs:
     
     strategy:
       matrix:
-        dotnet-version: [ '8.*' ]
+        dotnet-version: [ '10.*' ]
         
     steps:
     - name: Checkout
@@ -25,9 +26,9 @@ jobs:
         fetch-depth: 0  # Ensure full history is fetched for tags
 
     - name: Set up .NET SDK
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: '8.*'
+        dotnet-version: '10.*'
       
     - name: Restore dependencies
       run: dotnet restore RadiantConnect.csproj
@@ -39,22 +40,22 @@ jobs:
         SNK_KEY: ${{ secrets.SNK_KEY }}
 
     - name: Build the project
-      run: dotnet build RadiantConnect.csproj --configuration Release --framework net8.0
-      
+      run: dotnet build RadiantConnect.csproj --configuration Release --framework net10.0
+
     - name: Test RadiantConnect.Tests
       run: dotnet test RadiantConnect.Tests/RadiantConnect.Tests.csproj --no-restore --verbosity normal
-      
+
     - name: Publish the project
-      run: dotnet publish RadiantConnect.csproj --configuration Release --framework net8.0 --output ./bin/Release/net8.0/publish
+      run: dotnet publish RadiantConnect.csproj --configuration Release --framework net10.0 --output ./bin/Release/net10.0/publish
 
     - name: Create Artifact
       uses: actions/upload-artifact@v4
       with:
         name: published-files
-        path: ./bin/Release/net8.0/publish/
+        path: ./bin/Release/net10.0/publish/
 
     - name: Zip Artifact For Pre-Release
-      run: Compress-Archive -Path ./bin/Release/net8.0/publish* -DestinationPath ./RadiantConnect.zip
+      run: Compress-Archive -Path ./bin/Release/net10.0/publish* -DestinationPath ./RadiantConnect.zip
 
     - name: Create GitHub Pre-Release
       id: create_release
