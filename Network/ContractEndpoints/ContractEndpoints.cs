@@ -50,5 +50,23 @@ namespace RadiantConnect.Network.ContractEndpoints
 		/// forward compatibility with evolving contract schemas.
 		/// </remarks>
 		public async Task<object?> GetContractsAsync() => await initiator.ExternalSystem.Net.GetAsync<object?>(Url, $"/contracts/v1/contracts/{initiator.Client.UserId}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Activates a special (e.g. battle pass or event) contract for the current player.
+		/// </summary>
+		/// <param name="contractId">The ID of the contract to activate.</param>
+		/// <returns>
+		/// A raw contracts payload returned by the service reflecting the newly active contract,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network issues.
+		/// </exception>
+		/// <remarks>
+		/// This method intentionally returns an untyped object to allow
+		/// forward compatibility with evolving contract schemas.
+		/// </remarks>
+		public async Task<object?> ActivateContractAsync(string contractId) => await initiator.ExternalSystem.Net.PostAsync<object?>(Url, $"/contracts/v1/contracts/{initiator.Client.UserId}/special/{contractId}").ConfigureAwait(false);
 	}
 }

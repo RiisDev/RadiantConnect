@@ -82,6 +82,49 @@ namespace RadiantConnect.Network.PVPEndpoints
 		public async Task<Penalty?> FetchPenaltiesAsync() => await initiator.ExternalSystem.Net.GetAsync<Penalty>(Url, "restrictions/v3/penalties").ConfigureAwait(false);
 
 		/// <summary>
+		/// Fetches the player's active and future behavioral interventions asynchronously.
+		/// </summary>
+		/// <returns>A <see cref="PlayerInterventions"/> object if available; otherwise, <c>null</c>.</returns>
+		public async Task<PlayerInterventions?> FetchPlayerInterventionsAsync() => await initiator.ExternalSystem.Net.GetAsync<PlayerInterventions>(Url, "restrictions/v1/activeFutureInterventions").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches a signed report token for reporting a player from a specific match asynchronously.
+		/// </summary>
+		/// <param name="matchId">The ID of the match the offending player was in.</param>
+		/// <param name="offenderUserId">The ID of the player being reported.</param>
+		/// <returns>A <see cref="PlayerReportToken"/> object if available; otherwise, <c>null</c>.</returns>
+		public async Task<PlayerReportToken?> FetchPlayerReportTokenAsync(string matchId, string offenderUserId) => await initiator.ExternalSystem.Net.GetAsync<PlayerReportToken>(Url, $"restrictions/v1/playerReportToken/{matchId}/{offenderUserId}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches the current player's avoid-as-teammate list asynchronously.
+		/// </summary>
+		/// <returns>A <see cref="PlayerAvoidList"/> object if available; otherwise, <c>null</c>.</returns>
+		public async Task<PlayerAvoidList?> FetchPlayerAvoidListAsync() => await initiator.ExternalSystem.Net.GetAsync<PlayerAvoidList>(Url, "restrictions/v1/avoidList").ConfigureAwait(false);
+
+		// ponytail: match-history-query lives on a separate SGP host (not Pd/Glz/Shared), keyed by
+		// region cluster rather than shard. na/latam/br all route through usw2 per Riot's SGP layout.
+		private static string GetReplayCluster(LogService.ClientData.ShardType shard) => shard switch
+		{
+			LogService.ClientData.ShardType.Eu => "euc1",
+			LogService.ClientData.ShardType.Ap => "apse1",
+			LogService.ClientData.ShardType.Kr => "apne1",
+			_ => "usw2"
+		};
+
+		/// <summary>
+		/// Fetches downloadable match replay/summary file URLs for the given matches asynchronously.
+		/// </summary>
+		/// <param name="userId">The ID of the player whose match data is being fetched.</param>
+		/// <param name="matchIds">One or more match IDs to fetch replay info for.</param>
+		/// <returns>A <see cref="MatchReplayInfo"/> object if available; otherwise, <c>null</c>.</returns>
+		public async Task<MatchReplayInfo?> FetchMatchReplayInfoAsync(string userId, params string[] matchIds)
+		{
+			string cluster = GetReplayCluster(initiator.ExternalSystem.ClientData.Shard);
+			string query = string.Join("&", matchIds.Select(matchId => $"id={matchId}"));
+			return await initiator.ExternalSystem.Net.GetAsync<MatchReplayInfo>($"https://{cluster}.pp.sgp.pvp.net", $"match-history-query/v3/products/valorant/players/{userId}/infoTypes/REPLAY?{query}").ConfigureAwait(false);
+		}
+
+		/// <summary>
 		/// Fetches the client configuration asynchronously.
 		/// </summary>
 		/// <param name="shard">The shard type to fetch client configuration for.</param>

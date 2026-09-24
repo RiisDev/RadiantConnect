@@ -56,5 +56,85 @@ namespace RadiantConnect.Network.StoreEndpoints
 		/// or network errors.
 		/// </exception>
 		public async Task<OwnedItem?> FetchOwnedItemByTypeAsync(ValorantTables.ItemType type) => await initiator.ExternalSystem.Net.GetAsync<OwnedItem>(Url, $"/store/v1/entitlements/{initiator.Client.UserId}/{ValorantTables.ItemTypeToId[type]}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches every owned item across all item types for the authenticated player asynchronously.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="AllOwnedItems"/> instance containing all owned items grouped by type,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<AllOwnedItems?> FetchAllOwnedItemsAsync() => await initiator.ExternalSystem.Net.GetAsync<AllOwnedItems>(Url, $"/store/v1/entitlements/{initiator.Client.UserId}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Places a store order for the specified offer asynchronously.
+		/// </summary>
+		/// <param name="offerId">The ID of the offer to purchase.</param>
+		/// <returns>
+		/// An <see cref="Order"/> instance describing the created order,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<Order?> CreateOrderAsync(string offerId) => await initiator.ExternalSystem.Net.PostAsync<Order>(Url, "/store/v1/order/", JsonContent.Create(new { XID = initiator.Client.UserId, OfferID = offerId })).ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches the status and rewards of a previously placed order asynchronously.
+		/// </summary>
+		/// <param name="orderId">The ID of the order returned by <see cref="CreateOrderAsync"/>.</param>
+		/// <returns>
+		/// An <see cref="Order"/> instance describing the order, or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<Order?> FetchOrderAsync(string orderId) => await initiator.ExternalSystem.Net.GetAsync<Order>(Url, $"/store/v1/order/{orderId}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches whether the authenticated player is eligible to purchase gifts asynchronously.
+		/// </summary>
+		/// <returns>
+		/// A <see cref="GiftEligibility"/> instance describing purchaser eligibility,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<GiftEligibility?> FetchGiftPurchaserEligibilityAsync() => await initiator.ExternalSystem.Net.GetAsync<GiftEligibility>(Url, $"/store/v1/gifts/{initiator.Client.UserId}/purchasereligibility").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches whether a specific player is eligible to receive gifts from the authenticated player asynchronously.
+		/// </summary>
+		/// <param name="recipientUserId">The ID of the intended gift recipient.</param>
+		/// <returns>
+		/// A <see cref="GiftRecipientEligibility"/> instance describing recipient eligibility,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<GiftRecipientEligibility?> FetchGiftRecipientEligibilityAsync(string recipientUserId) => await initiator.ExternalSystem.Net.PostAsync<GiftRecipientEligibility>(Url, $"/store/v1/gifts/{initiator.Client.UserId}/eligibility/{recipientUserId}").ConfigureAwait(false);
+
+		/// <summary>
+		/// Fetches the current featured agent storefront asynchronously.
+		/// </summary>
+		/// <returns>
+		/// An <see cref="AgentStorefront"/> instance describing the agent store offers,
+		/// or <c>null</c> if the request fails.
+		/// </returns>
+		/// <exception cref="RadiantConnectException">
+		/// Thrown when the request cannot be completed due to authentication
+		/// or network errors.
+		/// </exception>
+		public async Task<AgentStorefront?> FetchAgentStorefrontAsync() => await initiator.ExternalSystem.Net.GetAsync<AgentStorefront>(Url, "/store/v1/storefronts/agent").ConfigureAwait(false);
 	}
 }

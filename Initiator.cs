@@ -1,12 +1,17 @@
 ﻿using RadiantConnect.Authentication.DriverRiotAuth.Records;
 using RadiantConnect.EventHandler;
 using RadiantConnect.Network;
+using RadiantConnect.Network.ActivitiesEndpoints;
 using RadiantConnect.Network.ChatEndpoints;
 using RadiantConnect.Network.ContractEndpoints;
 using RadiantConnect.Network.CurrentGameEndpoints;
+using RadiantConnect.Network.EsportsEndpoints;
+using RadiantConnect.Network.GoldstarsEndpoints;
 using RadiantConnect.Network.LocalEndpoints;
+using RadiantConnect.Network.MailboxEndpoints;
 using RadiantConnect.Network.PartyEndpoints;
 using RadiantConnect.Network.PreGameEndpoints;
+using RadiantConnect.Network.PremierEndpoints;
 using RadiantConnect.Network.PVPEndpoints;
 using RadiantConnect.Network.StoreEndpoints;
 using RadiantConnect.Services;
@@ -65,6 +70,21 @@ namespace RadiantConnect
 	/// <param name="StoreEndpoints">
 	/// Endpoints related to in-game store and purchases.
 	/// </param>
+	/// <param name="PremierEndpoints">
+	/// Endpoints related to Premier seasons, rosters, and conferences.
+	/// </param>
+	/// <param name="EsportsEndpoints">
+	/// Endpoints related to esports match schedules and results.
+	/// </param>
+	/// <param name="MailboxEndpoints">
+	/// Endpoints related to the player's in-game mailbox.
+	/// </param>
+	/// <param name="GoldstarsEndpoints">
+	/// Endpoints related to goldstar (commendation) data.
+	/// </param>
+	/// <param name="ActivitiesEndpoints">
+	/// Endpoints related to party activities and shared join links.
+	/// </param>
 	public record Endpoints(
 		ChatEndpoints ChatEndpoints,
 		ContractEndpoints ContractEndpoints,
@@ -73,7 +93,12 @@ namespace RadiantConnect
 		PartyEndpoints PartyEndpoints,
 		PreGameEndpoints PreGameEndpoints,
 		PVPEndpoints PvpEndpoints,
-		StoreEndpoints StoreEndpoints
+		StoreEndpoints StoreEndpoints,
+		PremierEndpoints PremierEndpoints,
+		EsportsEndpoints EsportsEndpoints,
+		MailboxEndpoints MailboxEndpoints,
+		GoldstarsEndpoints GoldstarsEndpoints,
+		ActivitiesEndpoints ActivitiesEndpoints
 	);
 
 	internal record GeoAffinities(
@@ -169,7 +194,12 @@ namespace RadiantConnect
 				new PartyEndpoints(this),
 				new PreGameEndpoints(this),
 				new PVPEndpoints(this),
-				new StoreEndpoints(this)
+				new StoreEndpoints(this),
+				new PremierEndpoints(this),
+				new EsportsEndpoints(this),
+				new MailboxEndpoints(this),
+				new GoldstarsEndpoints(this),
+				new ActivitiesEndpoints(this)
 			);
 		}
 
@@ -252,7 +282,12 @@ namespace RadiantConnect
 				new PartyEndpoints(this),
 				new PreGameEndpoints(this),
 				new PVPEndpoints(this),
-				new StoreEndpoints(this)
+				new StoreEndpoints(this),
+				new PremierEndpoints(this),
+				new EsportsEndpoints(this),
+				new MailboxEndpoints(this),
+				new GoldstarsEndpoints(this),
+				new ActivitiesEndpoints(this)
 			);
 
 			TcpEvents = new TcpEvents(this, new ValSocket(this, false), true);
@@ -329,7 +364,12 @@ namespace RadiantConnect
 				new PartyEndpoints(this),
 				new PreGameEndpoints(this),
 				new PVPEndpoints(this),
-				new StoreEndpoints(this)
+				new StoreEndpoints(this),
+				new PremierEndpoints(this),
+				new EsportsEndpoints(this),
+				new MailboxEndpoints(this),
+				new GoldstarsEndpoints(this),
+				new ActivitiesEndpoints(this)
 			);
 		}
 

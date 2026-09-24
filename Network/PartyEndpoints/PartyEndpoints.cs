@@ -276,10 +276,57 @@ namespace RadiantConnect.Network.PartyEndpoints
 		/// </summary>
 		public async Task KickFromPartyAsync(string userId) => await initiator.ExternalSystem.Net.DeleteAsync(Url, $"parties/v1/players/{userId}").ConfigureAwait(false);
 
-		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
 		internal async Task<Party?> RequestPartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync().ConfigureAwait(false)}/request").ConfigureAwait(false);
 
-		// TODO WORK ON REQUEST PARTY AND DECLINE PARTY
-		internal async Task<Party?> DeclinePartyAsync() => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync().ConfigureAwait(false)}/request").ConfigureAwait(false);
+		/// <summary>
+		/// Declines a pending join request for the current party.
+		/// </summary>
+		/// <param name="requestId">The ID of the join request to decline.</param>
+		internal async Task<Party?> DeclinePartyAsync(string requestId) => await initiator.ExternalSystem.Net.PostAsync<Party>(Url, $"parties/v1/parties/{await FetchPartyIdAsync().ConfigureAwait(false)}/request/{requestId}/decline").ConfigureAwait(false);
+
+		/// <summary>
+		/// Starts a solo (non-multiplayer) experience such as the shooting range or bot training.
+		/// </summary>
+		/// <param name="gameType">The type of solo experience to start.</param>
+		/// <param name="module">An optional module identifier, empty for most game types.</param>
+		public async Task<PartyPlayer?> StartSoloExperienceAsync(SoloExperienceType gameType, string module = "")
+		{
+			JsonContent jsonContent = JsonContent.Create(new { gameType = gameType.ToString(), module });
+
+			return await initiator.ExternalSystem.Net
+				.PostAsync<PartyPlayer>(Url, $"parties/v1/players/{initiator.Client.UserId}/startsoloexperience", jsonContent).ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Disables (clears) the current party's invite code.
+		/// </summary>
+		public async Task<Party?> DisablePartyCodeAsync()
+		{
+			string? partyId = await FetchPartyIdAsync().ConfigureAwait(false);
+
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.DeleteAsync<Party>(Url, $"parties/v1/parties/{partyId}/invitecode").ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Generates a new invite code for the current party.
+		/// </summary>
+		public async Task<Party?> GeneratePartyCodeAsync()
+		{
+			string? partyId = await FetchPartyIdAsync().ConfigureAwait(false);
+
+			return partyId.IsNullOrEmpty()
+				? null
+				: await initiator.ExternalSystem.Net
+					.PostAsync<Party>(Url, $"parties/v1/parties/{partyId}/invitecode").ConfigureAwait(false);
+		}
+
+		/// <summary>
+		/// Joins a party using its invite code.
+		/// </summary>
+		/// <param name="code">The invite code of the party to join.</param>
+		public async Task<PartyPlayer?> JoinPartyByCodeAsync(string code) => await initiator.ExternalSystem.Net.PostAsync<PartyPlayer>(Url, $"parties/v1/players/joinbycode/{code}").ConfigureAwait(false);
 	}
 }

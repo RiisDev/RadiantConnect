@@ -197,6 +197,48 @@ namespace RadiantConnect.Methods
 		}
 
 		/// <summary>
+		/// Represents the different goldstar accolades a player can earn.
+		/// </summary>
+		public enum Accolade
+		{
+			/// <summary>Damage per round (ADR).</summary>
+			Damage,
+
+			/// <summary>Headshot percentage of the match.</summary>
+			HeadshotPercentage,
+
+			/// <summary>Kills.</summary>
+			Kills,
+
+			/// <summary>Top fragger of the match.</summary>
+			TopFrag,
+
+			/// <summary>Assists.</summary>
+			Assists,
+
+			/// <summary>Spike plants.</summary>
+			Plants,
+
+			/// <summary>First kills.</summary>
+			FirstBlood,
+
+			/// <summary>Aces.</summary>
+			Aces,
+
+			/// <summary>Clutches of 1v2 and higher.</summary>
+			Clutches,
+
+			/// <summary>Trade kills.</summary>
+			Trades,
+
+			/// <summary>Match MVP.</summary>
+			MVP,
+
+			/// <summary>Similar to MVP, awarded to those above ~420 rating.</summary>
+			Distinction
+		}
+
+		/// <summary>
 		/// Maps currency IDs to human-readable currency names.
 		/// </summary>
 		public static readonly IReadOnlyDictionary<string, string> CurrencyIdToCurrency = new Dictionary<string, string>()
@@ -204,7 +246,7 @@ namespace RadiantConnect.Methods
 			{ "85ad13f7-3d1b-5128-9eb2-7cd8ee0b5741", "Valorant Points" },
 			{ "85ca954a-41f2-ce94-9b45-8ca3dd39a00d", "Kingdom Credits" },
 			{ "e59aa87c-4cbf-517a-5983-6e81511be9b7", "Radianite Points" },
-			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Free Agents" },
+			{ "f08d4ae3-939c-4576-ab26-09ce1f23bb37", "Agent Tokens" },
 		};
 
 		/// <summary>
@@ -250,7 +292,21 @@ namespace RadiantConnect.Methods
 			{ "ee613ee9-28b7-4beb-9666-08db13bb2244", "The Range" },
 			{ "fd267378-4d1d-484f-ff52-77821ed10dc2", "Pearl" },
 			{ "1c18ab1f-420d-0d8b-71d0-77ad3c439115", "Corrode" },
+			{ "756da597-416b-c0f2-f47b-afbdf28670bc", "Summit" },
+			{ "dd3a1cd9-41b1-50ea-3bd6-a7bb3c5978bd", "Gauntlet" },
+			{ "a9009649-421f-d5d5-f80c-0cbe02c125bb", "Skirmish A" },
+			{ "a38a3f9a-4042-844c-8970-a3ac2f7ce93d", "Skirmish B" },
+			{ "a264de0f-4a04-9c78-c97a-a6b192ce6e86", "Skirmish C" },
+			{ "1c7555fc-4bc6-3b98-9674-789d47ef6c50", "Skirmish D" },
+			{ "4490f1d6-4818-bf5f-9b3a-9c9a8dbb52ed", "Skirmish E" },
 			{ "Rook", "Corrode" },
+			{ "Plummet", "Summit" },
+			{ "AbilityDraft", "Gauntlet" },
+			{ "Skirmish_A", "Skirmish A" },
+			{ "Skirmish_B", "Skirmish B" },
+			{ "Skirmish_C", "Skirmish C" },
+			{ "Skirmish_D", "Skirmish D" },
+			{ "Skirmish_E", "Skirmish E" },
 			{ "Ascent", "Ascent" },
 			{ "Bonsai", "Split" },
 			{ "Canyon", "Fracture" },
@@ -283,6 +339,7 @@ namespace RadiantConnect.Methods
 			{ "63e6c2b6-4a8e-869c-3d4c-e38355226584", "Odin" },
 			{ "55d8a0f4-4274-ca67-fe2c-06ab45efdf58", "Ares" },
 			{ "9c82e19d-4575-0200-1a81-3eacf00cf872", "Vandal" },
+			{ "8db0a1bf-4a50-832a-4566-faaaa6d250ca", "Warden" },
 			{ "ae3de142-4d85-2547-dd26-4e90bed35cf7", "Bulldog" },
 			{ "ee8e8d15-496b-07ac-e5f6-8fae5d4c7b1a", "Phantom" },
 			{ "ec845bf4-4f79-ddda-a3da-0db3774b2794", "Judge" },
@@ -298,7 +355,7 @@ namespace RadiantConnect.Methods
 			{ "c4883e50-4494-202c-3ec3-6b8a9284f00b", "Marshal" },
 			{ "462080d1-4035-2937-7c09-27aa2a5c27a7", "Spectre" },
 			{ "f7e1b454-4ad4-1063-ec0a-159e56b58941", "Stinger" },
-			{ "410B2E0B-4CEB-1321-1727-20858F7F3477", "Bandit" }
+			{ "410b2e0b-4ceb-1321-1727-20858f7f3477", "Bandit" }
 		};
 
 		/// <summary>
@@ -425,6 +482,25 @@ namespace RadiantConnect.Methods
 			{ "custom", "Custom"},
 			{ "snowball", "Snowball Fight"},
 			{ "", "Custom"}
+		};
+
+		/// <summary>
+		/// Maps internal goldstar accolade IDs to their <see cref="Accolade"/> value.
+		/// </summary>
+		public static readonly IReadOnlyDictionary<string, Accolade> AccoladeIdToAccolade = new Dictionary<string, Accolade>()
+		{
+			{ "6dc31cfd-41da-895f-9246-a8b63558cdb8", Accolade.Damage },
+			{ "2c8b6129-4384-230d-c7e5-cda12019533c", Accolade.HeadshotPercentage },
+			{ "1b13755f-4d5a-2c9e-6a39-bea7e6c53e7f", Accolade.Kills },
+			{ "1c926cba-48cb-8aeb-c68d-a1ba2d012784", Accolade.TopFrag },
+			{ "e43f9acb-448c-4aa1-1591-6db72c0b8dae", Accolade.Assists },
+			{ "352a3ac8-4b2c-db6a-1f36-c0a67b428e65", Accolade.Plants },
+			{ "bfe96c47-44d0-e473-585d-749146d2d05e", Accolade.FirstBlood },
+			{ "244cf4ab-4c27-cc59-3323-c985858d6ddb", Accolade.Aces },
+			{ "0497d585-42ad-61a7-42bc-189571f40e2c", Accolade.Clutches },
+			{ "3bc0563a-4fe9-a15c-0078-23a3408d64b5", Accolade.Trades },
+			{ "745b27f0-4bc2-13a4-4ee7-77be323155c2", Accolade.MVP },
+			{ "4815a8a2-4649-9bfe-afd2-38ae9cc22898", Accolade.Distinction }
 		};
 	}
 }
